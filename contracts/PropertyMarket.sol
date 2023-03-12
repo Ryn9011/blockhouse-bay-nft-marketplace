@@ -21,9 +21,9 @@ contract PropertyMarket is ReentrancyGuard {
 
     uint256 maxProperties = 1000;
     address payable govt;    
-    uint256 public depositRequired = 3 ether;
+    uint256 public depositRequired = 5 ether;
     uint256 public defaultRentPrice = 5 ether; //needed?
-    uint256 public listingPrice = 0.025 ether;
+    uint256 public listingPrice = 5 ether;
     uint256 public initialSalePrice = 100 ether;  
     uint256 initialTokenPrice = 2000 ether;
     uint256 initalExclusivePrice = 50000 ether; //need function to sell tokens to other players
@@ -31,6 +31,7 @@ contract PropertyMarket is ReentrancyGuard {
     uint256 tokenMaxSupply = 10000000 ether;
     uint256 weiToEth = 1000000000000000000;
     uint256 twoDaysSeconds = 172800;
+    uint256 totalDepositBal = 0;
 
     PropertyToken public tokenContractAddress;
 
@@ -57,7 +58,7 @@ contract PropertyMarket is ReentrancyGuard {
         bool roomTwoRented;
         bool roomThreeRented;  
         bool isExclusive;    
-        uint256 maxTennants;   //needed?       
+        uint256 maxTennants;   //needed?               
     }
 
     mapping(uint256 => address[3]) propertyToRenters;
@@ -200,28 +201,33 @@ contract PropertyMarket is ReentrancyGuard {
     //initial sale from after mint
     function createPropertyListing(
         address nftContract,
-        uint256 tokenId          
+        uint256[] memory tokenIds       
     ) public payable onlyGovt nonReentrant {               
-        require(msg.value == listingPrice, "Please submit the exact listing fee to create a listing");
+        //require(msg.value == listingPrice, "Please submit the exact listing fee to create a listing");
 
-        _propertyIds.increment();
-        uint256 itemId = _propertyIds.current();
-        Property storage listing = idToProperty[itemId];
-        
-        listing.propertyId = itemId;
-        listing.nftContract = nftContract;
-        listing.tokenId = tokenId;
-        listing.salePrice = initialSalePrice;
-        listing.rentPrice = defaultRentPrice;
-        listing.seller = payable(msg.sender);
-        listing.owner = payable(address(0));
-        listing.isForSale = true;  
-        listing.tokenSalePrice = initialTokenPrice;
-        idToProperty[itemId] = listing;        
+        uint256 listingCount = tokenIds.length;
 
-        payable(govt).transfer(listingPrice); //do this way elsewhere?
-                              
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);        
+        for (uint256 i = 0; i < listingCount; i++) {
+            uint256 tokenId = tokenIds[i];
+            _propertyIds.increment();
+            uint256 itemId = _propertyIds.current();
+            Property storage listing = idToProperty[itemId];
+            
+            listing.propertyId = itemId;
+            listing.nftContract = nftContract;
+            listing.tokenId = tokenId;
+            listing.salePrice = initialSalePrice;
+            listing.rentPrice = defaultRentPrice;
+            listing.seller = payable(msg.sender);
+            listing.owner = payable(address(0));
+            listing.isForSale = true;  
+            listing.tokenSalePrice = initialTokenPrice;
+            idToProperty[itemId] = listing;        
+
+            //payable(govt).transfer(listingPrice); //do this way elsewhere?
+                                
+            IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);   
+        }     
     }    
 
     function createPropertySale(
@@ -382,7 +388,8 @@ contract PropertyMarket is ReentrancyGuard {
                 _propertiesRented.increment();                                
                 tennants[msg.sender][i] = propertyId;                              
                 //tenantNotUpToDate[msg.sender][propertyId] = true;
-                renterDepositBalance[msg.sender] += msg.value;                      
+                renterDepositBalance[msg.sender] += msg.value;   
+                totalDepositBal += msg.value;             
 
                 if (availableRoom == 1) {
                     idToProperty[propertyId].roomOneRented = true;
@@ -424,6 +431,7 @@ contract PropertyMarket is ReentrancyGuard {
                     idToProperty[propertyId].roomThreeRented = false;
                 }
                 payable(msg.sender).transfer(depositRequired); //withdraw from contract
+                totalDepositBal -= depositRequired;
                 //emit RefundDeposit(msg.sender);
                 break;
             }
@@ -440,6 +448,7 @@ contract PropertyMarket is ReentrancyGuard {
         for (uint i = 0; i < 3; i++) {
             if (tennants[sender][i] == propertyId) {
                 payable(sender).transfer(depositRequired); //withdraw from contract
+                totalDepositBal -= depositRequired;
                 tennants[sender][i] = 0;
                 // if (propertyToRenters[propertyId][i] == sender) {
                 //     propertyToRenters[propertyId][i] = address(0);    
@@ -564,7 +573,13 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function withdrawPropertyTax() onlyGovt nonReentrant external {
-        govt.transfer(address(this).balance);
+        // this needs to withdraw total bal - deposits
+        // the way this will need to work is when depsoit is paid, it will add to a total deposit amount for contract
+        // then dedutcted from when a user vacates.
+
+        uint256 bal = address(this).balance - totalDepositBal;
+        govt.transfer(bal);
     }    
+    
     //x amount of tokens can either buy an unsold property or unlock a rare property     
 }

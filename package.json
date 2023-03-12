@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@bundlr-network/client": "^0.8.9",
+    "@emotion/core": "^11.0.0",
+    "@emotion/react": "^11.10.5",
+    "@emotion/styled": "^11.10.5",
+    "@material-ui/core": "^4.12.4",
+    "@material-ui/icons": "^4.11.3",
+    "@mui/icons-material": "^5.11.0",
+    "@mui/material": "^5.11.7",
     "@nomiclabs/hardhat-ethers": "^2.0.4",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "^4.5.0",
@@ -10,26 +18,34 @@
     "@testing-library/react": "^12.0.0",
     "@testing-library/user-event": "^13.2.1",
     "abdk-libraries-solidity": "^3.0.0",
+    "autoprefixer": "^10.4.12",
     "axios": "^0.24.0",
+    "browserify-zlib": "^0.2.0",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.4",
-    "react-icons": "^4.3.1",
+    "flowbite": "^1.6.3",
+    "flowbite-react": "^0.1.10",
     "hardhat": "^2.8.2",
     "ipfs-http-client": "^55.0.0",
+    "path": "npm:zlib-browserify@^0.0.3",
+    "postcss": "^8.4.18",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-icons": "^4.3.1",
     "react-router-dom": "^6.2.1",
-    "react-scripts": "5.0.0",
+    "react-scripts": "^5.0.1",
     "solc": "^0.8.12",
+    "tailwindcss": "^3.2.1",
     "watch": "^1.0.2",
+    "web-vitals": "^2.1.4",
     "web3modal": "^1.9.4",
-    "web-vitals": "^2.1.4"
+    "zlib": "^1.0.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -51,8 +67,18 @@
     ]
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.4",
-    "postcss": "^8.4.12",
-    "tailwindcss": "^3.0.23"
+    "assert": "^2.0.0",
+    "autoprefixer": "^10.4.12",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.0",
+    "https-browserify": "^1.0.0",
+    "os-browserify": "^0.3.0",
+    "postcss": "^8.4.18",
+    "process": "^0.11.10",
+    "react-app-rewired": "^2.2.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "tailwindcss": "^3.2.1",
+    "url": "^0.11.0"
   }
 }

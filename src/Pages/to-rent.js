@@ -1,6 +1,6 @@
 import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
-import axios from 'axios'
+import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 
 import {
@@ -39,7 +39,20 @@ const ToRent = () => {
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
-      const meta = await axios.get(tokenUri)
+
+      const nftTagHelper = new NftTagHelper()
+      const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
+      
+      const tags = await nftTagHelper.getNftTags(arweaveId)
+    
+      const nameTags = tags.data.transactions.edges[0].node.tags[0]
+     
+      let nftName
+
+      if (nameTags['name'] === "Application") {
+        nftName = nameTags['value']
+      }
+      
       let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
       let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
       let depositHex = await marketContract.depositRequired()
@@ -51,9 +64,9 @@ const ToRent = () => {
         propertyId: i.propertyId.toNumber(),
         seller: i.seller,
         owner: i.owner,
-        image: meta.data.image,
-        name: meta.data.name,
-        description: meta.data.description,
+        image: tokenUri,
+        name: nftName,
+        description: '',
         roomOneRented: i.roomOneRented,
         roomTwoRented: i.roomTwoRented,
         roomThreeRented: i.roomThreeRented,
@@ -157,7 +170,8 @@ const ToRent = () => {
 
                           className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
                         >
-                          {property.name}
+                          {/* {property.name} */}
+                          4293 Carriage Court
                         </p>
                         <div style={{ overflow: "hidden" }}>
                           <div className="flex flex-col pb-4">

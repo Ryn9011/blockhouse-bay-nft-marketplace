@@ -3,6 +3,7 @@ const plugin = require('tailwindcss/plugin')
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
+    'node_modules/flowbite-react/**/*.{js,jsx,ts,tsx}'
   ],
   theme: {
     extend: {
@@ -10,10 +11,17 @@ module.exports = {
         'polygon-purple': '#8247e5',
         'matic-blue' : '#2bbdf7',
         'btn-silver': '#C0C0C0'
-      }
+      },
+      screens: {
+        xs: "390px", 
+        xs2: "414px",
+        xl3: "2000px"      
+      },
+  
     },
   },
   plugins: [
+    require('flowbite/plugin'),
     plugin(function({ matchUtilities, theme }) {
       matchUtilities(
           {

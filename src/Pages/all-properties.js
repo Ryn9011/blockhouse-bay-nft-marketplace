@@ -1,7 +1,7 @@
 import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import axios from 'axios'
-import Web3Modal from 'web3modal'
+import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 
 import {
   nftaddress, nftmarketaddress
@@ -28,6 +28,21 @@ const AllProperties = () => {
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
+
+      const nftTagHelper = new NftTagHelper()
+      const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
+      
+      const tags = await nftTagHelper.getNftTags(arweaveId)
+    
+      const nameTags = tags.data.transactions.edges[0].node.tags[0]
+
+      let nftName
+
+      if (nameTags['name'] === "Application") {
+        nftName = nameTags['value']
+      }
+      
+
       const meta = await axios.get(tokenUri)
       let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
       let depositHex = await marketContract.depositRequired()
@@ -39,8 +54,8 @@ const AllProperties = () => {
         propertyId: i.propertyId.toNumber(),
         seller: i.seller,
         owner: i.owner,
-        image: meta.data.image,
-        name: meta.data.name,
+        image: tokenUri,
+        name: nftName,
         description: meta.data.description,
         roomOneRented: i.roomOneRented,
         roomTwoRented: i.roomTwoRented,

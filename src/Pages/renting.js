@@ -1,6 +1,6 @@
 import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
-import axios from 'axios'
+import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
@@ -46,7 +46,20 @@ const Renting = () => {
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
-      const meta = await axios.get(tokenUri)
+
+      const nftTagHelper = new NftTagHelper()
+      const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
+      
+      const tags = await nftTagHelper.getNftTags(arweaveId)
+    
+      const nameTags = tags.data.transactions.edges[0].node.tags[0]
+     
+      let nftName
+
+      if (nameTags['name'] === "Application") {
+        nftName = nameTags['value']
+      }
+
       setRentAmount(i.rentPrice)
       let price = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
       let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
@@ -56,10 +69,10 @@ const Renting = () => {
         propertyId: i.propertyId.toNumber(),
         seller: i.seller,
         owner: i.owner,
-        image: meta.data.image,
-        name: meta.data.name,
+        image: tokenUri,
+        name: nftName,
         rentPrice: rentPrice,
-        description: meta.data.description,
+        description:"",
       }
 
       if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
@@ -183,7 +196,8 @@ const Renting = () => {
                         style={{ height: "64px" }}
                         className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
                       >
-                        {property.name}
+                        {/* {property.name} */}
+                        4293 Carriage Court
                       </p>
                       <div className="flex">
                         <p >Rent Price:</p>

@@ -1,6 +1,6 @@
 import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
-import axios from 'axios'
+import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 
 import Market from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
@@ -55,7 +55,21 @@ const Owned = () => {
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
-      const meta = await axios.get(tokenUri)
+      //const meta = await axios.get(tokenUri)
+
+      const nftTagHelper = new NftTagHelper()
+      const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
+      
+      const tags = await nftTagHelper.getNftTags(arweaveId)
+    
+      const nameTags = tags.data.transactions.edges[0].node.tags[0]
+     
+      let nftName
+
+      if (nameTags['name'] === "Application") {
+        nftName = nameTags['value']
+      }
+
       let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
       let rentPrice = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')         
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
@@ -67,8 +81,8 @@ const Owned = () => {
         tokenId: i.tokenId.toNumber(),
         seller: i.seller,
         owner: i.owner,
-        image: meta.data.image,
-        name: meta.data.name,
+        image: tokenUri,
+        name: nftName,
         rentPrice: rentPrice,
         roomOneRented: i.roomOneRented,
         roomTwoRented: i.roomTwoRented,
@@ -456,7 +470,7 @@ const Owned = () => {
     </div>
   )
 
-  if (loadingState2 === 'loaded' && !nfts.length) return (<h1 className="py-10 px-20 text-3xl">No assets owned</h1>)
+  if (loadingState   === 'loaded' && !nfts.length) return (<h1 className="py-10 px-20 text-3xl">No assets owned</h1>)
     // {await getLogData()}
   return (   
     <div className="pt-10 pb-10">
