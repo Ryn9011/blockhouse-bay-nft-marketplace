@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from 'react'
+import { React, useEffect, useState, useMemo } from 'react'
 import { ethers } from 'ethers'
 import axios from 'axios'
 import Web3Modal from 'web3modal'
@@ -11,67 +11,96 @@ import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToken.json'
 import Pagination from '../Pagination'
+import GetPropertyNames from '../getPropertyName'
 
-const Exclusive = () => {
-
-  const [nfts, setNfts] = useState([])
+const Exclusive = () => {  
+  const [properties, setProperties] = useState([]);
   const [loadingState, setLoadingState] = useState('not-loaded')
   const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(1);
+  const [postsPerPage] = useState(50);
+  const [currentPosts, setCurrentPosts] = useState([]);
+  const [numForSale, setNumForSale] = useState();
 
   // Get current posts
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = nfts.slice(indexOfFirstPost, indexOfLastPost);
 
+  
   useEffect(() => {
-    const loadProperties = async () => {
-      const provider = new ethers.providers.JsonRpcProvider()
-      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
-      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
-      const data = await marketContract.fetchPropertiesForSale()
-  
-      const items = await Promise.all(data.map(async i => {
-        const tokenUri = await tokenContract.tokenURI(i.tokenId)
-        const meta = await axios.get(tokenUri)
-        let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-        let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
-        const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
-        let item = {
-          price,
-          propertyId: i.propertyId.toNumber(),
-          seller: i.seller,
-          owner: i.owner,
-          image: meta.data.image,
-          name: meta.data.name,
-          description: meta.data.description,
-          roomOneRented: i.roomOneRented,
-          roomTwoRented: i.roomTwoRented,
-          roomThreeRented: i.roomThreeRented,
-          roomsToRent: 0,
-          tokenSalePrice: tokenSalePriceFormatted,
-          renterAddresses: renterAddresses
-  
-        }
-        if (item.roomOneRented == true) {
-          item.roomsToRent++
-        }
-        if (item.roomTwoRented == true) {
-          item.roomsToRent++
-        }
-        if (item.roomThreeRented == true) {
-          item.roomsToRent++
-        }
-        return item
-      }))
-      setNfts(items)
-      setLoadingState('loaded')
-    }
-
-    loadProperties()
+    loadProperties(currentPage)
   }, [])
 
-  
+  const loadNextPage = () => {
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;    
+    var current = properties.slice(indexOfFirstPost, indexOfLastPost);
+    setCurrentPosts(current)
+  }
+
+  useMemo(() => {
+    loadNextPage(currentPage)
+  }, [currentPage])
+
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber)    
+  };
+
+  const loadProperties = async () => {
+    const provider = new ethers.providers.JsonRpcProvider()
+    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
+    const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
+    const data = await marketContract.fetchExclusiveProperties();
+    
+    const items = await Promise.all(data.map(async i => {
+      const tokenUri = await tokenContract.tokenURI(i.tokenId)
+      
+      const meta = await axios.get(tokenUri)
+      let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
+
+      let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
+      const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+      let nftName = GetPropertyNames(meta, i.propertyId)
+
+      let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
+
+      let item = {
+        price,
+        propertyId: i.propertyId.toNumber(),
+        seller: i.seller,
+        owner: owner,
+        image: tokenUri,
+        name: nftName,
+        description: meta.data.description,
+        roomOneRented: i.roomOneRented,
+        roomTwoRented: i.roomTwoRented,
+        roomThreeRented: i.roomThreeRented,
+        roomsToRent: 0,
+        tokenSalePrice: tokenSalePriceFormatted,
+        renterAddresses: renterAddresses
+      }
+      if (item.roomOneRented == true) {
+        item.roomsToRent++
+      }
+      if (item.roomTwoRented == true) {
+        item.roomsToRent++
+      }
+      if (item.roomThreeRented == true) {
+        item.roomsToRent++
+      }
+      return item
+    }))
+    console.log(items)
+    items.sort((a, b) => {
+      const regex = /^\d+/; // regular expression to match the beginning number
+      const aNumber = (a.name && a.name.match(regex)) ? parseInt(a.name.match(regex)[0]) : 0;
+      const bNumber = (b.name && b.name.match(regex)) ? parseInt(b.name.match(regex)[0]) : 0;
+      return aNumber - bNumber; // compare the numbers and return the result
+    });
+    
+    console.log(items);
+
+    setProperties(items)
+    setCurrentPosts(items)
+    setLoadingState('loaded')
+  }
 
   const buyProperty = async (nft, i) => {
     const web3Modal = new Web3Modal()
@@ -121,7 +150,7 @@ const Exclusive = () => {
     //loadProperties() need to refactor in useeffect?
   }
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
 
   if (loadingState !== 'loaded') return (
     <div className="flex px-12">
@@ -133,7 +162,7 @@ const Exclusive = () => {
     </div>
   )
 
-  if (loadingState === 'loaded' && !nfts.length) return (
+  if (loadingState === 'loaded' && !currentPosts.length) return (
     <h1 className="px-20 py-10 text-3xl">No properties currently for sale</h1>
   )
 
@@ -142,15 +171,18 @@ const Exclusive = () => {
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4" style={{ maxWidth: "1600px" }}>
-          <h1 className="text-white mb-5">Exclusive Properties</h1>
+          <h1 className="text-white mb-5">Blockhouse Bay Gardens</h1>
           <div className="flex text-white pl-4 mb-6">
-            <h5>Exclusive properties are limited to only 50 and can be purchased only with POG </h5>
+            <p>Blockhouse Bay Gardens, an exclusive street of grand and stunning homes, is a paradise of luxurious living. From impressive architecture to immaculate gardens, each house is a masterpiece of sophistication, offering an unparalleled lifestyle in one of the bay's most beautiful settings.</p>
+            
             <div className="pb-2">
+              
             </div>
           </div>
+          <h5 className='text-white mb-4'>These exlusive properties are limited to only 50 and can be purchased only with BHB tokens</h5>
           <Pagination
             postsPerPage={postsPerPage}
-            totalPosts={nfts.length}
+            totalPosts={50}
             paginate={paginate}
             currentPage={currentPage}
           />
@@ -161,34 +193,25 @@ const Exclusive = () => {
                     key={property.propertyId}
                     className="border-2 border-double border-yellow-200 shadow-2xl shadow-yellow-400 rounded-md overflow-hidden bg-gradient-to-r from-fuchsia-500 to-black"
                   >
-                    <img   src="./mansion.png" alt="" />
+                    <img className='w-fit h-fit' src={property.image} alt="" />
                     <div className="p-4 ">
                       <h2
-                        style={{ height: "64px" }}
+                        style={{ height: "45px" }}
                         className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500"
                       >
                         {property.name}
                       </h2>
-                      <div style={{ overflow: "hidden" }}>
-                          <p>The 16-bedroom, 19-bathroom residence was built in 1991 and designed by award-winning architect Richard Landry to capture all of the stateliness of a bygone era.
-
-A porte-cochere leads to a two-story foyer with a sweeping staircase.
-
-Interior features include a ballroom, a library and an art gallery, as well as a wine cellar, a home gym and massage and steam rooms.
-
-There’s an indoor resistance pool with spa.
-
-Outdoor amenities include a traditional swimming pool, spa and tennis court.</p>
-                          <div className="flex flex-col pb-4 pt-4 text-green-400">
+                      <div style={{ overflow: "hidden" }}>                        
+                          <div className="flex flex-col pb-2 pt-4">
                             <p>Owner:</p>
-                            <p className="text-xs">{property.owner}</p>
+                            <p className="text-xs text-green-400">{property.owner}</p>
                           </div>
-                          <div className="flex">
+                          <div className="flex flex-col mb-2">
                             <p>Rooms Rented:</p>
-                            <p className="pl-3">{property.roomsToRent}/3</p>
+                            <p className="pl-3 lg:pl-0 text-xs text-green-400">{property.roomsToRent}/3</p>
                           </div>
-                          <p>Tenants</p>
-                          <div className='text-xs mt-2 text-green-200'>
+                          <p>Tenants:</p>
+                          <div className='text-xs text-green-200'>
                             {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
                               <p className="break-words">
                                 {property.renterAddresses[0]}
@@ -218,17 +241,14 @@ Outdoor amenities include a traditional swimming pool, spa and tennis court.</p>
 
                           <div className="pl-3">
                             {property.tokenSalePrice > 0 && (
-                              <div className='flex'>
-                               
-                                
-                                <div className="mb-2 pr-2 pt-2 text-white">
-                                  <p className="font-bold">{property.tokenSalePrice} POG</p>
-                                </div>
-
+                              <div className='flex'>                  
+                                <header className="items-center flex text-white">
+                                  <p className="font-bold 2xl:text-2xl">{property.tokenSalePrice} BHB</p>
+                                </header>
                                 <div>
                                   <img
-                                    className="object-none grayscale- scale-75 pt-1.5 lg:pt-0"
-                                    src="./pogtoken.png"
+                                    className="object-none brightness-150 scale-75 pt-1.5 lg:pt-0"
+                                    src="./tokenfrontsmall.png"
                                     alt=""
                                   ></img>
                                 </div>
@@ -252,7 +272,7 @@ Outdoor amenities include a traditional swimming pool, spa and tennis court.</p>
                           </div>
                         </div>
                         <div className="px-2">
-                          <button onClick={() => buyProperty(property, i)} className="mb-4 w-full bg-yellow-400 text-white font-bold py-2 px-12 rounded">
+                          <button onClick={() => buyProperty(property, i)} className="mb-4 w-full bg-btn-gold text-white font-bold py-2 px-12 rounded">
                             Buy
                           </button>
                           <button onClick={() => rentProperty(property)} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">

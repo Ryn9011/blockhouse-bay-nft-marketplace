@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract PropertyToken is ERC20, Ownable {
     address contractAddress;
 
-    constructor(uint256 initialSupply, address contractAddr) ERC20("Property", "PRP") {  
+    constructor(uint256 initialSupply, address contractAddr) ERC20("Property", "BHB") {  
         contractAddress = contractAddr;
         approve(contractAddress, 1000000);             
         _mint(msg.sender, initialSupply); 

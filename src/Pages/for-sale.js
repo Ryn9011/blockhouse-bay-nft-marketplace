@@ -11,91 +11,79 @@ import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToken.json'
 import Pagination from '../Pagination'
-import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 
 import datajson from '../final-manifest.json';
 
 const ForSale = () => {
-
-  const [nfts, setNfts] = useState([])
   const [loadingState, setLoadingState] = useState('not-loaded')
   const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(4);
-  // const arweaveGraphUrl = "https://arweave.net/graphql";
-
-  // Get current posts
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = nfts.slice(indexOfFirstPost, indexOfLastPost);
+  const [postsPerPage] = useState(20);
+  const [currentPosts, setCurrentPosts] = useState([]);
+  const [numForSale, setNumForSale] = useState();
 
   useEffect(() => {
-    loadProperties()
-  }, [])
+    loadProperties(currentPage)
+  }, [currentPage])
 
   const loadProperties = async () => {
+    const indexOfLastPost = currentPage * postsPerPage;
+    const indexOfFirstPost = indexOfLastPost - postsPerPage;
+
     const provider = new ethers.providers.JsonRpcProvider()
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
-    const data = await marketContract.fetchPropertiesForSale()
+    const data = await marketContract.fetchPropertiesForSale(currentPage)
+    const numForSale = await marketContract.getPropertiesForSale();
+    setNumForSale(numForSale.toNumber());
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
-
+      console.log(i.propertyId.toNumber())
       const meta = await axios.get(tokenUri) //not used?  
-      console.log(meta)          
-
-      const nftTagHelper = new NftTagHelper()
-      const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
-
-      console.log(meta.config.url)
 
       const url = meta.config.url
-      console.log(url)
+
       const parts = url.split('/');
-      console.log(parts)
+
       const targetId = parts.slice(3).join('/');
 
       const getPropertyNames = (targetId) => {
         console.log(targetId)
         function getPathNameById(id) {
-          for (const [pathKey, {id: pathId}] of Object.entries(datajson.paths)) {
+          for (const [pathKey, { id: pathId }] of Object.entries(datajson.paths)) {
             if (id === pathId) {
               return pathKey;
             }
           }
           return null;
         }
-        
+
         // const targetId = "NkPscRzwlee3476uYweOFTEXvLM8Bnt_A0T2QypL6go";
         const targetPathName = getPathNameById(targetId);
-        
+
         if (targetPathName) {
           var splitName = targetPathName.split('.');
           console.log(splitName)
-          var name = splitName.slice(0,1).join('.')
+          var name = splitName.slice(0, 1).join('.')
 
-          return(name)
+          return (name)
         } else {
           console.log(`No path name found for id ${targetId}.`);
         }
       }
-    
-      var nftName = getPropertyNames(targetId)
 
-      console.log(nftName)
+      var nftName = getPropertyNames(targetId, i.propertyId);
 
-      // const tags = await nftTagHelper.getNftTags(arweaveId)
-      // console.log(tags)
-
-      // const nameTags = tags.data.transactions.edges[0].node.tags[0]
-
-      // let nftName
-
-      // if (nameTags['name'] === "Application") {
-      //   nftName = nameTags['value']
-      // }
-
-
+      const filterByCurrency = (currency) => {
+        
+        if (currency === "matic") {
+          return currentPosts.filter(p => 
+            p.tokenSalePrice === 0)
+        } else {
+          return currentPosts.filter(p => 
+            p.tokenSalePrice > 0)
+        }
+      }
 
       let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
       let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
@@ -126,8 +114,7 @@ const ForSale = () => {
       }
       return item
     }))
-    // console.log(items)
-    setNfts(items)
+    setCurrentPosts(items.slice(0, 20))
     setLoadingState('loaded')
   }
 
@@ -160,10 +147,12 @@ const ForSale = () => {
     )
 
     await transaction.wait()
-    loadProperties()
+    loadProperties(currentPage)
   }
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber)
+  };
 
   // const name = "4293 Carriage Court"
   // const name2 = "1965 Rocket Drive"
@@ -188,24 +177,32 @@ const ForSale = () => {
     </div>
   )
 
-  if (loadingState === 'loaded' && !nfts.length) return (
-    <h1 className="px-20 py-10 text-3xl">No properties currently for sale</h1>
-  )
+  // if (loadingState === 'loaded' && !currentPosts.length) return (
+  //   <h1 className="px-20 py-10 text-3xl">No properties currently for sale</h1>
+  // )
 
   //4293 Carriage Court
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4" style={{ maxWidth: "1600px" }}>
-          <h1 className="text-white mb-5">Properties for Sale</h1>
-          <div className="flex text-white pl-4 mb-6">
-            <h5>Buy property</h5>
-            <div className="pb-2">
+          <h1 className="text-white mb-2">Properties for Sale</h1>
+          <div className="flex text-white pl-4">
+            {/* <h5>Rent a property and earn</h5> */}
+            <header className="flex items-center h-16 mb-3 mr-3">
+              <h1 className="text-xl font-bold">Buy a property and earn Matic tokens </h1>
+            </header>
+            <div className='mb-3'>
+              <img
+                className="object-none brightness-125"
+                src="./matic-icon.png"
+                alt=""
+              ></img>
             </div>
-          </div>
+            </div>
           <Pagination
             postsPerPage={postsPerPage}
-            totalPosts={nfts.length}
+            totalPosts={numForSale}
             paginate={paginate}
             currentPage={currentPage}
           />
@@ -216,10 +213,11 @@ const ForSale = () => {
                   key={property.propertyId}
                   className="border shadow rounded-md overflow-hidden bg-gradient-to-r from-blue-400 to-black"
                 >
+                  {console.log(property.propertyId + " hit")}
                   <img className='w-fit h-fit' src={property.image} alt="" />
                   <div className="p-4">
                     <p
-                      style={{ height: "64px" }}
+                      style={{ height: "50px" }}
                       className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
                     >
                       {property.name}
@@ -282,7 +280,7 @@ const ForSale = () => {
 
                                 <div>
                                   <img
-                                    className="scale-75 h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0"
+                                    className="scale-75 h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
                                     src="./tokenfrontsmall.png"
                                     alt=""
                                   ></img>
@@ -291,19 +289,32 @@ const ForSale = () => {
                             </>
                           )}
                           {property.tokenSalePrice === "0.0" && (
-                            <div className='flex'>
-                              <div className="mb-2 pl-1 pr-1 pt-2 text-gray-500">
-                                <p className="font-bold">0 BHB</p>
+                            <>
+                              <div className=''>
+                                <input
+                                  className="mt-4 mr-3 cursor-default rounded-full flex-shrink-0 h-3 w-3 border border-gray-500 bg-gray-600 checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
+                                  type="radio"
+                                  name="flexRadioDefault"
+                                  id={"pogRadio" + i}
+                                  value="./pogtoken.png"
+                                  disabled={true}
+                                //onChange={onCurrencyChange}
+                                />
                               </div>
+                              <div className='flex'>
+                                <div className="mb-2 mr-8 pt-2 text-gray-500">
+                                  <p className="font-bold">{property.tokenSalePrice} BHB</p>
+                                </div>
 
-                              <div>
-                                <img
-                                  className="object-none grayscale scale-75 pt-1.5 pr-4 lg:pt-0"
-                                  src="./pogtoken.png"
-                                  alt=""
-                                ></img>
+                                <div>
+                                  <img
+                                    className="scale-75 h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
+                                    src="./tokenfrontsmall.png"
+                                    alt=""
+                                  ></img>
+                                </div>
                               </div>
-                            </div>
+                            </>
                           )}
                         </div>
                       </div>

@@ -2,6 +2,8 @@ import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
+import axios from 'axios'
+import { Link } from 'react-router-dom';
 
 import {
   nftaddress, nftmarketaddress
@@ -10,6 +12,7 @@ import {
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import Pagination from '../Pagination'
+import GetPropertyNames from '../getPropertyName'
 
 const ToRent = () => {
 
@@ -17,7 +20,7 @@ const ToRent = () => {
   const [loadingState, setLoadingState] = useState('not-loaded')
   // const [propertyList, setPropertyList] = useState([]);
 
-  const [postsPerPage] = useState(1);
+  const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Get current posts
@@ -45,13 +48,9 @@ const ToRent = () => {
       
       const tags = await nftTagHelper.getNftTags(arweaveId)
     
-      const nameTags = tags.data.transactions.edges[0].node.tags[0]
+      const meta = await axios.get(tokenUri)
      
-      let nftName
-
-      if (nameTags['name'] === "Application") {
-        nftName = nameTags['value']
-      }
+      let nftName = GetPropertyNames(meta)
       
       let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
       let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
@@ -137,17 +136,22 @@ const ToRent = () => {
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4" style={{ maxWidth: "1600px" }}>
-          <h1 className="text-white mb-5">Properties to Rent</h1>
-          <div className="flex text-white pl-4 mb-3">
-            <h5>Rent a property and earn</h5>
+          <h1 className="text-white mb-2">Properties Available to Rent</h1>
+          <div className="flex text-white pl-4">
+            {/* <h5>Rent a property and earn</h5> */}
+            <header className="flex items-center h-16">
+              <h1 className="text-xl font-bold">Rent a room from an owner and earn BHB tokens</h1>
+            </header>
             <div className="pb-2">
               <img
-                className="object-none scale-75 pr-0.5 pl-1"
-                src="./pogtoken.png"
+                className="object-none brightness-150 scale-75 lg:pt-0"
+                src="./tokenfrontsmall.png"
                 alt=""
               ></img>
             </div>
-            <h5 className="text-white mb-4">tokens</h5>
+            {/* <header className="flex items-center h-16">
+              <h1 className="text-2xl font-bold">tokens</h1>
+            </header> */}
           </div>
           <Pagination
             postsPerPage={postsPerPage}
@@ -163,31 +167,23 @@ const ToRent = () => {
                       key={i}
                       className="border shadow rounded-md overflow-hidden bg-gradient-to-r from-blue-400 to-black"
                     >
-                      <img src={property.image} alt="" />
+                      <img className='w-fit h-fit' src={property.image} alt="" />
                       <div className="p-4 ">
                         <p
-                          style={{ height: "64px" }}
+                          style={{ height: "50px" }}
 
                           className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
                         >
-                          {/* {property.name} */}
-                          4293 Carriage Court
+                          {property.name}
+               
                         </p>
                         <div style={{ overflow: "hidden" }}>
                           <div className="flex flex-col pb-4">
                             <p>Owner:</p>
-                            <p className="text-xs">{property.owner}</p>
+                            <p className="text-xs text-green-200">{property.owner}</p>
                           </div>
-                          <div className="flex">
-                            <p>Rent Price:</p>
-                            <p className="pl-3">{property.rentPrice} Matic</p>
-                          </div>
-                          <div className="flex">
-                            <p>Rooms Rented:</p>
-                            <p className="pl-3">{property.roomsRented}/3</p>
-                          </div>
-                          <p>Tenants</p>
-                          <div className='text-xs mt-2 text-green-200'>
+                          <p>Tenants:</p>
+                          <div className='text-xs mb-3 text-green-200'>
                             {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
                               <p className="break-words">
                                 {property.renterAddresses[0]}
@@ -207,6 +203,14 @@ const ToRent = () => {
                               : <p>0x</p>
                             }
                           </div>
+                          <div className="flex">
+                            <p>Rent Price:</p>
+                            <p className="pl-3 font-bold">{property.rentPrice} Matic</p>
+                          </div>
+                          <div className="flex">
+                            <p>Rooms Rented:</p>
+                            <p className="pl-3 font-bold">{property.roomsRented}/3</p>
+                          </div>                          
                         </div>
                       </div>
 
@@ -215,18 +219,20 @@ const ToRent = () => {
                           <div className="flex pr-5 lg:pr-3">
                             <div className="text-lg font-bold pr-1">Deposit Required</div>
                             <div className="relative flex flex-col items-center group">
-                              <svg
-                                className="w-4 h-4 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
+                              <Link to="/about?section=renting">
+                                <svg
+                                  className="w-4 h-4 text-white"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 20 20"
+                                  fill="currentColor"                                
+                                >
+                                  <path
+                                    fillRule="evenodd"
+                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                    clipRule="evenodd"
+                                  />
+                                </svg>
+                              </Link>                              
                               <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                                 <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">
                                   Learn more
@@ -241,7 +247,7 @@ const ToRent = () => {
                             </div>
                             <div>
                               <img
-                                className="object-none scale-75 pt-0.5"
+                                className="h-6 w-7 ml-2 pt-0.5"
                                 src="./matic-icon.png"
                                 alt=""
                               ></img>
@@ -250,7 +256,7 @@ const ToRent = () => {
                         </div>
                         <div className="text-2xl pt-2 text-white"></div>
 
-                        <div className="px-2">
+                        <div className="px-2 ">
                           <button onClick={() => rentProperty(property)} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">
                             Rent Room
                           </button>

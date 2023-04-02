@@ -2,6 +2,7 @@ import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
+import axios from 'axios'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
@@ -10,6 +11,7 @@ import {
   nftaddress, nftmarketaddress, propertytokenaddress
 } from '../config'
 import Pagination from '../Pagination'
+import GetPropertyNames from '../getPropertyName'
 
 const Renting = () => {
 
@@ -18,7 +20,7 @@ const Renting = () => {
   const [renterTokens, setRenterTokens] = useState(0)
   const [rentAmount, setRentAmount] = useState(0)
 
-  const [postsPerPage] = useState(1);
+  const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
 
   // Get current posts
@@ -35,31 +37,24 @@ const Renting = () => {
 
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
+    // const provider = new ethers.providers.JsonRpcProvider()
     const signer = provider.getSigner()
-
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const data = await marketContract.fetchMyRentals()
     const tokensHex = await marketContract.getTokensEarned()
     const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
-    setRenterTokens(tokens)
+    setRenterTokens(tokens)   
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
       const nftTagHelper = new NftTagHelper()
-      const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
       
-      const tags = await nftTagHelper.getNftTags(arweaveId)
-    
-      const nameTags = tags.data.transactions.edges[0].node.tags[0]
-     
-      let nftName
-
-      if (nameTags['name'] === "Application") {
-        nftName = nameTags['value']
-      }
-
+      const meta = await axios.get(tokenUri)
+       
+      let nftName = GetPropertyNames(meta)
+  
       setRentAmount(i.rentPrice)
       let price = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
       let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
@@ -145,17 +140,16 @@ const Renting = () => {
     <h1 className="px-20 py-10 text-3xl">You are not currently renting any properties</h1>
   )
 
-
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
-        <div className="px-9" style={{ maxWidth: "1650px" }}>
-          <h1 className="text-white mb-5">My Rented Properties</h1>
+        <div className="px-9" style={{ maxWidth: "1600px" }}>
+          <h1 className="text-white mb-7">My Rented Properties</h1>
           <div className="flex">
             <h5 className="text-white ml-4 mr-1 mb-5">Manage Rented Properties</h5>
           </div>
-          <div className="pt-3">
-            <div className="text-sm mb-4 mt-1 flex">
+          <div className="pt-1">
+            <div className="text-sm mb-4 flex">
               <div className="flex pr-4 mt-1.5 font-bold text-white">
                 <p>Tokens Accumulated: </p>
                 <p className="pl-1 text-matic-blue">{renterTokens} POG</p>
@@ -182,32 +176,26 @@ const Renting = () => {
             paginate={paginate}
             currentPage={currentPage}
           />
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-white">
-            <div>
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-white">          
               {currentPosts.map((property, i) => {
                 return (
                   <div
-                    key={1}
+                    key={i}
                     className="border shadow rounded-md overflow-hidden bg-gradient-to-r from-blue-400 to-black"
                   >
-                    <img src={"./house.png"} alt="" />
-                    <div className="p-4 ">
+                    <img className='w-fit h-fit' src={property.image} alt="" />
+                    <div className="p-4">
                       <p
-                        style={{ height: "64px" }}
+                        style={{ height: "50px" }}
                         className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
                       >
-                        {/* {property.name} */}
-                        4293 Carriage Court
+                        {property.name}
                       </p>
                       <div className="flex">
-                        <p >Rent Price:</p>
-                        <p className="pl-3">{property.rentPrice} Matic</p>
-                      </div>
-                      <div className="flex">
-                        <div className="pr-1">Renting Tips</div>
-                        <div className="text-sm font-bold mb-4 flex">
+                        <h6 className="pr-1">Renting Tips</h6>
+                        <div className="text-sm font-bold mb-1 flex">
                           <div className="mb-1 relative">
-                            <div className="relative flex flex-col items-center group">
+                            {/* <div className="relative flex flex-col items-center group">
                               <svg
                                 className="w-4 h-4 text-white"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -226,24 +214,31 @@ const Renting = () => {
                                 </span>
                                 <div className="w-3 h-3 -mt-2 rotate-45 bg-black"></div>
                               </div>
-                            </div>
+                            </div> */}
                           </div>
                         </div>
                       </div>
-                      <div className="disc-list">
-                        <li>
-                          Paying rent on time avoids risk of eviction
-                        </li>
-                        <li>
-                          Renting from properties with higher rent increase token reward
-                        </li>
-                      </div>
+                      <div>
+                        <ul className="list-disc pl-3.5 list-outside">
+                          <li>
+                            Paying rent on time avoids risk of eviction
+                          </li>
+                          <li>
+                            Renting from properties with higher rent increase token reward
+                          </li>
+                        </ul>
+                      </div>                      
                     </div>
+                      <div className="flex mb-4 pl-4">
+                        <p >Rent Price:</p>
+                        <p className="pl-3 font-bold">{property.rentPrice} Matic</p>
+                      </div>
+                      
                     <div className="p-2 pt-1.2 pb-4 bg-black">
                       <div className="flex divide-x divide-white justifty-start px-2">
                         <div className="flex pr-5 lg:pr-3">
                           <div className="text-lg font-bold pr-1">Rent Price</div>
-                          <div className="relative flex flex-col items-center group">
+                          {/* <div className="relative flex flex-col items-center group">
                             <svg
                               className="w-4 h-4 text-white"
                               xmlns="http://www.w3.org/2000/svg"
@@ -262,18 +257,18 @@ const Renting = () => {
                               </span>
                               <div className="w-3 h-3 -mt-2 rotate-45 bg-black"></div>
                             </div>
-                          </div>
+                          </div> */}
                         </div>
                         <div className="flex text pl-5 lg:pl-3">
                           <div className="font-bold pt-0.5 pr-1">
                             <span>{property.price} MATIC</span>
                           </div>
                           <div>
-                            <img
-                              className="object-none scale-75 pt-0.5"
-                              src="./matic-icon.png"
-                              alt=""
-                            ></img>
+                          <img
+                            className="h-6 w-7 ml-2 pt-0.5"
+                            src="./matic-icon.png"
+                            alt=""
+                          ></img>
                           </div>
                         </div>
                       </div>
@@ -292,8 +287,7 @@ const Renting = () => {
                     </div>
                   </div>
                 )
-              })}
-            </div>
+              })}           
           </section>
         </div>
       </div>

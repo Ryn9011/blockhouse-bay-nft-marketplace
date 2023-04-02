@@ -1,7 +1,8 @@
 import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import axios from 'axios'
-import { NftTagHelper } from '../Components/Layout/nftTagHelper'
+import GetPropertyNames from '../getPropertyName'
+import Pagination from '../Pagination'
 
 import {
   nftaddress, nftmarketaddress
@@ -15,6 +16,14 @@ const AllProperties = () => {
   const [soldProperties, setSoldProperties] = useState([])
   const [loadingState, setLoadingState] = useState('not-loaded')
   const [propertyList, setPropertyList] = useState([]);
+  
+  const [postsPerPage] = useState(20);
+  const [currentPage, setCurrentPage] = useState(1);
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = soldProperties.slice(indexOfFirstPost, indexOfLastPost);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   useEffect(() => {
     loadProperties()
@@ -24,36 +33,29 @@ const AllProperties = () => {
     const provider = new ethers.providers.JsonRpcProvider()
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
-    const data = await marketContract.fetchAllProperties()
+    const data = await marketContract.fetchAllProperties(currentPage)
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
-
-      const nftTagHelper = new NftTagHelper()
-      const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
-      
-      const tags = await nftTagHelper.getNftTags(arweaveId)
-    
-      const nameTags = tags.data.transactions.edges[0].node.tags[0]
-
-      let nftName
-
-      if (nameTags['name'] === "Application") {
-        nftName = nameTags['value']
-      }
-      
-
+          
       const meta = await axios.get(tokenUri)
+      console.log(meta)
+      let nftName = GetPropertyNames(meta)
+                  
       let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
       let depositHex = await marketContract.depositRequired()
       let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
+      
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+      console.log(i.propertyId.toNumber())
+
+      let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
 
       let item = {
         price,
         propertyId: i.propertyId.toNumber(),
         seller: i.seller,
-        owner: i.owner,
+        owner: owner,
         image: tokenUri,
         name: nftName,
         description: meta.data.description,
@@ -81,8 +83,7 @@ const AllProperties = () => {
       }
       return item
     }))
-    setSoldProperties(items)
-    setPropertyList(items)
+    setSoldProperties(items)    
     setLoadingState('loaded')
   }
 
@@ -97,7 +98,7 @@ const AllProperties = () => {
   )
 
   if (loadingState === 'loaded' && !soldProperties.length) return (
-    <h1 className="px-20 py-10 text-3xl">No properties currently to rent</h1>
+    <h1 className="px-20 py-10 text-3xl">No properties currently owned</h1>
   )
 
   return (
@@ -117,6 +118,12 @@ const AllProperties = () => {
             <h5 className="text-white mb-4">tokens</h5> */}
           </div>
 
+          <Pagination
+            postsPerPage={postsPerPage}
+            totalPosts={soldProperties.length}
+            paginate={paginate}
+            currentPage={currentPage}
+          />
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-white">
           
               {propertyList.map((property, i) => {
@@ -126,10 +133,10 @@ const AllProperties = () => {
                       key={1}
                       className="border shadow rounded-md overflow-hidden bg-gradient-to-r from-blue-400 to-black"
                     >
-                      <img src={property.image} alt="" />
+                      <img className='w-fit h-fit' src={property.image} alt="" />
                       <div className="p-4 ">
                         <p
-                          style={{ height: "64px" }}
+                          style={{ height: "50px" }}
 
                           className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
                         >
@@ -173,6 +180,7 @@ const AllProperties = () => {
               })}
            
           </section>
+          
         </div>
       </div>
     </div>

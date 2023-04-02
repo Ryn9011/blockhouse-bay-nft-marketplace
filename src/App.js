@@ -14,7 +14,7 @@ import Exclusive from './Pages/exclusive-properties';
 
 function App() {
   return (
-    <div className='bgcolour h-screen flex flex-col overflow-hidden'>      
+    <div className='from-black via-polygon-purple to-black bg-gradient-120 h-screen flex flex-col overflow-hidden'>      
       <div className="flex-1 overflow-y-auto">
         <BrowserRouter>
         <Header /> 

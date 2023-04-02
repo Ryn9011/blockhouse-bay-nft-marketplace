@@ -10,6 +10,7 @@ import { useRef } from "react";
 import BigNumber from 'bignumber.js'
 
 import data from '../final-manifest.json';
+import dataEx from '../exclusive-manifest.json';
 
 import {
   nftaddress, nftmarketaddress
@@ -205,25 +206,82 @@ const CreateItem = () => {
     console.log(urisn)
 
     let contract = new ethers.Contract(nftaddress, NFT.abi, signer)
-    let transaction = await contract.createTokens(urisn)
-    let tokenIds = await transaction.wait() 
-    //test if this is actually the token ids
-    console.log(tokenIds)
 
-    // let event = tx.events[0]
-    // let value = event.args[2]
-    // let tokenId = value.toNumber()
-    
-    // const price = ethers.utils.parseUnits(formInput.price, 'ether')
-    // var decimals = 18;
+    const batchSize = 50;
+    const numBatches = Math.ceil(urisn.length / batchSize);
+    const tokenIds = [];
+
+    for (let i = 0; i < numBatches; i++) {
+      const batch = urisn.slice(i * batchSize, (i + 1) * batchSize);
+      const gasLimit = await contract.estimateGas.createTokens(batch);
+      const transaction = await contract.createTokens(batch);
+      const receipt = await transaction.wait();
+      for (let j = 0; j < receipt.events.length; j++) {
+        if (receipt.events[j].event === "Transfer") {
+          const tokenId = receipt.events[j].args[2].toNumber();
+          tokenIds.push(tokenId);
+        }
+      }
+    }
+    console.log(tokenIds)
+    const params = {
+      gasLimit: 30000000
+    }
+ 
     contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     
     let listingPrice = await contract.getListingPrice()     
     listingPrice = listingPrice.toString()             
 
-    transaction = await contract.createPropertyListing(nftaddress, tokenIds, { value: listingPrice })
-    await transaction.wait()
+    const numOfBatches = 10;
+    for (let i = 0; i < numOfBatches; i++) {
+      const idsBatch = tokenIds.slice(i * batchSize, (i + 1) * batchSize);
+      let transaction2 = await contract.createPropertyListing(nftaddress, idsBatch, { value: listingPrice })
+      await transaction2.wait()
+    }
+
+    // let transaction2 = await contract.createPropertyListing(nftaddress, tokenIds, { value: listingPrice })
+    // await transaction2.wait()
     
+  }
+
+  const createSaleEx = async () => {   
+    console.log(formInput)
+    const urisn = Object.keys(dataEx.paths).map(uri => "http://arweave.net/" + dataEx.paths[uri].id);
+
+    const web3Modal = new Web3Modal()
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+    const signer = provider.getSigner()
+
+    console.log(urisn)
+
+    let contract = new ethers.Contract(nftaddress, NFT.abi, signer)
+
+    // const batchSize = 50;
+    // const numBatches = Math.ceil(urisn.length / batchSize);
+    const tokenIds = [];
+      const transaction = await contract.createExclusiveTokens(urisn);
+      const receipt = await transaction.wait();
+      for (let j = 0; j < receipt.events.length; j++) {
+        if (receipt.events[j].event === "Transfer") {
+          const tokenId = receipt.events[j].args[2].toNumber();
+          tokenIds.push(tokenId);
+        }
+      }
+   
+    console.log(tokenIds)
+    const params = {
+      gasLimit: 30000000
+    }
+
+    contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    
+    let listingPrice = await contract.getListingPrice()     
+    listingPrice = listingPrice.toString()             
+
+    let transaction2 = await contract.createPropertyListing(nftaddress, tokenIds, { value: listingPrice })    
+    await transaction2.wait()
   }
 
 
@@ -287,6 +345,9 @@ const CreateItem = () => {
                 } */}
                 <button onClick={createSale} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
                     Create Digital Asset
+                </button>
+                <button onClick={createSaleEx} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Create Exclusives
                 </button>
             </div>
         </div>

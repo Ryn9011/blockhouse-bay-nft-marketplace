@@ -10,7 +10,8 @@ module.exports = {
       colors: {
         'polygon-purple': '#8247e5',
         'matic-blue' : '#2bbdf7',
-        'btn-silver': '#C0C0C0'
+        'btn-silver': '#C0C0C0',
+        'btn-gold': '#D4AF37'
       },
       screens: {
         xs: "390px", 

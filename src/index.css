@@ -14,6 +14,54 @@
 
 /* Your own custom utilities */
 
+.image-container {
+  position: relative;
+  perspective: 1000px;
+
+}
+
+.rotate-away {
+  transform-style: preserve-3d;
+  transform: rotateY(-40deg) translateZ(-50px);
+}
+
+.gradient-overlay {
+  position: absolute;
+  margin-top: 21%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 71%;
+  opacity: 20%;
+  background: linear-gradient(to left, transparent, white);
+  transform: rotateY(-40deg) translateZ(-50px);
+  mix-blend-mode: difference;
+}
+
+.gradient-overlay2 {
+  position: absolute;
+  margin-top: 28%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 71%;
+  opacity: 20%;
+  background: linear-gradient(to left, transparent, white);
+  transform: rotateY(-40deg) translateZ(-50px);
+  mix-blend-mode: difference;
+}
+
+
+.shadow2 {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+  mix-blend-mode: multiply;
+}
+
 @layer components {
   /* Global */
   html {
@@ -87,12 +135,15 @@
   } */
 
   .bgcolour {
-    @apply bg-scroll from-black via-polygon-purple to-white  bg-gradient-120;
+    /* @apply bg-scroll from-black via-polygon-purple to-white  bg-gradient-120; */
+    @apply bg-scroll from-black via-polygon-purple to-black  bg-gradient-120;
   }  
 
   .active{    
     @apply text-red-500
   }
+
+ 
 
   @layer utilities {
     input[type="number"]::-webkit-inner-spin-button,
@@ -350,7 +401,5 @@
       border-radius: 50%;
       background: radial-gradient(#805d78,rgba(0,0,0,0) 70%);
     } */
-  }
-  
-  
+  }  
 }

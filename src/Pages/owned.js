@@ -2,6 +2,8 @@ import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
+import axios from 'axios'
+import { Link } from 'react-router-dom';
 
 import Market from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
@@ -10,6 +12,7 @@ import {
   nftaddress, nftmarketaddress, propertytokenaddress
 } from '../config'
 import Pagination from '../Pagination'
+import GetPropertyNames from '../getPropertyName'
 
 const Owned = () => {
 
@@ -19,7 +22,7 @@ const Owned = () => {
   const [acceptToken, setAcceptToken] = useState(false)
   const [tenantToDelete, setTenantToDelete] = useState("")
   const [sellAmount, setSellAmount] = useState(0)
-  const [tokenAmount, setTokenAmount] = useState(0)  
+  const [tokenAmount, setTokenAmount] = useState(0)
   const [amountAccumulated, setAmountAccumulated] = useState()
   const [addressesOverdue, setAddressesOverdue] = useState([])
 
@@ -31,81 +34,88 @@ const Owned = () => {
 
 
   useEffect(async () => {
-    await loadProperties();     
+    await loadProperties();
   }, [])
 
   useEffect(async () => {
-    await getLogData();     
+    await getLogData();
   }, [loadingState])
 
-  
+
 
   async function loadProperties() {
-    const web3Modal = new Web3Modal()
 
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    try {
+      const web3Modal = new Web3Modal()
+      const connection = await web3Modal.connect()
+      const provider = new ethers.providers.Web3Provider(connection)
+      //const provider = new ethers.providers.JsonRpcProvider()
+      const signer = provider.getSigner()
 
-    const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
-    const data = await marketContract.fetchMyProperties()
-    let value = ethers.utils.formatUnits(await marketContract.getRentAccumulated(), 'ether')
-    setAmountAccumulated(value)
 
-    const items = await Promise.all(data.map(async i => {
-      const tokenUri = await tokenContract.tokenURI(i.tokenId)
-      //const meta = await axios.get(tokenUri)
+      const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
+      const data = await marketContract.fetchMyProperties()
+      let value = ethers.utils.formatUnits(await marketContract.getRentAccumulated(), 'ether')
+      setAmountAccumulated(value)
 
-      const nftTagHelper = new NftTagHelper()
-      const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
-      
-      const tags = await nftTagHelper.getNftTags(arweaveId)
-    
-      const nameTags = tags.data.transactions.edges[0].node.tags[0]
-     
-      let nftName
+      const items = await Promise.all(data.map(async i => {
+        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        //const meta = await axios.get(tokenUri)
 
-      if (nameTags['name'] === "Application") {
-        nftName = nameTags['value']
-      }
+        const nftTagHelper = new NftTagHelper()
+        const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
+        const meta = await axios.get(tokenUri)
+        const tags = await nftTagHelper.getNftTags(arweaveId)
 
-      let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-      let rentPrice = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')         
-      const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
-      const tokensHex = await marketContract.getTokensEarned()   
-      const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
-      let item = {
-        price,
-        propertyId: i.propertyId.toNumber(),
-        tokenId: i.tokenId.toNumber(),
-        seller: i.seller,
-        owner: i.owner,
-        image: tokenUri,
-        name: nftName,
-        rentPrice: rentPrice,
-        roomOneRented: i.roomOneRented,
-        roomTwoRented: i.roomTwoRented,
-        roomThreeRented: i.roomThreeRented,
-        roomsToRent: 0,
-        renterAddresses: renterAddresses,
-        isForSale: i.isForSale,
-        tokenPrice: tokens        
-      }
-      if (item.roomOneRented === true) {
-        item.roomsToRent++
-      }
-      if (item.roomTwoRented === true) {
-        item.roomsToRent++
-      }
-      if (item.roomThreeRented === true) {
-        item.roomsToRent++
-      }
-      return item
-    }))
+        // const nameTags = tags.data.transactions.edges[0].node.tags[0]
 
-    setNfts(items)  
-    setLoadingState('loaded')    
+        let nftName = GetPropertyNames(meta)
+
+        // if (nameTags['name'] === "Application") {
+        //   nftName = nameTags['value']
+        // }
+
+        let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
+        let rentPrice = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
+        const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+        const tokensHex = await marketContract.getTokensEarned()
+        const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
+        let item = {
+          price,
+          propertyId: i.propertyId.toNumber(),
+          tokenId: i.tokenId.toNumber(),
+          seller: i.seller,
+          owner: i.owner,
+          image: tokenUri,
+          name: nftName,
+          rentPrice: rentPrice,
+          roomOneRented: i.roomOneRented,
+          roomTwoRented: i.roomTwoRented,
+          roomThreeRented: i.roomThreeRented,
+          roomsToRent: 0,
+          renterAddresses: renterAddresses,
+          isForSale: i.isForSale,
+          tokenPrice: tokens
+        }
+        if (item.roomOneRented === true) {
+          item.roomsToRent++
+        }
+        if (item.roomTwoRented === true) {
+          item.roomsToRent++
+        }
+        if (item.roomThreeRented === true) {
+          item.roomsToRent++
+        }
+        return item
+      }))
+      console.log(items.length)
+      setNfts(items)
+      setLoadingState('loaded')
+    } catch (Exception) {
+      console.log(Exception)
+    }
+
   }
 
   const SellProperty = async (property, i) => {
@@ -136,8 +146,9 @@ const Owned = () => {
     )
 
     await transaction.wait()
+    console.log(nfts.length)
     loadProperties()
-  }  
+  }
 
   const getLogData = async () => {
     const web3Modal = new Web3Modal()
@@ -148,7 +159,7 @@ const Owned = () => {
     const marketAddress = marketContract.address
 
     const iface = new ethers.utils.Interface(Market.abi);
- 
+
     let propertyIds = nfts.map(item => item.propertyId)
     console.log(propertyIds)
     let latestBlockNum = await provider.getBlockNumber() - 5 //change this to 150000 when live
@@ -161,24 +172,24 @@ const Owned = () => {
       fromBlock: latestBlockNum,
       toBlock: "latest",
       address: marketAddress
-    })   
+    })
     console.log(logs)
 
     const decodedEvents = logs.map(log => iface.parseLog(log));
-    console.log(decodedEvents) 
+    console.log(decodedEvents)
 
     let testArr = new Array()
     decodedEvents.map(event => {
-      let arr = new Array()   
+      let arr = new Array()
       arr.push(event["args"]["tenant"])
       arr.push(event["args"]["blockTime"])
-      arr.push(event["args"]["propertyId"])  
+      arr.push(event["args"]["propertyId"])
       testArr.push(arr)
     })
-    
+
     let filteredEvents = testArr.filter(item => {
       let itemNum = item[2].toNumber()
-      return propertyIds.includes(itemNum)        
+      return propertyIds.includes(itemNum)
     })
 
     filteredEvents.map((item) => {
@@ -186,9 +197,9 @@ const Owned = () => {
       let secondsDays = 258000
       console.log(timeSeconds + secondsDays)
       console.log(latestBlockTimestamp)
-      
+
       //258000 seconds in 3 days
-      
+
       //add 3 days seconds to rentPaid trans timestamp. If < than latest block timestamp then overdue
       if (timeSeconds + secondsDays < latestBlockTimestamp) {
         setAddressesOverdue(addressesOverdue => [...addressesOverdue, item[0]])
@@ -196,7 +207,7 @@ const Owned = () => {
       }
       console.log(addressesOverdue)
     })
-    setLoadingState2('loaded')  
+    setLoadingState2('loaded')
     console.log(filteredEvents)
     console.log(addressesOverdue)
 
@@ -238,7 +249,7 @@ const Owned = () => {
 
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     let rentVal = document.getElementById('rentInput' + i).value
-    let newPrice =  ethers.utils.parseUnits(rentVal, 'ether')
+    let newPrice = ethers.utils.parseUnits(rentVal, 'ether')
 
     const transaction = await contract.setRentPrice(property.propertyId, newPrice)
     await transaction.wait()
@@ -272,15 +283,15 @@ const Owned = () => {
   const onAcceptTokenChange = (e, i) => {
     setTokenAmount(0)
     document.getElementById(e.target.id).value = null
-    if (e.target.checked) {    
+    if (e.target.checked) {
       document.getElementById('maticInput' + i).style.visibility = 'visible'
       document.getElementById("sellBtn" + i).disabled = true
       document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "text-white")
-      document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "text-gray-600")  
+      document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "text-gray-600")
     } else {
       document.getElementById('maticInput' + i).style.visibility = 'hidden'
       document.getElementById('tokenInput' + i).value = null
-      if (document.getElementById("amountInput" + i).value.length > 0) {                      
+      if (document.getElementById("amountInput" + i).value.length > 0) {
         document.getElementById("sellBtn" + i).disabled = false
         document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "text-gray-600")
         document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "text-white")
@@ -355,7 +366,7 @@ const Owned = () => {
     if (property !== undefined) {
       console.log(i)
       return (
-        <div className='text-xs mt-2 text-green-200'>          
+        <div className='text-xs mt-2 text-green-200'>
           {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
             <>
               {/* {                 
@@ -364,9 +375,9 @@ const Owned = () => {
                     {property.renterAddresses[0]}
                   </p>
                 : */}
-                <p className={" break-words " + getTenantToDeleteColour(property, 0)}>
-                  {property.renterAddresses[0]}
-                </p>
+              <p className={" break-words " + getTenantToDeleteColour(property, 0)}>
+                {property.renterAddresses[0]}
+              </p>
               {/* } */}
             </>
             : <p>0x</p>
@@ -388,40 +399,40 @@ const Owned = () => {
   }
 
   function handleSellButton(e, i) {
-    
-      if (document.getElementById("matic" + i).checked == false) {
-        if (e.target.value.length > 0) {
-          document.getElementById("sellBtn" + i).disabled = false
-          document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
-        } else {
-          document.getElementById("sellBtn" + i).disabled = true
-          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
-          document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")      
-        }
+
+    if (document.getElementById("matic" + i).checked == false) {
+      if (e.target.value.length > 0) {
+        document.getElementById("sellBtn" + i).disabled = false
+        document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
+        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
       } else {
-        if (document.getElementById("amountInput" + i).value.length == 0 
-            || document.getElementById("tokenInput" + i).value.length == 0) {
-          document.getElementById("sellBtn" + i).disabled = true
-          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
-          document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")  
-        } else {
-          document.getElementById("sellBtn" + i).disabled = false
-          document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
-        }
-    }    
+        document.getElementById("sellBtn" + i).disabled = true
+        document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
+        document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
+      }
+    } else {
+      if (document.getElementById("amountInput" + i).value.length == 0
+        || document.getElementById("tokenInput" + i).value.length == 0) {
+        document.getElementById("sellBtn" + i).disabled = true
+        document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
+        document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
+      } else {
+        document.getElementById("sellBtn" + i).disabled = false
+        document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
+        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
+      }
+    }
   }
 
   function setRentButton(e, i) {
-    if(document.getElementById("rentInput" + i).value.length == 0) {
+    if (document.getElementById("rentInput" + i).value.length == 0) {
       document.getElementById("rentButton" + i).disabled = true
       document.getElementById("rentButton" + i).classList.remove("bg-pink-400", "cursor-pointer", "text-white")
-      document.getElementById("rentButton" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")  
+      document.getElementById("rentButton" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
     } else {
       document.getElementById("rentButton" + i).disabled = false
       document.getElementById("rentButton" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-      document.getElementById("rentButton" + i).classList.add("bg-pink-400", "cursor-pointer", "text-white")  
+      document.getElementById("rentButton" + i).classList.add("bg-pink-400", "cursor-pointer", "text-white")
     }
   }
 
@@ -434,7 +445,7 @@ const Owned = () => {
       setTenantToDelete({ address: property.renterAddresses[1] })
     } else if (e.target.id === "tenant3") {
       setTenantToDelete({ address: property.renterAddresses[2] })
-    }   
+    }
 
     return setAddresses(property, e, i)
 
@@ -470,15 +481,15 @@ const Owned = () => {
     </div>
   )
 
-  if (loadingState   === 'loaded' && !nfts.length) return (<h1 className="py-10 px-20 text-3xl">No assets owned</h1>)
-    // {await getLogData()}
-  return (   
+  if (loadingState === 'loaded' && !nfts.length) return (<h1 className="py-10 px-20 text-3xl">No assets owned</h1>)
+  // {await getLogData()}
+  return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-9" style={{ maxWidth: "1650px" }}>
-          <h1 className="text-white mb-5">My Properties</h1>
+          <h1 className="text-white mb-6">My Properties</h1>
           <div className="flex">
-            <h5 className="text-white ml-4 mr-1 mb-5">Manage Owned Properties</h5>
+            <h5 className="text-white ml-4 mr-1 mb-2">Manage Owned Properties</h5>
           </div>
           <div className="pt-3">
             <div className="text-sm mb-4 mt-1 flex">
@@ -487,10 +498,10 @@ const Owned = () => {
                 <p className="pl-1 text-matic-blue">{amountAccumulated} MATIC</p>
               </div>
               {amountAccumulated > 0 &&
-                <button 
+                <button
                   className="text-pink-400 hover text-base border border-pink-400 rounded py-1 px-2"
                   onClick={() => CollectRent()}>
-                    Collect Rent
+                  Collect Rent
                 </button>
               }
             </div>
@@ -508,7 +519,7 @@ const Owned = () => {
                   key={i}
                   className="border shadow rounded-md overflow-hidden bg-gradient-to-r from-blue-400 to-black"
                 >
-                  <img src={"./house.png"} alt="" />
+                  <img className='w-fit h-fit' src={property.image} alt="" />
                   <div className="p-4 ">
                     <p
                       style={{ height: "50px" }}
@@ -517,22 +528,27 @@ const Owned = () => {
                       {property.name}
                     </p>
                     <div className="flex relative">
-                      <h6 className="pr-1 text-white under">Property Info</h6>
+                      {/* <h6 className="pr-1 text-white under">Property Info</h6>
                       <div className="text-sm font-bold mb-4 mt-1 flex">
                         <div className="mb-1 relative">
                           <div className="relative flex flex-col items-center group">
-                            <svg
-                              className="w-4 h-4 text-white"
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
+                            <Link to={{
+                              pathname: '/about',
+                              state: { section: 'panel6' }
+                            }}>
+                              <svg
+                                className="w-4 h-4 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </Link>
                             <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                               <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">
                                 Learn more
@@ -541,10 +557,10 @@ const Owned = () => {
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                       {property.isForSale &&
                         <div>
-                          <img className="absolute scale-75 left-40 pl-10 md:left-40 lg:left-28 lg:pl-25 xl:left-40" src="./for-sale.png" alt="for sale" />
+                          <img className="absolute h-16 mt-1 w-32 left-40 pl-10 md:left-40 lg:left-28 lg:pl-25 xl:left-40" src="./for-sale.png" alt="for sale" />
                         </div>
                       }
                     </div>
@@ -559,7 +575,7 @@ const Owned = () => {
                         <p className="pl-3 font-bold">{property.rentPrice} Matic</p>
                       </div>
                       <div>
-                        Tenants
+                        Tenants:
                         {setInitalAddresses(property)}
                       </div>
                     </div>
@@ -597,7 +613,7 @@ const Owned = () => {
                               </div>
                             </div>
                           </div>
-                          <div className='mb-5'>Sale Price: {property.price.substring(0, property.price.length-2)} matic | Token Price: {property.tokenPrice.substring(0, property.tokenPrice.length-2)}</div>
+                          <div className='mb-5'>Sale Price: {property.price.substring(0, property.price.length - 2)} matic | Token Price: {property.tokenPrice.substring(0, property.tokenPrice.length - 2)}</div>
                           <div className="md:justify-self-start">
                             <button onClick={() => CancelSale(property)} className="w-full bg-yellow-600 text-white font-bold py-2 rounded">
                               Cancel
@@ -610,18 +626,20 @@ const Owned = () => {
                               <div className="pr-1">Sell</div>
                               <div className="mb-1 relative">
                                 <div className="relative flex flex-col items-center group">
-                                  <svg
-                                    className="w-4 h-4 text-white"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
+                                  <Link to="/about?section=owning">
+                                    <svg
+                                      className="w-4 h-4 text-white"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  </Link>
                                   <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                                     <span className="relative z-10 p-2 text-xs leading-none text-black whitespace-no-wrap bg-white shadow-lg">
                                       Learn more
@@ -646,7 +664,7 @@ const Owned = () => {
                                   className=" form-check-label inline-block text-sm text-white align-top"
                                   htmlFor={"matic" + i}
                                 >
-                                  Accept POG?
+                                  Accept BHB?
                                 </label>
                               </div>
                             </div>
@@ -666,7 +684,7 @@ const Owned = () => {
                                 id={"amountInput" + i}
                               />
                               <img
-                                className="object-contain scale-75 mb-4 pl-3"
+                                className="h-6 w-10 mb-4 pl-3"
                                 src="./matic-icon.png"
                                 alt=""
                               ></img>
@@ -683,17 +701,19 @@ const Owned = () => {
                                 onChange={(e) => handleSellButton(e, i)}
                                 id={"tokenInput" + i}
                               />
-                              <img
-                                className="object-contain scale-75 mb-2 pl-3"
-                                src="./pogtoken.png"
-                                alt=""
-                              ></img>
+                              <div>
+                                <img
+                                  className="mb-4 brightness-150 h-7 w-10 pl-3"
+                                  src="./tokenfrontsmall.png"
+                                  alt=""
+                                ></img>
+                              </div>
                             </div>
 
                           </div>
 
                           <div className="md:justify-self-start">
-                            <button onClick={() => SellProperty(property, i)}id={"sellBtn" + i} className="w-full bg-gray-400 cursor-default text-gray-600 font-bold py-2 rounded">
+                            <button onClick={() => SellProperty(property, i)} id={"sellBtn" + i} className="w-full bg-gray-400 cursor-default text-gray-600 font-bold py-2 rounded">
                               Sell
                             </button>
                           </div>
@@ -705,18 +725,20 @@ const Owned = () => {
                             <p className="pr-1">Evict tenant</p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
-                                <svg
-                                  className="w-4 h-4 text-white"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 20 20"
-                                  fill="currentColor"
-                                >
-                                  <path
-                                    fillRule="evenodd"
-                                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
+                                <Link to="/about?section=owning">
+                                  <svg
+                                    className="w-4 h-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </Link>
                                 <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                                   <span className="relative z-10 p-2 text-xs leading-none text-black whitespace-no-wrap bg-white shadow-lg">
                                     Learn more
@@ -784,31 +806,33 @@ const Owned = () => {
                       <div className="pt-3">
                         <div className="text-sm font-bold mb-4 mt-1 flex gap-4">
                           <div className='flex'>
-                          <p className="pr-1">Change Rent Price</p>
-                          <div className="mb-1 relative">
-                            <div className="relative flex flex-col items-center group">
-                              <svg
-                                className="w-4 h-4 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                                <span className="relative z-10 p-2 text-xs leading-none text-black whitespace-no-wrap bg-white shadow-lg">
-                                  Learn more
-                                </span>
-                                <div className="w-3 h-3 -mt-2 rotate-45 bg-white"></div>
+                            <p className="pr-1">Change Rent Price</p>
+                            <div className="mb-1 relative">
+                              <div className="relative flex flex-col items-center group">
+                                <Link to="/about?section=owning">
+                                  <svg
+                                    className="w-4 h-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </Link>
+                                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                                  <span className="relative z-10 p-2 text-xs leading-none text-black whitespace-no-wrap bg-white shadow-lg">
+                                    Learn more
+                                  </span>
+                                  <div className="w-3 h-3 -mt-2 rotate-45 bg-white"></div>
+                                </div>
                               </div>
                             </div>
                           </div>
-                          </div>
-                          
+
                           <div>
                             <input
                               className="w-20 xl:w-24 h-6 bg-black shadow appearance-none border rounded py-2 text-white leading-tight focus:outline-none focus:shadow-outline "
@@ -822,16 +846,16 @@ const Owned = () => {
                             />
                           </div>
                           <img
-                            className="object-contain scale-75"
+                            className="h-6 w-7"
                             src="./matic-icon.png"
                             alt=""
                           ></img>
                         </div>
 
-                        <button 
+                        <button
                           className="w-full bg-gray-400 text-gray-600 cursor-default font-bold py-2 rounded"
                           onClick={() => ChangeRent(property, i)}
-                        
+
                           id={"rentButton" + i}>
                           Change
                         </button>

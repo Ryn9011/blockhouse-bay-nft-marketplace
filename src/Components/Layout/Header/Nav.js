@@ -4,20 +4,6 @@ import { Link, NavLink } from 'react-router-dom'
 import { useLocation } from "react-router-dom";
 import ConnectWallet from './ConnectWallet';
 
-const Links = () => {
-	return (
-		<div className="flex flex-col whitespace-nowrap lg:flex-row text-xl">
-			<a className="block pl-3 pr-3" href="/for-sale">All Properties</a>
-			<a className="block pl-3 pr-3" href="/for-sale">For Sale</a>
-			<a className="block pl-3 pr-3" href="/to-rent">To Rent</a>
-			<a className="block pl-3 pr-3" href="/owned">Owned Properties</a>
-			<a className="block pl-3 pr-3" href="/renting">Currently Renting</a>
-			<a className="block pl-3 pr-3 text-green-400" href="/about">About</a>
-			<a className="block pl-3 pr-3 text-red-800" href="/create-item">Create</a>
-		</div>
-	)
-}
-
 export default function Nav() {
 
 	useEffect(() => {
@@ -84,7 +70,7 @@ export default function Nav() {
 					</svg> */}
 					<div className='h-16 w-16'>
 						<img
-							className="object-contain scale-90 mb-2 mt-2.5 pl-3"
+							className="object-contain brightness-150 mb-2 mt-1 pl-3"
 							src="./tokengif.gif"
 							alt=""
 						></img>
@@ -99,43 +85,43 @@ export default function Nav() {
 					</button>
 				</div>
 				<ul className="hidden absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 whitespace-nowrap lg:mx-auto lg:flex lg:items-center lg:w-auto lg:space-x-6">
-					<li><a className={splitLocation[1] === "for-sale" ? "active text-lg hover:text-red-500" : "text-lg text-white hover:text-red-500"} href="/for-sale">For Sale</a></li>
+					<li><a className={splitLocation[1] === "for-sale" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/for-sale">For Sale</a></li>
 					<li className="text-gray-300">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "to-rent" ? "active text-lg hover:text-red-500" : "text-lg text-white hover:text-red-500"} href="/to-rent">To Rent</a></li>
+					<li><a className={splitLocation[1] === "to-rent" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/to-rent">To Rent</a></li>
 					<li className="text-gray-300">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "owned" ? "active text-lg hover:text-red-500" : "text-lg text-white hover:text-red-500"} href="/owned">Owned Properties</a></li>
+					<li><a className={splitLocation[1] === "owned" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/owned">My Properties</a></li>
 					<li className="text-gray-300">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "renting" ? "active text-lg hover:text-red-500" : "text-lg text-white hover:text-red-500"} href="/renting">Currently Renting</a></li>
+					<li><a className={splitLocation[1] === "renting" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/renting">Renting</a></li>
 					<li className="text-gray-300">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "" ? "active text-lg hover:text-red-500" : "text-lg text-white hover:text-red-500"} href="/all-properties">All Properties</a></li>
+					<li><a className={splitLocation[1] === "all-properties" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/all-properties">All Properties</a></li>
 					<li className="text-gray-300">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "exclusive" ? "active text-lg hover:text-red-500" : "text-lg text-white hover:text-red-500"} href="/exclusive">Exclusive</a></li>
+					<li><a className={splitLocation[1] === "exclusive" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/exclusive">Exclusive</a></li>
 					<li className="text-gray-300">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "about" ? "active text-lg hover:text-red-500" : "text-lg text-white hover:text-red-500"} href="/about">About</a></li>
+					<li><a className={splitLocation[1] === "about" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/about">About</a></li>
 				</ul>
 				{/* <ConnectWallet /> */}
 			</nav>
@@ -173,7 +159,10 @@ export default function Nav() {
 								<a className={splitLocation[1] === "owned" ? "active block p-4 text-sm font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4 text-sm font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/owned">My Properties</a>
 							</li>
 							<li className="mb-1">
-								<a className={splitLocation[1] === "renting" ? "active block p-4 text-sm font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4 text-sm font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/renting">Renting</a>
+								<a className={splitLocation[1] === "renting" ? "active block p-4 text-sm font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4 text-sm font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/renting">Renting</a>								
+							</li>
+							<li className="mb-1">
+								<a className={splitLocation[1] === "exclusive" ? "active block p-4 text-sm font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4 text-sm font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/exclusive">Exclusive</a>
 							</li>
 							<li className="mb-1">
 								<a className={splitLocation[1] === "about" ? "active block p-4 text-sm font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4 text-sm font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/about">About</a>
@@ -236,7 +225,7 @@ export default function Nav() {
 		// 							className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
 		// 							href="#pablo"
 		// 						>
-		// 							<i className="fab fa-facebook-square text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Share</span>
+		// 							<i className="fab fa-facebook-square text-xl leading-lg text-white opacity-75"></i><span className="ml-2">Share</span>
 		// 						</a>
 		// 					</li>
 		// 					<li className="nav-item">
@@ -244,7 +233,7 @@ export default function Nav() {
 		// 							className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
 		// 							href="#pablo"
 		// 						>
-		// 							<i className="fab fa-twitter text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Tweet</span>
+		// 							<i className="fab fa-twitter text-xl leading-lg text-white opacity-75"></i><span className="ml-2">Tweet</span>
 		// 						</a>
 		// 					</li>
 		// 					<li className="nav-item">
@@ -252,7 +241,7 @@ export default function Nav() {
 		// 							className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
 		// 							href="#pablo"
 		// 						>
-		// 							<i className="fab fa-pinterest text-lg leading-lg text-white opacity-75"></i><span className="ml-2">Pin</span>
+		// 							<i className="fab fa-pinterest text-xl leading-lg text-white opacity-75"></i><span className="ml-2">Pin</span>
 		// 						</a>
 		// 					</li>
 		// 				</ul>
