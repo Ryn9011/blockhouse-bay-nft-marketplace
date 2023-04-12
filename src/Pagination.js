@@ -15,8 +15,6 @@ export default function Pagination({
 
   const getItemCount = () => {
     if (totalPosts < postsPerPage) {
-      console.log(postsPerPage)
-      console.log(totalPosts)
       return (
         <span className='font-medium'> {totalPosts} </span>
       )
@@ -41,7 +39,6 @@ export default function Pagination({
             Showing
             <span className='font-medium'>
               {" "}
-              {/* {currentPage * postsPerPage}{" "} */}
               {currentPage === 1 ? currentPage : currentPage * postsPerPage - postsPerPage}{" "}
             </span>
             -
@@ -64,8 +61,8 @@ export default function Pagination({
                 href='#'
                 className={
                   currentPage === number
-                    ? "bg-blue border-red-300 text-red-500 hover:text-red-500 relative inline-flex items-center px-4 py-2 border text-sm font-medium"
-                    : "bg-transparent border-gray-300 text-gray-300 hover:text-white relative inline-flex items-center px-4 py-2 border text-sm font-medium"
+                    ? "bg-blue border-red-300 text-red-500 hover:text-red-500 relative inline-flex items-center justify-center w-10 h-10 border text-sm font-medium"
+                    : "bg-transparent border-gray-300 text-gray-300 hover:text-white relative inline-flex items-center justify-center w-10 h-10 border text-sm font-medium"
                 }
               >
                 {number}

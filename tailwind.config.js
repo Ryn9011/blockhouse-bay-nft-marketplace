@@ -11,7 +11,8 @@ module.exports = {
         'polygon-purple': '#8247e5',
         'matic-blue' : '#2bbdf7',
         'btn-silver': '#C0C0C0',
-        'btn-gold': '#D4AF37'
+        'btn-gold': '#D4AF37',
+        'btn-red': '#f50057'
       },
       screens: {
         xs: "390px", 

@@ -230,13 +230,13 @@ const CreateItem = () => {
  
     contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     
-    let listingPrice = await contract.getListingPrice()     
-    listingPrice = listingPrice.toString()             
+    // let listingPrice = await contract.getListingPrice()     
+    // listingPrice = listingPrice.toString()             
 
     const numOfBatches = 10;
     for (let i = 0; i < numOfBatches; i++) {
       const idsBatch = tokenIds.slice(i * batchSize, (i + 1) * batchSize);
-      let transaction2 = await contract.createPropertyListing(nftaddress, idsBatch, { value: listingPrice })
+      let transaction2 = await contract.createPropertyListing(nftaddress, idsBatch) //, { value: listingPrice }
       await transaction2.wait()
     }
 

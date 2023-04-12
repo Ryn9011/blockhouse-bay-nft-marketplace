@@ -4,8 +4,11 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import { makeStyles } from '@material-ui/core/styles';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Modal from '@material-ui/core/Modal';
+import { Typography } from '@material-ui/core';
 import { useLocation } from 'react-router-dom';
 import Pagination from '../Pagination'
+import { grey } from "@material-ui/core/colors";
 
 const useStyles = makeStyles({
   root: {
@@ -28,11 +31,32 @@ const useStyles = makeStyles({
     color: '#fff',
     background: 'black'
   },
+  paper: {
+    position: 'absolute',
+    width: '80%',
+    maxWidth: 600,
+    backgroundColor: "#8247e5",
+    border: '2px',
+    borderColor: 'white',
+    color: 'white',
+    boxShadow: '25px',
+    padding: '10px',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    overflowY: 'auto',
+    maxHeight: 'calc(100vh - 200px)'
+  },
 });
 
 const About = () => {
   const [expanded, setExpanded] = React.useState(false);
+  const [defaultExpanded, setDefaultExpanded] = React.useState(false);
+  const [buyingExpanded, setBuyingExpanded] = React.useState(false);
   const [ownedExpanded, setOwnedExpanded] = React.useState(false);
+  const [rentingExpanded, setRentingExpanded] = React.useState(false);
+  const [exclusiveExpanded, setExclusiveExpanded] = React.useState(false);
+
   const classes = useStyles();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -42,7 +66,9 @@ const About = () => {
   const imgSrcs = ["./myProperties.png", "./myProperties2.png", "./myRenting2.png", "./myRenting.png"];
   const [ownedImageSrc, setOwnedImageSrc] = useState(imgSrcs[1])
   const [rentImageSrc, setRentImageSrc] = useState(imgSrcs[3])
-  
+
+  const [isOpen, setIsOpen] = useState(false);  
+
   const iconColor = "grey"
 
   useMemo(() => {
@@ -63,26 +89,69 @@ const About = () => {
   };
 
   useEffect(() => {
-    console.log(section)
-    if (section) {
-      setExpanded("default")      
+    console.log(section )
+    if (section === "nft") {
+      setExpanded("default")
+      setDefaultExpanded(true)
+    } else {
+      setExpanded(section)
     }
   }, [section])
 
   const handleChange = (panel) => (event, isExpanded) => {
+    if (panel === "default" && isExpanded) {
+      setDefaultExpanded(true)
+    } else {
+      setDefaultExpanded(false)
+    }
+
     setExpanded(isExpanded ? panel : false);
-    if (!ownedExpanded) {
-      setOwnedExpanded(!ownedExpanded);
-    }    
+    if (panel === "buying" && isExpanded) {
+      setBuyingExpanded(true)
+    } else {
+      setBuyingExpanded(false)
+    }
+
+    if (panel === "owning" && isExpanded) {
+      setOwnedExpanded(true)
+    } else {
+      setOwnedExpanded(false)
+    }
+
+    if (panel === "renting" && isExpanded) {
+      setRentingExpanded(true)
+    } else {
+      setRentingExpanded(false)
+    }
+
+    if (panel === "panel8" && isExpanded) {
+      setExclusiveExpanded(true)
+    } else {
+      setExclusiveExpanded(false)
+    }   
   };
+
+  const handleModalOpen = () => {    
+    setIsOpen(true)   
+  }
+
+  const handleModalClose = () => {
+    setIsOpen(false)
+  }
+
+
+
 
   return (
     <div className="ml-4 mr-4 mb-12">
       <Accordion className={classes.root} expanded={expanded === 'default'} onChange={handleChange('default')}>
         <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'default' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
           <div className="flex justify-center">
-            <h2 className="mr-4 ml-8 hidden md:block">About Blockhouse Bay</h2>
-            <h3 className="mr-4 ml-8 md:hidden">About Blockhouse Bay</h3>
+            <div>
+              <div>
+                <p className={(defaultExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Blockhouse Bay</p>
+              </div>
+            </div>
             {/*<img className="w-1/4" src="polylogo2.png" /> */}
           </div>
         </AccordionSummary>
@@ -102,8 +171,64 @@ const About = () => {
                 <li className="py-4">
                   <h3 className="text-lg font-semibold">What is Blockhouse Bay?</h3>
                   <p className="mt-2 text-gray-500">
-                    Blockhouse Bay is a real-estate simulation that utilizes Web 3 technologies and the Polygon blockchain.
-                  </p>
+                    Blockhouse Bay is a real-estate simulation that utilizes Web 3 technologies and the Polygon blockchain. <button className="text-yellow-200" onClick={handleModalOpen}>TLDR</button>
+                  </p>                                   
+                    <Modal
+                      open={isOpen}
+                      onClose={handleModalClose}
+                      aria-labelledby="modal-title"
+                      aria-describedby="modal-description"                      
+                    >
+                      <div className={classes.paper}>
+                      <img src="logo.png" className="h-2/6" />                       
+                        <Typography variant="body1" id="modal-description" gutterBottom>
+                          Blockhouse Bay is a decentralized application (dapp) built on the
+                          Polygon blockchain that allows users to participate in a virtual real
+                          estate market. Using unique erc721 tokens, users can buy, sell, and
+                          rent properties within the platform's ecosystem.
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          Each property on the platform is represented by an erc721 token, which
+                          is a non-fungible token (NFT). This means that each token is unique and
+                          represents a specific asset, just like real-world properties. The use
+                          of NFTs ensures that each property in Blockhouse Bay is fully owned and
+                          controlled by the user who holds the corresponding token.
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          The prices of properties on Blockhouse Bay are fixed, with the current
+                          owner setting the price for the property. This makes it easy and
+                          straightforward for users to purchase or sell properties on the
+                          platform without the need for offers or negotiations.
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          Renters can also participate in the platform by renting properties
+                          from other users. Rent is paid in Matic, the native cryptocurrency of
+                          the Polygon network, and renters are rewarded with BHB tokens for
+                          paying their rent. BHB tokens can be used to buy and sell properties on
+                          the platform or to purchase exclusive properties that are only
+                          available for purchase with BHB tokens.
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          One of the key benefits of using the Polygon blockchain for Blockhouse
+                          Bay is that it is a very cost-effective blockchain to operate on. The
+                          Polygon network is designed to be scalable and efficient, with low
+                          transaction fees and fast confirmation times. This means that users
+                          can participate in the virtual real estate market without incurring
+                          high transaction fees, making it an attractive option for those
+                          looking to invest in the virtual real estate market.
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          In summary, Blockhouse Bay provides a fun and exciting way for users
+                          to participate in the real estate market without the need for
+                          significant capital investment. By leveraging the power of the Polygon
+                          blockchain and NFT technology, Blockhouse Bay creates a decentralized
+                          and secure real estate market that is accessible to anyone with an
+                        </Typography>
+                        <a className="mr-4" href="mailto:ryan.jennings83@gmail.com">Contact</a>
+                        <button className="text-white" onClick={handleModalClose}>Close</button>
+                      </div>
+                    </Modal>
+                  
                 </li>
                 <li className="py-4">
                   <h3 className="text-lg font-semibold">Landlord or Tenant or Both</h3>
@@ -113,19 +238,19 @@ const About = () => {
                 </li>
                 <li className="pt-3 pb-4">
 
-                <div className="flex">
+                  <div className="flex">
                     <header className="flex items-center h-9">
                       <div className="flex">
                         <p className="text-lg font-semibold mr-2">Earn Matic</p>
                         <img src="matic-icon.png" className="h-7 w-8 mr-2" />
                         <p className="text-lg font-semibold mr-2">& BHB Tokens</p>
-                      </div>                    
+                      </div>
                     </header>
                     <div className="flex justify-center mr-4">
                       <img className="h-10 w-10 brightness-150" src="tokenfrontsmall.png" />
                     </div>
                   </div>
-                 
+
                   <p className="mt-1 text-gray-500">
                     As a landlord, you can earn real money from your renters or receive Blockhouse Bay tokens (BHB) each time rent is paid. Purchasing with tokens is a more cost-effective way to buy property compared to purchasing with Matic tokens.
                   </p>
@@ -185,12 +310,13 @@ const About = () => {
 
       <Accordion className={classes.root} expanded={expanded === 'buying'} onChange={handleChange('buying')}>
         <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'buying' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
-          <div className="">
-            <h2 className="mr-4 ml-8 hidden md:block">Buying a Property</h2>
-            <h3 className="mr-4 ml-8 md:hidden">Buying a Property</h3> 
-          </div>                   
-        </AccordionSummary>   
-        <AccordionDetails className={classes.details}>        
+          <div>
+            <div>
+              <p className={(buyingExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Buying a Property</p>
+            </div>
+          </div>
+        </AccordionSummary>
+        <AccordionDetails className={classes.details}>
           <div className="lg:grid lg:grid-cols-2 lg:gap-4 lg:text-lg text-lg xl:text-xl lg:ml-24 2xl:text-2xl">
             <ul className="divide-y divide-gray-200">
               <li className="py-4">
@@ -212,13 +338,13 @@ const About = () => {
                 <h3 className="text-lg font-semibold">Property Resale</h3>
                 <p className="mt-2 text-gray-500">
                   Property owners have the option to resell their property for either MATIC or BHB tokens.
-                </p>               
+                </p>
               </li>
               <li className="py-4">
                 <h3 className="text-lg font-semibold">Selling a Rented Property</h3>
                 <p className="mt-2 text-gray-500">
                   Properties can be sold with existing tennants which will transfer over to the new property owner with the sale.
-                </p>               
+                </p>
               </li>
             </ul>
             <div className="lg:ml-16 content-center">
@@ -232,10 +358,11 @@ const About = () => {
 
       <Accordion className={classes.root} expanded={expanded === 'owning'} onChange={handleChange('owning')}>
         <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'owning' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
-          <h2 className="mr-4 ml-8 hidden md:block">Owning a Property</h2>
-          {ownedExpanded && 
-            <h3 className="mr-4 ml-8 md:hidden border border-2 p-2">Owning a Property</h3>
-          }          
+          <div>
+            <div>
+              <p className={(ownedExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Owning a Property</p>
+            </div>
+          </div>
         </AccordionSummary>
         <AccordionDetails className={classes.details}>
           <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:text-xl lg:ml-24">
@@ -302,7 +429,7 @@ const About = () => {
                   <h3 className="text-lg font-semibold">Payment Options</h3>
                   <p className="mt-2 text-gray-500">
                     Properties can be sold for MATIC, and owners can choose to accept BHB tokens as payment, but mixed payments are not available.
-                  </p>             
+                  </p>
                 </li>
               </ul>
               <br />
@@ -326,8 +453,8 @@ const About = () => {
                 )
                 }
                 <hr className="bg-white" />
-                <img src="collectMatic.png" className="mt-2 border border-1 mt-4"/>
-                <p className="text-sm mt-2">Accumlated rent will show above the panel and can be withdrawn at any time</p>              
+                <img src="collectMatic.png" className="mt-2 border border-1 mt-4" />
+                <p className="text-sm mt-2">Accumlated rent will show above the panel and can be withdrawn at any time</p>
               </div>
             </div>
           </div>
@@ -336,8 +463,11 @@ const About = () => {
 
       <Accordion className={classes.root} expanded={expanded === 'renting'} onChange={handleChange('renting')}>
         <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'renting' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
-          <h2 className="mr-4 ml-8 hidden md:block">Renting a Property</h2>
-          <h3 className="mr-4 ml-8 md:hidden">Renting a Property</h3>
+          <div>
+            <div>
+              <p className={(rentingExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Renting a Property</p>
+            </div>
+          </div>
         </AccordionSummary>
         <AccordionDetails className={classes.details}>
           <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:text-xl">
@@ -349,11 +479,11 @@ const About = () => {
                     <a href="#" className="text-yellow-200 hover:underline">
                       Rental Properties
                     </a> with at least one available spare room can be rented from property owners.
-                  </p>  
+                  </p>
                   <p className="mt-2 text-gray-500">
                     Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in MATIC.
-                  </p>           
-                </li>           
+                  </p>
+                </li>
                 <li className="py-4">
                   <h3 className="text-lg font-semibold">Cheaper Token Price</h3>
                   <p className="mt-2 text-gray-500">
@@ -389,7 +519,7 @@ const About = () => {
                   <p className="mt-2 text-gray-500">
                     You have the obligation of keeping up with your rent payments as the property owner can evict you, upon which, you will lose your deposit.
                   </p>
-                </li>               
+                </li>
               </ul>
             </div>
             <div className="lg:pt-1 lg:ml-24 xl3:ml-0">
@@ -402,7 +532,7 @@ const About = () => {
                     currentPage={currentImageNum}
                     isImages={true}
                   />
-                </div>                
+                </div>
                 <img className="" alt="owner panel" src={rentImageSrc} />
                 {(rentImageSrc === "./myRenting2.png") ? (
                   <p className="text-white text-sm mt-2 mb-4">Property with two rooms already rented out and one room available to rent</p>
@@ -411,9 +541,9 @@ const About = () => {
                 )
                 }
                 <hr className="bg-white" />
-                <img src="rent.png" className="mt-4 border border-1"/>
+                <img src="rent.png" className="mt-4 border border-1" />
                 <p className="text-sm mt-2">The higher the rent price, the more Matic is received upon paying rent</p>
-              </div>                          
+              </div>
             </div>
           </div>
         </AccordionDetails>
@@ -421,8 +551,11 @@ const About = () => {
 
       <Accordion className={classes.root} expanded={expanded === 'panel8'} onChange={handleChange('panel8')}>
         <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'panel8' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
-          <h2 className="mr-4 ml-8 hidden md:block">Exclusive Properties</h2>
-          <h3 className="mr-4 ml-8 md:hidden">Exclusive Properties</h3>
+          <div>
+            <div>
+              <p className={(exclusiveExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Exclusive Properties</p>
+            </div>
+          </div>
         </AccordionSummary>
         <AccordionDetails className={classes.details}>
           <div className="lg:grid lg:grid-cols-2 lg:gap-4 lg:text-lg text-lg xl:text-xl xl:text-2xl pb-8">
@@ -437,7 +570,7 @@ const About = () => {
               </li>
               <li className="py-4">
                 <h3 className="text-lg font-semibold">Buying</h3>
-                <p className="mt-2 text-gray-500">Properties on <a className="text-yellow-200 hover:text-yellow-200">Blockhouse Bay Gardens</a> can only be purchased and sold using BHB tokens</p>
+                <p className="mt-2 text-gray-500">Properties on <a href="/exclusive" className="text-yellow-200 hover:text-yellow-200">Blockhouse Bay Gardens</a> can only be purchased and sold using BHB tokens</p>
               </li>
             </ul>
             <div className="flex justify-center mr-4">

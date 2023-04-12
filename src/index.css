@@ -14,6 +14,24 @@
 
 /* Your own custom utilities */
 
+/* This will style the WalletConnect button */
+.wm-btn {
+  background-color: #005bb8;
+  color: #b61111;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* This will style the WalletConnect button on hover */
+.wm-btn:hover {
+  background-color: #004497;
+}
+
+
 .image-container {
   position: relative;
   perspective: 1000px;
@@ -22,32 +40,32 @@
 
 .rotate-away {
   transform-style: preserve-3d;
-  transform: rotateY(-40deg) translateZ(-50px);
+  transform: rotateY(-50deg) translateZ(-50px);
 }
 
 .gradient-overlay {
   position: absolute;
-  margin-top: 21%;
+  margin-top: 24%;
   top: 0;
   left: 0;
   width: 100%;
-  height: 71%;
+  height: 68%;
   opacity: 20%;
   background: linear-gradient(to left, transparent, white);
-  transform: rotateY(-40deg) translateZ(-50px);
+  transform: rotateY(-50deg) translateZ(-50px);
   mix-blend-mode: difference;
 }
 
 .gradient-overlay2 {
   position: absolute;
-  margin-top: 28%;
+  margin-top: 21%;
   top: 0;
   left: 0;
   width: 100%;
-  height: 71%;
+  height: 100%;
   opacity: 20%;
   background: linear-gradient(to left, transparent, white);
-  transform: rotateY(-40deg) translateZ(-50px);
+  transform: rotateY(-50deg) translateZ(-50px);
   mix-blend-mode: difference;
 }
 
@@ -136,7 +154,7 @@
 
   .bgcolour {
     /* @apply bg-scroll from-black via-polygon-purple to-white  bg-gradient-120; */
-    @apply bg-scroll from-black via-polygon-purple to-black  bg-gradient-120;
+    @apply bg-scroll from-black via-black to-polygon-purple  bg-gradient-120;
   }  
 
   .active{    

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "hardhat/console.sol";
 
@@ -13,11 +14,13 @@ import "./PropertyToken.sol";
 
 contract PropertyMarket is ReentrancyGuard {
     using Counters for Counters.Counter;
+    using SafeMath for uint256;
     Counters.Counter private _propertyIds;
     Counters.Counter private _propertiesSold;
     //add counter for when user re lists property and use expand array size in fetch sold items
     Counters.Counter private _relistCount;
     Counters.Counter private _propertiesRented;
+    Counters.Counter private _govtGiftCount;
 
     uint256 maxProperties = 1000;
     address payable govt;
@@ -52,7 +55,7 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 salePrice;
         uint256 tokenSalePrice;
         uint256 rentPrice;
-        uint256 soldFor; //goodidea?
+        uint256[] saleHistory; //goodidea?
         bool isForSale;
         bool roomOneRented;
         bool roomTwoRented;
@@ -71,6 +74,8 @@ contract PropertyMarket is ReentrancyGuard {
     mapping(address => uint256) public renterDepositBalance;
     mapping(address => uint256) public renterTokens;
     mapping(address => uint256) public rentAccumulated;
+    mapping(address => mapping(uint256 => uint256)) renterToPropertyPaymentTimestamps;
+
 
     // mapping(address => mapping(uint => uint)) public tenantNotUpToDate;
     //need function that iterates over a properties tenants to get seconds and perform check
@@ -196,31 +201,34 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 price,
         uint256 tokenPrice
     ) external payable nonReentrant {
-        require(
-            idToProperty[propertyId].owner == msg.sender,
-            "you can only sell properties you own"
-        );
 
         Property storage property = idToProperty[propertyId];
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+
+        require(
+            property.owner == msg.sender,
+            "you can only sell properties you own"
+        );
 
         require(
             price >= initialSalePrice,
             "You can't sell lower than the default property price"
-        );
-        property.salePrice = price;
-        property.tokenSalePrice = tokenPrice * (1 ether);
+        );        
 
         require(
             msg.value == listingPrice,
             "Please submit the exact listing fee to create a listing"
         );
 
+        property.salePrice = price;
+        property.tokenSalePrice = tokenPrice * (1 ether);
+        property.saleHistory.push(price);
+
         property.isForSale = true;
         property.seller = payable(msg.sender);
 
         _relistCount.increment(); //try put this in sale method
-        _propertiesSold.decrement();
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+        _propertiesSold.decrement();        
     }
 
     //user cancel property sale
@@ -415,7 +423,8 @@ contract PropertyMarket is ReentrancyGuard {
         return propertiesForSale;
     }
 
-    function fetchPropertiesSold() public view returns (Property[] memory) {
+
+    function fetchPropertiesSold(bool onlyRentable) public view returns (Property[] memory) {
         uint256 propertyCount = _propertyIds.current();
         uint256 currentIndex = 0;
 
@@ -424,15 +433,23 @@ contract PropertyMarket is ReentrancyGuard {
         );
         
         for (uint256 i = 0; i < propertyCount; i++) {
-            if (idToProperty[i + 1].owner != address(0)) {              
-                if (idToProperty[i + 1].roomOneRented == false
+            if (idToProperty[i + 1].owner != address(0)) {                              
+                if (onlyRentable) {
+                    if (idToProperty[i + 1].roomOneRented == false
                         || idToProperty[i + 1].roomTwoRented == false
                         || idToProperty[i + 1].roomThreeRented == false) {
+                            uint256 currentId = i + 1;
+                            Property storage currentItem = idToProperty[currentId];
+                            propertiesSold[currentIndex] = currentItem;
+                            currentIndex += 1;
+                    } 
+                } else {
                     uint256 currentId = i + 1;
                     Property storage currentItem = idToProperty[currentId];
                     propertiesSold[currentIndex] = currentItem;
                     currentIndex += 1;
-                }                              
+                }
+                                             
             }
         }
         return propertiesSold;
@@ -463,14 +480,12 @@ contract PropertyMarket is ReentrancyGuard {
 
     function fetchMyRentals() public view returns (Property[] memory) {
         uint256 totalItemCount = _relistCount.current() + _propertiesSold.current();
-        Property[] memory rentals = new Property[](totalItemCount);
-        uint256 itemCount = 0;
-        uint256[3] memory rentedProperties = tennants[msg.sender];
-        for (uint256 i = 0; i < rentedProperties.length; i++) {
-            uint256 propertyId = rentedProperties[i];
-            if (propertyId != 0) {
-                rentals[itemCount] = idToProperty[propertyId];
-                itemCount++;
+        Property[] memory rentals = new Property[](3);
+        uint256[3] memory rentedPropertyIds = tennants[msg.sender];
+        for (uint256 i = 0; i < rentedPropertyIds.length; i++) {
+            uint256 propertyId = rentedPropertyIds[i];
+            if (rentedPropertyIds[i] != 0) {
+                rentals[i] = idToProperty[propertyId];
             }
         }
         return rentals;
@@ -493,54 +508,52 @@ contract PropertyMarket is ReentrancyGuard {
         }
     }
 
-    function rentProperty(uint256 propertyId) external payable nonReentrant {
-        require(
-            msg.value == depositRequired,
-            "the deposit needs to be paid to rent this property"
-        );
-        uint256 availableRoom = checkRoomAvailability(propertyId);
-        require(
-            availableRoom != 0,
-            "no rooms availble to rent for this property"
-        );
-        //require(propertyToRenters[propertyId][propertyId] != msg.sender, "can't rent multiple rooms on same property");
-        require(
-            idToProperty[propertyId].owner != msg.sender,
-            "you can't rent your own properties"
-        );
-        for (uint256 i = 0; i < 3; i++) {
-            require(
-                propertyToRenters[propertyId][i] != msg.sender,
-                "can't rent more than 1 room on property"
-            );
-            if (propertyToRenters[propertyId][i] == address(0)) {
-                propertyToRenters[propertyId][i] = msg.sender;
-                break;
-            }
-        }
-        for (uint256 i = 0; i < 3; i++) {
-            if (tennants[msg.sender][i] == 0) {
-                _propertiesRented.increment();
-                tennants[msg.sender][i] = propertyId;
-                //tenantNotUpToDate[msg.sender][propertyId] = true;
-                renterDepositBalance[msg.sender] += msg.value;
-                totalDepositBal += msg.value;
+function rentProperty(uint256 propertyId) external payable nonReentrant {
+    require(
+        msg.value == depositRequired,
+        "the deposit needs to be paid to rent this property"
+    );
+    require(
+        checkRoomAvailability(propertyId) != 0,
+        "no rooms available to rent for this property"
+    );
+    require(
+        idToProperty[propertyId].owner != msg.sender,
+        "you can't rent your own properties"
+    );
 
-                if (availableRoom == 1) {
+    bool propertyRented = false;
+    for (uint256 i = 0; i < 3; i++) {
+        if (propertyToRenters[propertyId][i] == address(0)) {
+            if (tennants[msg.sender][i] == 0) {
+                propertyToRenters[propertyId][i] = msg.sender;
+                uint256 timestamp = renterToPropertyPaymentTimestamps[msg.sender][propertyId];
+                if (timestamp > 0) {
+                    renterToPropertyPaymentTimestamps[msg.sender][propertyId] = 0;
+                }
+                tennants[msg.sender][i] = propertyId;
+                renterDepositBalance[msg.sender] = renterDepositBalance[msg.sender].add(msg.value);
+                totalDepositBal = totalDepositBal.add(msg.value);
+
+                if (i == 0) {
                     idToProperty[propertyId].roomOneRented = true;
-                } else if (availableRoom == 2) {
+                } else if (i == 1) {
                     idToProperty[propertyId].roomTwoRented = true;
-                } else if (availableRoom == 3) {
+                } else if (i == 2) {
                     idToProperty[propertyId].roomThreeRented = true;
                 }
+                propertyRented = true;
+                _propertiesRented.increment();
                 break;
             }
+        } else if (propertyToRenters[propertyId][i] == msg.sender) {
+            revert("can't rent more than 1 room on property");
         }
     }
 
-    //rent is paid and block.timestamp + days is set
-    //check: if set amount of seconds is < than current block.timestamp then tenant is not up to date
-    //where are seconds stored?
+    require(propertyRented, "can't rent more than 3 properties at a time");
+}
+
 
     function setRentPrice(uint256 propertyId, uint256 rentPrice)
         public
@@ -558,9 +571,10 @@ contract PropertyMarket is ReentrancyGuard {
         for (uint256 i = 0; i < 3; i++) {
             if (tennants[msg.sender][i] == propertyId) {
                 tennants[msg.sender][i] = 0;
-                // if (propertyToRenters[propertyId][i] == msg.sender) {
-                //     propertyToRenters[propertyId][i] = address(0);
-                // }
+                uint256 timestamp = renterToPropertyPaymentTimestamps[msg.sender][propertyId];
+                if (timestamp > 0) {
+                    renterToPropertyPaymentTimestamps[msg.sender][propertyId] = 0;
+                }
                 if (idToProperty[propertyId].roomOneRented == true) {
                     idToProperty[propertyId].roomOneRented = false;
                 } else if (idToProperty[propertyId].roomTwoRented == true) {
@@ -569,8 +583,7 @@ contract PropertyMarket is ReentrancyGuard {
                     idToProperty[propertyId].roomThreeRented = false;
                 }
                 payable(msg.sender).transfer(depositRequired); //withdraw from contract
-                totalDepositBal -= depositRequired;
-                //emit RefundDeposit(msg.sender);
+                totalDepositBal -= depositRequired;                
                 break;
             }
         }
@@ -590,9 +603,10 @@ contract PropertyMarket is ReentrancyGuard {
                 payable(sender).transfer(depositRequired); //withdraw from contract
                 totalDepositBal -= depositRequired;
                 tennants[sender][i] = 0;
-                // if (propertyToRenters[propertyId][i] == sender) {
-                //     propertyToRenters[propertyId][i] = address(0);
-                // }
+                uint256 timestamp = renterToPropertyPaymentTimestamps[msg.sender][propertyId];
+                if (timestamp > 0) {
+                    renterToPropertyPaymentTimestamps[msg.sender][propertyId] = 0;
+                }
                 if (idToProperty[propertyId].roomOneRented == true) {
                     idToProperty[propertyId].roomOneRented = false;
                 } else if (idToProperty[propertyId].roomTwoRented == true) {
@@ -649,15 +663,29 @@ contract PropertyMarket is ReentrancyGuard {
         for (uint256 i = 0; i < 3; i++) {
             if (tennants[msg.sender][i] == propertyId) {
                 isRenter = true;
+                renterToPropertyPaymentTimestamps[msg.sender][i] = block.timestamp;
             }
         }
         require(
             isRenter,
             "You must be a tennant for this property to pay rent and earn tokens"
         );
-        //idToProperty[propertyId].owner.transfer(msg.value - (msg.value * 9500 / 10000)); //-5% govt tax
+        
         rentAccumulated[idToProperty[propertyId].owner] += msg.value;
-        //check this is paid to contract
+        
+
+        uint256 price;
+        if (propertyId > 500) {
+            price = idToProperty[propertyId].rentPrice * 3;
+        } else {
+            uint256 count = 0;
+            for (uint256 i = 0; i < 3; i++) {
+                if (tennants[msg.sender][i] != 0) {
+                    count++;
+                }
+            }
+            price = idToProperty[propertyId].rentPrice * (count + 1) * 12 / 10;
+        }    
 
         uint256 baseTokenAmount = getTokenAmountToReceive(
             idToProperty[propertyId].rentPrice / weiToEth
@@ -667,7 +695,8 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 tokensToReceive = baseTokenAmount * diminishingSupplyFactor;
         renterTokens[msg.sender] += (tokensToReceive * (1 ether)); //test this!!
 
-        tokenMaxSupply = tokenMaxSupply - tokensToReceive;
+        tokenMaxSupply = tokenMaxSupply - tokensToReceive;        
+
         emit RentPaid(msg.sender, block.timestamp, propertyId);
     }
 
@@ -730,7 +759,7 @@ contract PropertyMarket is ReentrancyGuard {
         return 0;
     }
 
-    function setDefaultSalePrice() public onlyGovt {}
+    function setDefaultSalePrice() public onlyGovt {} //needed?
 
     function withdrawPropertyTax() external onlyGovt nonReentrant {
         // this needs to withdraw total bal - deposits
@@ -741,5 +770,19 @@ contract PropertyMarket is ReentrancyGuard {
         govt.transfer(bal);
     }
 
-    //x amount of tokens can either buy an unsold property or unlock a rare property
+    //allows govt to gift up to 10 properties to early adopters
+    function giftProperties (address nftContract, uint256 propertyId, address recipient) public onlyGovt {
+        require (
+            idToProperty[propertyId].owner == address(0) &&
+            _govtGiftCount.current() < 10, "can't gift this property"
+        );
+        _govtGiftCount.increment();
+        idToProperty[propertyId].owner = payable(recipient);
+
+        IERC721(nftContract).transferFrom(address(this), recipient, propertyId);
+        idToProperty[propertyId].owner = payable(msg.sender);
+        idToProperty[propertyId].isForSale = false;
+        idToProperty[propertyId].seller = payable(address(0));
+        _propertiesSold.increment();
+    }
 }
