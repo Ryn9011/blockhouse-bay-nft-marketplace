@@ -1,8 +1,10 @@
 import datajson from '../src/final-manifest.json';
-import datajsonEx from '../src/exclusive-manifest.json';
+import datajsonEx from '../src/exc-manifest.json';
 
 const GetPropertyNames = (meta, pid) => {
   let data = pid >= 501 ? datajsonEx : datajson;
+
+  console.log(pid)
 
   const url = meta.config.url
  

@@ -10,7 +10,7 @@ import { useRef } from "react";
 import BigNumber from 'bignumber.js'
 
 import data from '../final-manifest.json';
-import dataEx from '../exclusive-manifest.json';
+import dataEx from '../exc-manifest.json';
 
 import {
   nftaddress, nftmarketaddress
@@ -188,12 +188,6 @@ const CreateItem = () => {
   }
 
 
-
-  
-  //http://arweave.net/dlfIcZoIBdWgW6fuTqxS1EpU9X8QK5jYnbarJqkIiw8
-//http://arweave.net/DRiqGap04wR1bUyU_RYwzjpdjeHsAXECezolSRSuK-c
-//http://arweave.net/oxIDX4DjYBP2ng9HI96ZcnvWp_tM9Rap6w1WnLxuzH0
-
   const createSale = async () => {   
     console.log(formInput)
     const urisn = Object.keys(data.paths).map(uri => "http://arweave.net/" + data.paths[uri].id);
@@ -211,7 +205,7 @@ const CreateItem = () => {
     const numBatches = Math.ceil(urisn.length / batchSize);
     const tokenIds = [];
 
-    for (let i = 0; i < numBatches; i++) {
+    for (let i = 0; i < numBatches && i * batchSize < urisn.length; i++) {
       const batch = urisn.slice(i * batchSize, (i + 1) * batchSize);
       const gasLimit = await contract.estimateGas.createTokens(batch);
       const transaction = await contract.createTokens(batch);
@@ -229,20 +223,13 @@ const CreateItem = () => {
     }
  
     contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    
-    // let listingPrice = await contract.getListingPrice()     
-    // listingPrice = listingPrice.toString()             
-
+      
     const numOfBatches = 10;
-    for (let i = 0; i < numOfBatches; i++) {
+    for (let i = 0; i < numOfBatches && i * batchSize < tokenIds.length; i++) {
       const idsBatch = tokenIds.slice(i * batchSize, (i + 1) * batchSize);
       let transaction2 = await contract.createPropertyListing(nftaddress, idsBatch) //, { value: listingPrice }
       await transaction2.wait()
-    }
-
-    // let transaction2 = await contract.createPropertyListing(nftaddress, tokenIds, { value: listingPrice })
-    // await transaction2.wait()
-    
+    }    
   }
 
   const createSaleEx = async () => {   
@@ -258,8 +245,6 @@ const CreateItem = () => {
 
     let contract = new ethers.Contract(nftaddress, NFT.abi, signer)
 
-    // const batchSize = 50;
-    // const numBatches = Math.ceil(urisn.length / batchSize);
     const tokenIds = [];
       const transaction = await contract.createExclusiveTokens(urisn);
       const receipt = await transaction.wait();

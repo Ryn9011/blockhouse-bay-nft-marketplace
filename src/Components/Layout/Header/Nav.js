@@ -102,7 +102,7 @@ export default function Nav() {
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "renting" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/renting">Renting</a></li>
+					<li><a className={splitLocation[1] === "renting" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/renting">My Renting</a></li>
 					<li className="text-gray-300">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
@@ -114,7 +114,7 @@ export default function Nav() {
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "exclusive" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/exclusive">Exclusive</a></li>
+					<li><a className={splitLocation[1] === "exclusive" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/exclusive">Blockhouse Bay Gardens</a></li>
 					<li className="text-gray-300">
 						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
@@ -128,7 +128,7 @@ export default function Nav() {
 			</nav>
 			<div className="navbar-menu relative z-50 hidden">
 				<div className="navbar-backdrop fixed inset-0 bg-gray-800 opacity-75"></div>
-				<nav className="fixed top-0 left-0 bottom-0 flex flex-col w-4/6 max-w-sm py-6 px-6 bg-gray-900 border-r overflow-y-auto">
+				<nav className="fixed top-0 left-0 bottom-0 flex flex-col w-5/6 max-w-sm py-6 px-6 bg-gray-900 border-r overflow-y-auto">
 					<button className="navbar-close flex justify-end">
 						<svg className="h-4 w-4 text-white cursor-pointer hover:text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -146,10 +146,7 @@ export default function Nav() {
 						</a>
 					</div>
 					<div>
-						<ul>
-							<li className="mb-1">
-								<a className={splitLocation[1] === "all-properties" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4 text-base font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/all-properties">All Properties</a>
-							</li>
+						<ul>						
 							<li className="mb-1">
 								<a className={splitLocation[1] === "for-sale" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/for-sale">For Sale</a>
 							</li>
@@ -160,10 +157,13 @@ export default function Nav() {
 								<a className={splitLocation[1] === "owned" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/owned">My Properties</a>
 							</li>
 							<li className="mb-1">
-								<a className={splitLocation[1] === "renting" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/renting">Renting</a>								
+								<a className={splitLocation[1] === "renting" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/renting">My Renting</a>								
 							</li>
 							<li className="mb-1">
-								<a className={splitLocation[1] === "exclusive" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/exclusive">Exclusive</a>
+								<a className={splitLocation[1] === "all-properties" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4 text-base font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/all-properties">All Properties</a>
+							</li>
+							<li className="mb-1">
+								<a className={splitLocation[1] === "exclusive" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/exclusive">Blockhouse Bay Gardens</a>
 							</li>
 							<li className="mb-1">
 								<a className={splitLocation[1] === "about" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/about">About</a>

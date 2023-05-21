@@ -2,13 +2,15 @@ import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import axios from 'axios'
 import Web3Modal from 'web3modal'
+import Ticker from 'react-ticker';
 
 import {
-  nftaddress, nftmarketaddress, propertytokenaddress
+  nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
 } from '../config'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
+import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToken.json'
 import Pagination from '../Pagination'
 
@@ -33,8 +35,10 @@ const ForSale = () => {
     const provider = new ethers.providers.JsonRpcProvider()
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
+    const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
     const data = await marketContract.fetchPropertiesForSale(currentPage)
     const numForSale = await marketContract.getPropertiesForSale();
+    console.log(data)
     setNumForSale(numForSale.toNumber());
 
     const items = await Promise.all(data.map(async i => {
@@ -88,6 +92,15 @@ const ForSale = () => {
 
       let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
       let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
+      let saleHistory = [];
+      if (i.saleHistory.length > 0) {
+        console.log(i.saleHistory)
+        saleHistory = i.saleHistory.map(a => ethers.utils.formatEther(a))
+      } else {
+        saleHistory.push("Unsold")
+      }
+      // let saleHistory = []
+
       //let tokenSalePriceFormatted = ethers.utils.formatUnits(hexTokenPrice, 'ether')
       let item = {
         price,
@@ -101,8 +114,8 @@ const ForSale = () => {
         roomTwoRented: i.roomTwoRented,
         roomThreeRented: i.roomThreeRented,
         roomsToRent: 0,
-        tokenSalePrice: tokenSalePriceFormatted
-
+        tokenSalePrice: tokenSalePriceFormatted,
+        saleHistory: saleHistory
       }
       if (item.roomOneRented == true) {
         item.roomsToRent++
@@ -131,7 +144,7 @@ const ForSale = () => {
     let isTokenSale = false
     if (document.getElementById("pogRadio" + i) != undefined) {
       if (document.getElementById("pogRadio" + i).checked) {
-        price = ethers.utils.parseUnits("2", 'ether')
+        price = ethers.utils.parseUnits("0", 'ether')
         isTokenSale = true
         const propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer)
         const amount = ethers.utils.parseUnits(nft.tokenSalePrice, 'ether')
@@ -150,6 +163,10 @@ const ForSale = () => {
     await transaction.wait()
     loadProperties(currentPage)
   }
+
+  const items = [
+    " 2004 XYZ - 12/12/2023, "
+  ];
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber)
@@ -179,23 +196,29 @@ const ForSale = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
+          <img src="autumn.png" className="h-5/6 w-3/6 pl-12" />
         </div>
       </div>
     </div>
   )
 
   if (loadingState === 'loaded' && !currentPosts.length) return (
-    <>
-      <h1 className="px-8 lg:px-24 pt-10 text-3xl">No properties currently for sale</h1>
-      <p className='text-white text-xl pt-4 pl-8 lg:pl-32'>Check back soon for new listings</p>
-    </>    
+    <div className="pt-10 pb-10">
+      <div className="flex ">
+        <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
+          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">For Sale</p>
+          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently for sale</p>
+          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Check back soon for new listings</p>
+        </div>
+      </div>
+    </div>
   )
 
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4" style={{ maxWidth: "1600px" }}>
-          <p className="text-white text-5xl font-bold">For Sale</p>
+          <p className="text-5xl xl3:text-6xl font-bold text-white">For Sale</p>
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
             <header className="flex items-center h-16 mb-1 mr-3">
@@ -220,7 +243,7 @@ const ForSale = () => {
               return (
                 <div
                   key={property.propertyId}
-                  className="border shadow rounded-md overflow-hidden bg-gradient-to-r from-blue-400 to-black"
+                  className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
                 >
                   {console.log(property.propertyId + " hit")}
                   <img className='w-fit h-fit' src={property.image} alt="" />
@@ -232,14 +255,51 @@ const ForSale = () => {
                       {property.name}
                       {/* {names[i]} */}
                     </p>
-                    <div style={{ height: "70px", overflow: "hidden" }}>
-                      <div className="flex">
-                        <p>Rooms Rented:</p>
-                        <p className="pl-3">{property.roomsToRent}/3</p>
+                    <div style={{ height: "200px", overflow: "hidden" }}>
+                      <div className="flex flex-col">
+                        <p>Owner:</p>
+                        <p className="font-mono text-xs text-green-400">{property.owner}</p>
                       </div>
-                      <div className="flex">
+                      <div className="flex flex-col">
+                        <p>Rooms Rented:</p>
+                        <p className="font-mono text-xs text-green-400">{property.roomsToRent}/3</p>
+                      </div>
+                      <div className="flex flex-col">
+                        <p>Rent Price:</p>
+                        <p className="font-mono text-xs text-green-400">{property.rentPrice}/3</p>
+                      </div>
+                      <div className="flex flex-col">
                         <p>Total Income Generated:</p>
-                        <p className="pl-3">0 Matic</p>
+                        <p className="font-mono text-xs text-green-400">0 Matic</p>
+                      </div>
+                      <div className="flex flex-col">
+                        <p className=''>Sale History:</p>
+                        <div className='font-mono text-xs text-green-400'>
+                          {property.saleHistory[0] === "Unsold" ? (
+                            <div className="w-full flex justify-start">
+                              <p>
+                                {property.saleHistory[0]}
+                              </p>
+                            </div>
+                          ) : (
+                            <div className='pl-0.5'>
+                              <Ticker speed={2}>
+                                {({ index }) => (
+                                  <>
+                                    <div className="w-full pl-1 flex justify-center">
+                                      <p>
+                                        {property.saleHistory[0]}
+                                      </p>
+                                      <p className="invisible pl-1">
+                                        {property.saleHistory[0]}
+                                      </p>
+                                    </div>
+                                  </>
+                                )}
+                              </Ticker>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>

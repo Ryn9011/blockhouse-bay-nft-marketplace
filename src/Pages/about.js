@@ -160,11 +160,11 @@ const About = () => {
           <div className="lg:grid justify-items-center mb-32 lg:mb-4 lg:grid-cols-2 lg:gap-16 xl3:gap-32 lg:text-xl text-lg xl:text-xl 2xl:text-2xl">
             {/* <img className="p-6 pt-0" src="about.jpeg" /> */}
             <div>
-              <ul className="divide-y divide-gray-200 lg:ml-24">
+              <ul className="divide-y divide-gray-200 lg:ml-0">
                 <li className="py-4">
                   <div className="flex justify-end">
                     {/* <h3 className=" mr-3" >Powered By</h3> */}
-                    <img className="w-3/5 md:w-2/5 max-w-[22rem] brightness-125" src="poly.png" />
+                    {/* <img className="w-3/5 md:w-2/5 max-w-[22rem] brightness-125" src="poly.png" /> */}
                   </div>
 
                 </li>
@@ -286,23 +286,8 @@ const About = () => {
                 </li>
               </ul>
             </div>
-            <div className="gallery cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
-              <div className="clipped-border">
-                <img src="house1.jpeg" id="clipped" />
-              </div>
-              <div className="clipped-border">
-                <img src="house2.jpeg" id="clipped" />
-              </div>
-              <div className="clipped-border">
-                <img src="house6.jpeg" id="clipped" />
-              </div>
-              <div className="clipped-border">
-                <img src="house4.jpeg" id="clipped" />
-              </div>
-              <div className="clipped-border">
-                <img src="house5.jpeg" id="clipped" />
-              </div>
-              <div className="shadow"></div>
+            <div className="flex justify-center sm:justify-start 2xl:justify-center">
+              <img className="p-4 mt-4 brightness-110 transform " src="bay.png" />
             </div>
           </div>
         </AccordionDetails>
@@ -317,7 +302,8 @@ const About = () => {
           </div>
         </AccordionSummary>
         <AccordionDetails className={classes.details}>
-          <div className="lg:grid lg:grid-cols-2 lg:gap-4 lg:text-lg text-lg xl:text-xl lg:ml-24 2xl:text-2xl">
+        <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:text-xl ">
+            <div className="lg:col-span-2 lg:pr-32 text-justify xl:text-2xl">
             <ul className="divide-y divide-gray-200">
               <li className="py-4">
                 <h3 className="text-lg font-semibold">NFT Properties for Sale</h3>
@@ -333,6 +319,7 @@ const About = () => {
                 <p className="mt-2 text-gray-500">
                   Properties can be bought by paying the asking price in MATIC or BHB tokens. BHB tokens can be obtained by paying rent on a property for which the buyer is currently a tenant.
                 </p>
+                <p>A 5 Matic fee is required when buying with BHB tokens</p>
               </li>
               <li className="py-4">
                 <h3 className="text-lg font-semibold">Property Resale</h3>
@@ -347,12 +334,15 @@ const About = () => {
                 </p>
               </li>
             </ul>
+            </div>
+           
             <div className="lg:ml-16 content-center">
               <div className="flex justify-center sm:justify-start 2xl:justify-center">
-                <img className="p-4 mt-4 transform rotate-3 sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-2/5 lg:w-full lg:h-full xl:h-4/5 xl:w-4/5 2xl:h-4/6 2xl:w-4/6 max-w-[40rem]" src="buying3.jpeg" />
+                <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-2/5 lg:w-full lg:h-full pr-16 max-w-[40rem]" src="buying.png" />
               </div>
             </div>
           </div>
+
         </AccordionDetails>
       </Accordion>
 
@@ -360,13 +350,13 @@ const About = () => {
         <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'owning' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
           <div>
             <div>
-              <p className={(ownedExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Owning a Property</p>
+              <p className={(ownedExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4 pb-5" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Owning a Property</p>
             </div>
           </div>
         </AccordionSummary>
         <AccordionDetails className={classes.details}>
-          <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:text-xl lg:ml-24">
-            <div className="lg:col-span-2 lg:pr-64 text-justify xl:text-2xl">
+          <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:text-xl ">
+            <div className="lg:col-span-2 lg:pr-32 text-justify xl:text-2xl">
               <ul className="divide-y divide-gray-200">
                 <li className="py-4">
                   <h3 className="text-lg font-semibold">Manage Properties and Collect Rent</h3>
@@ -434,7 +424,7 @@ const About = () => {
               </ul>
               <br />
             </div>
-            <div className="lg:pt-1 lg:ml-24 xl3:ml-0">
+            <div className="lg:pt-1  xl3:ml-0">
               <div className="xl3:ml-14 lg:w-4/5 xl3:w-1/2 pt-2">
                 <div className="flex h-9 mb-3 justify-end">
                   <Pagination
@@ -453,7 +443,7 @@ const About = () => {
                 )
                 }
                 <hr className="bg-white" />
-                <img src="collectMatic.png" className="mt-2 border border-1 mt-4" />
+                <img src="collectRent.png" className="mt-2 border border-1 mt-4" />
                 <p className="text-sm mt-2">Accumlated rent will show above the panel and can be withdrawn at any time</p>
               </div>
             </div>
@@ -471,7 +461,7 @@ const About = () => {
         </AccordionSummary>
         <AccordionDetails className={classes.details}>
           <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:text-xl">
-            <div className="lg:col-span-2 lg:pr-32 text-justify xl:text-2xl lg:ml-24">
+            <div className="lg:col-span-2 lg:pr-32 text-justify xl:text-2xl ">
               <ul className="divide-y divide-gray-200">
                 <li className="py-4">
                   <h3 className="text-lg font-semibold">Renting a Room</h3>
@@ -483,9 +473,18 @@ const About = () => {
                   <p className="mt-2 text-gray-500">
                     Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in MATIC.
                   </p>
+                  <p className="mt-2 text-gray-500">
+                    Rent must be paid daily. A renter will be flagged as a late payer to the owner if no payment is made within 24 hours.
+                  </p>
+                  <p className="mt-2 text-gray-500">
+                    A user cannot rent a room on a property they own.
+                  </p>
                 </li>
                 <li className="py-4">
-                  <h3 className="text-lg font-semibold">Cheaper Token Price</h3>
+                  <h3 className="text-lg font-semibold">Token Rewards</h3>
+                  <p className="mt-2 text-gray-500">
+                    When rent is paid, the renter will be rewarded with BHB tokens. The higher the rent price paid, the higher the token rewards.
+                  </p>
                   <p className="mt-2 text-gray-500">
                     The initial token price of 2000 BHB works out to be cheaper than buying the property in MATIC. Renting is ideal for those who don't want to fork out up front the MATIC to buy a property and is a cheaper pathway to owning a property.
                   </p>
@@ -522,7 +521,7 @@ const About = () => {
                 </li>
               </ul>
             </div>
-            <div className="lg:pt-1 lg:ml-24 xl3:ml-0">
+            <div className="lg:pt-1  xl3:ml-0">
               <div className="xl3:ml-14 lg:w-4/5 xl3:w-1/2">
                 <div className="flex h-9 mb-3 justify-end">
                   <Pagination
@@ -541,7 +540,7 @@ const About = () => {
                 )
                 }
                 <hr className="bg-white" />
-                <img src="rent.png" className="mt-4 border border-1" />
+                <img src="collectTokens.png" className="mt-4 border border-1" />
                 <p className="text-sm mt-2">The higher the rent price, the more Matic is received upon paying rent</p>
               </div>
             </div>
@@ -553,17 +552,17 @@ const About = () => {
         <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'panel8' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
           <div>
             <div>
-              <p className={(exclusiveExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Exclusive Properties</p>
+              <p className={(exclusiveExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Blockhouse Bay Gardens</p>
             </div>
           </div>
         </AccordionSummary>
         <AccordionDetails className={classes.details}>
-          <div className="lg:grid lg:grid-cols-2 lg:gap-4 lg:text-lg text-lg xl:text-xl xl:text-2xl pb-8">
-            <ul className="divide-y divide-gray-200 lg:ml-24">
+          <div className="lg:grid justify-items-center mb-32 lg:mb-20 lg:grid-cols-2 lg:mr-12 lg:gap-16 xl3:gap-32 lg:text-xl text-lg xl:text-xl 2xl:text-2xl">
+            <ul className="divide-y divide-gray-200 ">
               <li className="py-4">
-                <h3 className="text-lg font-semibold">Exclusive Properties</h3>
+                <h3 className="text-lg font-semibold">Blockhouse Bay Gardens</h3>
                 <p className="mt-2 text-gray-500">
-                  Blockhouse Bay Gardens, an exclusive street of grand and stunning homes,
+                  Blockhouse Bay Gardens, a long exclusive street of grand and stunning homes,
                   is a paradise of luxurious living. From impressive architecture to immaculate gardens,
                   each house is a masterpiece of sophistication,
                   offering an unparalleled lifestyle in one of the bay's most beautiful settings. </p>
@@ -572,9 +571,28 @@ const About = () => {
                 <h3 className="text-lg font-semibold">Buying</h3>
                 <p className="mt-2 text-gray-500">Properties on <a href="/exclusive" className="text-yellow-200 hover:text-yellow-200">Blockhouse Bay Gardens</a> can only be purchased and sold using BHB tokens</p>
               </li>
+              <li className="py-4">
+                <h3 className="text-lg font-semibold">Renting</h3>
+                <p className="mt-2 text-gray-500">Tripple token rewards will be given to those who rent on this street</p>
+              </li>
             </ul>
-            <div className="flex justify-center mr-4">
-              <img className="p-4 mt-4 transform rotate-3 sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-2/5 lg:w-full lg:h-full xl:h-5/5 xl:w-4/5 2xl:h-full 2xl:w-4/6 max-w-[40rem]" src="housemain.jpeg" />
+            <div className="gallery cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
+              <div className="clipped-border">
+                <img src="gallery1.png" id="clipped" />
+              </div>
+              <div className="clipped-border">
+                <img src="gallery2.png" id="clipped" />
+              </div>
+              <div className="clipped-border">
+                <img src="gallery3.png" id="clipped" />
+              </div>
+              <div className="clipped-border">
+                <img src="gallery4.png" id="clipped" />
+              </div>
+              <div className="clipped-border">
+                <img src="gallery5.png" id="clipped" />
+              </div>
+              <div className="shadow"></div>
             </div>
           </div>
         </AccordionDetails>

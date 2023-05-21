@@ -7,9 +7,10 @@ import { Link } from 'react-router-dom';
 
 import Market from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
+import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 
 import {
-  nftaddress, nftmarketaddress, propertytokenaddress
+  nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
 } from '../config'
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
@@ -21,6 +22,7 @@ const Owned = () => {
   const [loadingState2, setLoadingState2] = useState('not-loaded')
   const [acceptToken, setAcceptToken] = useState(false)
   const [tenantToDelete, setTenantToDelete] = useState("")
+  const [tenantToDeleteProperty, setTeneantToDeleteProperty] = useState()
   const [sellAmount, setSellAmount] = useState(0)
   const [tokenAmount, setTokenAmount] = useState(0)
   const [amountAccumulated, setAmountAccumulated] = useState()
@@ -45,21 +47,40 @@ const Owned = () => {
 
   async function loadProperties() {
 
-    try {
+    try {     
       const web3Modal = new Web3Modal()
       const connection = await web3Modal.connect()
       const provider = new ethers.providers.Web3Provider(connection)
       //const provider = new ethers.providers.JsonRpcProvider()
       const signer = provider.getSigner()
 
+      const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
+      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
+      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider);
+      const data = await govtContract.fetchMyProperties()
 
-      const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
-      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
-      const data = await marketContract.fetchMyProperties()
+      const propertyIds = [];
+
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        propertyIds.push(item.propertyId);
+      }
+
+      propertyIds.forEach(a => {console.log(a)})
+      const renters = await marketContract.getPropertyPayments(propertyIds);
+      console.log(renters)
+      let idsToRenters = []
+      renters.forEach(a => {
+        console.log(a)
+      })
+
+
       let value = ethers.utils.formatUnits(await marketContract.getRentAccumulated(), 'ether')
       setAmountAccumulated(value)
 
-      const items = await Promise.all(data.map(async i => {
+      console.log(data)
+
+      const items = await Promise.all(data.map(async i => {       
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
         //const meta = await axios.get(tokenUri)
 
@@ -70,17 +91,17 @@ const Owned = () => {
 
         // const nameTags = tags.data.transactions.edges[0].node.tags[0]
 
-        let nftName = GetPropertyNames(meta)
+        let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
 
-        // if (nameTags['name'] === "Application") {
-        //   nftName = nameTags['value']
-        // }
+        const timestamps = renters.filter(a => a.propertyId == i.propertyId.toNumber())        
 
         let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
         const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
-        const tokensHex = await marketContract.getTokensEarned()
-        const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
+        // const tokensHex = await marketContract.getTokensEarned()
+        // const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
+        let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
+
         let item = {
           price,
           propertyId: i.propertyId.toNumber(),
@@ -96,7 +117,9 @@ const Owned = () => {
           roomsToRent: 0,
           renterAddresses: renterAddresses,
           isForSale: i.isForSale,
-          tokenPrice: tokens
+          tokenPrice: tokenSalePriceFormatted,
+          timestamps: timestamps,
+          isExclusive: i.isExclusive
         }
         if (item.roomOneRented === true) {
           item.roomsToRent++
@@ -110,7 +133,13 @@ const Owned = () => {
         return item
       }))
       console.log(items.length)
-      setNfts(items)
+      let temp = []
+      if (nfts.length != 0) {
+        temp = [...nfts]
+        setNfts(items)
+      } else {
+        setNfts(items)
+      }      
       setLoadingState('loaded')
     } catch (Exception) {
       console.log(Exception)
@@ -136,16 +165,26 @@ const Owned = () => {
     const nftContract = new ethers.Contract(nftaddress, NFT.abi, signer)
     await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction
 
-    const transaction = await contract.sellUserProperty(
-      nftaddress,
-      property.tokenId,
-      property.propertyId,
-      priceFormatted,
-      tokenAmount,
-      { value: listingPrice }
-    )
-
-    await transaction.wait()
+    if (!property.isExclusive) {
+      const transaction = await contract.sellUserProperty(
+        nftaddress,
+        property.tokenId,
+        property.propertyId,
+        priceFormatted,
+        tokenAmount,
+        { value: listingPrice } 
+      )
+      await transaction.wait()
+    } else {
+      const transaction = await contract.sellExclusiveProperty(
+        nftaddress,
+        property.tokenId,
+        property.propertyId,       
+        tokenAmount,
+        { value: listingPrice }
+      )
+      await transaction.wait()
+    }
     console.log(nfts.length)
     loadProperties()
   }
@@ -352,6 +391,7 @@ const Owned = () => {
     if (property !== undefined) {
       console.log(i)
       return (
+        // <div className='text-xs mt-2 text-green-200'>
         <div className='text-xs mt-2 text-green-200'>
           {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
             <>
@@ -384,30 +424,41 @@ const Owned = () => {
     }
   }
 
-  function handleSellButton(e, i) {
-
-    if (document.getElementById("matic" + i).checked == false) {
-      if (e.target.value.length > 0) {
-        document.getElementById("sellBtn" + i).disabled = false
-        document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
-      } else {
-        document.getElementById("sellBtn" + i).disabled = true
-        document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
-        document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
-      }
+  function handleSellButton(e, i, pid) {    
+    if (pid > 500) {      
+      if (document.getElementById("tokenInput" + i).value.length == 0) {
+          document.getElementById("sellBtn" + i).disabled = true
+          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
+          document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
+        } else {
+          document.getElementById("sellBtn" + i).disabled = false
+          document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
+          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
+        }
     } else {
-      if (document.getElementById("amountInput" + i).value.length == 0
-        || document.getElementById("tokenInput" + i).value.length == 0) {
-        document.getElementById("sellBtn" + i).disabled = true
-        document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
-        document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
+      if (document.getElementById("matic" + i).checked == false) {
+        if (e.target.value.length > 0) {
+          document.getElementById("sellBtn" + i).disabled = false
+          document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
+          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
+        } else {
+          document.getElementById("sellBtn" + i).disabled = true
+          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
+          document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
+        }
       } else {
-        document.getElementById("sellBtn" + i).disabled = false
-        document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
+        if (document.getElementById("amountInput" + i).value.length == 0
+          || document.getElementById("tokenInput" + i).value.length == 0) {
+          document.getElementById("sellBtn" + i).disabled = true
+          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
+          document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
+        } else {
+          document.getElementById("sellBtn" + i).disabled = false
+          document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
+          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
+        }
       }
-    }
+    }    
   }
 
   function setRentButton(e, i) {
@@ -422,11 +473,12 @@ const Owned = () => {
     }
   }
 
-  function SetTenantToDelete(e, i, property) {
+  function SetTenantToDelete1(e, i, property) {
     document.getElementById("evictButton" + i).classList.remove("bg-gray-400", "text-gray-600")
     document.getElementById("evictButton" + i).classList.add("bg-red-400", "test-white")
+    setTeneantToDeleteProperty(property.propertyId)
     if (e.target.id === "tenant1") {
-      setTenantToDelete({ address: property.renterAddresses[0] })
+      setTenantToDelete({ address: property.renterAddresses[0] })      
     } else if (e.target.id === "tenant2") {
       setTenantToDelete({ address: property.renterAddresses[1] })
     } else if (e.target.id === "tenant3") {
@@ -436,11 +488,27 @@ const Owned = () => {
     return setAddresses(property, e, i)
 
   }
+
+  const CheckTimestampExpired = (property, tenantAddress) => {
+
+    const currentObject = property.timestamps.filter(a => a.renter === tenantAddress); // Example timestamp from smart contract in seconds
+    const twentyFourHoursInMillis = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const currentTimeInMillis = Date.now();
+
+    if (currentTimeInMillis - (currentObject[0].timestamp.toNumber() * 1000) > twentyFourHoursInMillis) {
+      console.log("true")
+      return true
+    } else {
+      console.log("false")
+      return false
+    }
+  }
+
   const getTenantToDeleteColour = (tenant, i) => {
     console.log(i)
-    if (tenant.renterAddresses[i] === tenantToDelete.address) {
+    if (tenant.renterAddresses[i] === tenantToDelete.address && tenant.propertyId == tenantToDeleteProperty) {
       return "text-red-400"
-    } else if (addressesOverdue.includes(tenant.renterAddresses[i])) {
+    } else if (CheckTimestampExpired(tenant, tenant.renterAddresses[i])) {
       return "text-yellow-400"
     } else {
       return ""
@@ -468,29 +536,42 @@ const Owned = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
+          <img src="spring.png" className="h-5/6 w-3/5 pl-12"/>
         </div>
       </div>
     </div>
   )
 
   if (loadingState === 'loaded' && !nfts.length) return (
-    <>
-      <h1 className="px-8 lg:px-24 pt-10 text-3xl">No properties currently owned</h1>
-      <p className='text-white text-xl pt-4 pl-8 lg:pl-32'>Buy a property and check back here</p>
-    </>    
+    <div className="pt-10 pb-10">
+      <div className="flex ">
+        <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
+        <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Properties</p>
+        <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently owned</p>        
+          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Buy a property and check back here</p>           
+          </div>     
+      </div>
+    </div>
   )
+
+  // if (!loadingState === 'loaded' && !nfts.length) return (
+  //   <>
+  //     <h1 className="px-8 lg:px-24 pt-10 text-3xl">No properties currently owned</h1>
+  //     <p className='text-white text-xl pt-4 pl-8 lg:pl-32'>Buy a property and check back here</p>
+  //   </>    
+  // )
 
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4 text-white" style={{ maxWidth: "1650px" }}>
-          <h1 className=" mb-6">My Properties</h1>
+        <p className="text-5xl xl3:text-6xl font-bold mb-6 text-white">My Properties</p>
           <div className="flex">
             <p className="text-sm lg:text-xl pl-4 font-bold mr-1 mb-2">Manage Owned Properties</p>
           </div>
           <div className="pt-3">
-            <div className="text-sm mb-4 mt-1 flex">
-              <div className="flex pr-4 mt-1.5 font-bold text-white">
+            <div className="text-sm mb-4 mt-1 lg:flex">
+              <div className="flex pr-4 mt-1.5 font-bold text-white mb-4 lg:mb-0">
                 <p>Rent Accumulated: </p>
                 <p className="pl-1 text-matic-blue">{amountAccumulated} MATIC</p>
               </div>
@@ -514,9 +595,11 @@ const Owned = () => {
               return (
                 <div
                   key={i}
-                  className="border shadow rounded-md overflow-hidden bg-gradient-to-r from-blue-400 to-black"
+                  className={`border shadow rounded-md overflow-hidden  ${property.propertyId > 500 ? "border-yellow-500 bg-gradient-to-r from-fuchsia-500 to-black" : "bg-gradient-to-r from-blue-400 to-black"}`}
+
                 >
                   <img className='w-fit h-fit' src={property.image} alt="" />
+             
                   <div className="p-4 ">
                     <p
                       style={{ height: "50px" }}
@@ -610,7 +693,7 @@ const Owned = () => {
                               </div>
                             </div>
                           </div>
-                          <div className='mb-5'>Sale Price: {property.price.substring(0, property.price.length - 2)} matic | Token Price: {property.tokenPrice.substring(0, property.tokenPrice.length - 2)}</div>
+                          <div className='mb-5'>Sale Price: {property.price.substring(0, property.price.length - 2)} Matic | {property.tokenPrice.substring(0, property.tokenPrice.length - 2)} BHB</div>
                           <div className="md:justify-self-start">
                             <button onClick={() => CancelSale(property)} className="w-full bg-yellow-600 text-white font-bold py-2 rounded">
                               Cancel
@@ -623,7 +706,7 @@ const Owned = () => {
                               <div className="pr-1">Sell</div>
                               <div className="mb-1 relative">
                                 <div className="relative flex flex-col items-center group">
-                                  <Link to="/about?section=owning">
+                                  <Link to="/about?section=owning" target='new'>
                                     <svg
                                       className="w-4 h-4 text-white"
                                       xmlns="http://www.w3.org/2000/svg"
@@ -647,6 +730,7 @@ const Owned = () => {
                               </div>
                             </div>
 
+                            {property.propertyId < 501 &&
                             <div className='pl-4 flex'>
                               <input
                                 className="rounded-full flex-shrink-0 h-3 w-3 border border-gray-300 bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
@@ -656,19 +740,21 @@ const Owned = () => {
                                 onChange={(e) => onAcceptTokenChange(e, i)}
                                 value="./matic-icon.png"
                               />
-                              <div className='mb-3'>
-                                <label
-                                  className=" form-check-label inline-block text-sm text-white align-top"
-                                  htmlFor={"matic" + i}
-                                >
-                                  Accept BHB?
-                                </label>
-                              </div>
-                            </div>
-
-
+                              
+                                <div className='mb-3'>
+                                  <label
+                                    className=" form-check-label inline-block text-sm text-white align-top"
+                                    htmlFor={"matic" + i}
+                                  >
+                                    Accept BHB?
+                                  </label>
+                                </div>
+                              
+                            </div>}
                           </div>
+                          
                           <div className='flex'>
+                            {property.propertyId < 501 &&
                             <div className='flex pr-8'>
                               <input
                                 className="w-20 xl:w-24 h-6 bg-black shadow appearance-none border rounded py-2 px-1 text-white leading-tight focus:outline-none focus:shadow-outline "
@@ -685,9 +771,9 @@ const Owned = () => {
                                 src="./matic-icon.png"
                                 alt=""
                               ></img>
-                            </div>
+                            </div>}
 
-                            <div className='invisible flex' id={'maticInput' + i}>
+                            <div className={`${property.propertyId < 501 ? 'flex invisible' : 'flex mt-4'}`} id={'maticInput' + i}>
                               <input
                                 className="w-20 xl:w-24 h-6 bg-black shadow appearance-none border rounded py-2 px-0 text-white leading-tight focus:outline-none focus:shadow-outline "
                                 type="number"
@@ -695,12 +781,12 @@ const Owned = () => {
                                 step="1"
                                 onBlur={handleBlur}
                                 onKeyDown={handleKeyPress}
-                                onChange={(e) => handleSellButton(e, i)}
+                                onChange={(e) => handleSellButton(e, i, property.propertyId)}
                                 id={"tokenInput" + i}
                               />
                               <div>
                                 <img
-                                  className="mb-4 brightness-150 h-7 w-10 pl-3"
+                                  className={`mb-4 brightness-150 h-7 w-10 pl-3 `}
                                   src="./tokenfrontsmall.png"
                                   alt=""
                                 ></img>
@@ -722,7 +808,7 @@ const Owned = () => {
                             <p className="pr-1">Evict tenant</p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
-                                <Link to="/about?section=owning">
+                                <Link to="/about?section=owning" target='new'>
                                   <svg
                                     className="w-4 h-4 text-white"
                                     xmlns="http://www.w3.org/2000/svg"
@@ -751,7 +837,7 @@ const Owned = () => {
                               type="radio"
                               name="flexRadioDefault"
                               id="tenant1"
-                              onChange={(e) => SetTenantToDelete(e, i, property)}
+                              onChange={(e) => SetTenantToDelete1(e, i, property)}
                               disabled={SetTenantRadioStatus(property, 0)}
                             />
                             <label
@@ -766,7 +852,7 @@ const Owned = () => {
                               type="radio"
                               name="flexRadioDefault"
                               id="tenant2"
-                              onChange={(e) => SetTenantToDelete(e, i, property)}
+                              onChange={(e) => SetTenantToDelete1(e, i, property)}
                               disabled={SetTenantRadioStatus(property, 1)}
                             />
                             <label
@@ -781,7 +867,7 @@ const Owned = () => {
                               type="radio"
                               name="flexRadioDefault"
                               id="tenant3"
-                              onChange={(e) => SetTenantToDelete(e, i, property)}
+                              onChange={(e) => SetTenantToDelete1(e, i, property)}
                               disabled={SetTenantRadioStatus(property, 2)}
                             />
                             <label
@@ -806,7 +892,7 @@ const Owned = () => {
                             <p className="pr-1">Change Rent Price</p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
-                                <Link to="/about?section=owning">
+                                <Link to="/about?section=owning" target='new'>
                                   <svg
                                     className="w-4 h-4 text-white"
                                     xmlns="http://www.w3.org/2000/svg"
