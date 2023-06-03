@@ -1,19 +1,80 @@
-import { React, useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
+import { Share } from 'react-twitter-widgets'
+
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import { makeStyles } from '@material-ui/core/styles';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import Market from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
+import SaleHistory from '../Components/sale-history'
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
 } from '../config'
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
+
+const useStyles = makeStyles({
+  root: {
+    backgroundColor: 'black',
+    border: '1px 0px 1px 0px solid rgba(0, 0, 0, 0.23)',
+    borderRadius: '4px',
+    boxShadow: 'none',
+    color: '#a0aec0',
+    minHeight: '0px',
+    padding: '0px'
+  },
+  summary: {
+    color: 'white',
+    height: '0px',
+    background: 'black',
+    minHeight: '18px',
+    borderradius: '0.375rem;',
+    padding: '0.375rem;',
+    //backgroundColor: '#10B981;'
+  },
+  summaryExpanded: {
+    color: '#fff',
+    padding: '0px',
+    minHeight: '18px !important;'
+  },
+  details: {
+    padding: '0 16px 16px 16px',
+    color: '#fff',
+    background: 'black'
+  },
+  paper: {
+    position: 'absolute',
+    width: '80%',
+    maxWidth: 600,
+    backgroundColor: "#8247e5",
+    border: '2px',
+    borderColor: 'white',
+    color: 'white',
+    boxShadow: '25px',
+    padding: '10px',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    overflowY: 'auto',
+    maxHeight: 'calc(100vh - 200px)'
+  },
+  padding: {
+    paddingTop: '7px !important',
+    fontSize: '0.75rem !important',
+    lineHeight: '1rem !important',
+    display: 'flex !important',
+  }
+});
 
 const Owned = () => {
 
@@ -27,13 +88,18 @@ const Owned = () => {
   const [tokenAmount, setTokenAmount] = useState(0)
   const [amountAccumulated, setAmountAccumulated] = useState()
   const [addressesOverdue, setAddressesOverdue] = useState([])
+  const [expanded, setExpanded] = React.useState(false);
+  const [twitterSaleChecked, setTwitterSaleChecked] = useState();
+  const [twitterRentChecked, setTwitterRentChecked] = useState();
 
-  const [postsPerPage] = useState(2);
+  const classes = useStyles();
+  const iconColor = "#1DA1F2"
+
+  const [postsPerPage] = useState(8);
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = nfts.slice(indexOfFirstPost, indexOfLastPost);
-
 
   useEffect(() => {
     setLoadingState('not-loaded')
@@ -47,7 +113,7 @@ const Owned = () => {
 
   async function loadProperties() {
 
-    try {     
+    try {
       const web3Modal = new Web3Modal()
       const connection = await web3Modal.connect()
       const provider = new ethers.providers.Web3Provider(connection)
@@ -66,7 +132,7 @@ const Owned = () => {
         propertyIds.push(item.propertyId);
       }
 
-      propertyIds.forEach(a => {console.log(a)})
+      propertyIds.forEach(a => { console.log(a) })
       const renters = await marketContract.getPropertyPayments(propertyIds);
       console.log(renters)
       let idsToRenters = []
@@ -80,7 +146,7 @@ const Owned = () => {
 
       console.log(data)
 
-      const items = await Promise.all(data.map(async i => {       
+      const items = await Promise.all(data.map(async i => {
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
         //const meta = await axios.get(tokenUri)
 
@@ -93,7 +159,7 @@ const Owned = () => {
 
         let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
 
-        const timestamps = renters.filter(a => a.propertyId == i.propertyId.toNumber())        
+        const timestamps = renters.filter(a => a.propertyId == i.propertyId.toNumber())
 
         let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
@@ -101,6 +167,23 @@ const Owned = () => {
         // const tokensHex = await marketContract.getTokensEarned()
         // const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
         let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
+        console.log(tokenSalePriceFormatted)
+        let saleHistory = [];
+        if (i.saleHistory.length > 0) {
+          console.log(i.saleHistory)
+          saleHistory = i.saleHistory.map(a => ethers.utils.formatEther(a))
+        } else {
+          saleHistory.push("Unsold")
+        }
+        let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+
+        let tweetOptions = {
+          text: `Check out my Blockhouse Bay property '${nftName}', page #<pa>,`,
+          via: '8bitcities',
+          url: 'http://localhost:3000/for-sale',
+          hashtags: '@Blockhouse Bay',
+          size: "large"
+        };
 
         let item = {
           price,
@@ -119,8 +202,15 @@ const Owned = () => {
           isForSale: i.isForSale,
           tokenPrice: tokenSalePriceFormatted,
           timestamps: timestamps,
-          isExclusive: i.isExclusive
+          isExclusive: i.isExclusive,
+          saleHistory: saleHistory,
+          dateSoldHistory: i.dateSoldHistory,
+          tweetOptions: tweetOptions,
+          forSaleChecked: false,
+          rentChecked: false,
+          totalIncomeGenerated: totalIncomeGenerated
         }
+
         if (item.roomOneRented === true) {
           item.roomsToRent++
         }
@@ -139,12 +229,18 @@ const Owned = () => {
         setNfts(items)
       } else {
         setNfts(items)
-      }      
+      }
       setLoadingState('loaded')
-    } catch (Exception) {
-      console.log(Exception)
+    } catch (ex) {
+      if (ex.message === 'User Rejected') {
+        // Handle user rejection
+        console.log('Connection request rejected by the user.');
+        // Display an error message to the user
+        alert('Please connect your wallet to access your properties');
+      } else {
+        console.log(ex)
+      }
     }
-
   }
 
   const SellProperty = async (property, i) => {
@@ -153,11 +249,8 @@ const Owned = () => {
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
 
-    let maticAmount = document.getElementById('amountInput' + i).value
     let tokenAmount = document.getElementById('tokenInput' + i).value
     tokenAmount = tokenAmount === "" ? 0 : tokenAmount
-
-    const priceFormatted = ethers.utils.parseUnits(maticAmount, 'ether')
 
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     const listingPrice = await contract.getListingPrice()
@@ -165,21 +258,23 @@ const Owned = () => {
     const nftContract = new ethers.Contract(nftaddress, NFT.abi, signer)
     await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction
 
-    if (!property.isExclusive) {
+    if (property.propertyId < 501) {
+      let maticAmount = document.getElementById('amountInput' + i).value
+      const priceFormatted = ethers.utils.parseUnits(maticAmount, 'ether')
       const transaction = await contract.sellUserProperty(
         nftaddress,
         property.tokenId,
         property.propertyId,
         priceFormatted,
         tokenAmount,
-        { value: listingPrice } 
+        { value: listingPrice }
       )
       await transaction.wait()
     } else {
       const transaction = await contract.sellExclusiveProperty(
         nftaddress,
         property.tokenId,
-        property.propertyId,       
+        property.propertyId,
         tokenAmount,
         { value: listingPrice }
       )
@@ -188,6 +283,26 @@ const Owned = () => {
     console.log(nfts.length)
     loadProperties()
   }
+
+  const handleForSaleCheck = (propertyId, e) => {
+    setNfts((prevList) =>
+      prevList.map((property) =>
+        property.propertyId === propertyId
+          ? { ...property, forSaleChecked: e.target.checked }
+          : property
+      )
+    );
+  };
+
+  const handleRentCheck = (propertyId, e) => {
+    setNfts((prevList) =>
+      prevList.map((property) =>
+        property.propertyId === propertyId
+          ? { ...property, rentChecked: e.target.checked }
+          : property
+      )
+    );
+  };
 
   const getLogData = async () => {
     const web3Modal = new Web3Modal()
@@ -250,8 +365,24 @@ const Owned = () => {
     console.log(filteredEvents)
     console.log(addressesOverdue)
 
-   
+
   }
+
+  // const handleForSaleCheck = (propertyId, e) => {
+  //   if (e.target.checked) {     
+  //     document.getElementById(`${propertyId}twitterSale`).style.visibility = 'visible'
+  //   } else {
+  //     document.getElementById(`${propertyId}twitterSale`).style.visibility = 'invisible'
+  //   }
+  // }
+
+  // const handleRentCheck = (propertyId, e) => {
+  //    if (e.target.checked) {     
+  //     document.getElementById(`${propertyId}twitterRent`).style.visibility = 'visible'
+  //   } else {
+  //     document.getElementById(`${propertyId}twitterRent`).style.visibility = 'invisible'
+  //   }
+  // }
 
   const CancelSale = async (property) => {
     const web3Modal = new Web3Modal()
@@ -392,7 +523,7 @@ const Owned = () => {
       console.log(i)
       return (
         // <div className='text-xs mt-2 text-green-200'>
-        <div className='text-xs mt-2 text-green-200'>
+        <div className='text-xs text-green-400'>
           {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
             <>
               {/* {                 
@@ -424,17 +555,17 @@ const Owned = () => {
     }
   }
 
-  function handleSellButton(e, i, pid) {    
-    if (pid > 500) {      
+  function handleSellButton(e, i, pid) {
+    if (pid > 500) {
       if (document.getElementById("tokenInput" + i).value.length == 0) {
-          document.getElementById("sellBtn" + i).disabled = true
-          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
-          document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
-        } else {
-          document.getElementById("sellBtn" + i).disabled = false
-          document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
-        }
+        document.getElementById("sellBtn" + i).disabled = true
+        document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
+        document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
+      } else {
+        document.getElementById("sellBtn" + i).disabled = false
+        document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
+        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
+      }
     } else {
       if (document.getElementById("matic" + i).checked == false) {
         if (e.target.value.length > 0) {
@@ -458,7 +589,7 @@ const Owned = () => {
           document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
         }
       }
-    }    
+    }
   }
 
   function setRentButton(e, i) {
@@ -478,7 +609,7 @@ const Owned = () => {
     document.getElementById("evictButton" + i).classList.add("bg-red-400", "test-white")
     setTeneantToDeleteProperty(property.propertyId)
     if (e.target.id === "tenant1") {
-      setTenantToDelete({ address: property.renterAddresses[0] })      
+      setTenantToDelete({ address: property.renterAddresses[0] })
     } else if (e.target.id === "tenant2") {
       setTenantToDelete({ address: property.renterAddresses[1] })
     } else if (e.target.id === "tenant3") {
@@ -488,6 +619,13 @@ const Owned = () => {
     return setAddresses(property, e, i)
 
   }
+
+
+
+  const handleChange = (panel) => (event, isExpanded) => {
+    console.log(panel)
+    setExpanded(isExpanded ? panel : null);
+  };
 
   const CheckTimestampExpired = (property, tenantAddress) => {
 
@@ -522,6 +660,27 @@ const Owned = () => {
     //     return ""
     // }     
   }
+  const calculatePageNumber = (itemId, forSaleItemCount) => {
+    const itemsPerPage = 20;
+  
+    if (itemId <= forSaleItemCount && itemId >= 1) {
+      const pageNumber = Math.ceil(itemId / itemsPerPage);
+      return pageNumber;
+    } else {
+      return -1; // Item ID is out of range or not marked as for sale
+    }
+  };
+  
+  
+  
+  
+  
+  
+  
+
+  let test = calculatePageNumber(221, 498)
+  console.log(test)
+  
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -536,7 +695,7 @@ const Owned = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
-          <img src="spring.png" className="h-5/6 w-3/5 pl-12"/>
+          <img src="spring.png" className="h-5/6 w-3/5 pl-12" />
         </div>
       </div>
     </div>
@@ -546,10 +705,10 @@ const Owned = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
-        <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Properties</p>
-        <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently owned</p>        
-          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Buy a property and check back here</p>           
-          </div>     
+          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Properties</p>
+          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently owned</p>
+          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Buy a property and check back here</p>
+        </div>
       </div>
     </div>
   )
@@ -564,8 +723,8 @@ const Owned = () => {
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
-        <div className="px-4 text-white" style={{ maxWidth: "1650px" }}>
-        <p className="text-5xl xl3:text-6xl font-bold mb-6 text-white">My Properties</p>
+        <div className="px-9 text-white" style={{ maxWidth: "1600px" }}>
+          <p className="text-5xl xl3:text-6xl font-bold mb-6 text-white">My Properties</p>
           <div className="flex">
             <p className="text-sm lg:text-xl pl-4 font-bold mr-1 mb-2">Manage Owned Properties</p>
           </div>
@@ -595,15 +754,15 @@ const Owned = () => {
               return (
                 <div
                   key={i}
-                  className={`border shadow rounded-md overflow-hidden  ${property.propertyId > 500 ? "border-yellow-500 bg-gradient-to-r from-fuchsia-500 to-black" : "bg-gradient-to-r from-blue-400 to-black"}`}
+                  className={`border shadow rounded-md overflow-hidden  ${property.propertyId > 500 ? "border-yellow-500 bg-gradient-120 from-black via-black to-green-900" : "bg-gradient-120 from-black via-black to-blue-400"}`}
 
                 >
                   <img className='w-fit h-fit' src={property.image} alt="" />
-             
+
                   <div className="p-4 ">
                     <p
                       style={{ height: "50px" }}
-                      className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
+                      className={`text-2xl font-semibold text-transparent bg-clip-text ${property.propertyId > 500 ? 'bg-gradient-to-r from-white to-purple-500' : 'bg-gradient-to-r from-white to-green-400'}`}
                     >
                       {property.name}
                     </p>
@@ -638,62 +797,185 @@ const Owned = () => {
                           </div>
                         </div>
                       </div> */}
-                      {property.isForSale &&
-                        <div>
-                          <img className="absolute h-16 mt-1 w-32 left-40 pl-10 md:left-40 lg:left-28 lg:pl-25 xl:left-40" src="./for-sale.png" alt="for sale" />
-                        </div>
-                      }
+
                     </div>
 
                     <div style={{ overflow: "hidden" }}>
-                      <div className="flex">
-                        <p>Rooms Rented:</p>
-                        <p className="pl-3 font-bold">{property.roomsToRent}/3</p>
+                      <div className="flex flex-col pb-2 ">
+                        <p>Owner:</p>
+                        <p className="text-xs text-green-400 font-mono">{property.owner}</p>
                       </div>
-                      <div className="flex">
+                      <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="pl-3 font-bold">{property.rentPrice} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.rentPrice} Matic</p>
                       </div>
-                      <div>
+                      <div className="flex flex-col pb-2">
+                        <p>Total Income Generated:</p>
+                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} Matic</p>
+                      </div>
+                      <div className="flex flex-col mb-2">
+                        <p>Rooms Rented:</p>
+                        <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/3</p>
+                      </div>
+                      <div className='mb-2'>
                         Tenants:
                         {setInitalAddresses(property)}
+                      </div>
+                      <SaleHistory property={property} />
+
+                      <div className={`flex justify-between ${property.isForSale ? 'mb-0 mt-2' : 'mt-2'}`}>
+                        <div>
+                          <p>My Listing Price</p>
+                          {property.isForSale ? (
+                            <>
+                              <p className='text-xs text-blue-400 font-mono mb-4'>{property.price.substring(0, property.price.length - 2)} Matic | {property.tokenPrice.substring(0, property.tokenPrice.length - 2)} BHB</p>
+
+                            </>
+                          ) : (
+                            <div>
+                              <p className={'text-xs text-green-400 font-mono'}>Not currently for sale</p>
+                            </div>
+                          )
+                          }
+                        </div>
+                        {property.isForSale &&
+                          <div className='flex justify-end'>
+                            <img className={`h-16 w-20 mt-4 ${property.propertyId > 500 ? 'hue-rotate-90' : ''}`} src="./for-sale.png" alt="for sale" />
+                          </div>
+                        }
                       </div>
                     </div>
                   </div>
 
-                  <div className="p-4 bg-black">
+                  <div className="p-5 bg-black">
                     {/*  */}
                     <div className="mb-1 grid-rows-3 divide-y divide-white">
+                      <div className='pb-4 flex'>
+                        <Share url="http://localhost:3000" options={property.tweetOptions} />
+                        <div className={`${classes.padding} pl-4`}>
+                          <div className="flex text-white">
+                            <input
+                              type="checkbox"
+                              onChange={(e) => handleForSaleCheck(property.propertyId, e)}
+                              id="sellingRadio"
+                              name="twitter"
+                              className="mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
+                            />
+                            <label htmlFor="sellingRadio">
+                              Selling
+                            </label>
+                          </div>
+                          <div className="flex ml-3">
+                            <input
+                              type="checkbox"
+                              onChange={(e) => handleRentCheck(property.propertyId, e)}
+                              id="vacantRoomsRadio"
+                              name="twitter"
+                              className="mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
+                            />
+                            <label htmlFor="vacantRoomsRadio">
+                              Vacant Rooms
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className='text-sm text-twitter-blue'>
+                        {(property.forSaleChecked && !property.rentChecked) && (
+                          <div>
+                            <div id={`${property.propertyId}twitterSale`}>
+                              <p>{`Check out my Blockbouse Bay Property - ${property.name}.`}</p>
+                              {property.propertyId < 501 ? (
+                                <p>{`Selling for ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
+                              ) : (
+                                <p>{`Selling for ${property.tokenPrice} BHB`}</p>
+                              )}
+                              <p>http://localhost:3000/for-sale</p>
+                            </div>
+                          </div>
+                        )}
+                        {(property.rentChecked && !property.forSaleChecked) && (
+                          <div>
+                            <div id={`${property.propertyId}twitterRent`}>
+                              <p>{`Check out my Blockbouse Bay Property - ${property.name}.`}</p>
+                              {property.roomsToRent != 0 &&
+                                <p>
+                                  {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic`}
+                                </p>
+                              }
+                            </div>
+                            <p>http://localhost:3000/for-sale</p>
+                          </div>
+                        )}
+                        {(property.rentChecked && property.forSaleChecked) && (
+                          <div>
+                            <p>{`Check out my Blockbouse Bay Property - ${property.name}.`}</p>
+                            {property.propertyId < 501 ? (
+                              <p>{`Selling for ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
+                            ) : (
+                              <p>{`Selling for ${property.tokenPrice} BHB`}</p>
+                            )}
+                            {property.roomsToRent != 0 &&
+                              <p>
+                                {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic`}
+                              </p>
+                            }
+                          </div>
+                        )}
+                      </div>
+                      {/* <div className='pl-4'>
+                        <Accordion expanded={expanded === true} onChange={handleChange(!expanded)}>
+                          <AccordionSummary
+                            expandIcon={<ExpandMoreIcon style={{ color: iconColor, padding: 0, margin: 0 }} />}
+                            className={`${classes.summary} ${expanded === true ? classes.summaryExpanded : 'p-0'}`}
+                          >
+                          </AccordionSummary>
+                          <AccordionDetails className={classes.details}>
+                            <div>
+                              <p>Check out my Blockhouse Bay property!</p>
+                              <p>Sale</p>
+                              <p></p>
+                            </div>
+                          </AccordionDetails>
+                        </Accordion>
+
+                      </div> */}
                       {property.isForSale ?
                         <div className="flex flex-col flex-wrap justify-between">
-                          <div className="flex flex-wrap justify-start gap-4 md:gap-0 mb-4">
-                            <div className="text-sm font-bold mb-2 md:mb-0 flex">
-                              <div className="pr-1">Cancel Sale</div>
-                              <div className="mb-1 relative">
-                                <div className="relative flex flex-col items-center group">
-                                  <svg
-                                    className="w-4 h-4 text-white"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                  >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                  <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                                    <span className="relative z-10 p-2 text-xs leading-none text-black whitespace-no-wrap bg-white shadow-lg">
-                                      Learn more
-                                    </span>
-                                    <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
+                          <div className='flex justify-between'>
+                            <div>
+                              <div className="flex flex-wrap justify-start gap-4 mt-4 md:gap-0 mb-4">
+                                <div className="text-sm font-bold mb-2 md:mb-0 flex">
+                                  <div className="pr-1">Cancel Sale</div>
+                                  <div className="mb-1 relative">
+                                    <div className="relative flex flex-col items-center group">
+                                      <Link to="/about?section=renting" target='new'>
+                                        <svg
+                                          className="w-4 h-4 text-white"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          viewBox="0 0 20 20"
+                                          fill="currentColor"
+                                        >
+
+                                          <path
+                                            fillRule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                            clipRule="evenodd"
+                                          />
+                                        </svg>
+                                      </Link>
+                                      <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                                        <span className="relative flex z-10 p-2 text-xs leading-none text-black whitespace-no-wrap bg-white shadow-lg">
+                                          Learn more
+                                        </span>
+                                        <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
+                                      </div>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
                           </div>
-                          <div className='mb-5'>Sale Price: {property.price.substring(0, property.price.length - 2)} Matic | {property.tokenPrice.substring(0, property.tokenPrice.length - 2)} BHB</div>
                           <div className="md:justify-self-start">
                             <button onClick={() => CancelSale(property)} className="w-full bg-yellow-600 text-white font-bold py-2 rounded">
                               Cancel
@@ -701,8 +983,8 @@ const Owned = () => {
                           </div>
                         </div>
                         : <div className="flex flex-col flex-wrap justify-between">
-                          <div className="flex flex-wrap justify-start gap-4 md:gap-0">
-                            <div className="text-sm font-bold mb-2 md:mb-0 flex">
+                          <div className="flex flex-wrap justify-between gap-4 md:gap-0">
+                            <div className="text-sm font-bold mb-2 md:mb-0 flex justify-start pt-4">
                               <div className="pr-1">Sell</div>
                               <div className="mb-1 relative">
                                 <div className="relative flex flex-col items-center group">
@@ -731,16 +1013,16 @@ const Owned = () => {
                             </div>
 
                             {property.propertyId < 501 &&
-                            <div className='pl-4 flex'>
-                              <input
-                                className="rounded-full flex-shrink-0 h-3 w-3 border border-gray-300 bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
-                                type="checkbox"
-                                name="flexRadioDefault"
-                                id={"matic" + i}
-                                onChange={(e) => onAcceptTokenChange(e, i)}
-                                value="./matic-icon.png"
-                              />
-                              
+                              <div className='pl-4 flex mt-4'>
+                                <input
+                                  className="flex-shrink-0 h-3 w-3 border border-gray-300 bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+                                  type="checkbox"
+                                  name="flexRadioDefault"
+                                  id={"matic" + i}
+                                  onChange={(e) => onAcceptTokenChange(e, i)}
+                                  value="./matic-icon.png"
+                                />
+
                                 <div className='mb-3'>
                                   <label
                                     className=" form-check-label inline-block text-sm text-white align-top"
@@ -749,29 +1031,29 @@ const Owned = () => {
                                     Accept BHB?
                                   </label>
                                 </div>
-                              
-                            </div>}
+
+                              </div>}
                           </div>
-                          
+
                           <div className='flex'>
                             {property.propertyId < 501 &&
-                            <div className='flex pr-8'>
-                              <input
-                                className="w-20 xl:w-24 h-6 bg-black shadow appearance-none border rounded py-2 px-1 text-white leading-tight focus:outline-none focus:shadow-outline "
-                                type="number"
-                                min="1"
-                                step="1"
-                                onBlur={handleBlur}
-                                onKeyDown={handleKeyPress}
-                                onChange={(e) => handleSellButton(e, i)}
-                                id={"amountInput" + i}
-                              />
-                              <img
-                                className="h-6 w-10 mb-4 pl-3"
-                                src="./matic-icon.png"
-                                alt=""
-                              ></img>
-                            </div>}
+                              <div className='flex pr-8'>
+                                <input
+                                  className="w-20 xl:w-24 h-6 bg-black shadow appearance-none border rounded py-2 px-1 text-white leading-tight focus:outline-none focus:shadow-outline "
+                                  type="number"
+                                  min="1"
+                                  step="1"
+                                  onBlur={handleBlur}
+                                  onKeyDown={handleKeyPress}
+                                  onChange={(e) => handleSellButton(e, i)}
+                                  id={"amountInput" + i}
+                                />
+                                <img
+                                  className="h-6 w-10 mb-4 pl-3"
+                                  src="./matic-icon.png"
+                                  alt=""
+                                ></img>
+                              </div>}
 
                             <div className={`${property.propertyId < 501 ? 'flex invisible' : 'flex mt-4'}`} id={'maticInput' + i}>
                               <input
@@ -786,7 +1068,7 @@ const Owned = () => {
                               />
                               <div>
                                 <img
-                                  className={`mb-4 brightness-150 h-7 w-10 pl-3 `}
+                                  className={`mb-3 brightness-150 h-7 w-10 pl-3`}
                                   src="./tokenfrontsmall.png"
                                   alt=""
                                 ></img>

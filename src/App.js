@@ -11,11 +11,13 @@ import About from './Pages/about';
 import CreateItem from './Pages/create-item';
 import AllProperties from './Pages/all-properties';
 import Exclusive from './Pages/exclusive-properties';
+import PropertyView from './Pages/property-view';
 
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
 import { configureChains, createClient, WagmiConfig } from 'wagmi'
 import { polygon } from 'wagmi/chains'
+
 
 const chains = [polygon]
 const projectId = '0053ae8eae8522b1ebb313ede5106c9f'
@@ -48,6 +50,7 @@ function App() {
             <Route path="/exclusive" element={<Exclusive />} />
             <Route path="/about" element={<About />} />
             <Route path="/create-item" element={<CreateItem />} />
+            <Route path="/property-view/:propertyId" element={<PropertyView />} />
           </Routes>
         </WagmiConfig>
         <Web3Modal projectId={projectId} ethereumClient={ethereumClient} 

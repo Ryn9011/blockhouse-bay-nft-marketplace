@@ -12,7 +12,8 @@ module.exports = {
         'matic-blue' : '#2bbdf7',
         'btn-silver': '#C0C0C0',
         'btn-gold': '#D4AF37',
-        'btn-red': '#f50057'
+        'btn-red': '#f50057',
+        'twitter-blue': '#1DA1F2'
       },
       screens: {
         xs: "390px", 

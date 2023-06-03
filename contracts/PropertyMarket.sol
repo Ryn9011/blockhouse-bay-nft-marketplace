@@ -46,7 +46,10 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 salePrice;
         uint256 tokenSalePrice;
         uint256 rentPrice;
-        uint256[] saleHistory; //goodidea?
+        uint256[] saleHistory;
+        uint256[] dateSoldHistory;
+        uint256[] dateSoldHistoryBhb;
+        uint256 totalIncomeGenerated;
         bool isForSale;     
         bool roomOneRented;
         bool roomTwoRented;
@@ -59,10 +62,8 @@ contract PropertyMarket is ReentrancyGuard {
     mapping(address => uint256[3]) public tennants; //can only rent from 3 properties.
     mapping(address => uint256) public renterDepositBalance;
     mapping(address => uint256) public renterTokens;
-    mapping(address => uint256) public rentAccumulated;
-    mapping(uint256 => uint256) public totalIncomeGenerated;
-    mapping(address => mapping(uint256 => uint256)) renterToPropertyPaymentTimestamps;
-
+    mapping(address => uint256) public rentAccumulated;    
+    mapping(address => mapping(uint256 => uint256)) renterToPropertyPaymentTimestamps; 
 
     function getContractBalance() public view onlyGovt returns (uint256) {
         return address(this).balance; //test
@@ -184,7 +185,7 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     modifier onlyGovt() {
-        require(govt == msg.sender, "only govt can call this function");
+        require(govt == msg.sender, "only govt");
         _;
     }
 
@@ -204,12 +205,12 @@ contract PropertyMarket is ReentrancyGuard {
     ) public payable {
         require(
             idToProperty[propertyId].owner == msg.sender,
-            "you can only sell properties you own"
+            "not owner"
         );
         require(propertyId >= 500);
         require(
             msg.value == listingPrice,
-            "Please submit the exact listing fee to create a listing"
+            "incorrect fee"
         );
         Property storage property = idToProperty[propertyId];
         property.tokenSalePrice = tokenPrice * (1 ether);
@@ -231,17 +232,17 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 tokenPrice
     ) external payable nonReentrant {
         
-        require(price > 0, "Price must be greater than zero");
+        require(price > 0, "Price != 0");
         require(propertyId <= 500);
 
         Property storage property = idToProperty[propertyId];
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
-        require(property.owner == msg.sender, "You can only sell properties you own");
+        require(property.owner == msg.sender, "not owner");
         require(price >= initialSalePrice, "You can't sell lower than the default property price");
-        require(msg.value == listingPrice, "Please submit the exact listing fee to create a listing");
+        require(msg.value == listingPrice, "incorrect fee");
 
-        require(!property.isForSale, "The property is already for sale");
+        require(!property.isForSale, "already for sale");
         require(property.salePrice != price, "The sale price cannot be the same as the current price");
 
         property.salePrice = price;
@@ -265,9 +266,9 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 propertyId
     ) public nonReentrant {
         Property storage property = idToProperty[propertyId];
-        require(property.seller == msg.sender, "You can only cancel your own property sale");
+        require(property.seller == msg.sender, "you are not owner");
         
-        require(property.isForSale, "Cannot cancel sale for a property that is not listed for sale");
+        require(property.isForSale, "unlisted property");
 
         property.isForSale = false;
         _propertiesSold.increment();
@@ -353,6 +354,8 @@ contract PropertyMarket is ReentrancyGuard {
                 "transfer Failed"
             );
             idToProperty[itemId].saleHistory.push(idToProperty[itemId].tokenSalePrice);
+            idToProperty[itemId].dateSoldHistory.push(0);
+            idToProperty[itemId].dateSoldHistoryBhb.push(block.timestamp);
         } else {
             if (itemId > 500) {
                 require(itemId < 500, "only token purchase"); 
@@ -360,9 +363,11 @@ contract PropertyMarket is ReentrancyGuard {
             
             require(
                 msg.value == price,
-                "Please submit the asking price to complete the purchase"
+                "submit asking price"
             );
             idToProperty[itemId].saleHistory.push(price);
+            idToProperty[itemId].dateSoldHistory.push(block.timestamp);
+            idToProperty[itemId].dateSoldHistoryBhb.push(0);
         }        
         idToProperty[itemId].seller.transfer(
             msg.value - ((msg.value * 500) / 10000)
@@ -394,9 +399,9 @@ contract PropertyMarket is ReentrancyGuard {
 
     function rentProperty(uint256 propertyId) payable external nonReentrant {    
         Property memory property = idToProperty[propertyId];
-        require(msg.value == depositRequired, "the deposit needs to be paid to rent this property");
+        require(msg.value == depositRequired, "deposit required");
         uint256 availableRoom = checkRoomAvailability(propertyId);
-        require(availableRoom != 0, "no rooms availble to rent for this property");         
+        require(availableRoom != 0, "no vacancy");         
         require(property.owner != msg.sender && property.owner != address(0), "you can't rent your own properties");
         for (uint i = 0; i < 3; i++) { 
             require(propertyToRenters[propertyId][i] != msg.sender, "can't rent more than 1 room on property");
@@ -434,7 +439,7 @@ contract PropertyMarket is ReentrancyGuard {
     {
         require(
             idToProperty[propertyId].owner == msg.sender,
-            "rent can only be set on properties you own"
+            "not owner"
         );
         Property storage property = idToProperty[propertyId];
         property.rentPrice = rentPrice;
@@ -505,7 +510,7 @@ contract PropertyMarket is ReentrancyGuard {
     {
         require(
             idToProperty[propertyId].owner == msg.sender,
-            "can only evict on properties you own"
+            "not owner"
         );
         for (uint256 i = 0; i < 3; i++) {
             if (tennants[tennant][i] == propertyId) {
@@ -546,11 +551,11 @@ contract PropertyMarket is ReentrancyGuard {
         }
         require(
             isRenter,
-            "You must be a tennant for this property to pay rent and earn tokens"
+            "not tenant"
         );
         
         rentAccumulated[idToProperty[propertyId].owner] += msg.value;
-        totalIncomeGenerated[propertyId] += msg.value;
+        idToProperty[propertyId].totalIncomeGenerated += msg.value;
         renterToPropertyPaymentTimestamps[msg.sender][propertyId] = block.timestamp;
 
         uint256 price;
@@ -647,14 +652,14 @@ contract PropertyMarket is ReentrancyGuard {
     
     function giftProperties(address nftContract, uint256 propertyId, address recipient) public onlyGovt {
         Property storage property = idToProperty[propertyId];
-        require(property.owner == address(0), "Property is already owned");
+        require(property.owner == address(0), "already owned");
         
         property.owner = payable(recipient);
         property.isForSale = false;
         property.seller = payable(address(0));
         
         _propertiesSold.increment();
-        require(_propertiesSold.current() <= 10, "Can't gift more than 10 properties");
+        require(_propertiesSold.current() <= 10, "10 max");
         
         IERC721(nftContract).transferFrom(address(this), address(uint160(recipient)), propertyId);
     }   

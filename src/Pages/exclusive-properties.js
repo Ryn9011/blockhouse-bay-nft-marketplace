@@ -14,6 +14,7 @@ import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToke
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
+import SaleHistory from '../Components/sale-history'
 
 const Exclusive = () => {
   const [properties, setProperties] = useState([]);
@@ -64,6 +65,15 @@ const Exclusive = () => {
 
       let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
       let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
+      let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+
+      let saleHistory = [];
+      if (i.saleHistory.length > 0) {
+        console.log(i.saleHistory)
+        saleHistory = i.saleHistory.map(a => ethers.utils.formatEther(a))
+      } else {
+        saleHistory.push("Unsold")
+      }
 
       let item = {
         price,
@@ -80,8 +90,11 @@ const Exclusive = () => {
         tokenSalePrice: tokenSalePriceFormatted,
         renterAddresses: renterAddresses,
         isForSale: i.isForSale,
-        saleHistory: i.saleHistory,
-        rentPrice: rentPrice
+        saleHistory: saleHistory,
+        dateSoldHistory: i.dateSoldHistory,
+        dateSoldHistoryBhb: i.dateSoldHistoryBhb,
+        rentPrice: rentPrice,
+        totalIncomeGenerated: totalIncomeGenerated
       }
       if (item.roomOneRented == true) {
         console.log("hit1")
@@ -117,20 +130,6 @@ const Exclusive = () => {
 
     setLoadingState('loaded')
   }
-
-  const items = [
-    "2004 XYZ - 12/12/2023",
-    "2010 ABC - 01/01/2024",
-    "1999 DEF - 06/30/2024",
-    "2018 GHI - 09/15/2024",
-    "2001 JKL - 11/23/2024",
-    "1997 MNO - 03/05/2025",
-    "2008 PQR - 08/17/2025",
-    "2015 STU - 10/22/2025",
-    "2006 VWX - 05/08/2026",
-    "2012 YZA - 07/19/2026"
-  ];
-
 
 
   const buyProperty = async (nft, i) => {
@@ -238,24 +237,28 @@ const Exclusive = () => {
                     </h2>
                     <div style={{ overflow: "hidden" }}>
                       <div className="flex flex-col pb-2 pt-4">
-                        <p>Owner:</p>
+                        <p className='text-indigo-100'>Owner:</p>
                         <p className="text-xs text-green-400 font-mono">{property.owner}</p>
                       </div>
                       <div className="flex flex-col pb-2">
-                        <p>Rent Price:</p>
+                        <p className='text-indigo-100'>Rent Price:</p>
                         <p className="text-xs text-green-400 font-mono">{property.rentPrice} Matic</p>
                       </div>
+                      <div className="flex flex-col pb-2">
+                        <p className='text-indigo-100'>Total Income Generated:</p>
+                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} Matic</p>
+                      </div>
                       <div className="flex flex-col mb-2">
-                        <p>Rooms Rented:</p>
+                        <p className='text-indigo-100'>Rooms Rented:</p>
                         <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/3</p>
                       </div>
-                      <p>Tenants:</p>
-                      <div className='text-xs text-green-400 font-mono'>
+                      <p className='text-indigo-100'>Tenants:</p>
+                      <div className='text-xs text-green-400 font-mono mb-2'>
                         {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
                           <p className="break-words">
                             {property.renterAddresses[0]}
                           </p>
-                          : <p>0x03495d34f9dfg0534953dgdgdfgdfgddfgdf4895</p>
+                          : <p>0x</p>
                         }
                         {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
                           <p className="break-words">
@@ -270,6 +273,9 @@ const Exclusive = () => {
                           : <p>0x</p>
                         }
                       </div>
+                      <div className="flex flex-col mb-2">
+                        <SaleHistory property={property} />
+                      </div>
                     </div>
                   </div>
 
@@ -280,60 +286,67 @@ const Exclusive = () => {
                         <div className="pl-3">
 
 
-                          {(property.isForSale && property.propertyId !== 505) ? (
+                          {(property.isForSale) ? (
                             <div className='flex divide-x-2'>
-                              <div className='flex justify-start h-16 mr-3'>
-                                <header className="items-center flex pt-1.5 text-white">
+                              <div className='flex h-16 mr-8'>
+                                <header className="items-center flex pt-1.5 text-indigo-100">
                                   <p className="font-bold 2xl:text-2xl">{property.tokenSalePrice} BHB</p>
                                 </header>
-                                <div className='mt-1 h-16'>
+                                <div className='mt-1 h-14 lg:h-16 w-16 md:h-16'>
                                   <img
-                                    className="object-none brightness-150 scale-50 pt-1.5 lg:pt-0"
+                                    className="lg:object-none brightness-150 scale-75 md:scale-75 lg:scale-50 pt-1.5 lg:pt-0"
                                     src="./tokenfrontsmall.png"
                                     alt=""
                                   ></img>
                                 </div>
                               </div>
 
-                              <div className="bg-black py-2 pr-1.5 mt-2 w-1/2 pl-3 flex flex-col justify-between">
-                                <div className='text-xs flex justify-center font-semibold'>
-                                  <p>Sale History</p>
+                              <div className="bg-black py-2 mt-2 w-1/2 pl-3 flex flex-col justify-between">
+                                <div className='text-xl pt-1.5 flex justify-center font-semibold'>
+                                  <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white to-purple-500'>{`Value Ranking #1`}</p>                                 
                                 </div>
-                                <div>
-                                  <Ticker speed={2}>
-                                    {({ index }) => (
-                                      <>
-                                        <p className="text-xs font-mono text-green-400">
-                                          {items[index % items.length]}
-                                        </p>
-                                      </>
-                                    )}
-                                  </Ticker>
-                                </div>
+                                {/* <div className='pr-1.5 font-mono text-xs text-green-400'>
+                                  {property.saleHistory[0] === "Unsold" ? (
+                                    <div className="w-full flex justify-center">
+                                      <p>
+                                        {property.saleHistory[0]}
+                                      </p>
+                                    </div>
+                                  ) : (
+                                    <div className='pl-0.5'>
+                                      <Ticker speed={2}>
+                                        {({ index }) => (
+                                          <>
+                                            <div className="w-full pl-1 flex justify-center">
+                                              <p>
+                                                {property.saleHistory[0] + ' BHB'}
+                                              </p>
+                                              <p className="invisible pl-1">
+                                                {property.saleHistory[0]}
+                                              </p>
+                                            </div>
+                                          </>
+                                        )}
+                                      </Ticker>
+                                    </div>
+                                  )}
+                                </div> */}
                               </div>
                             </div>
                           ) : (
-                            <div className="bg-black py-2 pr-1.5 mt-2 flex flex-col gap-2 justify-between">
-                              <div className='text-xs flex justify-center font-semibold'>
+                            <div className="bg-black py-7 pr-1.5 mt-2 flex flex-col gap-2 justify-between">
+                              {/* <div className='text-xs flex justify-center font-semibold'>
                                 <p>Sale History</p>
                               </div>
-                              <div className='pr-1.5 mb-0.5'>
-                                <Ticker speed={2}>
-                                  {({ index }) => (
-                                    <>
-                                      <p className="text-xs font-mono text-green-400">
-                                        {items[index % items.length]}
-                                      </p>
-                                    </>
-                                  )}
-                                </Ticker>
-                              </div>
+                              <div className='pr-1.5'>
+                                <SaleHistory property={property} />
+                              </div> */}
                             </div>
                           )}
                         </div>
                       </div>
                       <div className="px-2">
-                        {((property.owner === 'Unowned' || property.isForSale) && property.propertyId !== 505) ? (
+                        {(property.owner === 'Unowned' || property.isForSale) ? (
                           <button onClick={() => buyProperty(property, i)} className="mb-3 w-full bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded">
                             Buy
                           </button>
@@ -346,7 +359,7 @@ const Exclusive = () => {
                         )
 
                         }
-                        {property.roomsToRent !== 3 && property.propertyId !== 508 && property.propertyId !== 505 ? (
+                        {property.roomsToRent !== 3 ? (
                           <button onClick={() => rentProperty(property)} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">
                             Rent Room
                           </button>

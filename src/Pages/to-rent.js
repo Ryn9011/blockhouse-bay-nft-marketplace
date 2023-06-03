@@ -4,6 +4,7 @@ import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
+import Ticker from 'react-ticker';
 
 import {
   nftaddress, nftmarketaddress, govtaddress
@@ -14,6 +15,7 @@ import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMa
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
+import SaleHistory from '../Components/sale-history'
 
 const ToRent = () => {
 
@@ -42,7 +44,7 @@ const ToRent = () => {
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-    const data = await govtContract.fetchPropertiesSold(true) //add onlyrentable. change needs to trigger load
+    const data = await govtContract.fetchPropertiesSold() //add onlyrentable. change needs to trigger load
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
@@ -61,6 +63,17 @@ const ToRent = () => {
       let depositHex = await marketContract.depositRequired()
       let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+      let saleHistory = [];
+      if (i.saleHistory.length > 0) {
+        console.log(i.saleHistory)
+        saleHistory = i.saleHistory.map(a => ethers.utils.formatEther(a))
+      } else {
+        saleHistory.push("Unsold")
+      }
+      let totalIncomeGenerated;
+      if (i.totalIncomeGenerated != 0) {
+        totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+      } else totalIncomeGenerated = 0;
 
       let item = {
         price,
@@ -77,8 +90,10 @@ const ToRent = () => {
         depositRequired: deposit,
         available: false,
         roomsRented: 0,
-        renterAddresses: renterAddresses
-
+        renterAddresses: renterAddresses,
+        saleHistory: saleHistory,
+        dateSoldHistory: i.dateSoldHistory,
+        totalIncomeGenerated: totalIncomeGenerated
       }
       if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
         item.available = true;
@@ -91,7 +106,7 @@ const ToRent = () => {
       }
       if (item.roomThreeRented == true) {
         item.roomsRented++
-      }      
+      }
       return item
     }))
     setSoldProperties(items)
@@ -135,7 +150,7 @@ const ToRent = () => {
               </svg>
             </Link>
           </div>
-          <img src="summer.png" className="h-5/6 w-3/5 pl-12"/>
+          <img src="summer.png" className="h-5/6 w-3/5 pl-12" />
         </div>
       </div>
     </div>
@@ -145,42 +160,37 @@ const ToRent = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
-        <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">To Rent</p>
-        <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently for rent</p>        
-          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Check back soon for new rentals</p>           
-          </div>     
+          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">To Rent</p>
+          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently for rent</p>
+          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Check back soon for new rentals</p>
+        </div>
       </div>
     </div>
   )
-
+  // Rent a room from an owner and earn BHB tokens
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4" style={{ maxWidth: "1600px" }}>
-        <p className="xl3:ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold text-white">To Rent</p>
+          <p className="xl3:ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold text-white">To Rent</p>
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
             <header className="flex items-center h-16">
-              <div className="text-sm lg:text-xl font-bold">Rent a room from an owner and earn BHB tokens
-                
-              </div>              
+              <div className="text-sm lg:text-xl font-bold">Rent a room from an owner and earn BHB tokens</div>
             </header>
-            <div className="pb-2 hidden lg:block">
+            <div className=" hidden lg:block">
               <img
                 className="lg:object-none brightness-150 h-8 w-10 lg:w-auto lg:h-auto lg:scale-75 lg:pt-0"
                 src="./tokenfrontsmall.png"
                 alt=""
               ></img>
             </div>
-            {/* <header className="flex items-center h-16">
-              <h1 className="text-2xl font-bold">tokens</h1>
-            </header> */}
           </div>
 
-          <div className='flex mb-3'>
+          {/* <div className='flex mb-3'>
             <input onClick={() => setOnlyRentable(!onlyRentable)} type="checkbox" className='mt-1 mr-2 ' />
             <p className='text-white text-xs mt-1 lg:mt-0 lg:text-base'>Show only available to rent</p>
-          </div>
+          </div> */}
           <Pagination
             postsPerPage={postsPerPage}
             totalPosts={soldProperties.length}
@@ -193,7 +203,7 @@ const ToRent = () => {
                 return (
                   <div
                     key={i}
-                    className="border shadow rounded-md overflow-hidden bg-gradient-to-r from-blue-400 to-black"
+                    className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
                   >
                     <img className='w-fit h-fit' src={property.image} alt="" />
                     <div className="p-4 ">
@@ -206,12 +216,24 @@ const ToRent = () => {
 
                       </p>
                       <div style={{ overflow: "hidden" }}>
-                        <div className="flex flex-col pb-4">
+                        <div className="flex flex-col pb-2">
                           <p>Owner:</p>
-                          <p className="text-xs text-green-200">{property.owner}</p>
+                          <p className="font-mono text-xs text-green-400">{property.owner}</p>
                         </div>
-                        <p>Tenants:</p>
-                        <div className='text-xs mb-3 text-green-200'>
+                        <div className="flex flex-col pb-2">
+                          <p>Rooms Rented:</p>
+                          <p className="font-mono text-xs text-green-400">{property.roomsRented}/3</p>
+                        </div>
+                        <div className="flex flex-col pb-2">
+                          <p>Rent Price:</p>
+                          <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
+                        </div>
+                        {/* <div className="flex flex-col">
+                        <p>Total Income Generated:</p>
+                        <p className="font-mono text-xs text-green-400">{property.totalIncomeGenerated} Matic</p>
+                      </div> */}
+                        <p>Tenants</p>
+                        <div className='text-xs mb-3 text-green-400 font-mono'>
                           {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
                             <p className="break-words">
                               {property.renterAddresses[0]}
@@ -231,19 +253,43 @@ const ToRent = () => {
                             : <p>0x</p>
                           }
                         </div>
-                        <div className="flex">
-                          <p>Rent Price:</p>
-                          <p className="pl-3 font-bold">{property.rentPrice} Matic</p>
-                        </div>
-                        <div className="flex">
-                          <p>Rooms Rented:</p>
-                          <p className="pl-3 font-bold">{property.roomsRented}/3</p>
-                        </div>
+                        <SaleHistory property={property} /> 
                       </div>
                     </div>
 
+
+
                     <div className="p-2 pt-1.2 pb-4 bg-black">
-                      <div className="flex divide-x divide-white justifty-start px-2">
+                    <div className="flex divide-x divide-white justifty-start px-2">
+                      <div className="flex pr-5 lg:pr-3">
+                        <div className="text-lg font-bold">Rental Deposit</div>
+                        <Link to="/about?section=renting" target='new'>
+                              <svg
+                                className="w-4 h-4 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                            </Link>
+                      </div>
+                      <div className="flex text-xs pl-5 lg:pl-3">
+                        <ul className="list-disc pl-3.5 list-outside">
+                          <li className='mb-1'>
+                            A rental deposit of <span className='font-mono text-xs text-blue-400'>5 Matic</span> is required to rent this property
+                          </li>
+                          <li>
+                            Your deposit is refunded upon vacating a property (deposit is not refunded if evicted from the property)
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                      {/* <div className="flex divide-x divide-white justifty-start px-2">
                         <div className="flex pr-5 lg:pr-3">
                           <div className="text-lg font-bold pr-1">Deposit Required</div>
                           <div className="relative flex flex-col items-center group">
@@ -281,7 +327,7 @@ const ToRent = () => {
                             ></img>
                           </div>
                         </div>
-                      </div>
+                      </div> */}
                       <div className="text-2xl pt-2 text-white"></div>
 
                       <div className="px-2 ">

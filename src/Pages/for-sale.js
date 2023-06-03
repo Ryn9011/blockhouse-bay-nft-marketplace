@@ -2,7 +2,6 @@ import { React, useEffect, useState } from 'react'
 import { ethers } from 'ethers'
 import axios from 'axios'
 import Web3Modal from 'web3modal'
-import Ticker from 'react-ticker';
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
@@ -13,6 +12,7 @@ import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMa
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToken.json'
 import Pagination from '../Pagination'
+import SaleHistory from '../Components/sale-history'
 
 import datajson from '../final-manifest.json';
 
@@ -99,23 +99,29 @@ const ForSale = () => {
       } else {
         saleHistory.push("Unsold")
       }
-      // let saleHistory = []
-
+      let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
+      let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
+      let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+     
       //let tokenSalePriceFormatted = ethers.utils.formatUnits(hexTokenPrice, 'ether')
       let item = {
         price,
         propertyId: i.propertyId.toNumber(),
         seller: i.seller,
-        owner: i.owner,
+        owner: owner,
         image: tokenUri,
         name: nftName,
         description: meta.data.description,
         roomOneRented: i.roomOneRented,
         roomTwoRented: i.roomTwoRented,
         roomThreeRented: i.roomThreeRented,
-        roomsToRent: 0,
-        tokenSalePrice: tokenSalePriceFormatted,
-        saleHistory: saleHistory
+        roomsToRent: 0,        
+        saleHistory: saleHistory,
+        dateSoldHistory: i.dateSoldHistory,
+        dateSoldHistoryBhb: i.dateSoldHistoryBhb,
+        rentPrice: rentPrice,
+        totalIncomeGenerated: totalIncomeGenerated,
+        tokenSalePrice: tokenSalePriceFormatted
       }
       if (item.roomOneRented == true) {
         item.roomsToRent++
@@ -171,17 +177,6 @@ const ForSale = () => {
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber)
   };
-
-  // const name = "4293 Carriage Court"
-  // const name2 = "1965 Rocket Drive"
-  // const name3 = "886 Grand Avenue"
-  // const name4 = "1247 Sun Valley Road"
-
-  // const names = new Array;
-  // names.push(name)
-  // names.push(name2)
-  // names.push(name3)
-  // names.push(name4)
 
   let count = 0
 
@@ -255,52 +250,24 @@ const ForSale = () => {
                       {property.name}
                       {/* {names[i]} */}
                     </p>
-                    <div style={{ height: "200px", overflow: "hidden" }}>
-                      <div className="flex flex-col">
+                    <div style={{ overflow: "hidden" }}>
+                      <div className="flex flex-col pb-2">
                         <p>Owner:</p>
                         <p className="font-mono text-xs text-green-400">{property.owner}</p>
                       </div>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col pb-2">
                         <p>Rooms Rented:</p>
                         <p className="font-mono text-xs text-green-400">{property.roomsToRent}/3</p>
                       </div>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="font-mono text-xs text-green-400">{property.rentPrice}/3</p>
+                        <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
                       </div>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col pb-2">
                         <p>Total Income Generated:</p>
-                        <p className="font-mono text-xs text-green-400">0 Matic</p>
+                        <p className="font-mono text-xs text-green-400">{property.totalIncomeGenerated} Matic</p>
                       </div>
-                      <div className="flex flex-col">
-                        <p className=''>Sale History:</p>
-                        <div className='font-mono text-xs text-green-400'>
-                          {property.saleHistory[0] === "Unsold" ? (
-                            <div className="w-full flex justify-start">
-                              <p>
-                                {property.saleHistory[0]}
-                              </p>
-                            </div>
-                          ) : (
-                            <div className='pl-0.5'>
-                              <Ticker speed={2}>
-                                {({ index }) => (
-                                  <>
-                                    <div className="w-full pl-1 flex justify-center">
-                                      <p>
-                                        {property.saleHistory[0]}
-                                      </p>
-                                      <p className="invisible pl-1">
-                                        {property.saleHistory[0]}
-                                      </p>
-                                    </div>
-                                  </>
-                                )}
-                              </Ticker>
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                      <SaleHistory property={property} />  
                     </div>
                   </div>
 
