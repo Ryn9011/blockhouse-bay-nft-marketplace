@@ -64,9 +64,18 @@ const ToRent = () => {
       let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
       let saleHistory = [];
+
       if (i.saleHistory.length > 0) {
-        console.log(i.saleHistory)
-        saleHistory = i.saleHistory.map(a => ethers.utils.formatEther(a))
+        i.saleHistory.forEach((item) => {
+          const history = i.saleHistory.map((item) => {     
+            return { 
+              price: ethers.utils.formatUnits(item[0]), 
+              type: item[1].toNumber() === 1 ? "Matic" : "BHB"}
+          });
+          saleHistory = history;
+        })        
+        console.log(saleHistory)
+
       } else {
         saleHistory.push("Unsold")
       }
@@ -150,7 +159,7 @@ const ToRent = () => {
               </svg>
             </Link>
           </div>
-          <img src="summer.png" className="h-5/6 w-3/5 pl-12" />
+          <img src="summer.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-3/5 lg:pl-12" />
         </div>
       </div>
     </div>
@@ -232,7 +241,7 @@ const ToRent = () => {
                         <p>Total Income Generated:</p>
                         <p className="font-mono text-xs text-green-400">{property.totalIncomeGenerated} Matic</p>
                       </div> */}
-                        <p>Tenants</p>
+                        <p>Tenants:</p>
                         <div className='text-xs mb-3 text-green-400 font-mono'>
                           {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
                             <p className="break-words">
@@ -253,81 +262,43 @@ const ToRent = () => {
                             : <p>0x</p>
                           }
                         </div>
-                        <SaleHistory property={property} /> 
+                        <SaleHistory property={property} />
                       </div>
                     </div>
 
 
 
                     <div className="p-2 pt-1.2 pb-4 bg-black">
-                    <div className="flex divide-x divide-white justifty-start px-2">
-                      <div className="flex pr-5 lg:pr-3">
-                        <div className="text-lg font-bold">Rental Deposit</div>
-                        <Link to="/about?section=renting" target='new'>
-                              <svg
-                                className="w-4 h-4 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </Link>
-                      </div>
-                      <div className="flex text-xs pl-5 lg:pl-3">
-                        <ul className="list-disc pl-3.5 list-outside">
-                          <li className='mb-1'>
-                            A rental deposit of <span className='font-mono text-xs text-blue-400'>5 Matic</span> is required to rent this property
-                          </li>
-                          <li>
-                            Your deposit is refunded upon vacating a property (deposit is not refunded if evicted from the property)
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                      {/* <div className="flex divide-x divide-white justifty-start px-2">
+                      <div className="flex divide-x divide-white justifty-start px-2">
                         <div className="flex pr-5 lg:pr-3">
-                          <div className="text-lg font-bold pr-1">Deposit Required</div>
-                          <div className="relative flex flex-col items-center group">
-                            <Link to="/about?section=renting" target='new'>
-                              <svg
-                                className="w-4 h-4 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </Link>
-                            <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                              <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">
-                                Learn more
-                              </span>
-                              <div className="w-3 h-3 -mt-2 rotate-45 bg-black"></div>
-                            </div>
-                          </div>
+                          <div className="text-lg font-bold">Rental Deposit</div>
+                          <Link to="/about?section=renting" target='new'>
+                            <svg
+                              className="w-4 h-4 text-white"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                          </Link>
                         </div>
-                        <div className="flex text pl-5 lg:pl-3">
-                          <div className="font-bold pt-0.5 pr-1">
-                            <span>{property.depositRequired} MATIC</span>
-                          </div>
-                          <div>
-                            <img
-                              className="h-6 w-7 ml-2 pt-0.5"
-                              src="./matic-icon.png"
-                              alt=""
-                            ></img>
-                          </div>
+                        <div className="flex text-xs pl-5 lg:pl-3">
+                          <ul className="list-disc pl-3.5 list-outside">
+                            <li className='mb-1'>
+                              A rental deposit of <span className='font-mono text-xs text-blue-400'>5 Matic</span> is required to rent this property
+                            </li>
+                            <li>
+                              Your deposit is refunded upon vacating a property (deposit is not refunded if evicted from the property)
+                            </li>
+                          </ul>
                         </div>
-                      </div> */}
+                      </div>
+                      
                       <div className="text-2xl pt-2 text-white"></div>
 
                       <div className="px-2 ">

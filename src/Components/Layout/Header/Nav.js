@@ -70,7 +70,7 @@ export default function Nav() {
 					<div className='h-14 w-14  lg:h-20 lg:w-20'>
 						<img
 							className="object-contain brightness-150 mb-2 mt-1 pl-3"
-							src="./tokengif.gif"
+							src="./../tokengif.gif"
 							alt=""
 						></img>
 					</div>

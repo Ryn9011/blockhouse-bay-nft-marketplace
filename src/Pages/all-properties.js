@@ -53,8 +53,14 @@ const AllProperties = () => {
 
       let saleHistory = [];
       if (i.saleHistory.length > 0) {
-        console.log(i.saleHistory)
-        saleHistory = i.saleHistory.map(a => ethers.utils.formatEther(a))
+        i.saleHistory.forEach((item) => {
+          const history = i.saleHistory.map((item) => {     
+            return { 
+              price: ethers.utils.formatUnits(item[0]), 
+              type: item[1].toNumber() === 1 ? "Matic" : "BHB"}
+          });
+          saleHistory = history;
+        })        
       } else {
         saleHistory.push("Unsold")
       }
@@ -205,9 +211,7 @@ const AllProperties = () => {
                 )
               }
             })}
-
           </section>
-
         </div>
       </div>
     </div>

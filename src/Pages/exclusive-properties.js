@@ -15,6 +15,7 @@ import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunction
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
 import SaleHistory from '../Components/sale-history'
+import { calculateRankingTotal, calculateRankingPosition } from '../calculateRanking'
 
 const Exclusive = () => {
   const [properties, setProperties] = useState([]);
@@ -69,8 +70,15 @@ const Exclusive = () => {
 
       let saleHistory = [];
       if (i.saleHistory.length > 0) {
-        console.log(i.saleHistory)
-        saleHistory = i.saleHistory.map(a => ethers.utils.formatEther(a))
+        i.saleHistory.forEach((item) => {
+          const history = i.saleHistory.map((item) => {
+            return {
+              price: ethers.utils.formatUnits(item[0]),
+              type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+            }
+          });
+          saleHistory = history;
+        })
       } else {
         saleHistory.push("Unsold")
       }
@@ -108,6 +116,7 @@ const Exclusive = () => {
         console.log("hit3")
         item.roomsToRent++
       }
+      item.ranking = calculateRankingTotal(item)
       return item
     }))
     console.log(items)
@@ -120,14 +129,8 @@ const Exclusive = () => {
 
     console.log(items);
 
-    let temp = []
-    if (currentPosts.length != 0) {
-      temp = [...currentPosts]
-      setCurrentPosts(items)
-    } else {
-      setCurrentPosts(items)
-    }
-
+    let properties = calculateRankingPosition(items);
+    setCurrentPosts(properties)
     setLoadingState('loaded')
   }
 
@@ -190,7 +193,7 @@ const Exclusive = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
-          <img src="gardens.png" className="h-5/6 w-3/5 pl-12" />
+          <img src="gardens.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-3/5 lg:pl-12" />
         </div>
       </div>
     </div>
@@ -230,7 +233,7 @@ const Exclusive = () => {
                   <img className='w-fit h-fit' src={property.image} alt="" />
                   <div className="p-4 ">
                     <h2
-                      style={{ height: "45px" }}
+                      style={{ height: "80px" }}
                       className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500"
                     >
                       {property.name}
@@ -279,7 +282,7 @@ const Exclusive = () => {
                     </div>
                   </div>
 
-                  <div className="h-44 px-2 pt-0.5 bg-black">
+                  <div className="h-48 xl:h-44 px-2 pt-0.5 bg-black">
 
                     <div className="pb-2">
                       <div className="mb-2 text-2xl lg:text-base">
@@ -289,58 +292,30 @@ const Exclusive = () => {
                           {(property.isForSale) ? (
                             <div className='flex divide-x-2'>
                               <div className='flex h-16 mr-8'>
-                                <header className="items-center flex pt-1.5 text-indigo-100">
+                                <header className="items-center flex pt-6 lg:pt-3.5 text-indigo-100">
                                   <p className="font-bold 2xl:text-2xl">{property.tokenSalePrice} BHB</p>
                                 </header>
                                 <div className='mt-1 h-14 lg:h-16 w-16 md:h-16'>
                                   <img
-                                    className="lg:object-none brightness-150 scale-75 md:scale-75 lg:scale-50 pt-1.5 lg:pt-0"
+                                    className="lg:object-none brightness-150 scale-75 md:scale-75 lg:scale-50 pt-2.5 lg:pt-0"
                                     src="./tokenfrontsmall.png"
                                     alt=""
                                   ></img>
                                 </div>
                               </div>
 
-                              <div className="bg-black py-2 mt-2 w-1/2 pl-3 flex flex-col justify-between">
-                                <div className='text-xl pt-1.5 flex justify-center font-semibold'>
-                                  <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white to-purple-500'>{`Value Ranking #1`}</p>                                 
-                                </div>
-                                {/* <div className='pr-1.5 font-mono text-xs text-green-400'>
-                                  {property.saleHistory[0] === "Unsold" ? (
-                                    <div className="w-full flex justify-center">
-                                      <p>
-                                        {property.saleHistory[0]}
-                                      </p>
-                                    </div>
-                                  ) : (
-                                    <div className='pl-0.5'>
-                                      <Ticker speed={2}>
-                                        {({ index }) => (
-                                          <>
-                                            <div className="w-full pl-1 flex justify-center">
-                                              <p>
-                                                {property.saleHistory[0] + ' BHB'}
-                                              </p>
-                                              <p className="invisible pl-1">
-                                                {property.saleHistory[0]}
-                                              </p>
-                                            </div>
-                                          </>
-                                        )}
-                                      </Ticker>
-                                    </div>
-                                  )}
-                                </div> */}
+                              <div className="bg-black py-0.5 mt-2 w-1/2 pl-3 2xl:mt-1.5 flex flex-col justify-between">
+                                <div className='text-xl flex flex-col justify-center font-semibold text-center'>
+                                  <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white via-white to-purple-500'>Ranking:</p>
+                                  <span className={property.ranking == 'unranked' ? 'text-white' : ''}>{`${property.ranking === "unranked" ? '' : '#'} ${property.ranking}`}</span>
+                                </div>                                
                               </div>
                             </div>
                           ) : (
-                            <div className="bg-black py-7 pr-1.5 mt-2 flex flex-col gap-2 justify-between">
-                              {/* <div className='text-xs flex justify-center font-semibold'>
-                                <p>Sale History</p>
+                            <div className="bg-black py-[10.5px] pr-1.5 mt-2  flex flex-col gap-2 justify-between">
+                              <div className='text-2xl lg:pt-1.5 flex justify-center font-semibold'>
+                                <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white via-white to-purple-500'>Ranking:<span className={property.ranking == 'unranked' ? 'text-white' : ''}>{` #${property.ranking}`}</span></p>
                               </div>
-                              <div className='pr-1.5'>
-                                <SaleHistory property={property} />
-                              </div> */}
                             </div>
                           )}
                         </div>
@@ -357,10 +332,9 @@ const Exclusive = () => {
                             </button>
                           </div>
                         )
-
                         }
                         {property.roomsToRent !== 3 ? (
-                          <button onClick={() => rentProperty(property)} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">
+                          <button onClick={() => rentProperty(property)} disabled={property.owner === "Unowned"} className={`w-full bg-matic-blue text-white font-bold py-2 px-12 rounded ${property.owner === "Unowned" ? "bg-gray-600 text-gray-400" : ""} `}>
                             Rent Room
                           </button>
                         ) : (

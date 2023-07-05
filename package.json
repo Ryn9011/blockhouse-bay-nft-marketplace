@@ -25,6 +25,7 @@
     "axios": "^0.24.0",
     "browserify-zlib": "^0.2.0",
     "chai": "^4.3.4",
+    "clipboard-copy": "^4.0.1",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.7.2",
     "ethers-react": "^1.1.0",

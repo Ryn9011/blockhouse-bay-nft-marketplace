@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { ethers } from 'ethers'
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import { Share } from 'react-twitter-widgets'
+import copy from 'clipboard-copy';
+
 
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
@@ -16,6 +18,7 @@ import Market from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.jso
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import SaleHistory from '../Components/sale-history'
+import { calculateRankingTotal, calculateRankingPosition } from '../calculateRanking'
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
@@ -24,50 +27,6 @@ import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
 
 const useStyles = makeStyles({
-  root: {
-    backgroundColor: 'black',
-    border: '1px 0px 1px 0px solid rgba(0, 0, 0, 0.23)',
-    borderRadius: '4px',
-    boxShadow: 'none',
-    color: '#a0aec0',
-    minHeight: '0px',
-    padding: '0px'
-  },
-  summary: {
-    color: 'white',
-    height: '0px',
-    background: 'black',
-    minHeight: '18px',
-    borderradius: '0.375rem;',
-    padding: '0.375rem;',
-    //backgroundColor: '#10B981;'
-  },
-  summaryExpanded: {
-    color: '#fff',
-    padding: '0px',
-    minHeight: '18px !important;'
-  },
-  details: {
-    padding: '0 16px 16px 16px',
-    color: '#fff',
-    background: 'black'
-  },
-  paper: {
-    position: 'absolute',
-    width: '80%',
-    maxWidth: 600,
-    backgroundColor: "#8247e5",
-    border: '2px',
-    borderColor: 'white',
-    color: 'white',
-    boxShadow: '25px',
-    padding: '10px',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    overflowY: 'auto',
-    maxHeight: 'calc(100vh - 200px)'
-  },
   padding: {
     paddingTop: '7px !important',
     fontSize: '0.75rem !important',
@@ -89,8 +48,13 @@ const Owned = () => {
   const [amountAccumulated, setAmountAccumulated] = useState()
   const [addressesOverdue, setAddressesOverdue] = useState([])
   const [expanded, setExpanded] = React.useState(false);
-  const [twitterSaleChecked, setTwitterSaleChecked] = useState();
-  const [twitterRentChecked, setTwitterRentChecked] = useState();
+  const [twitterSaleChecked, setTwitterSaleChecked] = useState(false);
+  const [twitterRentChecked, setTwitterRentChecked] = useState(false);
+  const [text, setText] = useState('');
+  const [url, setUrl] = useState('');
+  const [hasSetText, setHasSetText] = useState(false)
+  const twitterTextRef = useRef(null);
+  const [propertyIdTwitter, setPropertyIdTwitter] = useState();
 
   const classes = useStyles();
   const iconColor = "#1DA1F2"
@@ -101,6 +65,8 @@ const Owned = () => {
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = nfts.slice(indexOfFirstPost, indexOfLastPost);
 
+
+
   useEffect(() => {
     setLoadingState('not-loaded')
     loadProperties();
@@ -109,6 +75,10 @@ const Owned = () => {
   useEffect(() => {
     getLogData();
   }, [])
+
+  // const handleCopy = () => {
+  //   copy(twitterTextRef.current.innerText);
+  // };
 
 
   async function loadProperties() {
@@ -124,6 +94,7 @@ const Owned = () => {
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
       const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider);
       const data = await govtContract.fetchMyProperties()
+      console.log(data)
 
       const propertyIds = [];
 
@@ -170,24 +141,26 @@ const Owned = () => {
         console.log(tokenSalePriceFormatted)
         let saleHistory = [];
         if (i.saleHistory.length > 0) {
-          console.log(i.saleHistory)
-          saleHistory = i.saleHistory.map(a => ethers.utils.formatEther(a))
+          i.saleHistory.forEach((item) => {
+            const history = i.saleHistory.map((item) => {
+              return {
+                price: ethers.utils.formatUnits(item[0]),
+                type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+              }
+            });
+            saleHistory = history;
+          })
         } else {
           saleHistory.push("Unsold")
         }
         let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
 
-        let tweetOptions = {
-          text: `Check out my Blockhouse Bay property '${nftName}', page #<pa>,`,
-          via: '8bitcities',
-          url: 'http://localhost:3000/for-sale',
-          hashtags: '@Blockhouse Bay',
-          size: "large"
-        };
+        const propertyId = ethers.BigNumber.from(i.propertyId).toNumber();
+        console.log(propertyId)
 
         let item = {
           price,
-          propertyId: i.propertyId.toNumber(),
+          propertyId: propertyId,
           tokenId: i.tokenId.toNumber(),
           seller: i.seller,
           owner: i.owner,
@@ -205,10 +178,12 @@ const Owned = () => {
           isExclusive: i.isExclusive,
           saleHistory: saleHistory,
           dateSoldHistory: i.dateSoldHistory,
-          tweetOptions: tweetOptions,
+          dateSoldHistoryBhb: i.dateSoldHistory,
+          tweetOptions: "",
           forSaleChecked: false,
           rentChecked: false,
-          totalIncomeGenerated: totalIncomeGenerated
+          totalIncomeGenerated: totalIncomeGenerated,
+          ranking: 0
         }
 
         if (item.roomOneRented === true) {
@@ -220,12 +195,11 @@ const Owned = () => {
         if (item.roomThreeRented === true) {
           item.roomsToRent++
         }
+        item.ranking = calculateRankingTotal(item)
         return item
       }))
-      console.log(items.length)
-      let temp = []
-      if (nfts.length != 0) {
-        temp = [...nfts]
+      console.log(items.length)   
+      if (nfts.length != 0) {     
         setNfts(items)
       } else {
         setNfts(items)
@@ -284,25 +258,92 @@ const Owned = () => {
     loadProperties()
   }
 
-  const handleForSaleCheck = (propertyId, e) => {
+  const handleForSaleCheck = (propertyObj, e) => {
+    console.log(propertyObj)
+    setPropertyIdTwitter(propertyObj.propertyId);
     setNfts((prevList) =>
       prevList.map((property) =>
-        property.propertyId === propertyId
+        property.propertyId === propertyObj.propertyId
           ? { ...property, forSaleChecked: e.target.checked }
           : property
       )
     );
+    setTwitterSaleChecked(e.target.checked);
+    seTwitterRef(propertyObj);
+
+    console.log(text)
+
   };
 
-  const handleRentCheck = (propertyId, e) => {
+  useEffect(() => {
+    console.log(propertyIdTwitter)
+    let tweetOptions
+    if (hasSetText) {
+      tweetOptions =
+      {
+        text: twitterTextRef.current ? twitterTextRef.current.innerText : "hello",
+        url: `http://localhost:3000/property-view/${propertyIdTwitter.toString()}`,
+        hashtags: 'BlockhouseBay',
+        via: 'blockhousebay',
+      }
+    }
+    setText(tweetOptions)
+    setUrl(`http://localhost:3000/property-view/${propertyIdTwitter ? propertyIdTwitter : ''}`)
+    setHasSetText(false)
+  }, [twitterSaleChecked])
+
+  const handleRentCheck = (propertyObj, e) => {
     setNfts((prevList) =>
       prevList.map((property) =>
-        property.propertyId === propertyId
+        property.propertyId === propertyObj.propertyId
           ? { ...property, rentChecked: e.target.checked }
           : property
       )
     );
+    setTwitterRentChecked(e.target.checked)
+    seTwitterRef(propertyObj)
+    // propertyObj.tweetOptions = 
+    // {
+    //   text: twitterTextRef.current ? twitterTextRef.current.innerText : "",
+    //   url: `http://localhost:3000/property-view/${propertyObj.propertyId.toString()}`,
+    //   hashtags: '@BlockhouseBay',
+    //   size: "large"
+    // };
+    //getOptions()
+
   };
+
+  const seTwitterRef = (property) => {
+    if (twitterSaleChecked && !twitterRentChecked) {
+      twitterTextRef.current = document.getElementById("twitterSaleSection");
+    } else if (!twitterSaleChecked && twitterRentChecked) {
+      twitterTextRef.current = document.getElementById("twitterRentSection");
+    } else if (twitterSaleChecked && twitterRentChecked) {
+      twitterTextRef.current = document.getElementById("twitterSaleRentSection");
+    }
+    setHasSetText(true)
+
+    // console.log(twitterTextRef.current.innerText)
+  }
+
+  // const getOptions = () => {
+  //   let tweetOptions = 
+  //   {
+  //     text: twitterTextRef.current ? twitterTextRef.current.innerText : "ccock",
+  //     url: `http://localhost:3000/property-view/${propertyObj.propertyId.toString()}`,
+  //     via: "test",
+  //     hashtags: '@BlockhouseBay',
+  //     size: "large"
+  //   };
+
+  //   setText(twitterTextRef.current?.innerText)
+  // }
+
+
+
+  const logOutTwitter = () => {
+    console.log(twitterTextRef.current.innerText)
+  }
 
   const getLogData = async () => {
     const web3Modal = new Web3Modal()
@@ -442,7 +483,7 @@ const Owned = () => {
     if (e.target.checked) {
       document.getElementById('maticInput' + i).style.visibility = 'visible'
       document.getElementById("sellBtn" + i).disabled = true
-      document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "text-white")
+      document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue hover:bg-blue-500", "text-white")
       document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "text-gray-600")
     } else {
       document.getElementById('maticInput' + i).style.visibility = 'hidden'
@@ -450,7 +491,7 @@ const Owned = () => {
       if (document.getElementById("amountInput" + i).value.length > 0) {
         document.getElementById("sellBtn" + i).disabled = false
         document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "text-gray-600")
-        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "text-white")
+        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue hover:bg-blue-500", "text-white")
       }
     }
   }
@@ -559,34 +600,34 @@ const Owned = () => {
     if (pid > 500) {
       if (document.getElementById("tokenInput" + i).value.length == 0) {
         document.getElementById("sellBtn" + i).disabled = true
-        document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
+        document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
         document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
       } else {
         document.getElementById("sellBtn" + i).disabled = false
         document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
+        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
       }
     } else {
       if (document.getElementById("matic" + i).checked == false) {
         if (e.target.value.length > 0) {
           document.getElementById("sellBtn" + i).disabled = false
           document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
+          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
         } else {
           document.getElementById("sellBtn" + i).disabled = true
-          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
+          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
           document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
         }
       } else {
         if (document.getElementById("amountInput" + i).value.length == 0
           || document.getElementById("tokenInput" + i).value.length == 0) {
           document.getElementById("sellBtn" + i).disabled = true
-          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white")
+          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
           document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
         } else {
           document.getElementById("sellBtn" + i).disabled = false
           document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white")
+          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
         }
       }
     }
@@ -595,18 +636,18 @@ const Owned = () => {
   function setRentButton(e, i) {
     if (document.getElementById("rentInput" + i).value.length == 0) {
       document.getElementById("rentButton" + i).disabled = true
-      document.getElementById("rentButton" + i).classList.remove("bg-pink-400", "cursor-pointer", "text-white")
+      document.getElementById("rentButton" + i).classList.remove("bg-pink-400", "cursor-pointer", "text-white", "hover:bg-pink-500")
       document.getElementById("rentButton" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
     } else {
       document.getElementById("rentButton" + i).disabled = false
       document.getElementById("rentButton" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-      document.getElementById("rentButton" + i).classList.add("bg-pink-400", "cursor-pointer", "text-white")
+      document.getElementById("rentButton" + i).classList.add("bg-pink-400", "cursor-pointer", "text-white", "hover:bg-pink-500")
     }
   }
 
   function SetTenantToDelete1(e, i, property) {
     document.getElementById("evictButton" + i).classList.remove("bg-gray-400", "text-gray-600")
-    document.getElementById("evictButton" + i).classList.add("bg-red-400", "test-white")
+    document.getElementById("evictButton" + i).classList.add("bg-red-400", "test-white", "hover:bg-red-500")
     setTeneantToDeleteProperty(property.propertyId)
     if (e.target.id === "tenant1") {
       setTenantToDelete({ address: property.renterAddresses[0] })
@@ -662,7 +703,7 @@ const Owned = () => {
   }
   const calculatePageNumber = (itemId, forSaleItemCount) => {
     const itemsPerPage = 20;
-  
+
     if (itemId <= forSaleItemCount && itemId >= 1) {
       const pageNumber = Math.ceil(itemId / itemsPerPage);
       return pageNumber;
@@ -670,17 +711,17 @@ const Owned = () => {
       return -1; // Item ID is out of range or not marked as for sale
     }
   };
-  
-  
-  
-  
-  
-  
-  
+
+
+
+
+
+
+
 
   let test = calculatePageNumber(221, 498)
   console.log(test)
-  
+
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -695,7 +736,7 @@ const Owned = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
-          <img src="spring.png" className="h-5/6 w-3/5 pl-12" />
+          <img src="spring.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-3/5 lg:pl-12" />
         </div>
       </div>
     </div>
@@ -736,7 +777,7 @@ const Owned = () => {
               </div>
               {amountAccumulated > 0 &&
                 <button
-                  className="text-pink-400 hover text-base border border-pink-400 rounded py-1 px-2"
+                  className="text-pink-400 hover:bg-pink-900 text-base border border-pink-400 rounded py-1 px-2"
                   onClick={() => CollectRent()}>
                   Collect Rent
                 </button>
@@ -847,16 +888,15 @@ const Owned = () => {
                     </div>
                   </div>
 
-                  <div className="p-5 bg-black">
+                  <div className="p-4 pt-2 bg-black">
                     {/*  */}
                     <div className="mb-1 grid-rows-3 divide-y divide-white">
-                      <div className='pb-4 flex'>
-                        <Share url="http://localhost:3000" options={property.tweetOptions} />
-                        <div className={`${classes.padding} pl-4`}>
+                      <div className={`flex justify-between ${(!twitterSaleChecked && !twitterRentChecked) ? 'pb-1' : 'pb-3'}`}>
+                        <div className={`${classes.padding} mr-6`}>
                           <div className="flex text-white">
                             <input
                               type="checkbox"
-                              onChange={(e) => handleForSaleCheck(property.propertyId, e)}
+                              onChange={(e) => handleForSaleCheck(property, e,)}
                               id="sellingRadio"
                               name="twitter"
                               className="mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
@@ -868,7 +908,7 @@ const Owned = () => {
                           <div className="flex ml-3">
                             <input
                               type="checkbox"
-                              onChange={(e) => handleRentCheck(property.propertyId, e)}
+                              onChange={(e) => handleRentCheck(property, e)}
                               id="vacantRoomsRadio"
                               name="twitter"
                               className="mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
@@ -878,51 +918,63 @@ const Owned = () => {
                             </label>
                           </div>
                         </div>
+                        <div className={'mt-1.5'} >
+                          <Share url={url} options={text} disabled={true} />
+                        </div>
                       </div>
 
-                      <div className='text-sm text-twitter-blue'>
+
+                      <div className={`text-sm text-twitter-blue py-1 ${(twitterSaleChecked || twitterRentChecked) ? "border-t-2 border-b-2 border-white" : "border-none"}`}>
+                        {(twitterSaleChecked || twitterRentChecked) &&
+                          <div className='flex justify-between border-none text-white my-1'>
+                            <p className='font-semibold'>Twitter Post Template</p>
+
+                          </div>
+                        }
                         {(property.forSaleChecked && !property.rentChecked) && (
-                          <div>
+                          <div id="twitterSaleSection" ref={twitterTextRef}>
                             <div id={`${property.propertyId}twitterSale`}>
                               <p>{`Check out my Blockbouse Bay Property - ${property.name}.`}</p>
                               {property.propertyId < 501 ? (
-                                <p>{`Selling for ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
+                                <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
                               ) : (
-                                <p>{`Selling for ${property.tokenPrice} BHB`}</p>
+                                <p>{` ${property.tokenPrice} BHB`}</p>
                               )}
-                              <p>http://localhost:3000/for-sale</p>
+                              <p>{property.tweetOptions["url"]}</p>
                             </div>
                           </div>
                         )}
                         {(property.rentChecked && !property.forSaleChecked) && (
-                          <div>
+                          <div id="twitterRentSection" ref={twitterTextRef}>
                             <div id={`${property.propertyId}twitterRent`}>
                               <p>{`Check out my Blockbouse Bay Property - ${property.name}.`}</p>
-                              {property.roomsToRent != 0 &&
+                              {property.roomsToRent != 3 &&
                                 <p>
                                   {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic`}
                                 </p>
                               }
                             </div>
-                            <p>http://localhost:3000/for-sale</p>
+                            <p>{property.tweetOptions["url"]}</p>
                           </div>
                         )}
                         {(property.rentChecked && property.forSaleChecked) && (
-                          <div>
+                          <div id="twitterSaleRentSection" ref={twitterTextRef}>
                             <p>{`Check out my Blockbouse Bay Property - ${property.name}.`}</p>
                             {property.propertyId < 501 ? (
-                              <p>{`Selling for ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
+                              <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
                             ) : (
-                              <p>{`Selling for ${property.tokenPrice} BHB`}</p>
+                              <p>{` ${property.tokenPrice} BHB`}</p>
                             )}
-                            {property.roomsToRent != 0 &&
+                            {property.roomsToRent != 3 &&
                               <p>
                                 {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic`}
                               </p>
                             }
+                            <p>{property.tweetOptions["url"]}</p>
                           </div>
                         )}
                       </div>
+
                       {/* <div className='pl-4'>
                         <Accordion expanded={expanded === true} onChange={handleChange(!expanded)}>
                           <AccordionSummary

@@ -8,23 +8,11 @@ contract GovtFunctions is ReentrancyGuard {
     PropertyMarket public propertyMarketContract;
     address payable govt;
 
-    struct Property {
+    struct PropertyPayment {
         uint256 propertyId;
-        address nftContract;
-        uint256 tokenId;
-        address payable seller;
-        address payable owner;
-        uint256 salePrice;
-        uint256 tokenSalePrice;
-        uint256 rentPrice;
-        uint256[] saleHistory; //goodidea?
-        bool isForSale;
-        bool roomOneRented;
-        bool roomTwoRented;
-        bool roomThreeRented;
-        bool isExclusive;
-        uint256 maxTennants; //needed?
-    }
+        address renter;
+        uint256 timestamp;
+    }    
 
     constructor(address propertyMarketAddress) {
         propertyMarketContract = PropertyMarket(propertyMarketAddress);
@@ -181,4 +169,27 @@ contract GovtFunctions is ReentrancyGuard {
         }
         return rentals;
     }
+
+    // function fetchPropertiesForSale(
+    //     uint256 page
+    // ) public view returns (PropertyMarket.Property[] memory) {
+    //     uint256 propertyIdCount = propertyMarketContract.getPropertyIds();
+        
+    //     uint256 propertyCount = propertyIdCount - 50;
+    //     uint256 unsoldPropertyCount = propertyCount - propertyMarketContract.getPropertiesSold();
+    //     uint256 startIndex = 20 * (page - 1);
+    //     uint256 endIndex = startIndex + 20;
+    //     if (endIndex > unsoldPropertyCount) {
+    //         endIndex = unsoldPropertyCount;
+    //     }
+
+    //     PropertyMarket.Property[]
+    //         memory propertiesForSale = new PropertyMarket.Property[](
+    //             endIndex - startIndex
+    //         );
+        
+    //     propertyMarketContract.getAllForSale(startIndex, endIndex);
+
+    //     return propertiesForSale;
+    // }
 }

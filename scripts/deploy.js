@@ -4,8 +4,17 @@ const fs = require('fs');
 const hre = require("hardhat");
 
 async function main() {
+
+  const RewardCalculator = await hre.ethers.getContractFactory("RewardCalculator");
+  const rewardCalculator = await RewardCalculator.deploy();
+  await rewardCalculator.deployed();
+  console.log("reward calculator deployed to:", rewardCalculator.address); 
  
-  const PropertyMarket = await hre.ethers.getContractFactory("PropertyMarket");
+  const PropertyMarket = await hre.ethers.getContractFactory("PropertyMarket", {
+    libraries: {
+      RewardCalculator: rewardCalculator.address,
+    },
+  });
   const propertyMarket = await PropertyMarket.deploy();
   await propertyMarket.deployed();
   console.log("propertyMarket deployed to:", propertyMarket.address); 
