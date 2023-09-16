@@ -13,6 +13,7 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import { makeStyles } from '@material-ui/core/styles';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import Blockies from 'react-blockies';
 
 import Market from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
@@ -59,7 +60,7 @@ const Owned = () => {
   const classes = useStyles();
   const iconColor = "#1DA1F2"
 
-  const [postsPerPage] = useState(8);
+  const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
@@ -88,8 +89,7 @@ const Owned = () => {
       const connection = await web3Modal.connect()
       const provider = new ethers.providers.Web3Provider(connection)
       //const provider = new ethers.providers.JsonRpcProvider()
-      const signer = provider.getSigner()
-
+      const signer = provider.getSigner()      
       const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
       const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider);
@@ -198,12 +198,10 @@ const Owned = () => {
         item.ranking = calculateRankingTotal(item)
         return item
       }))
-      console.log(items.length)   
-      if (nfts.length != 0) {     
-        setNfts(items)
-      } else {
-        setNfts(items)
-      }
+      console.log(items.length)
+     
+      setNfts(items.slice(0, 20))
+      
       setLoadingState('loaded')
     } catch (ex) {
       if (ex.message === 'User Rejected') {
@@ -258,6 +256,22 @@ const Owned = () => {
     loadProperties()
   }
 
+  useEffect(() => {
+    console.log(propertyIdTwitter)
+    let tweetOptions
+    if (hasSetText) {
+      tweetOptions =
+      {
+        text: twitterTextRef.current ? twitterTextRef.current.innerText : "",
+        url: `http://localhost:3000/property-view/${propertyIdTwitter.toString()}`,
+        hashtags: 'BlockhouseBay',      
+      }
+    }
+    setText(tweetOptions)
+    setUrl(`http://localhost:3000/property-view/${propertyIdTwitter ? propertyIdTwitter : ''}`)
+    setHasSetText(false)
+  }, [twitterSaleChecked, twitterRentChecked])
+
   const handleForSaleCheck = (propertyObj, e) => {
     console.log(propertyObj)
     setPropertyIdTwitter(propertyObj.propertyId);
@@ -275,24 +289,8 @@ const Owned = () => {
 
   };
 
-  useEffect(() => {
-    console.log(propertyIdTwitter)
-    let tweetOptions
-    if (hasSetText) {
-      tweetOptions =
-      {
-        text: twitterTextRef.current ? twitterTextRef.current.innerText : "hello",
-        url: `http://localhost:3000/property-view/${propertyIdTwitter.toString()}`,
-        hashtags: 'BlockhouseBay',
-        via: 'blockhousebay',
-      }
-    }
-    setText(tweetOptions)
-    setUrl(`http://localhost:3000/property-view/${propertyIdTwitter ? propertyIdTwitter : ''}`)
-    setHasSetText(false)
-  }, [twitterSaleChecked])
-
   const handleRentCheck = (propertyObj, e) => {
+    setPropertyIdTwitter(propertyObj.propertyId);
     setNfts((prevList) =>
       prevList.map((property) =>
         property.propertyId === propertyObj.propertyId
@@ -302,15 +300,6 @@ const Owned = () => {
     );
     setTwitterRentChecked(e.target.checked)
     seTwitterRef(propertyObj)
-    // propertyObj.tweetOptions = 
-    // {
-    //   text: twitterTextRef.current ? twitterTextRef.current.innerText : "",
-    //   url: `http://localhost:3000/property-view/${propertyObj.propertyId.toString()}`,
-    //   hashtags: '@BlockhouseBay',
-    //   size: "large"
-    // };
-    //getOptions()
-
   };
 
   const seTwitterRef = (property) => {
@@ -318,6 +307,7 @@ const Owned = () => {
       twitterTextRef.current = document.getElementById("twitterSaleSection");
     } else if (!twitterSaleChecked && twitterRentChecked) {
       twitterTextRef.current = document.getElementById("twitterRentSection");
+      console.log(twitterTextRef.current)
     } else if (twitterSaleChecked && twitterRentChecked) {
       twitterTextRef.current = document.getElementById("twitterSaleRentSection");
     }
@@ -408,22 +398,6 @@ const Owned = () => {
 
 
   }
-
-  // const handleForSaleCheck = (propertyId, e) => {
-  //   if (e.target.checked) {     
-  //     document.getElementById(`${propertyId}twitterSale`).style.visibility = 'visible'
-  //   } else {
-  //     document.getElementById(`${propertyId}twitterSale`).style.visibility = 'invisible'
-  //   }
-  // }
-
-  // const handleRentCheck = (propertyId, e) => {
-  //    if (e.target.checked) {     
-  //     document.getElementById(`${propertyId}twitterRent`).style.visibility = 'visible'
-  //   } else {
-  //     document.getElementById(`${propertyId}twitterRent`).style.visibility = 'invisible'
-  //   }
-  // }
 
   const CancelSale = async (property) => {
     const web3Modal = new Web3Modal()
@@ -564,33 +538,49 @@ const Owned = () => {
       console.log(i)
       return (
         // <div className='text-xs mt-2 text-green-200'>
-        <div className='text-xs text-green-400'>
+        <div className='text-[10px] font-mono text-green-400'>
           {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
             <>
-              {/* {                 
-                addressesOverdue.includes(property.renterAddresses[0]) && e === undefined && property.renterAddresses[0] !== tenantToDelete ? 
-                  <p className={"break-words text-yellow-400" + getTenantToDeleteColour(property, i)}>
-                    {property.renterAddresses[0]}
-                  </p>
-                : */}
-              <p className={" break-words " + getTenantToDeleteColour(property, 0)}>
-                {property.renterAddresses[0]}
-              </p>
-              {/* } */}
+              <div className='flex items-center justify-between mb-2'>
+                <p className={" break-words text-center " + getTenantToDeleteColour(property, 0)}>
+                  {property.renterAddresses[0]}
+                </p>
+                <Blockies
+                  seed={property.renterAddresses[0]}
+                />
+              </div>
             </>
             : <p>0x</p>
           }
           {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
-            <p className={"break-words " + getTenantToDeleteColour(property, 1)}>
-              {property.renterAddresses[1]}
-            </p>
-            : <p>0x</p>
+            <div className='flex items-center justify-between mb-2'>
+              <p className={" break-words text-center " + getTenantToDeleteColour(property, 1)}>
+                {property.renterAddresses[1]}
+              </p>
+              <Blockies
+                seed={property.renterAddresses[1]}
+              />
+            </div>
+            :
+            <>
+              {property.renterAddresses[0] === "0.0" &&
+                <p>0x</p>}
+            </>
           }
-          {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0"
-            ? <p className={"break-words " + getTenantToDeleteColour(property, 2)}>
-              {property.renterAddresses[2]}
-            </p>
-            : <p>0x</p>}
+          {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
+            <div className='flex items-center justify-between'>
+              <p className={" break-words " + getTenantToDeleteColour(property, 2)}>
+                {property.renterAddresses[2]}
+              </p>
+              <Blockies
+                seed={property.renterAddresses[2]}
+              />
+            </div>
+            : <>
+              {property.renterAddresses[0] === "0.0" &&
+                <p>0x</p>}
+            </>
+          }
         </div>
       )
     }
@@ -764,7 +754,7 @@ const Owned = () => {
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
-        <div className="px-9 text-white" style={{ maxWidth: "1600px" }}>
+        <div className="px-4 sm:px-9 text-white" style={{ maxWidth: "1600px" }}>
           <p className="text-5xl xl3:text-6xl font-bold mb-6 text-white">My Properties</p>
           <div className="flex">
             <p className="text-sm lg:text-xl pl-4 font-bold mr-1 mb-2">Manage Owned Properties</p>
@@ -796,63 +786,37 @@ const Owned = () => {
                 <div
                   key={i}
                   className={`border shadow rounded-md overflow-hidden  ${property.propertyId > 500 ? "border-yellow-500 bg-gradient-120 from-black via-black to-green-900" : "bg-gradient-120 from-black via-black to-blue-400"}`}
-
                 >
                   <img className='w-fit h-fit' src={property.image} alt="" />
 
                   <div className="p-4 ">
                     <p
-                      style={{ height: "50px" }}
-                      className={`text-2xl font-semibold text-transparent bg-clip-text ${property.propertyId > 500 ? 'bg-gradient-to-r from-white to-purple-500' : 'bg-gradient-to-r from-white to-green-400'}`}
+                      className={`text-2xl mb-3 font-semibold text-transparent bg-clip-text ${property.propertyId > 500 ? 'bg-gradient-to-r from-white to-purple-500' : 'bg-gradient-to-r from-white to-green-400'}`}
                     >
                       {property.name}
                     </p>
-                    <div className="flex relative">
-                      {/* <h6 className="pr-1 text-white under">Property Info</h6>
-                      <div className="text-sm font-bold mb-4 mt-1 flex">
-                        <div className="mb-1 relative">
-                          <div className="relative flex flex-col items-center group">
-                            <Link to={{
-                              pathname: '/about',
-                              state: { section: 'panel6' }
-                            }}>
-                              <svg
-                                className="w-4 h-4 text-white"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                                fill="currentColor"
-                              >
-                                <path
-                                  fillRule="evenodd"
-                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                            </Link>
-                            <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                              <span className="relative z-10 p-2 text-xs leading-none text-white whitespace-no-wrap bg-black shadow-lg">
-                                Learn more
-                              </span>
-                              <div className="w-3 h-3 -mt-2 rotate-45 bg-black"></div>
-                            </div>
+                    <div style={{ overflow: "hidden" }}>
+                      <div className="flex flex-col ">
+
+                        <div className='flex justify-between mb-2'>
+                          <div>
+                            <p>Owner:</p>
+                            <p className="text-[10px] text-green-400 font-mono">{property.owner}</p>
+                          </div>
+                          <div className='pt-1.5'>
+                            <Blockies
+                              seed={property.owner}
+                            />
                           </div>
                         </div>
-                      </div> */}
-
-                    </div>
-
-                    <div style={{ overflow: "hidden" }}>
-                      <div className="flex flex-col pb-2 ">
-                        <p>Owner:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.owner}</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.rentPrice} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">14 Matic</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Total Income Generated:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">523 Matic</p>
                       </div>
                       <div className="flex flex-col mb-2">
                         <p>Rooms Rented:</p>
@@ -862,6 +826,7 @@ const Owned = () => {
                         Tenants:
                         {setInitalAddresses(property)}
                       </div>
+
                       <SaleHistory property={property} />
 
                       <div className={`flex justify-between ${property.isForSale ? 'mb-0 mt-2' : 'mt-2'}`}>
@@ -888,7 +853,7 @@ const Owned = () => {
                     </div>
                   </div>
 
-                  <div className="p-4 pt-2 bg-black">
+                  <div className="p-4 pb-2 pt-2 bg-black">
                     {/*  */}
                     <div className="mb-1 grid-rows-3 divide-y divide-white">
                       <div className={`flex justify-between ${(!twitterSaleChecked && !twitterRentChecked) ? 'pb-1' : 'pb-3'}`}>
@@ -899,7 +864,8 @@ const Owned = () => {
                               onChange={(e) => handleForSaleCheck(property, e,)}
                               id="sellingRadio"
                               name="twitter"
-                              className="mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
+                              disabled={property.isForSale ? false : true}
+                              className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.isForSale === false ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
                             <label htmlFor="sellingRadio">
                               Selling
@@ -911,14 +877,37 @@ const Owned = () => {
                               onChange={(e) => handleRentCheck(property, e)}
                               id="vacantRoomsRadio"
                               name="twitter"
-                              className="mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
-                            />
+                              disabled={property.roomsToRent > 2 ? true : false}
+                              className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.roomsToRent > 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            />                            
                             <label htmlFor="vacantRoomsRadio">
                               Vacant Rooms
                             </label>
+                            <div className="relative flex flex-col items-center group ml-2">
+                              <svg
+                                className="w-4 h-4 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+
+                                <path
+                                  fillRule="evenodd"
+                                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                                <span className="relative flex w-48 z-10 p-2 text-xs leading-none text-white whitespace-no-wrap border border-1 border-white bg-twitter-blue shadow-lg">
+                                  If selling or rooms are vacant, add for-sale and room-vacant info to your tweet!
+                                </span>
+                                <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
+                              </div>
+                            </div>
                           </div>
                         </div>
                         <div className={'mt-1.5'} >
+                          {/* <div className="btn-o w-[73px] mb-12" ><div  className="tweetBtn" id="b"><i></i><span className="label" id="l">Tweet</span></div></div> */}
                           <Share url={url} options={text} disabled={true} />
                         </div>
                       </div>
@@ -934,7 +923,7 @@ const Owned = () => {
                         {(property.forSaleChecked && !property.rentChecked) && (
                           <div id="twitterSaleSection" ref={twitterTextRef}>
                             <div id={`${property.propertyId}twitterSale`}>
-                              <p>{`Check out my Blockbouse Bay Property - ${property.name}.`}</p>
+                              <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
                               {property.propertyId < 501 ? (
                                 <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
                               ) : (
@@ -947,7 +936,7 @@ const Owned = () => {
                         {(property.rentChecked && !property.forSaleChecked) && (
                           <div id="twitterRentSection" ref={twitterTextRef}>
                             <div id={`${property.propertyId}twitterRent`}>
-                              <p>{`Check out my Blockbouse Bay Property - ${property.name}.`}</p>
+                              <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
                               {property.roomsToRent != 3 &&
                                 <p>
                                   {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic`}
@@ -959,7 +948,7 @@ const Owned = () => {
                         )}
                         {(property.rentChecked && property.forSaleChecked) && (
                           <div id="twitterSaleRentSection" ref={twitterTextRef}>
-                            <p>{`Check out my Blockbouse Bay Property - ${property.name}.`}</p>
+                            <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
                             {property.propertyId < 501 ? (
                               <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
                             ) : (

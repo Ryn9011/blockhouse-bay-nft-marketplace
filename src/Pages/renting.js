@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 import axios from 'axios'
+import Blockies from 'react-blockies';
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
@@ -18,21 +19,76 @@ const Renting = () => {
 
   const [rentedProperties, setRentedProperties] = useState([])
   const [loadingState, setLoadingState] = useState('not-loaded')
+  const [timestampLoadingState, setTimestampLoadingState] = useState('not-loaded')
   const [renterTokens, setRenterTokens] = useState(0)
   const [rentAmount, setRentAmount] = useState(0)
+  const [rentStatus, setRentStatus] = useState(false)
 
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
+  const [connectedAddress, setConnectedAddress] = useState();
+  const [tokenAddress, setTokenAddress] = useState();
+  const [renterTimestamps, setRenterTimestamps] = useState();
 
   // Get current posts
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = rentedProperties.slice(indexOfFirstPost, indexOfLastPost);
 
   useEffect(() => {
     setLoadingState('not-loaded')
     loadProperties()
   }, [currentPage])
+
+  useEffect(() => {    
+    if (loadingState === 'loaded') {
+      loadTimeStamps(rentedProperties.length)
+    }
+  }, [loadingState])
+
+  const loadTimeStamps = async (propertyCount) => {
+    const web3Modal = new Web3Modal()
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+
+    const signer = provider.getSigner()
+    const address = await signer.getAddress();
+    const propertyIds = [];
+
+    for (let i = 0; i < propertyCount; i++) {
+      const item = rentedProperties[i];
+      propertyIds.push(item.propertyId);
+    }
+      
+    const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    const renters = await marketContract.getPropertyPayments(propertyIds);
+    console.log(rentedProperties.length)
+    setRenterTimestamps(renters)
+    rentedProperties.forEach((item, i) => {
+      item.rentStatus = CheckTimestampExpired(item, i)
+    })
+    setTimestampLoadingState('loaded');
+  }
+
+  const CheckTimestampExpired = (property, index) => {
+
+    console.log(renterTimestamps)
+    if (renterTimestamps === undefined) {
+      console.log("UNDEFINED");
+      return false
+    }
+    const currentObject = renterTimestamps[index] // Example timestamp from smart contract in seconds
+    console.log(currentObject[0])
+    const twentyFourHoursInMillis = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const currentTimeInMillis = Date.now();
+
+    if (currentTimeInMillis - (currentObject.timestamp.toNumber() * 1000) > twentyFourHoursInMillis) {
+      console.log("true")
+      return true
+    } else {
+      console.log("false")
+      return false
+    }
+  }
 
   const loadProperties = async () => {
     const web3Modal = new Web3Modal()
@@ -40,24 +96,50 @@ const Renting = () => {
     try {
       const connection = await web3Modal.connect()
       const provider = new ethers.providers.Web3Provider(connection)
+
       const signer = provider.getSigner()
+      const address = await signer.getAddress();
+      setConnectedAddress(address);
+
       const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
-      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
+      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider);
+      const tokenContractAddress = await tokenContract.address;
+      setTokenAddress(tokenContractAddress);
+
       const data = await govtContract.fetchMyRentals()
       const tokensHex = await marketContract.getTokensEarned()
       const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
       setRenterTokens(tokens)
 
       let dataFiltered = data.filter(a => a.propertyId.toNumber() !== 0)
+
+      const propertyIds = [];
+
+        for (let i = 0; i < data.length; i++) {
+          const item = data[i];
+          propertyIds.push(item.propertyId);
+        }
+       
+      const renters = await marketContract.getPropertyPayments(propertyIds);
+      console.log(renters)
+      setRenterTimestamps(renters)
+
       const items = await Promise.all(dataFiltered.map(async i => {
 
         console.log(i.tokenId.toNumber())
 
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
-        const nftTagHelper = new NftTagHelper()
-
+        
+        // console.log(renters)
+        // let idsToRenters = []
+        // renters.forEach(a => {
+        //   console.log(a)
+        // })
+        // console.log(renters[0])
+        // const timestamps = renters.filter(a => a[1] == address)
+        // console.log(timestamps)
         const meta = await axios.get(tokenUri)
 
         let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
@@ -77,8 +159,12 @@ const Renting = () => {
           description: "",
           roomOneRented: false,
           roomTwoRented: false,
-          roomThreeRented: false
+          roomThreeRented: false,         
+          rentStatus: undefined,
         }
+
+        // let rentDue = CheckTimestampExpired(item, address)
+        item.rentStatus = undefined
 
         if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
           item.available = true;
@@ -87,7 +173,7 @@ const Renting = () => {
 
       }))
 
-      setRentedProperties(items)
+      setRentedProperties(items.slice(0, 20))
       setLoadingState('loaded')
     } catch (ex) {
       if (ex.message === 'User Rejected') {
@@ -100,6 +186,8 @@ const Renting = () => {
       }
     }
   }
+
+
 
   const PayRent = async (property) => {
     const web3Modal = new Web3Modal()
@@ -149,7 +237,7 @@ const Renting = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  if (loadingState !== 'loaded') return (
+  if (loadingState !== 'loaded' && timestampLoadingState !== 'loaded') return (
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
@@ -166,7 +254,7 @@ const Renting = () => {
     </div>
   )
 
-  if (loadingState === 'loaded' && !rentedProperties.length) return (
+  if (loadingState === 'loaded' && timestampLoadingState === 'loaded' && !rentedProperties.length) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
@@ -191,7 +279,9 @@ const Renting = () => {
               <div className="flex pr-4 mt-1.5 font-bold text-white mb-4 lg:mb-0">
                 <p>Tokens Accumulated: </p>
                 <p className="pl-1 text-matic-blue">{renterTokens} BHB</p>
+
               </div>
+
               {renterTokens > 0 &&
                 <div className=''>
                   <button
@@ -202,6 +292,33 @@ const Renting = () => {
                 </div>
               }
             </div>
+
+            <div className='flex'>
+              <p className='text-white text-sm font-bold'>BHB Token Address</p>
+              <div className="relative flex flex-col items-center group ml-2">
+                <svg
+                  className="w-4 h-4 mt-0.5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+
+                  <path
+                    fillRule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                  <span className="relative font-semibold flex w-48 z-10 p-2 text-xs leading-none text-black whitespace-no-wrap border border-1 border-black bg-white shadow-lg">
+                    Add the BHB Token address to your wallet
+                  </span>
+                  <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
+                </div>
+              </div>
+            </div>
+
+            <p className='text-indigo-100 font-mono text-[10px] md:text-sm mb-8'>{tokenAddress}</p>
           </div>
           <Pagination
             postsPerPage={postsPerPage}
@@ -210,25 +327,31 @@ const Renting = () => {
             currentPage={currentPage}
           />
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-white">
-            {currentPosts.map((property, i) => {
+            {rentedProperties.map((property, i) => {
               return (
                 <div
                   key={i}
                   className={`border shadow rounded-md overflow-hidden  ${property.propertyId > 500 ? "border-yellow-500 bg-gradient-120 from-black via-black to-green-900" : "bg-gradient-120 from-black via-black to-blue-400"}`}
                 >
                   <img className='w-fit h-fit' src={property.image} alt="" />
-                  <div className="p-4 pb-0">
+                  <div className="p-4 pb-2">
                     <p
-                      style={{ height: "50px" }}
                       className={`text-2xl font-semibold text-transparent bg-clip-text ${property.propertyId > 500 ? 'bg-gradient-to-r from-white to-purple-500' : 'bg-gradient-to-r from-white to-green-400'}`}
                     >
                       {property.name}
                     </p>
                   </div>
                   <div className='p-4 pt-0'>
-                    <div className="flex flex-col pb-2">
-                      <p>Owner:</p>
-                      <p className="font-mono text-xs text-green-400">{property.owner}</p>
+                    <div className='flex justify-between mb-2'>
+                      <div>
+                        <p>Owner:</p>
+                        <p className="text-[10px] text-green-400 font-mono">{property.owner}</p>
+                      </div>
+                      <div className='pt-1.5'>
+                        <Blockies
+                          seed={property.owner}
+                        />
+                      </div>
                     </div>
                     <div className="flex flex-col pb-2">
                       <p>Rent Price:</p>
@@ -238,9 +361,13 @@ const Renting = () => {
                       <p>Deposit Paid:</p>
                       <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
                     </div>
+                    <div className="flex flex-col pb-2">
+                      <p>Rent Status</p>                   
+                      <p className={`font-mono text-xs text-green-400 ${property.rentStatus ? ' text-yellow-400' : ''}`}>{property.rentStatus ? "rent overdue" : "rent up to date"}</p>                   
+                    </div>
                   </div>
 
-                  <div className="p-2 pt-1.2 pb-4 bg-black">
+                  <div className="p-2 pt-1.2 pb-3 bg-black">
                     <div className="flex divide-x divide-white justifty-start px-2">
                       <div className="flex pr-5 lg:pr-3">
                         <div className="text-lg font-bold pr-1">Renting Tips</div>
@@ -258,7 +385,7 @@ const Renting = () => {
                     </div>
                     <div className="text-2xl pt-2 text-white"></div>
 
-                    <div className="px-2 pb-4">
+                    <div className="px-2 pt-3 pb-4">
                       <button onClick={() => { PayRent(property) }} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">
                         Pay Rent
                       </button>

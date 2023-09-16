@@ -36,7 +36,7 @@ const ethereumClient = new EthereumClient(wagmiClient, chains)
 function App() {
   const location = useLocation();
   return (
-    <div className='from-black via-black to-polygon-purple bg-gradient-120 h-screen flex flex-col overflow-hidden'>
+    <div className='bg-black md:from-black md:via-black md:to-polygon-purple md:bg-gradient-120  flex flex-col'>
       <div className="flex-1 overflow-y-auto">
         <WagmiConfig client={wagmiClient}>
           <Header />
@@ -47,7 +47,7 @@ function App() {
             <Route path="/to-rent" element={<ToRent />} />
             <Route path="/owned" element={<Owned />} />
             <Route path="/renting" element={<Renting />} />
-            <Route path="/exclusive" element={<Exclusive />} />
+            <Route path="/blockhouse-bay-gardens" element={<Exclusive />} />
             <Route path="/about" element={<About />} />
             <Route path="/create-item" element={<CreateItem />} />
             <Route path="/property-view/:propertyId" element={<PropertyView />} />
@@ -59,9 +59,9 @@ function App() {
           }}
         />
       </div>
-      {location.pathname === "/" &&
+      {/* {location.pathname === "/" &&
         <Footer />
-      }
+      } */}
     </div>
   );
 }

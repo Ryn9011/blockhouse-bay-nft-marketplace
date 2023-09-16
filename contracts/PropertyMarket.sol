@@ -24,9 +24,9 @@ contract PropertyMarket is ReentrancyGuard {
     Counters.Counter private _govtGiftCount;
 
     address payable immutable i_govt;
-    uint256 public depositRequired = 5 ether;
-    uint256 public listingPrice = 5 ether;
-    uint256 public initialSalePrice = 100 ether;
+    uint256 public depositRequired = 10 ether;
+    uint256 public listingPrice = 10 ether;
+    uint256 public initialSalePrice = 120 ether;
     uint256 initialTokenPrice = 2000 ether;
     uint256 initialExclusivePrice = 1000 ether; //need function to sell tokens to other players
     uint256 tokenMaxSupply = 10000000 ether;
@@ -282,6 +282,8 @@ contract PropertyMarket is ReentrancyGuard {
         require(property.isForSale, "unlisted property");
 
         property.isForSale = false;
+        property.salePrice = 0;
+        property.tokenSalePrice = 0;
         _propertiesSold.increment();
         _relistCount.decrement();
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
@@ -362,16 +364,15 @@ contract PropertyMarket is ReentrancyGuard {
             tempProperty.saleHistory.push(
                 Sale(tempProperty.tokenSalePrice, 2)
             );
-            tempProperty.dateSoldHistoryBhb.push(block.timestamp);
+          
         } else {
             if (itemId > 500) {
                 require(itemId < 500, "only token purchase");
             }
-
             require(msg.value == price, "submit asking price");
-            tempProperty.saleHistory.push(Sale(price, 1));
-            tempProperty.dateSoldHistory.push(block.timestamp);
+            tempProperty.saleHistory.push(Sale(price, 1));      
         }
+        tempProperty.dateSoldHistory.push(block.timestamp);
         tempProperty.seller.transfer(
             msg.value - ((msg.value * 500) / 10000)
         ); //5% goes to i_govt

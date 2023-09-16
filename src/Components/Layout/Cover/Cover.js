@@ -1,39 +1,104 @@
-import Footer from "../Footer/Footer"
+
+
+import "../../../../src/style.css"
+
 
 export default function Cover() {
 
-    return (
-        <div className="lg:mb-8">
-            <section className="grid grid-cols-1 lg:grid-cols-9 xl3:grid-cols-10 px-8 pl-0 lg:pl-0 lg:px-0 text-white">
-                <div></div>
-                <div className="lg:mt-0 grid grid-cols-12 lg:hidden relative mb-12 mt-6">
-                    <div className="image-container drop-shadow-2xl col-span-12 absolute h-5/6 md:h-2/3 md:w-5/6 md:pt-12 right-9 md:right-5">
-                        <img src="logo.png" className="h-2/6 rotate-away" />
-                        <img src="col.png" className="rotate-away brightness-110" />                       
-                        <div className="gradient-overlay2 md:h-5/6"></div>
-                    </div>                  
-                </div>
-                <div className="col-span-3 pl-12 xl3:pr-4 xl3:pt-16 lg:pl-0 pr-2 lg:pr-16">
-                    <div className="mt-8 lg:mt-32 xl3:mt-64 flex flex-col justify-center">
-                        <div className="pb-6 lg:pb-12 xl3:pb-20 text-3xl lg:text-6xl xl3:text-7xl font-serif">Create Your Property Portfolio Today! </div>
-                        <p className="text-lg lg:text-2xl xl3:text-3xl xl3:mb-12 mb-8">Earn $$$ from your tennants or rent a property to earn tokens to buy a property of your own!</p>
-                        <a href="/about">
-                            <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-12 lg:py-6 w-full rounded-full mb-8 lg:mb-0">
-                                Get Started
-                            </button> 
-                        </a>
+    var radius = 480;
+    var autoRotate = true;
+    var rotateSpeed = -60;
+    var imgWidth = 100;
+    var imgHeight = 150;
+    var numImages = 10; // Adjust this to match the number of images you have
+    var spacing = 360 / numImages; // Calculate the angle spacing
+    setTimeout(init, 1000);
+    var odrag = document.getElementById('drag-container');
+    var ospin = document.getElementById('spin-container');
+    var aImg = ospin.getElementsByTagName('img');
+    var aVid = ospin.getElementsByTagName('video');
+    var aEle = [...aImg, ...aVid];
+
+    // Size of images
+    ospin.style.width = imgWidth + "px";
+    ospin.style.height = imgHeight + "px";
+
+    // Size of ground - depend on radius
+    var ground = document.getElementById('ground');
+    ground.style.width = radius * 3 + "px";
+    ground.style.height = radius * 3 + "px";
+
+    function init(delayTime) {
+        for (var i = 0; i < aEle.length; i++) {
+          var angle = (i - (aEle.length - 1) / 2) * spacing;
+          aEle[i].style.transform = "rotateY(" + angle + "deg) translateZ(" + radius + "px)";
+      
+          // Calculate the duration for which the image should be visible (half of the rotation)
+          var rotationDuration = Math.abs(angle / rotateSpeed);
+      
+          // Set the animation properties for fade out
+          aEle[i].style.transition = `transform ${rotationDuration / 2}s ease-in-out, opacity 1s`;
+          aEle[i].style.transitionDelay = delayTime || (aEle.length - i) / 4 + "s";
+          aEle[i].style.opacity = 0; // Initially set the opacity to 0
+      
+          // Use setTimeout to gradually fade in the image after a delay
+          setTimeout(function (element) {
+            element.style.opacity = 1;
+      
+            // Set the animation properties for fade in
+            element.style.transition = `transform ${rotationDuration / 2}s ease-in-out, opacity 1s`;
+            element.style.transitionDelay = (delayTime || (aEle.length - i) / 4) + (rotationDuration / 2) + "s";
+          }, rotationDuration / 2 * 1000, aEle[i]);
+        }
+      }
+      
+      
+      
+
+    if (autoRotate) {
+        var animationName = (rotateSpeed > 0 ? 'spin' : 'spinRevert');
+        ospin.style.animation = `${animationName} ${Math.abs(rotateSpeed)}s infinite linear`;
+    }
+
+return (
+    <div className="bg-[url(bgplain.jpg)] bg-cover bg-center h-4/6">
+
+        <section className="h-screen text-white flex justify-center">
+            <div>
+                <div className="mb-96"></div>
+                <div id="drag-container">
+                    <div id="spin-container">
+
+                        {/* <img src="1.jpg" alt="" />
+                        <img src="2.jpg" alt="" />*/}
+                        <img src="gallery1.png" alt="" />
+                        {/* <img src="gallery2.png" alt="" />
+                            <img src="gallery3.png" alt="" />
+                            <img src="gallery4.png" alt="" />
+                            <img src="gallery5.png" alt="" />
+                            <img src="gallery1.png" alt="" />
+                            <img src="gallery2.png" alt="" />
+                            <img src="gallery3.png" alt="" />
+                            <img src="gallery4.png" alt="" />
+                            <img src="gallery5.png" alt="" /> */}
+
+
+                        {/* <video controls autoplay="autoplay" loop>
+                            <source src="1.mp4" type="video/mp4" />
+                        </video> */}
+
+                        <p>CSSScript</p>
                     </div>
+                    <div id="ground"></div>
                 </div>
-              
-                <div className="lg:mt-4 xl3:mt-32 col-span-5 hidden lg:max-w-3xl xl3:max-w-6xl xl3:ml-24 lg:block">
-                    <div className="image-container drop-shadow-2xl relative">
-                        <img src="logo.png" className="scale-75 rotate-away p-12 pb-0" />
-                        <img src="col.png" className="rotate-away brightness-110" />
-                        {/* <img src="sidetoken.png" className="h-2/5 w-2/6 brightness-150 absolute bottom-0 right-0 transform translate-x-3/4 translate-y-full" /> */}
-                        <div className="gradient-overlay"></div>
-                    </div>
+                <div className="mt-96 scale-[0.65]">
+                    <img src="logoplain.png" alt="" />
                 </div>
-            </section>                      
-        </div>
-    )
+            </div>
+
+
+        </section>
+
+    </div>
+)
 }

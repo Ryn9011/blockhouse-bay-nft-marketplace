@@ -4,7 +4,7 @@ import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
-import Ticker from 'react-ticker';
+import Blockies from 'react-blockies';
 
 import {
   nftaddress, nftmarketaddress, govtaddress
@@ -67,13 +67,14 @@ const ToRent = () => {
 
       if (i.saleHistory.length > 0) {
         i.saleHistory.forEach((item) => {
-          const history = i.saleHistory.map((item) => {     
-            return { 
-              price: ethers.utils.formatUnits(item[0]), 
-              type: item[1].toNumber() === 1 ? "Matic" : "BHB"}
+          const history = i.saleHistory.map((item) => {
+            return {
+              price: ethers.utils.formatUnits(item[0]),
+              type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+            }
           });
           saleHistory = history;
-        })        
+        })
         console.log(saleHistory)
 
       } else {
@@ -160,6 +161,10 @@ const ToRent = () => {
             </Link>
           </div>
           <img src="summer.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-3/5 lg:pl-12" />
+          {/* <div className="h-1/6 scale-75 flex justify-end">
+            <img src="logofull.png"  alt="blockhouse bay" />
+          </div> */}
+
         </div>
       </div>
     </div>
@@ -225,9 +230,16 @@ const ToRent = () => {
 
                       </p>
                       <div style={{ overflow: "hidden" }}>
-                        <div className="flex flex-col pb-2">
-                          <p>Owner:</p>
-                          <p className="font-mono text-xs text-green-400">{property.owner}</p>
+                        <div className='flex justify-between mb-2'>
+                          <div>
+                            <p>Owner:</p>
+                            <p className="text-[10px] text-green-400 font-mono">{property.owner}</p>
+                          </div>
+                          <div className='pt-1.5'>
+                            <Blockies
+                              seed={property.owner}
+                            />
+                          </div>
                         </div>
                         <div className="flex flex-col pb-2">
                           <p>Rooms Rented:</p>
@@ -235,31 +247,63 @@ const ToRent = () => {
                         </div>
                         <div className="flex flex-col pb-2">
                           <p>Rent Price:</p>
-                          <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
+                          <p className="font-mono text-xs text-green-400">3 Matic</p>
                         </div>
                         {/* <div className="flex flex-col">
                         <p>Total Income Generated:</p>
                         <p className="font-mono text-xs text-green-400">{property.totalIncomeGenerated} Matic</p>
                       </div> */}
                         <p>Tenants:</p>
-                        <div className='text-xs mb-3 text-green-400 font-mono'>
+                        <div className='text-[10px] mb-3 text-green-400 font-mono'>
                           {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
-                            <p className="break-words">
-                              {property.renterAddresses[0]}
-                            </p>
-                            : <p>0x</p>
+                            <>
+                              <div className='flex items-center justify-between mb-2'>
+                                <p className={" break-words"}>
+                                  {property.renterAddresses[0]}
+                                </p>
+                                <Blockies
+                                  seed={property.renterAddresses[0]}
+                                />
+                              </div>
+                            </>
+                            :
+                            <>
+                              <div className='flex items-center'>
+                                <p className='h-11'>0x</p>
+                              </div>
+                            </>
                           }
                           {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
-                            <p className="break-words">
-                              {property.renterAddresses[1]}
-                            </p>
-                            : <p>0x</p>
+                            <div className='flex items-center justify-between mb-4'>
+                              <p className={" break-words"}>
+                                {property.renterAddresses[1]}
+                              </p>
+                              <Blockies
+                                seed={property.renterAddresses[1]}
+                              />
+                            </div>
+                            :
+                            <>
+                              <div className='flex justify-between h-full items-center'>
+                                <p className='h-11'>0x</p>
+                              </div>
+                            </>
                           }
                           {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
-                            <p className="break-words">
-                              {property.renterAddresses[2]}
-                            </p>
-                            : <p>0x</p>
+                            <div className='flex items-center justify-between'>
+                              <p className={" break-words"}>
+                                {property.renterAddresses[2]}
+                              </p>
+                              <Blockies
+                                seed={property.renterAddresses[2]}
+                              />
+                            </div>
+                            :
+                            <>
+                              <div className='flex items-center'>
+                                <p className='h-11'>0x</p>
+                              </div>
+                            </>
                           }
                         </div>
                         <SaleHistory property={property} />
@@ -268,7 +312,7 @@ const ToRent = () => {
 
 
 
-                    <div className="p-2 pt-1.2 pb-4 bg-black">
+                    <div className="p-2 pt-1.2 pb-4 xl:pb-2 bg-black">
                       <div className="flex divide-x divide-white justifty-start px-2">
                         <div className="flex pr-5 lg:pr-3">
                           <div className="text-lg font-bold">Rental Deposit</div>
@@ -290,7 +334,7 @@ const ToRent = () => {
                         <div className="flex text-xs pl-5 lg:pl-3">
                           <ul className="list-disc pl-3.5 list-outside">
                             <li className='mb-1'>
-                              A rental deposit of <span className='font-mono text-xs text-blue-400'>5 Matic</span> is required to rent this property
+                              A rental deposit of <span className='font-mono text-xs text-blue-400'>10 Matic</span> is required to rent this property
                             </li>
                             <li>
                               Your deposit is refunded upon vacating a property (deposit is not refunded if evicted from the property)
@@ -298,7 +342,7 @@ const ToRent = () => {
                           </ul>
                         </div>
                       </div>
-                      
+
                       <div className="text-2xl pt-2 text-white"></div>
 
                       <div className="px-2 ">

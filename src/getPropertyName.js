@@ -24,7 +24,7 @@ const GetPropertyNames = (meta, pid) => {
     if (targetPathName) {
       var splitName = targetPathName.split('.');      
       var name = splitName.slice(0, 1).join('.')
-
+      console.log(name)
       return (name)
     } else {
       console.log(`No path name found for id ${targetId}.`);

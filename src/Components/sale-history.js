@@ -28,10 +28,10 @@ const SaleHistory = (props) => {
                 <>
                   <div className="w-full pl-1 flex justify-center">
                     {property.saleHistory.map((item, index) => (
-                      <p className='pr-2 whitespace-nowrap' key={index}>{`[${item["price"]} ${item["type"]}, ${dateSoldHistory[index]}]`}</p>
+                      <p className='pr-8 whitespace-nowrap' key={index}>{`[${item["price"]} ${item["type"]}, ${dateSoldHistory[index]}]`}</p>
                     ))}
 
-                    <p className="invisible pl-1">
+                    <p className="invisible pl-2">
                       {property.saleHistory[0]["price"]}
                     </p>
                   </div>

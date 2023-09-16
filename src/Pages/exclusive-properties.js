@@ -3,6 +3,7 @@ import { ethers } from 'ethers'
 import axios from 'axios'
 import Web3Modal from 'web3modal'
 import Ticker from 'react-ticker';
+import Blockies from 'react-blockies';
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
@@ -208,40 +209,44 @@ const Exclusive = () => {
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4" style={{ maxWidth: "1600px" }}>
-          <h1 className="text-5xl xl3:text-6xl mb-5">Blockhouse Bay Gardens</h1>
+        
+          <h1 className="text-5xl text-center md:text-left xl3:text-6xl mb-5">Blockhouse Bay Gardens</h1>
+          
+         
           <div className="flex text-white pl-4 mb-6 lg:w-3/5">
-            <p className='text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500'>Blockhouse Bay Gardens, an exclusive street of grand and stunning homes, is a paradise of luxurious living. From impressive architecture to immaculate gardens, each house is a masterpiece of sophistication, offering an unparalleled lifestyle in one of the bay's most beautiful settings.</p>
-
-            <div className="pb-2">
-
-            </div>
+            <p className='text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500'>Blockhouse Bay Gardens, an exclusive street of grand and stunning homes, is a paradise of luxurious living. From impressive architecture to immaculate gardens, each house is a masterpiece of sophistication, offering an unparalleled lifestyle in one of the bay's most beautiful settings.</p>          
           </div>
-          <h5 className='text-white mb-4'>These exlusive properties are limited to only 50 and can be purchased only with BHB tokens</h5>
-          <Pagination
-            postsPerPage={postsPerPage}
-            totalPosts={50}
-            paginate={paginate}
-            currentPage={currentPage}
-          />
+          <h5 className='text-white text-center md:text-left mb-4'>These exlusive properties are limited to only 50 and can be purchased only with BHB tokens</h5>
+          <p className='text-white text-center md:text-left italic mb-12'>Tripple the amount of tokens are paid out when renting on this street!</p>
+          
+      
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-3 text-white">
             {currentPosts.map((property, i) => {
               return (
                 <div
                   key={property.propertyId}
-                  className="border-2 border-double border-yellow-500 shadow-2xl shadow-yellow-400 rounded-md overflow-hidden bg-gradient-120 from-black via-black to-green-900"
+                  className="border-2 border-double border-yellow-500 shadow-lg  shadow-yellow-400 rounded-md overflow-hidden bg-gradient-120 from-black via-black to-green-900"
                 >
                   <img className='w-fit h-fit' src={property.image} alt="" />
-                  <div className="p-4 ">
+                  <div className="p-4">
                     <h2
-                      style={{ height: "80px" }}
                       className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500"
                     >
                       {property.name}
                     </h2>
                     <div style={{ overflow: "hidden" }}>
-                      <div className="flex flex-col pb-2 pt-4">
-                        <p className='text-indigo-100'>Owner:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.owner}</p>
+                      <div className='flex justify-between mb-2 mt-4'>
+                        <div>
+                          <p>Owner:</p>
+                          <p className="text-[10px] xl:text-xs text-green-400 font-mono">{property.owner}</p>
+                        </div>
+                        <div className='pt-1.5'>
+                          {property.owner !== 'Unowned' &&
+                            <Blockies
+                              seed={property.owner}
+                            />
+                          }
+                        </div>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p className='text-indigo-100'>Rent Price:</p>
@@ -255,26 +260,63 @@ const Exclusive = () => {
                         <p className='text-indigo-100'>Rooms Rented:</p>
                         <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/3</p>
                       </div>
-                      <p className='text-indigo-100'>Tenants:</p>
-                      <div className='text-xs text-green-400 font-mono mb-2'>
+
+                      <p className={`text-indigo-100 ${property.renterAddresses[0] === '0x0000000000000000000000000000000000000000' ? 'mb-2' : ''}`}>Tenants:</p>
+                      <div className='text-[10px] lg:text-xs mb-3 text-green-400 font-mono'>
+
                         {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
-                          <p className="break-words">
-                            {property.renterAddresses[0]}
-                          </p>
-                          : <p>0x</p>
+                          <>
+                            <div className='flex items-center h-11 justify-between mb-2'>
+                              <p className={" break-words"}>
+                                {property.renterAddresses[0]}
+                              </p>
+                              <Blockies
+                                seed={property.renterAddresses[0]}
+                              />
+                            </div>
+                          </>
+                          :
+                          <>
+                            <div className='flex items-center'>
+                              <p className='h-11'>0x</p>
+                            </div>
+                          </>
+                        }
+
+                        {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+                          <div className='flex items-center h-10 justify-between mb-4'>
+                            <p className={" break-words"}>
+                              {property.renterAddresses[1]}
+                            </p>
+                            <Blockies
+                              seed={property.renterAddresses[1]}
+                            />
+                          </div>
+                          :
+                          <>
+                            <div className='flex justify-between h-full items-center'>
+                              <p className='h-11'>0x</p>
+                            </div>
+                          </>
                         }
                         {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
-                          <p className="break-words">
-                            {property.renterAddresses[1]}
-                          </p>
-                          : <p>0x</p>
+                          <div className='flex items-center h-10 justify-between'>
+                            <p className={" break-words"}>
+                              {property.renterAddresses[1]}
+                            </p>
+                            <Blockies
+                              seed={property.renterAddresses[1]}
+                            />
+                          </div>
+                          :
+                          <>
+                            <div className='flex items-center'>
+                              <p className='h-11'>0x</p>
+                            </div>
+                          </>
                         }
-                        {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
-                          <p className="break-words">
-                            {property.renterAddresses[2]}
-                          </p>
-                          : <p>0x</p>
-                        }
+
+
                       </div>
                       <div className="flex flex-col mb-2">
                         <SaleHistory property={property} />
@@ -282,7 +324,7 @@ const Exclusive = () => {
                     </div>
                   </div>
 
-                  <div className="h-48 xl:h-44 px-2 pt-0.5 bg-black">
+                  <div className="h-44 px-2 pt-0.5 bg-black">
 
                     <div className="pb-2">
                       <div className="mb-2 text-2xl lg:text-base">
@@ -292,10 +334,10 @@ const Exclusive = () => {
                           {(property.isForSale) ? (
                             <div className='flex divide-x-2'>
                               <div className='flex h-16 mr-8'>
-                                <header className="items-center flex pt-6 lg:pt-3.5 text-indigo-100">
-                                  <p className="font-bold 2xl:text-2xl">{property.tokenSalePrice} BHB</p>
+                                <header className="items-center flex pt-3 md:pt-6 lg:pt-3.5 text-indigo-100">
+                                  <p className="font-bold text-lg 2xl:text-2xl">{property.tokenSalePrice} BHB</p>
                                 </header>
-                                <div className='mt-1 h-14 lg:h-16 w-16 md:h-16'>
+                                <div className='mt-1 h-15 lg:h-17 w-16 md:h-16'>
                                   <img
                                     className="lg:object-none brightness-150 scale-75 md:scale-75 lg:scale-50 pt-2.5 lg:pt-0"
                                     src="./tokenfrontsmall.png"
@@ -305,16 +347,16 @@ const Exclusive = () => {
                               </div>
 
                               <div className="bg-black py-0.5 mt-2 w-1/2 pl-3 2xl:mt-1.5 flex flex-col justify-between">
-                                <div className='text-xl flex flex-col justify-center font-semibold text-center'>
-                                  <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white via-white to-purple-500'>Ranking:</p>
-                                  <span className={property.ranking == 'unranked' ? 'text-white' : ''}>{`${property.ranking === "unranked" ? '' : '#'} ${property.ranking}`}</span>
-                                </div>                                
+                                <div className='text-lg md:text-xl 2xl:text-2xl flex flex-col  justify-center font-semibold text-center'>
+                                  <p className=''>Ranking:</p>
+                                  <span className={property.ranking == 'unranked' ? 'text-white text-lg' : 'italic brightness-125 text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-400 to-purple-500'}>{`${property.ranking === "unranked" ? '' : '#'} ${property.ranking}`}</span>
+                                </div>
                               </div>
                             </div>
                           ) : (
                             <div className="bg-black py-[10.5px] pr-1.5 mt-2  flex flex-col gap-2 justify-between">
                               <div className='text-2xl lg:pt-1.5 flex justify-center font-semibold'>
-                                <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white via-white to-purple-500'>Ranking:<span className={property.ranking == 'unranked' ? 'text-white' : ''}>{` #${property.ranking}`}</span></p>
+                                <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white via-white to-purple-500 italic'>Ranking:<span className={property.ranking == 'unranked' ? 'text-white' : ''}>{` #${property.ranking}`}</span></p>
                               </div>
                             </div>
                           )}
@@ -327,7 +369,7 @@ const Exclusive = () => {
                           </button>
                         ) : (
                           <div className='flex justify-center'>
-                            <button disabled={true} className="mb-3 w-full  text-white font-bold py-2 mt-1 px-12 rounded">
+                            <button disabled={true} className="md:mb-5 lg:mb-4 w-full  text-white font-bold py-2 mt-1 px-12 rounded">
                               Not Currently for Sale
                             </button>
                           </div>
@@ -346,7 +388,7 @@ const Exclusive = () => {
                       </div>
                     </div>
                   </div>
-                  <div className='h-2 bg-black '></div>
+                  <div className='h-2 xl:h-3 bg-black '></div>
                 </div>
               )
             })}

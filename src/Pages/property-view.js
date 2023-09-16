@@ -7,6 +7,7 @@ import { Link } from 'react-router-dom';
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
 } from '../config'
+import Blockies from 'react-blockies';
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
@@ -14,6 +15,7 @@ import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToke
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import datajson from '../final-manifest.json';
 import { useParams } from 'react-router-dom';
+import GetPropertyNames from '../getPropertyName'
 
 const PropertyView = () => {
 
@@ -50,38 +52,21 @@ const PropertyView = () => {
 
     const targetId = parts.slice(3).join('/');
 
-    const getPropertyNames = (targetId) => {
-      console.log(targetId)
-      function getPathNameById(id) {
-        for (const [pathKey, { id: pathId }] of Object.entries(datajson.paths)) {
-          if (id === pathId) {
-            return pathKey;
-          }
-        }
-        return null;
-      }
-
-      // const targetId = "NkPscRzwlee3476uYweOFTEXvLM8Bnt_A0T2QypL6go";
-      const targetPathName = getPathNameById(targetId);
-
-      if (targetPathName) {
-        var splitName = targetPathName.split('.');
-        console.log(splitName)
-        var name = splitName.slice(0, 1).join('.')
-
-        return (name)
-      } else {
-        console.log(`No path name found for id ${targetId}.`);
-      }
-    }
-
-    var nftName = getPropertyNames(targetId, data.propertyId);
+    var nftName = GetPropertyNames(meta, data.propertyId);
     let price = ethers.utils.formatUnits(data.salePrice.toString(), 'ether')
     let tokenSalePriceFormatted = ethers.utils.formatUnits(data.tokenSalePrice.toString(), 'ether')
+    const renterAddresses = await marketContract.getPropertyRenters(data.propertyId);
     let saleHistory = [];
     if (data.saleHistory.length > 0) {
-      console.log(data.saleHistory)
-      saleHistory = data.saleHistory.map(a => ethers.utils.formatEther(a))
+      data.saleHistory.forEach((item) => {
+        const history = data.saleHistory.map((item) => {
+          return {
+            price: ethers.utils.formatUnits(item[0]),
+            type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+          }
+        });
+        saleHistory = history;
+      })
     } else {
       saleHistory.push("Unsold")
     }
@@ -105,6 +90,7 @@ const PropertyView = () => {
       saleHistory: saleHistory,
       rentPrice: rentPrice,
       isForSale: data.isForSale,
+      renterAddresses: renterAddresses,
       totalIncomeGenerated: totalIncomeGenerated,
       tokenSalePrice: tokenSalePriceFormatted,
       dateSoldHistory: data.dateSoldHistory,
@@ -210,40 +196,47 @@ const PropertyView = () => {
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4" style={{ maxWidth: "1600px" }}>
-          {/* <p className="text-5xl xl3:text-6xl font-bold text-white">For Sale</p>
+          <p className="text-5xl xl3:text-6xl font-bold text-white">For Sale</p>
           <div className="flex text-white pl-4">
-            
+            {/* <h5>Rent a property and earn</h5> */}
             <header className="flex items-center h-16 mb-1 mr-3">
               <p className="text-sm lg:text-xl font-bold">Buy a property and earn Matic tokens </p>
             </header>
             <div className='mb-1'>
               <img
                 className="object-none scale-90 lg:scale-100 brightness-125"
-                src="./../matic-icon.png"
+                src="../matic-icon.png"
                 alt=""
               ></img>
             </div>
-          </div> */}
+          </div>
 
-          <section className="grid grid-cols-1  text-white">
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-4 text-white">
             <div
               key={property.propertyId}
-              className="border shadow w-96 rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
+              className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
             >
               {console.log(property.propertyId + " hit")}
-              <img className='h-2/5' src={property.image} alt="" />
+              <img className='w-fit h-fit' src={property.image} alt="" />
               <div className="p-4">
                 <p
-                  style={{ height: "50px" }}
-                  className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
+            
+                  className="text-2xl pb-4 font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
                 >
                   {property.name}
                   {/* {names[i]} */}
                 </p>
-                <div style={{ overflow: "hidden" }}>
-                  <div className="flex flex-col pb-2">
-                    <p>Owner:</p>
-                    <p className="font-mono text-xs text-green-400">{property.owner}</p>
+                <div>
+                  <div className='flex justify-between mb-2'>
+                    <div>
+                      <p>Owner:</p>
+                      <p className="text-[10px] text-green-400 font-mono">{property.owner}</p>
+                    </div>
+                    <div className='pt-1.5'>
+                      <Blockies
+                        seed={property.owner}
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-col pb-2">
                     <p>Rooms Rented:</p>
@@ -253,6 +246,51 @@ const PropertyView = () => {
                     <p>Rent Price:</p>
                     <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
                   </div>
+                  <p>Tenants:</p>
+                  <div className='text-[10px] mb-3 text-green-400 font-mono'>
+                    {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
+                      <>
+                        <div className='flex items-center justify-between mb-2'>
+                          <p className={" break-words"}>
+                            {property.renterAddresses[0]}
+                          </p>
+                          <Blockies
+                            seed={property.renterAddresses[0]}
+                          />
+                        </div>
+                      </>
+                      : <p>0x</p>
+                    }
+                    {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+                      <div className='flex items-center justify-between mb-2'>
+                        <p className={" break-words"}>
+                          {property.renterAddresses[1]}
+                        </p>
+                        <Blockies
+                          seed={property.renterAddresses[1]}
+                        />
+                      </div>
+                      :
+                      <>
+                        {property.renterAddresses[0] === "0.0" &&
+                          <p>0x</p>}
+                      </>
+                    }
+                    {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
+                      <div className='flex items-center justify-between'>
+                        <p className={" break-words"}>
+                          {property.renterAddresses[2]}
+                        </p>
+                        <Blockies
+                          seed={property.renterAddresses[2]}
+                        />
+                      </div>
+                      : <>
+                        {property.renterAddresses[0] === "0.0" &&
+                          <p>0x</p>}
+                      </>
+                    }
+                  </div>
                   <div className="flex flex-col pb-2">
                     <p>Total Income Generated:</p>
                     <p className="font-mono text-xs text-green-400">{property.totalIncomeGenerated} Matic</p>
@@ -261,9 +299,9 @@ const PropertyView = () => {
                 </div>
               </div>
 
-              <div className="p-2 pt-2 pb-2 bg-black">
+              <div className="p-2 pt-2 bg-black">
                 {
-                  <div className="pb-2">
+                  <div>
                     <div className="flex divide-x divide-white mb-2 text-xl lg:text-base">
                       <div className="flex justify-between px-2">
                         <div className='pt-1.5'>
@@ -350,8 +388,8 @@ const PropertyView = () => {
                         Buy
                       </button>
                     </div>
-                    {property.roomsToRent > 3 &&
-                      <div className="p-2 pt-1.2 pb-4 bg-black">
+                    {property.roomsToRent < 3 &&
+                      <div className="p-2 pb-0 pt-1.2 bg-black">
                         <div className="flex divide-x divide-white justifty-start px-2">
                           <div className="flex pr-5">
                             <div className="text-lg font-bold">Rental Deposit</div>
@@ -385,7 +423,7 @@ const PropertyView = () => {
                         <div className="text-2xl pt-2 text-white"></div>
 
                         <div className=" ">
-                          <button onClick={() => rentProperty(property)} className="w-full bg-matic-blue text-white mb-4 font-bold py-2 px-10 rounded">
+                          <button onClick={() => rentProperty(property)} className="w-full bg-matic-blue text-white font-bold py-2 px-10 rounded">
                             Rent Room
                           </button>
                         </div>
