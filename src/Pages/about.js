@@ -8,7 +8,8 @@ import Modal from '@material-ui/core/Modal';
 import { Typography } from '@material-ui/core';
 import { useLocation } from 'react-router-dom';
 import Pagination from '../Pagination'
-import { grey } from "@material-ui/core/colors";
+import "../Pages/style.scss";
+import Display from "../Components/display";
 
 const useStyles = makeStyles({
   root: {
@@ -128,7 +129,7 @@ const About = () => {
     if (panel === "panel8" && isExpanded) {
       setExclusiveExpanded(true)
     } else {
-      setExclusiveExpanded(false)
+    setExclusiveExpanded(false)
     }
   };
 
@@ -148,7 +149,8 @@ const About = () => {
           <div>
             {expanded === 'default' &&
               <div className="h-3/5 pt-6 mr-10 flex justify-center lg:hidden">
-                <img src="logofull.png" className="ml-10" alt="blockhouse bay" />
+                {/* <img src="logofull.png" className="ml-10" alt="blockhouse bay" /> */}
+                
               </div>
             }
             <div className={`${expanded === 'default' ? 'flex justify-between' : ''}`}>
@@ -158,22 +160,26 @@ const About = () => {
                 </AccordionSummary>
               </div>
               {expanded === 'default' &&
-                <div className="w-1/4 h-3/5 pt-6 mr-10 hidden lg:block">
-                  <img src="logofull.png" className="ml-10" alt="blockhouse bay" />
+                <div className="w-1/4 xl3:w-1/5 h-4/5 pt-8 xl3:pt-6 mr-10 hidden lg:block">
+                  <img src="logoplain.png" className="ml-10" alt="blockhouse bay" />
+            
                 </div>
               }
             </div>
           </div>
           <AccordionDetails className={classes.details}>
-            <div className="lg:grid justify-items-center mb-32 lg:mb-4 lg:grid-cols-2 lg:gap-16 xl3:gap-32 lg:text-xl text-lg xl:text-xl 2xl:text-2xl">
+            <div className="lg:grid justify-items-center mb-32 lg:mb-4 lg:grid-cols-2 lg:gap-16 xl3:gap-0 lg:text-xl text-lg xl:text-xl 2xl:text-2xl">
               {/* <img className="p-6 pt-0" src="about.jpeg" /> */}
               <div>
                 <ul className="divide-y divide-gray-200 lg:ml-0">
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">What is Blockhouse Bay?</h3>
+                    <div className="lg:hidden">
+                      <img src="small.gif" className="mt-4" /> 
+                    </div> 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Real Estate Simulation</p>
                     <p className="mt-2 text-gray-500">
-                      Blockhouse Bay is a captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! <button className="text-indigo-400 underline" onClick={handleModalOpen}> TLDR</button>
+                      Blockhouse Bay is a captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! <button className="text-indigo-400 underline" onClick={handleModalOpen}> read more</button>
                     </p>
                     <Modal
                       open={isOpen}
@@ -182,7 +188,7 @@ const About = () => {
                       aria-describedby="modal-description"
                     >
                       <div className={classes.paper}>
-                        <img src="logofull.png" className=" mb-12" alt="blockhouse bay" />
+                        <img src="logoplain.png" className=" mb-12" alt="blockhouse bay" />
                         <Typography variant="body1" id="modal-description" gutterBottom>
                           Blockhouse Bay is a decentralized application (dapp) built on the
                           Polygon blockchain that allows users to participate in a virtual real
@@ -190,7 +196,7 @@ const About = () => {
                           rent properties within the platform's ecosystem.
                         </Typography>
                         <Typography variant="body1" id="modal-description" gutterBottom>
-                          All property NFTs are pre-minted and stored on Arweave. 
+                          All property NFTs are pre-minted and stored on Arweave.
                         </Typography>
                         <Typography variant="body1" gutterBottom>
                           Each property on the platform is represented by an erc721 token, which
@@ -218,7 +224,7 @@ const About = () => {
                           available for purchase with BHB tokens.
                         </Typography>
                         <Typography variant="body1" gutterBottom>
-                          10000000 BHB tokens were minted at the start of the project. 
+                          10000000 BHB tokens were minted at the start of the project.
                           100% of the BHB tokens are available to players as none are retained by Blockhouse Bay.
                         </Typography>
                         <Typography variant="body1" gutterBottom>
@@ -235,7 +241,7 @@ const About = () => {
                           to participate in the real estate market without the need for
                           significant capital investment. By leveraging the power of the Polygon
                           blockchain and NFT technology, Blockhouse Bay creates a decentralized
-                          and secure real estate market that is accessible to anyone with an
+                          and secure real estate market that is accessible to everyone.
                         </Typography>
                         <div className="text-yellow-400">
                           <a className="mr-4 border border-1 border-yellow-400 rounded py-2 px-4" href="mailto:ryanj.dev@icloud.com">Contact</a>
@@ -251,7 +257,7 @@ const About = () => {
                       <p className="text-white text-base xl3:text-lg italic mr-2 pt-0.5">Polygon & Arweave</p>
                       <img className="h-8 w-9 mr-2" src="./polygonsmall.png" />
                       <div className="flex justify-center mr-4">
-                      <img className="h-8 w-9 invert" src="./arweave.png" />
+                        <img className="h-8 w-9 invert" src="./arweave.png" />
                       </div>
                     </div>
 
@@ -289,13 +295,12 @@ const About = () => {
                     <p className="mt-2 text-gray-500">
                       Discover a collection of stunning exclusive properties that can only be acquired with BHB tokens. Take a peek at the Blockhouse Bay Gardens properties and find your dream property that sets you apart from the rest.
                     </p>
-                  </li>                                  
-                </ul>
+                  </li>
+                </ul>                  
               </div>
-
-              <div className="flex justify-center sm:justify-start 2xl:justify-center">
-                <img className="p-4 mt-4 brightness-110 transform " src="bay.png" />
-              </div>
+                <div className="hidden lg:block lg:mb-96 xl3:mb-0 xl3:mt-28 lg:scale-[0.6] xl3:scale-90">
+                  <Display />
+                </div>                          
             </div>
           </AccordionDetails>
         </Accordion>
@@ -334,7 +339,7 @@ const About = () => {
 
               <div className="lg:ml-16 content-center">
                 <div className="flex justify-center sm:justify-start 2xl:justify-center">
-                  <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-2/5 lg:w-full lg:h-full pr-16 max-w-[40rem]" src="forsale.png" />
+                  <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-2/5 lg:w-full lg:h-full xl3:w-4/5 pr-16 max-w-[40rem]" src="forsale.png" />
                 </div>
               </div>
             </div>
@@ -421,12 +426,12 @@ const About = () => {
                       Whether you're looking for renters or buyers, you can share your property on Twitter with the click of a button.
                     </p>
                     <p className="mt-2 text-gray-500">
-                      The tweet button will open a Twitter post for you to cutomize with a link to your individual property. 
+                      The tweet button will open a Twitter post for you to cutomize with a link to your individual property.
                     </p>
                     <p className="mt-2 text-gray-500 mb-12">
                       There are two checkboxes which if checked will add additional sale and rent information to the tweet.
                     </p>
-                    <img src="twitter2.png" className="mt-2 w-3/5 border border-1 mt-4" />
+                    <img src="twitter2.png" className="mt-2 lg:w-3/5 border border-1 mt-4 xl3:w-2/5" />
                   </li>
                 </ul>
                 <br />
@@ -569,7 +574,7 @@ const About = () => {
             <div className="lg:grid justify-items-center mb-32 lg:mb-20 lg:grid-cols-2 lg:mr-12 lg:gap-16 xl3:gap-32 lg:text-xl text-lg xl:text-xl 2xl:text-2xl">
               <ul className="divide-y divide-gray-200 ">
                 <li className="py-4">
-                  <h3 className="text-lg font-semibold italic">Blockhouse Bay Gardens</h3>
+                  <h3 className="text-2xl font-semibold text-green-300">Blockhouse Bay Gardens</h3>
                   <p className="mt-2 text-gray-500">
                     Blockhouse Bay Gardens, a long exclusive street of grand and stunning homes,
                     is a paradise of luxurious living. From impressive architecture to immaculate gardens,
@@ -586,22 +591,22 @@ const About = () => {
                 </li>
               </ul>
               <div className="gallery cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
-                <div className="clipped-border">
+                <a href="/blockhouse-bay-gardens" className="clipped-border">
                   <img src="gallery1.png" id="clipped" />
-                </div>
-                <div className="clipped-border">
+                </a>
+                <a href="/blockhouse-bay-gardens" className="clipped-border">
                   <img src="gallery2.png" id="clipped" />
-                </div>
-                <div className="clipped-border">
+                </a>
+                <a href="/blockhouse-bay-gardens" className="clipped-border">
                   <img src="gallery3.png" id="clipped" />
-                </div>
-                <div className="clipped-border">
+                </a>
+                <a href="/blockhouse-bay-gardens" className="clipped-border">
                   <img src="gallery4.png" id="clipped" />
-                </div>
-                <div className="clipped-border">
+                </a>
+                <a href="/blockhouse-bay-gardens" className="clipped-border">
                   <img src="gallery5.png" id="clipped" />
-                </div>
-                <div className="shadow"></div>
+                </a>
+                {/* <div className="shadow"></div> */}
               </div>
             </div>
           </AccordionDetails>

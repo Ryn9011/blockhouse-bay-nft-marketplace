@@ -139,7 +139,7 @@ export default function Nav() {
 							<div className='flex justify-start'>
 								<img
 									className="object-contain scale-100 mb-2 mt-6"
-									src="./logo.png"
+									src="./logoplain.png"
 									alt=""
 								></img>
 							</div>
@@ -174,84 +174,11 @@ export default function Nav() {
 						<div className="pt-6 text-center">
 							<ConnectWalletButton />
 						</div>
-						<p className="mt-4 text-xs text-center text-white">
+						{/* <p className="mt-4 text-xs text-center text-white">
 							<span>Copyright © 2023</span>
-						</p>
+						</p> */}
 					</div>
 				</nav>
 			</div>
 		</div>
-		// <nav>
-		// 	<div className="hidden lg:flex">
-		// 		<Links />
-		// 	</div>
-		// 	<div className="lg:hidden relative">
-		// 		<div className="text-white">
-		// 			<button className="btn-icon" onClick={() => setShowMenu(!showMenu)}>
-		// 				<IoMenu />
-		// 			</button>
-		// 		</div>
-		// 		{showMenu && (
-		// 			// <div className="absolute pb-3 top-10 right-0 z-50 bg-black shadow-zl rounded">
-		// 			//     <Links />
-		// 			// </div> 
-		// <div>
-		// 	<nav className="relative flex flex-wrap items-center justify-between px-2 py-3 bg-pink-500 mb-3">
-		// 		<div className="container px-4 mx-auto flex flex-wrap items-center justify-between">
-		// 			<div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
-		// 				<a
-		// 					className=" font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase text-white"
-		// 					href="#pablo"
-		// 				>
-		// 					pink Tailwind Starter Kit
-		// 				</a>
-		// 				<button
-		// 					className="text-white cursor-pointer text-xl leading-none px-3 py-1 border border-solid border-transparent rounded bg-transparent block lg:hidden outline-none focus:outline-none"
-		// 					type="button"
-		// 					onClick={() => setShowMenu(!showMenu)}
-		// 				>
-		// 					<i className="fas fa-bars"></i>
-		// 				</button>
-		// 			</div>
-		// 			<div
-		// 				className={
-		// 					"lg:flex flex-grow items-center" +
-		// 					(showMenu ? " flex" : " hidden")
-		// 				}
-		// 				id="example-navbar-danger"
-		// 			>
-		// 				<ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
-		// 					<li className="nav-item">
-		// 						<a
-		// 							className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-		// 							href="#pablo"
-		// 						>
-		// 							<i className="fab fa-facebook-square text-xl leading-lg text-white opacity-75"></i><span className="ml-2">Share</span>
-		// 						</a>
-		// 					</li>
-		// 					<li className="nav-item">
-		// 						<a
-		// 							className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-		// 							href="#pablo"
-		// 						>
-		// 							<i className="fab fa-twitter text-xl leading-lg text-white opacity-75"></i><span className="ml-2">Tweet</span>
-		// 						</a>
-		// 					</li>
-		// 					<li className="nav-item">
-		// 						<a
-		// 							className="px-3 py-2 flex items-center text-xs uppercase font-bold leading-snug text-white hover:opacity-75"
-		// 							href="#pablo"
-		// 						>
-		// 							<i className="fab fa-pinterest text-xl leading-lg text-white opacity-75"></i><span className="ml-2">Pin</span>
-		// 						</a>
-		// 					</li>
-		// 				</ul>
-		// 			</div>
-		// 		</div>
-		// 	</nav>
-		// </div>
-	)
-}
-		// 	</div>
-		// </nav>
-
+)}
