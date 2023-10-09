@@ -254,7 +254,7 @@ const Renting = () => {
     </div>
   )
 
-  if (loadingState === 'loaded' && timestampLoadingState === 'loaded' && !rentedProperties.length) return (
+  if (loadingState !== 'loaded' && timestampLoadingState !== 'loaded' && !rentedProperties.length) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>

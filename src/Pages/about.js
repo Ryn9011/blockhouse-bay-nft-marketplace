@@ -8,7 +8,7 @@ import Modal from '@material-ui/core/Modal';
 import { Typography } from '@material-ui/core';
 import { useLocation } from 'react-router-dom';
 import Pagination from '../Pagination'
-import "../Pages/style.scss";
+import "../style.scss";
 import Display from "../Components/display";
 
 const useStyles = makeStyles({
@@ -315,7 +315,7 @@ const About = () => {
           </AccordionSummary>
           <AccordionDetails className={classes.details}>
             <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg xl3:text-xl">
-              <div className="lg:col-span-2 lg:pr-32 text-justify">
+              <div className="lg:col-span-2 lg:pr-32">
                 <ul className="divide-y divide-gray-200">
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Buying</h3>
@@ -357,7 +357,7 @@ const About = () => {
           </AccordionSummary>
           <AccordionDetails className={classes.details}>
             <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl3:text-xl">
-              <div className="lg:col-span-2 lg:pr-32 text-justify">
+              <div className="lg:col-span-2 lg:pr-32">
                 <ul className="divide-y divide-gray-200">
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Property Owner Actions</h3>
@@ -415,7 +415,7 @@ const About = () => {
                       5% of the sale amount will be deducted when a sale is made.
                     </p>
                     <p className="mt-2 text-gray-500">
-                      Warning - Directly transferring your property NFT to another user from your wallet will not transfer ownership of the property on the Blockhouse Bay platform.
+                      Warning - Directly transferring your NFT property to another user from your wallet will not transfer ownership of the property on the Blockhouse Bay platform; this will result in the buyer not being able to participate on Blockhouse Bay.
                     </p>
                   </li>
 
@@ -472,8 +472,8 @@ const About = () => {
             </div>
           </AccordionSummary>
           <AccordionDetails className={classes.details}>
-            <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg">
-              <div className="lg:col-span-2 lg:pr-32 text-justify xl:text-xl ">
+            <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:mb-6">
+              <div className="lg:col-span-2 lg:pr-32 xl:text-xl ">
                 <ul className="divide-y divide-gray-200">
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200">Renting a Room</h3>
@@ -587,10 +587,10 @@ const About = () => {
                 </li>
                 <li className="py-4">
                   <h3 className="text-lg italic font-semibold">Renting</h3>
-                  <p className="mt-2 text-gray-500">Tripple token rewards will be given to those who rent on this street</p>
+                  <p className="mt-2 text-gray-500">Tripple BHB token rewards will be given to renters on this street</p>
                 </li>
               </ul>
-              <div className="gallery cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
+              <div className="gallery h-fit lg:h-full cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
                 <a href="/blockhouse-bay-gardens" className="clipped-border">
                   <img src="gallery1.png" id="clipped" />
                 </a>

@@ -24,7 +24,7 @@ const Display = () => {
 
       <div className="scene">
         <div className="sign">
-          <div className="shadow"></div>
+          <div className="customshadow"></div>
           <div className="sign_front"></div>
           <div className="sign_topIn"></div>
           <div className="sign_topOut"></div>

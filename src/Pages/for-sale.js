@@ -25,6 +25,7 @@ const ForSale = () => {
   const [postsPerPage] = useState(20);
   const [currentPosts, setCurrentPosts] = useState([]);
   const [numForSale, setNumForSale] = useState();
+  const [showBottomNav, setShowBottomNav] = useState(false);
 
   useEffect(() => {
     setLoadingState('not-loaded')
@@ -38,10 +39,14 @@ const ForSale = () => {
     const provider = new ethers.providers.JsonRpcProvider()
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
-    const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
+    //const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
     const data = await marketContract.fetchPropertiesForSale(currentPage)
     const numForSale = await marketContract.getPropertiesForSale();
-    console.log(data)
+    // console.log(currentPage)
+    // console.log(data)
+    const currentPageNumItems = numForSale - (20 * (currentPage - 1))
+    const showBottomNav = currentPageNumItems > 12 ? true : false
+    setShowBottomNav(showBottomNav);
     setNumForSale(numForSale.toNumber());
 
     const items = await Promise.all(data.map(async i => {
@@ -49,13 +54,11 @@ const ForSale = () => {
       console.log(i.propertyId.toNumber())
       const meta = await axios.get(tokenUri) //not used?  
 
-      const url = meta.config.url
+      //const url = meta.config.url
 
-      const parts = url.split('/');
+      //const parts = url.split('/');
 
-      const targetId = parts.slice(3).join('/');
-
-      
+      //const targetId = parts.slice(3).join('/');
 
       var nftName = GetPropertyNames(meta, i.propertyId);
 
@@ -209,11 +212,7 @@ const ForSale = () => {
               <p className="text-sm lg:text-xl font-bold">Buy a property and earn Matic tokens </p>
             </header>
             <div className='mb-1'>
-              <img
-                className="object-none scale-90 lg:scale-100 brightness-125"
-                src="./matic-icon.png"
-                alt=""
-              ></img>
+            <img className="h-8 w-9 mr-2 mt-4" src="./polygonsmall.png" />
             </div>
           </div>
           <Pagination
@@ -223,7 +222,7 @@ const ForSale = () => {
             currentPage={currentPage}
           />
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-4 text-white">
-            {currentPosts.map((property, i) => {  
+            {currentPosts.map((property, i) => {
               return (
                 <div
                   key={property.propertyId}
@@ -275,22 +274,19 @@ const ForSale = () => {
                         <div className="flex justify-between px-2">
                           <div className='pt-1.5'>
                             <input
-                              className="rounded-full flex-shrink-0 h-3 w-3 border border-pink-400 bg-white checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 mt-2.5 align-top bg-no-repeat bg-center bg-contain float-left mr-3 cursor-pointer"
+                              className="rounded-full flex-shrink-0 h-3 w-3 border border-pink-400 bg-white checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 mt-2.5 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
                               type="radio"
                               name="flexRadioDefault"
                               id={"maticRadio" + i}
                             //onChange={onCurrencyChange}
                             />
                           </div>
-                          <div className="mb-2 pr-2 pt-2 text-white">
-                            <p className="font-bold">{property.price} MATIC</p>
+                          <div className="mb-2 mr-12 pt-2 text-white">
+                            <p className="font-bold whitespace-break-spaces">{property.price} </p>
+                            <p className='font-bold'>MATIC</p>
                           </div>
                           <div>
-                            <img
-                              className="object-none lg:pt-1.5"
-                              src="./matic-icon.png"
-                              alt=""
-                            ></img>
+                            <img className="h-9 w-10 mr-2 mt-3.5" src="./polygonsmall.png" />
                           </div>
                         </div>
 
@@ -363,6 +359,16 @@ const ForSale = () => {
               )
             })}
           </section>
+          {showBottomNav &&
+            <div className='mt-6'>
+              <Pagination
+                postsPerPage={postsPerPage}
+                totalPosts={numForSale}
+                paginate={paginate}
+                currentPage={currentPage}
+              />
+            </div>
+          }
         </div>
       </div>
     </div>

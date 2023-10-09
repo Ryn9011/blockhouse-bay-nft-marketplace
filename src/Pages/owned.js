@@ -744,13 +744,6 @@ const Owned = () => {
     </div>
   )
 
-  // if (!loadingState === 'loaded' && !nfts.length) return (
-  //   <>
-  //     <h1 className="px-8 lg:px-24 pt-10 text-3xl">No properties currently owned</h1>
-  //     <p className='text-white text-xl pt-4 pl-8 lg:pl-32'>Buy a property and check back here</p>
-  //   </>    
-  // )
-
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
@@ -1064,7 +1057,7 @@ const Owned = () => {
                                   value="./matic-icon.png"
                                 />
 
-                                <div className='mb-3'>
+                                <div className='mb-2'>
                                   <label
                                     className=" form-check-label inline-block text-sm text-white align-top"
                                     htmlFor={"matic" + i}
@@ -1076,9 +1069,9 @@ const Owned = () => {
                               </div>}
                           </div>
 
-                          <div className='flex'>
+                          <div className='flex justify-between'>
                             {property.propertyId < 501 &&
-                              <div className='flex pr-8'>
+                              <div className='flex justify-between pr-8 mb-4 items-center'>
                                 <input
                                   className="w-20 xl:w-24 h-6 bg-black shadow appearance-none border rounded py-2 px-1 text-white leading-tight focus:outline-none focus:shadow-outline "
                                   type="number"
@@ -1089,14 +1082,10 @@ const Owned = () => {
                                   onChange={(e) => handleSellButton(e, i)}
                                   id={"amountInput" + i}
                                 />
-                                <img
-                                  className="h-6 w-10 mb-4 pl-3"
-                                  src="./matic-icon.png"
-                                  alt=""
-                                ></img>
+                                <img className="h-8 w-9 ml-2" src="./polygonsmall.png" />
                               </div>}
 
-                            <div className={`${property.propertyId < 501 ? 'flex invisible' : 'flex mt-4'}`} id={'maticInput' + i}>
+                            <div className={`mb-4 items-center ${property.propertyId < 501 ? 'flex invisible' : 'flex mt-4'}`} id={'maticInput' + i}>
                               <input
                                 className="w-20 xl:w-24 h-6 bg-black shadow appearance-none border rounded py-2 px-0 text-white leading-tight focus:outline-none focus:shadow-outline "
                                 type="number"
@@ -1109,7 +1098,7 @@ const Owned = () => {
                               />
                               <div>
                                 <img
-                                  className={`mb-3 brightness-150 h-7 w-10 pl-3`}
+                                  className={`brightness-150 h-7 w-10 xl3:h-9 xl3:w-12 pl-2`}
                                   src="./tokenfrontsmall.png"
                                   alt=""
                                 ></img>
@@ -1210,7 +1199,7 @@ const Owned = () => {
                         </button>
                       </div>
                       <div className="pt-3">
-                        <div className="text-sm font-bold mb-4 mt-1 flex gap-4">
+                        <div className="text-sm font-bold mb-4 mt-1 flex items-center justify-between">
                           <div className='flex'>
                             <p className="pr-1">Change Rent Price</p>
                             <div className="mb-1 relative">
@@ -1239,7 +1228,7 @@ const Owned = () => {
                             </div>
                           </div>
 
-                          <div>
+                          <div className='flex items-center'>
                             <input
                               className="w-20 xl:w-24 h-6 bg-black shadow appearance-none border rounded py-2 text-white leading-tight focus:outline-none focus:shadow-outline "
                               type="number"
@@ -1250,12 +1239,9 @@ const Owned = () => {
                               onChange={(e) => setRentButton(e, i)}
                               id={"rentInput" + i}
                             />
+                            <img className="h-8 w-9 ml-2" src="./polygonsmall.png" />
                           </div>
-                          <img
-                            className="h-6 w-7"
-                            src="./matic-icon.png"
-                            alt=""
-                          ></img>
+                          
                         </div>
 
                         <button
