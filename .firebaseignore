@@ -1,0 +1,5 @@
+.secret
+config.js
+private-keys
+hardhat.config.js
+.env

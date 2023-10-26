@@ -1,39 +1,53 @@
 const { ethers } = require("hardhat");
 const fs = require('fs');
 
-const hre = require("hardhat");
-
 async function main() {
+  const deployingAddress = "0xa2Fe6EB40BE5768d929c0ef13dF6936522348067";
+  const deployingSigner = (await ethers.getSigners())[0]; // Access the first signer
 
-  const RewardCalculator = await hre.ethers.getContractFactory("RewardCalculator");
+  console.log("Deploying signer:", deployingSigner.address);
+
+  const RewardCalculator = await ethers.getContractFactory("RewardCalculator");
   const rewardCalculator = await RewardCalculator.deploy();
   await rewardCalculator.deployed();
-  console.log("reward calculator deployed to:", rewardCalculator.address); 
- 
-  const PropertyMarket = await hre.ethers.getContractFactory("PropertyMarket", {
+  console.log("Reward calculator deployed to:", rewardCalculator.address);
+
+  const PropertyMarket = await ethers.getContractFactory("PropertyMarket", {
     libraries: {
       RewardCalculator: rewardCalculator.address,
     },
   });
   const propertyMarket = await PropertyMarket.deploy();
   await propertyMarket.deployed();
-  console.log("propertyMarket deployed to:", propertyMarket.address); 
+  console.log("PropertyMarket deployed to:", propertyMarket.address);
 
-  const GovtFunctions = await hre.ethers.getContractFactory("GovtFunctions");
+  // Send test Ether to the deployed contract
+  const tx = await deployingSigner.sendTransaction({
+    to: propertyMarket.address,
+    value: ethers.utils.parseEther("0.1"), // Replace with the desired amount of test Ether
+  });
+  await tx.wait();
+
+  const GovtFunctions = await ethers.getContractFactory("GovtFunctions");
   const govtFunctions = await GovtFunctions.deploy(propertyMarket.address);
   await govtFunctions.deployed();
-  console.log("govtFunctions deployed to:", govtFunctions.address); 
+  console.log("GovtFunctions deployed to:", govtFunctions.address);
 
-  const NFT = await hre.ethers.getContractFactory("NFT");
+  const NFT = await ethers.getContractFactory("NFT");
   const nft = await NFT.deploy(propertyMarket.address);
   await nft.deployed();
-  console.log("nft deployed to:", nft.address);
+  console.log("NFT deployed to:", nft.address);
 
-  await propertyMarket.deployTokenContract();   
+  const tx2 = await propertyMarket.deployTokenContract();
+  console.log('whats this ', tx2)
+  await tx2.wait();
+
   const tokenContractAddress = await propertyMarket.getTokenContractAddress();
-  const propertyTokenContract = await ethers.getContractAt('PropertyToken', tokenContractAddress);  
-  console.log("token deployed to:", propertyTokenContract.address);
-  console.log(await propertyTokenContract.balanceOf(propertyMarket.address));
+  
+  const propertyTokenContract = await ethers.getContractAt('PropertyToken', tokenContractAddress);
+
+  console.log("Token deployed to:", propertyTokenContract.address);
+  console.log("Balance of PropertyMarket:", (await propertyTokenContract.balanceOf(propertyMarket.address)).toString());
 
   const configData = `
     export const nftmarketaddress = "${propertyMarket.address}";
@@ -44,8 +58,7 @@ async function main() {
   fs.writeFileSync('./src/config.js', configData);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
+// We recommend this pattern to be able to use async/await everywhere and properly handle errors.
 main()
   .then(() => process.exit(0))
   .catch((error) => {

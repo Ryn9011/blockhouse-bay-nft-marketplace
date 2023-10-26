@@ -16,6 +16,7 @@ import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunction
 import GetPropertyNames from '../getPropertyName'
 import SaleHistory from '../Components/sale-history'
 import { calculateRankingTotal, calculateRankingPosition } from '../calculateRanking'
+import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 
 const Exclusive = () => {
   const [properties, setProperties] = useState([]);
@@ -48,7 +49,12 @@ const Exclusive = () => {
   };
 
   const loadProperties = async () => {
-    const provider = new ethers.providers.JsonRpcProvider()
+    const network = await detectNetwork()
+    
+    const projectId = process.env.ALCHEMY_PROJECT_ID;
+    const rpcUrl = getRpcUrl(network, projectId);
+
+    const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)

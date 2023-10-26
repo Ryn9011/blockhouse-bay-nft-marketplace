@@ -5,7 +5,7 @@ library RewardCalculator {
     function getTokenAmountToReceive(
         uint256 rent
     ) public pure returns (uint256) {
-        if (rent >= 5 && rent < 20) {
+        if (rent >= 3 && rent < 20) {
             return ((rent * uint256(7500)) / uint256(10000));
         }
         if (rent >= 20 && rent < 30) {

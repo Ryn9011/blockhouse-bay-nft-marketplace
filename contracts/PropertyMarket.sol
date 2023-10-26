@@ -24,7 +24,7 @@ contract PropertyMarket is ReentrancyGuard {
     Counters.Counter private _govtGiftCount;
 
     address payable immutable i_govt;
-    uint256 public depositRequired = 10 ether;
+    uint256 public depositRequired = 3 ether; //rent also
     uint256 public listingPrice = 10 ether;
     uint256 public initialSalePrice = 120 ether;
     uint256 initialTokenPrice = 2000 ether;
@@ -71,6 +71,8 @@ contract PropertyMarket is ReentrancyGuard {
     mapping(address => uint256) public renterTokens;
     mapping(address => uint256) public rentAccumulated;
     mapping(address => mapping(uint256 => uint256)) renterToPropertyPaymentTimestamps;
+
+    receive() external payable {}
 
     function getContractBalance() public view onlyGovt returns (uint256) {
         return address(this).balance; //test
@@ -331,8 +333,9 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 itemId,
         address propertyTokenContractAddress,
         bool isPaymentTokensBool
-    ) public payable nonReentrant {
+    ) public payable nonReentrant {        
         Property storage tempProperty = idToProperty[itemId];
+        require(tempProperty.propertyId < 551, "invalid propertyid");
         uint256 price = tempProperty.salePrice;
         uint256 tokenId = tempProperty.tokenId;
 
@@ -341,13 +344,14 @@ contract PropertyMarket is ReentrancyGuard {
                 propertyTokenContractAddress == address(tokenContractAddress),
                 "incorrect currency"
             );
+            require(tempProperty.isForSale == true, "not for sale");
             require(tempProperty.tokenSalePrice != 0, "does not accept tokens");
             IERC20 propertyToken = IERC20(propertyTokenContractAddress);
             if (_relistCount.current() > 1) {
                 _relistCount.decrement();
             }
             require(
-                propertyToken.allowance(msg.sender, address(this)) >=
+                propertyToken.allowance(msg.sender, address(this)) ==
                     tempProperty.tokenSalePrice,
                 Strings.toString(
                     propertyToken.allowance(msg.sender, address(this))
@@ -363,8 +367,7 @@ contract PropertyMarket is ReentrancyGuard {
             );
             tempProperty.saleHistory.push(
                 Sale(tempProperty.tokenSalePrice, 2)
-            );
-          
+            );                   
         } else {
             if (itemId > 500) {
                 require(itemId < 500, "only token purchase");
@@ -560,19 +563,18 @@ contract PropertyMarket is ReentrancyGuard {
         if (propertyId > 500) {
             price = idToProperty[propertyId].rentPrice * 3;
         } else {
-            uint256 count = 0;
-            for (uint256 i = 0; i < 3; i++) {
-                if (tennants[msg.sender][i] != 0) {
-                    count++;
-                }
-            }
+            // uint256 count = 0;
+            // for (uint256 i = 0; i < 3; i++) {
+            //     if (tennants[msg.sender][i] != 0) {
+            //         count++;
+            //     }
+            // }
             price = idToProperty[propertyId].rentPrice; //* (count + 1) * 12 / 10;
         }
-
-        uint256 baseTokenAmount = RewardCalculator.getTokenAmountToReceive(price / weiToEth);
+        uint256 baseTokenAmount = RewardCalculator.getTokenAmountToReceive(price / weiToEth);        
         uint256 diminishingSupplyFactor = (IERC20(tokenContractAddress)
             .balanceOf(address(this)) * 100) / tokenMaxSupply;
-        uint256 tokensToReceive = baseTokenAmount * diminishingSupplyFactor;
+        uint256 tokensToReceive = baseTokenAmount * diminishingSupplyFactor;        
         renterTokens[msg.sender] += (tokensToReceive * (1 ether));
 
         tokenMaxSupply = tokenMaxSupply - tokensToReceive;
@@ -595,12 +597,13 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function withdrawERC20(IERC20 token) public nonReentrant {
-        require(renterTokens[msg.sender] != 0, "no tokens");
+        require(renterTokens[msg.sender] > 0, "no tokens");
         token.transfer(msg.sender, renterTokens[msg.sender]);
         renterTokens[msg.sender] = 0;
     }
 
     function withdrawPropertyTax() external onlyGovt nonReentrant {
+        require(address(this).balance > totalDepositBal, "no tax");
         uint256 bal = address(this).balance - totalDepositBal;
         i_govt.transfer(bal);
     }

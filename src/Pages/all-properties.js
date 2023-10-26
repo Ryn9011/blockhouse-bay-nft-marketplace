@@ -4,6 +4,7 @@ import axios from 'axios'
 import GetPropertyNames from '../getPropertyName'
 import Pagination from '../Pagination'
 import Blockies from 'react-blockies';
+import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 
 import {
   nftaddress, nftmarketaddress, govtaddress
@@ -32,7 +33,12 @@ const AllProperties = () => {
   }, [currentPage])
 
   const loadProperties = async () => {
-    const provider = new ethers.providers.JsonRpcProvider()
+    const network = await detectNetwork()
+    
+    const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+    const rpcUrl = getRpcUrl(network, projectId);
+
+    const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)

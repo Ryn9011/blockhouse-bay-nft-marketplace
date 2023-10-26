@@ -16,7 +16,7 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
 
     bytes4 constant private ERC721_RECEIVED = bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
 
-    constructor(address marketplaceAddress) ERC721("Metaverse", "BRB") {
+    constructor(address marketplaceAddress) ERC721("BlockhouseBay", "BHB") {
         contractAddress = marketplaceAddress;
     }
 

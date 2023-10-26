@@ -4,6 +4,7 @@ import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 import axios from 'axios'
 import Blockies from 'react-blockies';
+import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
@@ -47,11 +48,22 @@ const Renting = () => {
 
   const loadTimeStamps = async (propertyCount) => {
     const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
 
+    const network = await detectNetwork()
+    const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+    const rpcUrl = getRpcUrl(network, projectId);
+
+    const providerOptions = {
+      rpc: {
+        [network]: rpcUrl,
+      },
+    };
+  
+    const connection = await web3Modal.connect(providerOptions);
+    const provider = new ethers.providers.Web3Provider(connection);
+    console.log(provider)
     const signer = provider.getSigner()
-    const address = await signer.getAddress();
+    
     const propertyIds = [];
 
     for (let i = 0; i < propertyCount; i++) {
@@ -90,11 +102,20 @@ const Renting = () => {
     }
   }
 
-  const loadProperties = async () => {
-    const web3Modal = new Web3Modal()
-
+  const loadProperties = async () => {   
     try {
-      const connection = await web3Modal.connect()
+      const web3Modal = new Web3Modal()
+      const network = await detectNetwork()
+      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+      const rpcUrl = getRpcUrl(network, projectId);
+
+      const providerOptions = {
+        rpc: {
+          [network]: rpcUrl,
+        },
+      };
+    
+      const connection = await web3Modal.connect(providerOptions);
       const provider = new ethers.providers.Web3Provider(connection)
 
       const signer = provider.getSigner()
@@ -110,6 +131,7 @@ const Renting = () => {
       const data = await govtContract.fetchMyRentals()
       const tokensHex = await marketContract.getTokensEarned()
       const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
+      console.log(tokens)
       setRenterTokens(tokens)
 
       let dataFiltered = data.filter(a => a.propertyId.toNumber() !== 0)
@@ -203,6 +225,7 @@ const Renting = () => {
     )
 
     await transaction.wait()
+    
     loadProperties()
   }
 

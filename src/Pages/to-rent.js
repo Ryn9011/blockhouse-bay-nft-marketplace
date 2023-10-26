@@ -5,6 +5,7 @@ import Web3Modal from 'web3modal'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import Blockies from 'react-blockies';
+import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 
 import {
   nftaddress, nftmarketaddress, govtaddress
@@ -40,7 +41,11 @@ const ToRent = () => {
   }, [currentPage, onlyRentable])
 
   const loadProperties = async () => {
-    const provider = new ethers.providers.JsonRpcProvider()
+    const network = await detectNetwork()
+    const projectId = process.env.ALCHEMY_PROJECT_ID;
+    const rpcUrl = getRpcUrl(network, projectId);
+
+    const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)

@@ -129,7 +129,7 @@ const About = () => {
     if (panel === "panel8" && isExpanded) {
       setExclusiveExpanded(true)
     } else {
-    setExclusiveExpanded(false)
+      setExclusiveExpanded(false)
     }
   };
 
@@ -141,7 +141,6 @@ const About = () => {
     setIsOpen(false)
   }
 
-
   return (
     <>
       <div className="ml-4 mr-4 mb-12">
@@ -150,7 +149,7 @@ const About = () => {
             {expanded === 'default' &&
               <div className="h-3/5 pt-6 mr-10 flex justify-center lg:hidden">
                 {/* <img src="logofull.png" className="ml-10" alt="blockhouse bay" /> */}
-                
+
               </div>
             }
             <div className={`${expanded === 'default' ? 'flex justify-between' : ''}`}>
@@ -162,7 +161,6 @@ const About = () => {
               {expanded === 'default' &&
                 <div className="w-1/4 xl3:w-1/5 h-4/5 pt-8 xl3:pt-6 mr-10 hidden lg:block">
                   <img src="logoplain.png" className="ml-10" alt="blockhouse bay" />
-            
                 </div>
               }
             </div>
@@ -175,8 +173,8 @@ const About = () => {
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">What is Blockhouse Bay?</h3>
                     <div className="lg:hidden">
-                      <img src="small.gif" className="mt-4" /> 
-                    </div> 
+                      <img src="small.gif" className="mt-4" />
+                    </div>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Real Estate Simulation</p>
                     <p className="mt-2 text-gray-500">
                       Blockhouse Bay is a captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! <button className="text-indigo-400 underline" onClick={handleModalOpen}> read more</button>
@@ -244,7 +242,7 @@ const About = () => {
                           and secure real estate market that is accessible to everyone.
                         </Typography>
                         <div className="text-yellow-400">
-                          <a className="mr-4 border border-1 border-yellow-400 rounded py-2 px-4" href="mailto:ryanj.dev@icloud.com">Contact</a>
+                          <a className="mr-4 border border-1 border-yellow-400 rounded py-2 px-4" href="mailto:blockhousebayteam@gmail.com">Contact</a>
                           <button className="border border-1 border-yellow-400 rounded py-1.5 px-4" onClick={handleModalClose}>Close</button>
                         </div>
                       </div>
@@ -272,18 +270,7 @@ const About = () => {
                   <li className="pt-3 pb-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Passive Income</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Earn MATIC and BHB Tokens</p>
-                    {/* <div className="flex">
-                      <header className="flex items-center h-9">
-                        <div className="flex">
-                          <p className="text-lg font-semibold mr-2">Earn Matic</p>
-                          <img src="matic-icon.png" className="h-7 w-8 mr-2" />
-                          <p className="text-lg font-semibold mr-2">& BHB Tokens</p>
-                        </div>
-                      </header>
-                      <div className="flex justify-center mr-4">
-                        <img className="h-10 w-10 brightness-150" src="tokenfrontsmall.png" />
-                      </div>
-                    </div> */}
+
 
                     <p className="mt-1 text-gray-500">
                       As a landlord, you'll enjoy the satisfaction of earning real money from your renters in the form of MATIC tokens. You'll also have the chance to receive exclusive Blockhouse Bay tokens (BHB) every time rent is paid. These tokens open up exciting possibilities and provide a cost-effective way to purchase properties.
@@ -296,11 +283,11 @@ const About = () => {
                       Discover a collection of stunning exclusive properties that can only be acquired with BHB tokens. Take a peek at the Blockhouse Bay Gardens properties and find your dream property that sets you apart from the rest.
                     </p>
                   </li>
-                </ul>                  
+                </ul>
               </div>
-                <div className="hidden lg:block lg:mb-96 xl3:mb-0 xl3:mt-28 lg:scale-[0.6] xl3:scale-90">
-                  <Display />
-                </div>                          
+              <div className="hidden lg:block lg:mb-96 xl3:mb-0 xl3:mt-28 lg:scale-[0.6] xl3:scale-90">
+                <Display />
+              </div>
             </div>
           </AccordionDetails>
         </Accordion>
@@ -314,7 +301,7 @@ const About = () => {
             </div>
           </AccordionSummary>
           <AccordionDetails className={classes.details}>
-            <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg xl3:text-xl">
+            <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg xl3:text-xl pb-4">
               <div className="lg:col-span-2 lg:pr-32">
                 <ul className="divide-y divide-gray-200">
                   <li className="py-4">
@@ -339,7 +326,7 @@ const About = () => {
 
               <div className="lg:ml-16 content-center">
                 <div className="flex justify-center sm:justify-start 2xl:justify-center">
-                  <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-2/5 lg:w-full lg:h-full xl3:w-4/5 pr-16 max-w-[40rem]" src="forsale.png" />
+                  <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-3/5 lg:w-full lg:h-full xl3:w-4/5 pr-16 max-w-[40rem]" src="forsale.png" />
                 </div>
               </div>
             </div>
@@ -431,14 +418,16 @@ const About = () => {
                     <p className="mt-2 text-gray-500 mb-12">
                       There are two checkboxes which if checked will add additional sale and rent information to the tweet.
                     </p>
-                    <img src="twitter2.png" className="mt-2 lg:w-3/5 border border-1 mt-4 xl3:w-2/5" />
+                    <div className="flex justify-center lg:justify-start">
+                      <img src="twitter2.png" className="mt-2 md:w-4/5 lg:w-3/5 border border-1 mt-4 xl3:w-2/5" />
+                    </div>
                   </li>
                 </ul>
                 <br />
               </div>
               <div className="lg:pt-1  xl3:ml-0">
                 <div className="xl3:ml-14 lg:w-4/5 xl3:w-1/2 pt-2">
-                  <div className="flex h-9 mb-3 justify-end">
+                  <div className="flex h-9 mb-3 justify-center lg:justify-end">
                     <Pagination
                       postsPerPage={1}
                       totalPosts={2}
@@ -447,16 +436,28 @@ const About = () => {
                       isImages={true}
                     />
                   </div>
-                  <img className="" alt="owner panel" src={ownedImageSrc} />
-                  {(ownedImageSrc === "./ownedSelling.png") ? (
-                    <p className="text-white text-sm mt-2 mb-4">Property with two rooms rented out and one room available to rent</p>
+                  <div className="flex justify-center pt-3 pb-2 italic">
+                    <p>Property Owner Management Panel</p>
+                  </div>
+                  <div className="flex justify-center lg:justify-start">
+                    <img className="md:w-3/5 lg:w-full mb-4" alt="owner panel" src={ownedImageSrc} />
+                  </div>
+                  {(ownedImageSrc !== "./ownedSelling.png") ? (
+                    <div className="flex justify-center lg:justify-start">
+                      <p className="text-white text-sm mt-2 mb-4">Example of a property with two rooms rented out and one room available to rent. Late renters are highlighted in yellow.</p>
+                    </div>
                   ) : (
-                    <p className="text-white text-sm mt-2 mb-4">Once a property has been listed, the owner panel will appear as above</p>
+                    <div className="flex justify-center lg:justify-start">
+                      <p className="text-white text-sm mt-2 mb-4">Once a property has been listed for sale, the owner panel will appear as above</p>
+                    </div>
                   )
-                  }
-                  <hr className="bg-white" />
-                  <img src="collectRent.png" className="mt-2 border border-1 mt-4" />
-                  <p className="text-sm mt-2">Accumlated rent will show above the panel and can be withdrawn at any time</p>
+                  }                  
+                  <div className="flex justify-center lg:justify-start">
+                    <img src="collectRent.png" className="md:w-3/5 lg:w-full border border-1 mt-6" />
+                  </div>
+                  <div className="flex justify-center lg:justify-start">
+                    <p className="text-sm mt-6">Accumlated rent will show above the panel and can be withdrawn at any time</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -508,6 +509,10 @@ const About = () => {
 
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200">Token Rewards</h3>
+                    <p className="text-white text-base xl3:text-lg  italic mt-4">BHB Token Address</p>
+                    <p className="mt-2 text-gray-500">
+                      In your wallet select import tokens and paste in the BHB token address - <span className="text-green-300">0x4c6e9a7c5f8b8e9a5c6a4e7d7c998c6a3e6f6b4a</span> placeholder
+                    </p>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Earning BHB Tokens</p>
                     <p className="mt-2 text-gray-500">
                       Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in MATIC.

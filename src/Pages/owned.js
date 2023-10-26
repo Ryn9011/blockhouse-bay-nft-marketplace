@@ -5,14 +5,9 @@ import Web3Modal from 'web3modal'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import { Share } from 'react-twitter-widgets'
-import copy from 'clipboard-copy';
-
-
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
+import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import { makeStyles } from '@material-ui/core/styles';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 import Blockies from 'react-blockies';
 
 import Market from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
@@ -77,17 +72,22 @@ const Owned = () => {
     getLogData();
   }, [])
 
-  // const handleCopy = () => {
-  //   copy(twitterTextRef.current.innerText);
-  // };
-
-
   async function loadProperties() {
 
     try {
       const web3Modal = new Web3Modal()
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
+      const network = await detectNetwork()
+      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+      const rpcUrl = getRpcUrl(network, projectId);
+  
+      const providerOptions = {
+        rpc: {
+          [network]: rpcUrl,
+        },
+      };
+    
+      const connection = await web3Modal.connect(providerOptions);
+      const provider = new ethers.providers.Web3Provider(connection);
       //const provider = new ethers.providers.JsonRpcProvider()
       const signer = provider.getSigner()      
       const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);

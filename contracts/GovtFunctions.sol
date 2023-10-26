@@ -15,9 +15,10 @@ contract GovtFunctions is ReentrancyGuard {
     }    
 
     constructor(address propertyMarketAddress) {
-        propertyMarketContract = PropertyMarket(propertyMarketAddress);
+        propertyMarketContract = PropertyMarket(payable(propertyMarketAddress));
         govt = payable(msg.sender);
     }
+    
 
     modifier onlyGovt() {
         require(govt == msg.sender, "only govt can call this function");

@@ -10,7 +10,7 @@ module.exports = {
       name: 'localhost',
       chainId: 1337
     },
-    munbai: {
+    mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${projectId}`,
       accounts: [privateKey]
     },

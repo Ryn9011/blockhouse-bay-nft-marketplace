@@ -4,20 +4,19 @@ import axios from 'axios'
 import Web3Modal from 'web3modal'
 import { Link } from 'react-router-dom';
 import Blockies from 'react-blockies';
+import { detectNetwork, getRpcUrl } from '../Components/network-detector';
+
 
 import {
-  nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
+  nftaddress, nftmarketaddress, propertytokenaddress
 } from '../config'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
-import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToken.json'
 import Pagination from '../Pagination'
 import SaleHistory from '../Components/sale-history'
 import GetPropertyNames from '../getPropertyName'
-
-import datajson from '../final-manifest.json';
 
 const ForSale = () => {
   const [loadingState, setLoadingState] = useState('not-loaded')
@@ -35,97 +34,102 @@ const ForSale = () => {
   const loadProperties = async () => {
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
+    try {
+      const network = await detectNetwork()
+      console.log(network)
+      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+      console.log(projectId)
+      const rpcUrl = getRpcUrl(network, projectId);
+      console.log(rpcUrl)
+      const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+      console.log(provider)
 
-    const provider = new ethers.providers.JsonRpcProvider()
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
-    const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
-    //const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-    const data = await marketContract.fetchPropertiesForSale(currentPage)
-    const numForSale = await marketContract.getPropertiesForSale();
-    // console.log(currentPage)
-    // console.log(data)
-    const currentPageNumItems = numForSale - (20 * (currentPage - 1))
-    const showBottomNav = currentPageNumItems > 12 ? true : false
-    setShowBottomNav(showBottomNav);
-    setNumForSale(numForSale.toNumber());
 
-    const items = await Promise.all(data.map(async i => {
-      const tokenUri = await tokenContract.tokenURI(i.tokenId)
-      console.log(i.propertyId.toNumber())
-      const meta = await axios.get(tokenUri) //not used?  
+      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
+      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
+      //const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
+      const data = await marketContract.fetchPropertiesForSale(currentPage)
+      const numForSale = await marketContract.getPropertiesForSale();
 
-      //const url = meta.config.url
+      const currentPageNumItems = numForSale - (20 * (currentPage - 1))
+      const showBottomNav = currentPageNumItems > 12 ? true : false
+      setShowBottomNav(showBottomNav);
+      setNumForSale(numForSale.toNumber());
 
-      //const parts = url.split('/');
+      const items = await Promise.all(data.map(async i => {
+        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        console.log(i.propertyId.toNumber())
+        const meta = await axios.get(tokenUri) //not used?  
 
-      //const targetId = parts.slice(3).join('/');
+        var nftName = GetPropertyNames(meta, i.propertyId);
 
-      var nftName = GetPropertyNames(meta, i.propertyId);
+        const filterByCurrency = (currency) => {
 
-      const filterByCurrency = (currency) => {
-
-        if (currency === "matic") {
-          return currentPosts.filter(p =>
-            p.tokenSalePrice === 0)
-        } else {
-          return currentPosts.filter(p =>
-            p.tokenSalePrice > 0)
+          if (currency === "matic") {
+            return currentPosts.filter(p =>
+              p.tokenSalePrice === 0)
+          } else {
+            return currentPosts.filter(p =>
+              p.tokenSalePrice > 0)
+          }
         }
-      }
 
-      let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-      let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
-      let saleHistory = [];
-      if (i.saleHistory.length > 0) {
-        i.saleHistory.forEach((item) => {
-          const history = i.saleHistory.map((item) => {
-            return {
-              price: ethers.utils.formatUnits(item[0]),
-              type: item[1].toNumber() === 1 ? "Matic" : "BHB"
-            }
-          });
-          saleHistory = history;
-        })
-      } else {
-        saleHistory.push("Unsold")
-      }
-      let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
-      let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
-      let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+        let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
+        let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
+        let saleHistory = [];
+        if (i.saleHistory.length > 0) {
+          i.saleHistory.forEach((item) => {
+            const history = i.saleHistory.map((item) => {
+              return {
+                price: ethers.utils.formatUnits(item[0]),
+                type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+              }
+            });
+            saleHistory = history;
+          })
+        } else {
+          saleHistory.push("Unsold")
+        }
+        let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
+        let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
+        let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
 
-      //let tokenSalePriceFormatted = ethers.utils.formatUnits(hexTokenPrice, 'ether')
-      let item = {
-        price,
-        propertyId: i.propertyId.toNumber(),
-        seller: i.seller,
-        owner: owner,
-        image: tokenUri,
-        name: nftName,
-        description: meta.data.description,
-        roomOneRented: i.roomOneRented,
-        roomTwoRented: i.roomTwoRented,
-        roomThreeRented: i.roomThreeRented,
-        roomsToRent: 0,
-        saleHistory: saleHistory,
-        dateSoldHistory: i.dateSoldHistory,
-        dateSoldHistoryBhb: i.dateSoldHistoryBhb,
-        rentPrice: rentPrice,
-        totalIncomeGenerated: totalIncomeGenerated,
-        tokenSalePrice: tokenSalePriceFormatted
-      }
-      if (item.roomOneRented == true) {
-        item.roomsToRent++
-      }
-      if (item.roomTwoRented == true) {
-        item.roomsToRent++
-      }
-      if (item.roomThreeRented == true) {
-        item.roomsToRent++
-      }
-      return item
-    }))
-    setCurrentPosts(items.slice(0, 20))
-    setLoadingState('loaded')
+        //let tokenSalePriceFormatted = ethers.utils.formatUnits(hexTokenPrice, 'ether')
+        let item = {
+          price,
+          propertyId: i.propertyId.toNumber(),
+          seller: i.seller,
+          owner: owner,
+          image: tokenUri,
+          name: nftName,
+          description: meta.data.description,
+          roomOneRented: i.roomOneRented,
+          roomTwoRented: i.roomTwoRented,
+          roomThreeRented: i.roomThreeRented,
+          roomsToRent: 0,
+          saleHistory: saleHistory,
+          dateSoldHistory: i.dateSoldHistory,
+          dateSoldHistoryBhb: i.dateSoldHistoryBhb,
+          rentPrice: rentPrice,
+          totalIncomeGenerated: totalIncomeGenerated,
+          tokenSalePrice: tokenSalePriceFormatted
+        }
+        if (item.roomOneRented == true) {
+          item.roomsToRent++
+        }
+        if (item.roomTwoRented == true) {
+          item.roomsToRent++
+        }
+        if (item.roomThreeRented == true) {
+          item.roomsToRent++
+        }
+        return item
+      }))
+      setCurrentPosts(items.slice(0, 20))
+      setLoadingState('loaded')
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const buyProperty = async (nft, i) => {
@@ -137,13 +141,17 @@ const ForSale = () => {
 
     const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     let price = ethers.utils.parseUnits(nft.price.toString(), 'ether')
-    let isTokenSale = false
+    let isTokenSale = false;
+
+    let propertyTokenContract = undefined;
+    let amount = undefined;
+
     if (document.getElementById("pogRadio" + i) != undefined) {
       if (document.getElementById("pogRadio" + i).checked) {
         price = ethers.utils.parseUnits("0", 'ether')
         isTokenSale = true
-        const propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer)
-        const amount = ethers.utils.parseUnits(nft.tokenSalePrice, 'ether')
+        propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer)
+        amount = ethers.utils.parseUnits(nft.tokenSalePrice, 'ether')
         await propertyTokenContract.allowSender(amount)
       }
     }
@@ -156,19 +164,19 @@ const ForSale = () => {
       { value: price }
     )
 
+    if (document.getElementById("pogRadio" + i) != undefined) {
+      if (document.getElementById("pogRadio" + i).checked) {
+        await propertyTokenContract.allowSender(0);
+      }
+    }
+
     await transaction.wait()
     loadProperties(currentPage)
   }
 
-  const items = [
-    " 2004 XYZ - 12/12/2023, "
-  ];
-
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber)
   };
-
-  let count = 0
 
   if (loadingState !== 'loaded') return (
     <div className="pt-10 pb-10">
@@ -212,7 +220,7 @@ const ForSale = () => {
               <p className="text-sm lg:text-xl font-bold">Buy a property and earn Matic tokens </p>
             </header>
             <div className='mb-1'>
-            <img className="h-8 w-9 mr-2 mt-4" src="./polygonsmall.png" />
+              <img className="h-8 w-9 mr-2 mt-4" src="./polygonsmall.png" />
             </div>
           </div>
           <Pagination
@@ -242,7 +250,7 @@ const ForSale = () => {
                       <div className='flex justify-between mb-2'>
                         <div>
                           <p>Owner:</p>
-                          <p className="text-[10px] text-green-400 font-mono">{property.owner}</p>
+                          <p className={` text-green-400 font-mono ${property.owner === 'Unowned' ? 'text-xs' : 'text-[10px]'}`}>{property.owner}</p>
                         </div>
                         <div className='pt-1.5'>
                           {property.owner !== 'Unowned' &&

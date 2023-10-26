@@ -190,12 +190,12 @@ const CreateItem = () => {
 
   const createSale = async () => {   
     console.log(formInput)
-    const urisn = Object.keys(data.paths).map(uri => "http://arweave.net/" + data.paths[uri].id);
-
+    const urisn = Object.keys(data.paths).map(uri => "https://arweave.net/" + data.paths[uri].id);    
     const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
+    console.log(connection)
 
     console.log(urisn)
 

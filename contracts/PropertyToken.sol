@@ -9,7 +9,7 @@ contract PropertyToken is ERC20, Ownable {
 
     constructor(uint256 initialSupply, address contractAddr) ERC20("Property", "BHB") {  
         contractAddress = contractAddr;
-        approve(contractAddress, 1000000);             
+        //approve(contractAddress, 1000000);             
         _mint(msg.sender, initialSupply); 
     }
 
@@ -17,11 +17,7 @@ contract PropertyToken is ERC20, Ownable {
         _mint(account, amount);
     }
 
-    function burn(address account, uint256 amount) public onlyOwner {
-        _burn(account, amount);
-    }
-
-    function allowSender(uint amount) public { //security risk?
+    function allowSender(uint amount) public {
         approve(contractAddress, amount);       
     }
 }

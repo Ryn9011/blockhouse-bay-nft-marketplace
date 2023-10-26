@@ -12,19 +12,17 @@ import CreateItem from './Pages/create-item';
 import AllProperties from './Pages/all-properties';
 import Exclusive from './Pages/exclusive-properties';
 import PropertyView from './Pages/property-view';
-
 import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
 import { Web3Modal } from '@web3modal/react'
 import { configureChains, createClient, WagmiConfig } from 'wagmi'
 import { polygon } from 'wagmi/chains'
 
-
-const chains = [polygon]
 const projectId = '0053ae8eae8522b1ebb313ede5106c9f'
+const chains = [polygon];
+
+console.log(projectId)
 
 const { provider } = configureChains(chains, [w3mProvider({ projectId })])
-
-
 
 const wagmiClient = createClient({
   autoConnect: true,
@@ -36,7 +34,7 @@ const ethereumClient = new EthereumClient(wagmiClient, chains)
 function App() {
   const location = useLocation();
   return (
-    <div className='from-black via-black to-polygon-purple bg-gradient-120 h-screen flex flex-col overflow-hidden'>
+    <div className={` ${location.pathname !== "/" ? 'from-black via-black to-polygon-purple bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden`}>
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <WagmiConfig client={wagmiClient}>
           <Header />
