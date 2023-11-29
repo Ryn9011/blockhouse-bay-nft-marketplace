@@ -65,7 +65,7 @@ const ToRent = () => {
 
       let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
       let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
-      let depositHex = await marketContract.depositRequired()
+      let depositHex = await marketContract.DEPOSIT_REQUIRED()
       let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
       let saleHistory = [];
@@ -138,7 +138,7 @@ const ToRent = () => {
 
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
 
-    const test = await marketContract.depositRequired();
+    const test = await marketContract.DEPOSIT_REQUIRED();
     const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
     const num = ethers.utils.formatEther(deposit)
     const rentals = await marketContract.getPropertiesRented()

@@ -20,12 +20,18 @@ const calculateRankingPosition = (properties) => {
     rankingMap.set(property.id, index + 1)
   );
 
-  properties.forEach((property) => {  
+  let sorted = [...properties].sort((a, b) => b.ranking - a.ranking);
+  console.log(sorted);
+
+  sorted.forEach((property) => {  
     console.log(property.ranking)  
     property.ranking = property.ranking === 0 ? "unranked" : rankingMap.get(property.propertyId);
   });
 
-  return properties;
+
+
+
+  return sorted;
 };
 
 export { calculateRankingTotal, calculateRankingPosition };

@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "hardhat/console.sol";
+
 library RewardCalculator {
     function getTokenAmountToReceive(
         uint256 rent
-    ) public pure returns (uint256) {
+    ) public returns (uint256) {
+        //equire(rent > 3, "Rent must be greater than 3 matic");           
         if (rent >= 3 && rent < 20) {
             return ((rent * uint256(7500)) / uint256(10000));
         }
@@ -32,8 +35,11 @@ library RewardCalculator {
         if (rent >= 90 && rent < 100) {
             return ((rent * 8400) / 10000);
         }
-        if (rent > 100) {
+        if (rent >= 100) {
             return ((rent * 8500) / 10000);
+        }
+        if (rent >= 200) {
+            return ((rent * 15000) / 10000);
         }
         return 0;
     }

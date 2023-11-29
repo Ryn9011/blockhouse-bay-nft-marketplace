@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
@@ -10,6 +10,9 @@ import { useLocation } from 'react-router-dom';
 import Pagination from '../Pagination'
 import "../style.scss";
 import Display from "../Components/display";
+import {propertytokenaddress} from '../config.js'
+const copy = require('clipboard-copy')
+
 
 const useStyles = makeStyles({
   root: {
@@ -30,7 +33,8 @@ const useStyles = makeStyles({
   details: {
     padding: '0 16px 16px 16px',
     color: '#fff',
-    background: 'black'
+    background: 'black',
+    display: 'block'
   },
   paper: {
     position: 'absolute',
@@ -141,6 +145,10 @@ const About = () => {
     setIsOpen(false)
   }
 
+  const handleCopy = () => {
+    copy(propertytokenaddress);
+  };
+
   return (
     <>
       <div className="ml-4 mr-4 mb-12">
@@ -177,7 +185,7 @@ const About = () => {
                     </div>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Real Estate Simulation</p>
                     <p className="mt-2 text-gray-500">
-                      Blockhouse Bay is a captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! <button className="text-indigo-400 underline" onClick={handleModalOpen}> read more</button>
+                      Blockhouse Bay is a captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! <button className="text-indigo-400 underline" onClick={handleModalOpen}>TLDR</button>
                     </p>
                     <Modal
                       open={isOpen}
@@ -194,7 +202,7 @@ const About = () => {
                           rent properties within the platform's ecosystem.
                         </Typography>
                         <Typography variant="body1" id="modal-description" gutterBottom>
-                          All property NFTs are pre-minted and stored on Arweave.
+                          All property NFTs are pre-minted and stored on Arweave. A total of 500 standard properties and 50 exclusive properties are available for purchase.
                         </Typography>
                         <Typography variant="body1" gutterBottom>
                           Each property on the platform is represented by an erc721 token, which
@@ -325,7 +333,7 @@ const About = () => {
               </div>
 
               <div className="lg:ml-16 content-center">
-                <div className="flex justify-center sm:justify-start 2xl:justify-center">
+                <div className="flex justify-center lg:justify-start 2xl:justify-center">
                   <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-3/5 lg:w-full lg:h-full xl3:w-4/5 pr-16 max-w-[40rem]" src="forsale.png" />
                 </div>
               </div>
@@ -402,7 +410,8 @@ const About = () => {
                       5% of the sale amount will be deducted when a sale is made.
                     </p>
                     <p className="mt-2 text-gray-500">
-                      Warning - Directly transferring your NFT property to another user from your wallet will not transfer ownership of the property on the Blockhouse Bay platform; this will result in the buyer not being able to participate on Blockhouse Bay.
+                      <span className="text-red-600">Warning</span> - Directly transferring your NFT property to another user from your wallet will not transfer ownership of the property on the Blockhouse Bay platform;
+                       this will result in the buyer not being able to participate on the Blockhouse Bay platform.
                     </p>
                   </li>
 
@@ -427,6 +436,9 @@ const About = () => {
               </div>
               <div className="lg:pt-1  xl3:ml-0">
                 <div className="xl3:ml-14 lg:w-4/5 xl3:w-1/2 pt-2">
+                  <div className="flex justify-center pt-3 pb-2 italic">
+                    <p>Property Owner Management Panel</p>
+                  </div>
                   <div className="flex h-9 mb-3 justify-center lg:justify-end">
                     <Pagination
                       postsPerPage={1}
@@ -436,14 +448,12 @@ const About = () => {
                       isImages={true}
                     />
                   </div>
-                  <div className="flex justify-center pt-3 pb-2 italic">
-                    <p>Property Owner Management Panel</p>
-                  </div>
+
                   <div className="flex justify-center lg:justify-start">
                     <img className="md:w-3/5 lg:w-full mb-4" alt="owner panel" src={ownedImageSrc} />
                   </div>
                   {(ownedImageSrc !== "./ownedSelling.png") ? (
-                    <div className="flex justify-center lg:justify-start">
+                    <div className="flex justify-center lg:justify-start md:px-32 lg:px-0">
                       <p className="text-white text-sm mt-2 mb-4">Example of a property with two rooms rented out and one room available to rent. Late renters are highlighted in yellow.</p>
                     </div>
                   ) : (
@@ -451,7 +461,7 @@ const About = () => {
                       <p className="text-white text-sm mt-2 mb-4">Once a property has been listed for sale, the owner panel will appear as above</p>
                     </div>
                   )
-                  }                  
+                  }
                   <div className="flex justify-center lg:justify-start">
                     <img src="collectRent.png" className="md:w-3/5 lg:w-full border border-1 mt-6" />
                   </div>
@@ -511,9 +521,15 @@ const About = () => {
                     <h3 className="text-2xl font-semibold text-yellow-200">Token Rewards</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">BHB Token Address</p>
                     <p className="mt-2 text-gray-500">
-                      In your wallet select import tokens and paste in the BHB token address - <span className="text-green-300">0x4c6e9a7c5f8b8e9a5c6a4e7d7c998c6a3e6f6b4a</span> placeholder
+                      In your wallet select import tokens and paste in the BHB token address -                       
                     </p>
-                    <p className="text-white text-base xl3:text-lg  italic mt-4">Earning BHB Tokens</p>
+                    <p>
+                      <span className="text-pink-400 text-xs">                       
+                        {propertytokenaddress}
+                      </span>
+                      <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>                      
+                    </p>
+                    <p className="text-white text-base xl3:text-lg italic mt-4">Earning BHB Tokens</p>
                     <p className="mt-2 text-gray-500">
                       Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in MATIC.
                     </p>
@@ -542,7 +558,7 @@ const About = () => {
               </div>
               <div className="lg:pt-1  xl3:ml-0">
                 <div className="xl3:ml-14 lg:w-4/5 xl3:w-1/2">
-                  <div className="flex h-9 mb-3 justify-end">
+                  <div className="flex h-9 mb-3 justify-center lg:justify-start">
                     <Pagination
                       postsPerPage={1}
                       totalPosts={2}
@@ -551,16 +567,25 @@ const About = () => {
                       isImages={true}
                     />
                   </div>
-                  <img className="" alt="owner panel" src={rentImageSrc} />
-                  {(rentImageSrc === "./renting.png") ? (
-                    <p className="text-white text-sm mt-2 mb-4">Property with two rooms already rented out and one room available to rent</p>
+                  <div className="flex justify-center lg:justify-start mb-4">
+                    <img className="md:w-3/5 lg:w-full" alt="owner panel" src={rentImageSrc} />
+                  </div>
+                  {(rentImageSrc !== "./renting.png") ? (
+                    <div className="flex justify-center lg:justify-start">
+                      <p className="text-white text-sm mt-2 mb-4">Property with two rooms already rented out and one room available to rent</p>
+                    </div>
                   ) : (
-                    <p className="text-white text-sm mt-2 mb-4">The above panel is what a user will see once they have paid a rental deposit on a room</p>
+                    <div className="flex justify-center lg:justify-start">
+                      <p className="text-white text-sm mt-2 mb-4">The Renters panel above is what a user will see once they have paid a rental deposit on a room</p>
+                    </div>
                   )
                   }
-                  <hr className="bg-white" />
-                  <img src="collectTokens.png" className="mt-4 border border-1" />
-                  <p className="text-sm mt-2">The higher the rent price, the more Matic is received upon paying rent</p>
+                  <div className="flex justify-center lg:justify-start">
+                    <img src="collectTokens.png" className="mt-4 border border-1 md:w-3/5 lg:w-full" />
+                  </div>
+                  <div className="flex justify-center lg:justify-start pt-4">
+                    <p className="text-sm mt-2">The higher the rent price, the more Matic is received upon paying rent</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -594,8 +619,12 @@ const About = () => {
                   <h3 className="text-lg italic font-semibold">Renting</h3>
                   <p className="mt-2 text-gray-500">Tripple BHB token rewards will be given to renters on this street</p>
                 </li>
+                <li className="py-4">
+                  <h3 className="text-lg italic font-semibold">Ranking</h3>
+                  <p className="mt-2 text-gray-500">These properties are ranked based on total income generated from rent and sale history total.</p>
+                </li>
               </ul>
-              <div className="gallery h-fit lg:h-full cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
+              <div className="gallery h-fit pb-16 md:pb-40 lg:pb-0 lg:h-full cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
                 <a href="/blockhouse-bay-gardens" className="clipped-border">
                   <img src="gallery1.png" id="clipped" />
                 </a>

@@ -52,7 +52,7 @@ const AllProperties = () => {
       let nftName = GetPropertyNames(meta)
 
       let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-      let depositHex = await marketContract.depositRequired()
+      let depositHex = await marketContract.DEPOSIT_REQUIRED()
       let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
 
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);

@@ -318,7 +318,7 @@ const ForSale = () => {
 
                                 <div>
                                   <img
-                                    className="scale-75 h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
+                                    className="scale-75 h-[55px] w-[55px]lg:h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
                                     src="./tokenfrontsmall.png"
                                     alt=""
                                   ></img>
@@ -346,7 +346,7 @@ const ForSale = () => {
 
                                 <div>
                                   <img
-                                    className="scale-75 h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
+                                    className="scale-75 h-[55px] w-[55px]lg:h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
                                     src="./tokenfrontsmall.png"
                                     alt=""
                                   ></img>

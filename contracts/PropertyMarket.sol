@@ -1,4 +1,38 @@
 // SPDX-License-Identifier: MIT000000000000
+
+// SPDX-License-Identifier: MIT
+
+// This is considered an Exogenous, Decentralized, Anchored (pegged), Crypto Collateralized low volitility coin
+
+// Layout of Contract:
+// version
+// imports
+// errors
+// interfaces, libraries, contracts
+// Type declarations
+// State variables
+// Events
+// Modifiers
+// Functions
+
+// Layout of Functions:
+// constructor
+// receive function (if exists)
+// fallback function (if exists)
+// external
+// public
+// internal
+// private
+// view & pure functions
+
+/*
+/*
+ * @title BlockHouseBay
+ *
+ * The system is designed to replciate on a basic level a real estate market using NFTs and ERC20 tokens.
+ */
+
+
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/utils/Counters.sol";
@@ -7,9 +41,9 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "hardhat/console.sol";
 import {PropertyToken} from "./PropertyToken.sol";
 import {RewardCalculator} from "./RewardCalculator.sol";
+import "hardhat/console.sol";
 
 error NotOwner();
 
@@ -24,20 +58,17 @@ contract PropertyMarket is ReentrancyGuard {
     Counters.Counter private _govtGiftCount;
 
     address payable immutable i_govt;
-    uint256 public depositRequired = 3 ether; //rent also
-    uint256 public listingPrice = 10 ether;
-    uint256 public initialSalePrice = 120 ether;
-    uint256 initialTokenPrice = 2000 ether;
-    uint256 initialExclusivePrice = 1000 ether; //need function to sell tokens to other players
+    uint256 public constant DEPOSIT_REQUIRED = 3 ether; //rent also
+    uint256 public constant LISTING_PRICE = 10 ether;
+    uint256 public constant INITIAL_SALE_PRICE = 150 ether;
+    uint256 constant INITIAL_TOKEN_PRICE = 2000 ether;
+    uint256 constant INITIAL_EXCLUSIVE_PRICE = 1000 ether; //need function to sell tokens to other players   
+    uint256 constant WEI_TO_ETH = 1000000000000000000;
+    uint256 constant INITIAL_MINT = 1000000 ether;
     uint256 tokenMaxSupply = 10000000 ether;
-    uint256 weiToEth = 1000000000000000000;
     uint256 public totalDepositBal = 0;
 
     PropertyToken public tokenContractAddress;
-
-    constructor() {
-        i_govt = payable(msg.sender);
-    }
 
     struct Sale {
         uint256 price;
@@ -66,11 +97,26 @@ contract PropertyMarket is ReentrancyGuard {
 
     mapping(uint256 => address[3]) propertyToRenters;
     mapping(uint256 => Property) private idToProperty;
-    mapping(address => uint256[3]) public tennants; //can only rent from 3 properties.
+    mapping(address => uint256[3]) public tennants;
     mapping(address => uint256) public renterDepositBalance;
     mapping(address => uint256) public renterTokens;
     mapping(address => uint256) public rentAccumulated;
     mapping(address => mapping(uint256 => uint256)) renterToPropertyPaymentTimestamps;
+
+    event RentPaid(
+        address indexed tenant,
+        uint256 blockTime,
+        uint256 indexed propertyId
+    );
+
+    modifier onlyGovt() {
+        require(i_govt == msg.sender, "only i_govt");
+        _;
+    }
+
+    constructor() {
+        i_govt = payable(msg.sender);          
+    }
 
     receive() external payable {}
 
@@ -79,7 +125,7 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function getListingPrice() public view returns (uint256) {
-        return listingPrice;
+        return LISTING_PRICE;
     }
  
     function getPropertiesForSale() public view returns (uint256) {
@@ -201,14 +247,11 @@ contract PropertyMarket is ReentrancyGuard {
         return tennants[tenant];
     }
 
-    modifier onlyGovt() {
-        require(i_govt == msg.sender, "only i_govt");
-        _;
-    }
+
 
     function deployTokenContract() public onlyGovt {
         PropertyToken propertyToken = new PropertyToken(
-            10000000 ether,
+            INITIAL_MINT,
             address(this)
         );
         tokenContractAddress = propertyToken;
@@ -225,7 +268,7 @@ contract PropertyMarket is ReentrancyGuard {
         }
 
         require(propertyId >= 500);
-        require(msg.value == listingPrice, "incorrect fee");
+        require(msg.value == LISTING_PRICE, "incorrect fee");
         Property storage property = idToProperty[propertyId];
         property.tokenSalePrice = tokenPrice * (1 ether);
 
@@ -245,15 +288,15 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 price,
         uint256 tokenPrice
     ) external payable nonReentrant {
-        require(price > 0, "Price != 0");
+        require(price > 0, "Price is 0");
         require(propertyId <= 500);
 
         Property storage property = idToProperty[propertyId];
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
         require(property.owner == msg.sender, "not owner");
-        require(price >= initialSalePrice, "price too low");
-        require(msg.value == listingPrice, "incorrect fee");
+        require(price >= INITIAL_SALE_PRICE, "price too low");
+        require(msg.value == LISTING_PRICE, "incorrect fee");
 
         require(!property.isForSale, "already for sale");
         require(property.salePrice != price, "price is same");
@@ -307,17 +350,17 @@ contract PropertyMarket is ReentrancyGuard {
             listing.propertyId = tokenIds[i];
             listing.nftContract = nftContract;
             listing.tokenId = tokenId;
-            listing.rentPrice = depositRequired;
+            listing.rentPrice = DEPOSIT_REQUIRED;
             listing.seller = payable(msg.sender);
             listing.owner = payable(address(0));
             listing.isForSale = true;
-            listing.tokenSalePrice = initialTokenPrice;
+            listing.tokenSalePrice = INITIAL_TOKEN_PRICE;
             idToProperty[tokenIds[i]] = listing;
             if (tokenId > 500) {
                 listing.isExclusive = true;
-                //listing.salePrice = initialExclusivePrice;
+                //listing.salePrice = INITIAL_EXCLUSIVE_PRICE;
             } else {
-                listing.salePrice = initialSalePrice;
+                listing.salePrice = INITIAL_SALE_PRICE;
             }
 
             IERC721(nftContract).transferFrom(
@@ -379,12 +422,13 @@ contract PropertyMarket is ReentrancyGuard {
         tempProperty.seller.transfer(
             msg.value - ((msg.value * 500) / 10000)
         ); //5% goes to i_govt
+        
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
         tempProperty.owner = payable(msg.sender);
         tempProperty.isForSale = false;
         tempProperty.seller = payable(address(0));
         _propertiesSold.increment();
-        vacatePropertyAfterBuy(itemId, msg.sender);
+        //vacatePropertyAfterBuy(itemId, msg.sender);
     }
 
     function checkSetRoomAvailability(
@@ -407,13 +451,13 @@ contract PropertyMarket is ReentrancyGuard {
 
     function rentProperty(uint256 propertyId) external payable nonReentrant {
         Property memory property = idToProperty[propertyId];
-        require(msg.value == depositRequired, "deposit required");
+        require(msg.value == DEPOSIT_REQUIRED, "deposit required");
         bool availableRoom = checkSetRoomAvailability(propertyId);
         require(availableRoom == true, "no vacancy");
         require(
             property.owner != msg.sender && property.owner != address(0),
             "can't rent your own"
-        );
+        );     
         for (uint i = 0; i < 3; i++) {
             require(
                 propertyToRenters[propertyId][i] != msg.sender,
@@ -424,13 +468,16 @@ contract PropertyMarket is ReentrancyGuard {
                 break;
             }
         }
-        for (uint i = 0; i < 3; i++) {
+        
+        for (uint256 i = 0; i < 3; i++) {
+            //  console.log('ten: ',tenantLength);
             if (tennants[msg.sender][i] == 0) {
                 _propertiesRented.increment();
                 tennants[msg.sender][i] = propertyId;
+                // console.log('len ',tennants[msg.sender][0]);
                 //tenantNotUpToDate[msg.sender][propertyId] = true;
                 renterDepositBalance[msg.sender] += msg.value;
-                renterDepositBalance[msg.sender] += msg.value;
+                // renterDepositBalance[msg.sender] += msg.value;
                 totalDepositBal += msg.value;
                 break;
             }
@@ -442,13 +489,16 @@ contract PropertyMarket is ReentrancyGuard {
     function setRentPrice(
         uint256 propertyId,
         uint256 rentPrice
-    ) public nonReentrant {
+    ) public nonReentrant {        
         require(idToProperty[propertyId].owner == msg.sender, "not owner");
+        require(rentPrice <= 500 ether, "rent > 500 matic");
+        require(rentPrice >= DEPOSIT_REQUIRED, "rent < than 3 matic");
         idToProperty[propertyId].rentPrice = rentPrice;
     }
 
     function vacateProperty(uint256 propertyId) public nonReentrant {
-        for (uint256 i = 0; i < 3; i++) {
+        uint256 tenantLength = tennants[msg.sender].length;
+        for (uint256 i = 0; i < tenantLength; i++) {
             if (tennants[msg.sender][i] == propertyId) {
                 tennants[msg.sender][i] = 0;
                 uint256 timestamp = renterToPropertyPaymentTimestamps[
@@ -460,11 +510,12 @@ contract PropertyMarket is ReentrancyGuard {
                     ] = 0;
                 }
                 checkAndSetRoomStatus(propertyId);
-                payable(msg.sender).transfer(depositRequired); //withdraw from contract
-                totalDepositBal -= depositRequired;
+                payable(msg.sender).transfer(DEPOSIT_REQUIRED); //withdraw from contract
+                totalDepositBal -= DEPOSIT_REQUIRED;
                 break;
             }
         }
+
         for (uint256 i = 0; i < 3; i++) {
             if (propertyToRenters[propertyId][i] == msg.sender) {
                 propertyToRenters[propertyId][i] = address(0);
@@ -476,11 +527,11 @@ contract PropertyMarket is ReentrancyGuard {
     function vacatePropertyAfterBuy(
         uint256 propertyId,
         address sender
-    ) internal {
+    ) internal { 
         for (uint256 i = 0; i < 3; i++) {
             if (tennants[sender][i] == propertyId) {
-                payable(sender).transfer(depositRequired); //withdraw from contract
-                totalDepositBal -= depositRequired;
+                payable(sender).transfer(DEPOSIT_REQUIRED); //withdraw from contract
+                totalDepositBal -= DEPOSIT_REQUIRED;
                 tennants[sender][i] = 0;
                 uint256 timestamp = renterToPropertyPaymentTimestamps[
                     msg.sender
@@ -508,12 +559,13 @@ contract PropertyMarket is ReentrancyGuard {
         address tennant
     ) public nonReentrant {
         require(idToProperty[propertyId].owner == msg.sender, "not owner");
-        for (uint256 i = 0; i < 3; i++) {
+        uint256 tenantLength = tennants[msg.sender].length;
+        for (uint256 i = 0; i < tenantLength; i++) {
             if (tennants[tennant][i] == propertyId) {
                 tennants[tennant][i] = 0;
                 checkAndSetRoomStatus(propertyId);
             }
-        }
+        }        
         for (uint256 i = 0; i < 3; i++) {
             if (propertyToRenters[propertyId][i] == tennant) {
                 propertyToRenters[propertyId][i] = address(0);
@@ -542,12 +594,14 @@ contract PropertyMarket is ReentrancyGuard {
             propertyId
         ];
 
-        // require(
-        //     (block.timestamp - rentTime) > 86400, "can't pay rent more than once in 24hrs"
-        // );
+        require(
+            (block.timestamp - rentTime) > 86400, "can't pay rent more than once in 24hrs"
+        );
 
         bool isRenter = false;
-        for (uint256 i = 0; i < 3; i++) {
+        uint256 tenantLength = tennants[msg.sender].length;
+        // console.log("tenantLength: ", tenantLength);
+        for (uint256 i = 0; i < tenantLength; i++) {
             if (tennants[msg.sender][i] == propertyId) {
                 isRenter = true;
             }
@@ -571,22 +625,28 @@ contract PropertyMarket is ReentrancyGuard {
             // }
             price = idToProperty[propertyId].rentPrice; //* (count + 1) * 12 / 10;
         }
-        uint256 baseTokenAmount = RewardCalculator.getTokenAmountToReceive(price / weiToEth);        
-        uint256 diminishingSupplyFactor = (IERC20(tokenContractAddress)
+        if (tokenMaxSupply > 0) {
+            uint256 baseTokenAmount = RewardCalculator.getTokenAmountToReceive(price / WEI_TO_ETH);     
+            // console.log('baseTokenAmount: ', baseTokenAmount);   
+            // console.log(price/WEI_TO_ETH);
+            uint256 diminishingSupplyFactor = (IERC20(tokenContractAddress)
             .balanceOf(address(this)) * 100) / tokenMaxSupply;
-        uint256 tokensToReceive = baseTokenAmount * diminishingSupplyFactor;        
-        renterTokens[msg.sender] += (tokensToReceive * (1 ether));
-
-        tokenMaxSupply = tokenMaxSupply - tokensToReceive;
-
+            if (diminishingSupplyFactor < 1) {
+                diminishingSupplyFactor = 1;
+            }
+            // console.log('diminishingSupplyFactor: ', diminishingSupplyFactor);
+            uint256 tokensToReceive = baseTokenAmount * diminishingSupplyFactor; 
+            // console.log('tokensToReceive: ', tokensToReceive);
+            if (tokensToReceive > tokenMaxSupply) {
+                tokensToReceive = tokenMaxSupply;
+            }
+            renterTokens[msg.sender] += (tokensToReceive * (1 ether));
+            tokenMaxSupply = tokenMaxSupply - tokensToReceive;
+        }       
         emit RentPaid(msg.sender, block.timestamp, propertyId);
     }
 
-    event RentPaid(
-        address indexed tenant,
-        uint256 blockTime,
-        uint256 indexed propertyId
-    );
+
 
     function collectRent() public nonReentrant {
         payable(msg.sender).transfer(
@@ -597,6 +657,7 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function withdrawERC20(IERC20 token) public nonReentrant {
+        //console.log('tokens: ',renterTokens[msg.sender]);
         require(renterTokens[msg.sender] > 0, "no tokens");
         token.transfer(msg.sender, renterTokens[msg.sender]);
         renterTokens[msg.sender] = 0;

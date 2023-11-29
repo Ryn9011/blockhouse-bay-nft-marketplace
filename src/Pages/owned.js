@@ -259,15 +259,18 @@ const Owned = () => {
   useEffect(() => {
     console.log(propertyIdTwitter)
     let tweetOptions
-    if (hasSetText) {
-      tweetOptions =
-      {
-        text: twitterTextRef.current ? twitterTextRef.current.innerText : "",
-        url: `http://localhost:3000/property-view/${propertyIdTwitter.toString()}`,
-        hashtags: 'BlockhouseBay',      
-      }
-    }
-    setText(tweetOptions)
+    //if (hasSetText) {
+        let text = twitterTextRef.current ? twitterTextRef.current.innerText : ""
+        let formattedTweet = text.replace(/(?<!\d)\.(?!\d)/g, '%0A');
+
+        console.log(text)
+        let url = `http://localhost:3000/property-view/${propertyIdTwitter}%0A`
+        let hashtags = 'BlockhouseBay'   
+        tweetOptions = text + '#BlockhouseBay';
+    //}
+    setText(formattedTweet)
+    console.log(tweetOptions)
+    
     setUrl(`http://localhost:3000/property-view/${propertyIdTwitter ? propertyIdTwitter : ''}`)
     setHasSetText(false)
   }, [twitterSaleChecked, twitterRentChecked])
@@ -285,7 +288,7 @@ const Owned = () => {
     setTwitterSaleChecked(e.target.checked);
     seTwitterRef(propertyObj);
 
-    console.log(text)
+    console.log(propertyObj)
 
   };
 
@@ -298,8 +301,10 @@ const Owned = () => {
           : property
       )
     );
+    let text = propertyObj.rentPrice
     setTwitterRentChecked(e.target.checked)
     seTwitterRef(propertyObj)
+    console.log(propertyObj)
   };
 
   const seTwitterRef = (property) => {
@@ -805,11 +810,11 @@ const Owned = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="text-xs text-green-400 font-mono">14 Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.rentPrice} Matic</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Total Income Generated:</p>
-                        <p className="text-xs text-green-400 font-mono">523 Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} Matic</p>
                       </div>
                       <div className="flex flex-col mb-2">
                         <p>Rooms Rented:</p>
@@ -860,6 +865,7 @@ const Owned = () => {
                               disabled={property.isForSale ? false : true}
                               className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.isForSale === false ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
+
                             <label htmlFor="sellingRadio">
                               Selling
                             </label>
@@ -892,16 +898,26 @@ const Owned = () => {
                               </svg>
                               <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                                 <span className="relative flex w-48 z-10 p-2 text-xs leading-none text-white whitespace-no-wrap border border-1 border-white bg-twitter-blue shadow-lg">
-                                  If selling or rooms are vacant, add for-sale and room-vacant info to your tweet!
+                                  Add for-sale and room-vacant info to your tweet!
                                 </span>
                                 <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
                               </div>
                             </div>
                           </div>
                         </div>
-                        <div className={'mt-1.5'} >
+                        <div className={'mt-0.5 flex'} >
                           {/* <div className="btn-o w-[73px] mb-12" ><div  className="tweetBtn" id="b"><i></i><span className="label" id="l">Tweet</span></div></div> */}
-                          <Share url={url} options={text} disabled={true} />
+                          {/* <Share url={url} options={text} disabled={true} /> */}                          
+                          <a class="twitter-share-button"
+                            href={`https://twitter.com/intent/tweet?text=${text}`}
+                            data-size="large"
+                            target='new'
+                            disabled="true">
+                          <img src='logo-white.png' className='w-6 h-6 ml-4 cursor-pointer hover:blur-[1px]' /></a>
+                          
+                          
+                          
+                          
                         </div>
                       </div>
 
@@ -918,11 +934,11 @@ const Owned = () => {
                             <div id={`${property.propertyId}twitterSale`}>
                               <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
                               {property.propertyId < 501 ? (
-                                <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
+                                <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB.</span>}</p>
                               ) : (
-                                <p>{` ${property.tokenPrice} BHB`}</p>
+                                <p>{` ${property.tokenPrice} BHB.`}</p>
                               )}
-                              <p>{property.tweetOptions["url"]}</p>
+                              <p>{`http://localhost:3000/property-view/${property.propertyId}`}</p>
                             </div>
                           </div>
                         )}
@@ -932,27 +948,27 @@ const Owned = () => {
                               <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
                               {property.roomsToRent != 3 &&
                                 <p>
-                                  {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic`}
+                                  {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic.`}
                                 </p>
                               }
                             </div>
-                            <p>{property.tweetOptions["url"]}</p>
+                            <p>{`http://localhost:3000/property-view/${property.propertyId}`}</p>
                           </div>
                         )}
                         {(property.rentChecked && property.forSaleChecked) && (
                           <div id="twitterSaleRentSection" ref={twitterTextRef}>
                             <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
                             {property.propertyId < 501 ? (
-                              <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB</span>}</p>
+                              <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB.</span>}</p>
                             ) : (
-                              <p>{` ${property.tokenPrice} BHB`}</p>
+                              <p>{` ${property.tokenPrice} BHB.`}</p>
                             )}
                             {property.roomsToRent != 3 &&
                               <p>
-                                {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic`}
+                                {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic.`}
                               </p>
                             }
-                            <p>{property.tweetOptions["url"]}</p>
+                            <p>{`http://localhost:3000/property-view/${property.propertyId}`}</p>
                           </div>
                         )}
                       </div>
@@ -1038,7 +1054,7 @@ const Owned = () => {
                                   </Link>
                                   <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                                     <span className="relative z-10 p-2 text-xs leading-none text-black whitespace-no-wrap bg-white shadow-lg">
-                                      Learn more
+                                      Can't be lower than original sale price - Learn More
                                     </span>
                                     <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
                                   </div>

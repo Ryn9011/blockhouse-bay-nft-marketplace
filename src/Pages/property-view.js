@@ -149,7 +149,7 @@ const PropertyView = () => {
 
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
 
-    const test = await marketContract.depositRequired();
+    const test = await marketContract.DEPOSIT_REQUIRED();
     const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
     const num = ethers.utils.formatEther(deposit)
     const rentals = await marketContract.getPropertiesRented()
@@ -184,9 +184,9 @@ const PropertyView = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">For Sale</p>
-          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently for sale</p>
-          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Check back soon for new listings</p>
+          {/* <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">For Sale</p> */}
+          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">Cannot load property</p>
+          {/* <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Check back soon for new listings</p> */}
         </div>
       </div>
     </div>
@@ -196,10 +196,10 @@ const PropertyView = () => {
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4" style={{ maxWidth: "1600px" }}>
-          <p className="text-5xl xl3:text-6xl font-bold text-white">For Sale</p>
+          <p className="text-5xl xl3:text-6xl font-bold mb-8 text-white">{property.name}</p>
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
-            <header className="flex items-center h-16 mb-1 mr-3">
+            {/* <header className="flex items-center h-16 mb-1 mr-3">
               <p className="text-sm lg:text-xl font-bold">Buy a property and earn Matic tokens </p>
             </header>
             <div className='mb-1'>
@@ -208,7 +208,7 @@ const PropertyView = () => {
                 src="../matic-icon.png"
                 alt=""
               ></img>
-            </div>
+            </div> */}
           </div>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-4 text-white">
@@ -299,7 +299,7 @@ const PropertyView = () => {
                 </div>
               </div>
 
-              <div className="p-2 pt-2 bg-black">
+              <div className="p-2 pb-3 pt-2 bg-black">
                 {
                   <div>
                     <div className="flex divide-x divide-white mb-2 text-xl lg:text-base">
@@ -314,7 +314,7 @@ const PropertyView = () => {
                           />
                         </div>
                         <div className="mb-2 pr-2 pt-2 text-white">
-                          <p className="font-bold">{property.price} MATIC</p>
+                          <p className={`font-bold ${property.isForSale ? 'text-white' : 'text-gray-500'}`}>{property.price} MATIC</p>
                         </div>
                         <div>
                           <img
@@ -384,7 +384,7 @@ const PropertyView = () => {
                       </div>
                     </div>
                     <div className="px-2">
-                      <button onClick={() => buyProperty(property)} className="w-full mb-2 bg-matic-blue text-white font-bold py-2 px-14 rounded">
+                      <button onClick={() => buyProperty(property)} className={`w-full mb-2 text-white font-bold py-2 px-14 rounded ${property.isForSale ? 'bg-matic-blue' : 'bg-gray-800 cursor-default'}`}>
                         Buy
                       </button>
                     </div>
@@ -423,7 +423,7 @@ const PropertyView = () => {
                         <div className="text-2xl pt-2 text-white"></div>
 
                         <div className=" ">
-                          <button onClick={() => rentProperty(property)} className="w-full bg-matic-blue text-white font-bold py-2 px-10 rounded">
+                          <button onClick={() => rentProperty(property)} className={`w-full text-white font-bold py-2 px-10 rounded ${property.roomsToRent !== 3? 'bg-matic-blue' : 'bg-gray-800 cursor-default'}`}>
                             Rent Room
                           </button>
                         </div>

@@ -136,6 +136,7 @@ const Exclusive = () => {
     console.log(items);
 
     let properties = calculateRankingPosition(items);
+    console.log(properties)
     setCurrentPosts(properties)
     setLoadingState('loaded')
   }
@@ -177,10 +178,10 @@ const Exclusive = () => {
 
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
 
-    const test = await marketContract.depositRequired();
-    const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
+    const deposit = await marketContract.DEPOSIT_REQUIRED();
+    
     const transaction = await marketContract.rentProperty(property.propertyId, {
-      value: test
+      value: deposit
     });
     await transaction.wait()
     loadProperties()
@@ -230,7 +231,7 @@ const Exclusive = () => {
               return (
                 <div
                   key={property.propertyId}
-                  className="border-2 border-double border-yellow-500 shadow-lg  shadow-yellow-400 rounded-md overflow-hidden bg-gradient-120 from-black via-black to-green-900"
+                  className="border-2 border-double border-yellow-500 shadow-lg  shadow-yellow-400 rounded-md overflow-hidden bg-gradient-120 from-black via-black to-green-900 mb-5 lg:mb-0"
                 >
                   <img className='w-fit h-fit' src={property.image} alt="" />
                   <div className="p-4">
@@ -342,7 +343,7 @@ const Exclusive = () => {
                                 <header className="items-center flex pt-3 md:pt-6 lg:pt-3.5 text-indigo-100">
                                   <p className="font-bold text-lg 2xl:text-2xl">{property.tokenSalePrice} BHB</p>
                                 </header>
-                                <div className='mt-1 h-15 lg:h-17 w-16 md:h-16'>
+                                <div className='mt-1 h-[65px] lg:h-17 w-16 md:h-16'>
                                   <img
                                     className="lg:object-none brightness-150 scale-75 md:scale-75 lg:scale-50 pt-2.5 lg:pt-0"
                                     src="./tokenfrontsmall.png"

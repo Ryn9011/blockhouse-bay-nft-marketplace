@@ -27,7 +27,6 @@ module.exports = {
         runs: 1000,
         enabled: true
       }
-      
     }
   },
 };

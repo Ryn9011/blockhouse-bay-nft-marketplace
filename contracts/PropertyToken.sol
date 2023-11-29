@@ -6,18 +6,20 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract PropertyToken is ERC20, Ownable {
     address contractAddress;
+    bool hasBeenMinted = false;
 
-    constructor(uint256 initialSupply, address contractAddr) ERC20("Property", "BHB") {  
+    constructor(uint256 initialSupply, address contractAddr) ERC20("Property", "BHB") {
         contractAddress = contractAddr;
-        //approve(contractAddress, 1000000);             
-        _mint(msg.sender, initialSupply); 
+        //approve(contractAddress, 1000000);
+        _mint(msg.sender, initialSupply);
+        hasBeenMinted = true;
     }
 
     function mint(address account, uint256 amount) public onlyOwner {
-        _mint(account, amount);
+        if (!hasBeenMinted) _mint(account, amount);
     }
 
-    function allowSender(uint amount) public {
-        approve(contractAddress, amount);       
+    function allowSender(uint256 amount) public {
+        approve(contractAddress, amount);
     }
 }
