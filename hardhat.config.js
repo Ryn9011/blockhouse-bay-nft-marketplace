@@ -12,7 +12,9 @@ module.exports = {
     },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${projectId}`,
-      accounts: [privateKey]
+      accounts: [privateKey],
+      gas: 2100000,
+      gasPrice: 8000000000,
     },
     mainnet: {
       url: `https://polygon-mainnet.g.alchemy.com/v2/${projectId}`,
@@ -25,7 +27,7 @@ module.exports = {
       //optimizer: {enabled: process.env.DEBUG ? false : true},
       optimizer: {
         runs: 1000,
-        enabled: true
+        enabled: true,
       }
     }
   },

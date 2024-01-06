@@ -41,6 +41,6 @@ library RewardCalculator {
         if (rent >= 200) {
             return ((rent * 15000) / 10000);
         }
-        return 0;
+        return 10;
     }
 }

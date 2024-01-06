@@ -17,6 +17,8 @@ import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToke
 import Pagination from '../Pagination'
 import SaleHistory from '../Components/sale-history'
 import GetPropertyNames from '../getPropertyName'
+import SpinnerIcon from '../Components/spinner';
+
 
 const ForSale = () => {
   const [loadingState, setLoadingState] = useState('not-loaded')
@@ -25,13 +27,14 @@ const ForSale = () => {
   const [currentPosts, setCurrentPosts] = useState([]);
   const [numForSale, setNumForSale] = useState();
   const [showBottomNav, setShowBottomNav] = useState(false);
+  const [txloadingState, setTxLoadingState] = useState({});
 
   useEffect(() => {
     setLoadingState('not-loaded')
     loadProperties(currentPage)
   }, [currentPage])
 
-  const loadProperties = async () => {
+  const loadProperties = async (currentPaged,i) => {
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
     try {
@@ -126,53 +129,62 @@ const ForSale = () => {
         return item
       }))
       setCurrentPosts(items.slice(0, 20))
-      setLoadingState('loaded')
+      setLoadingState('loaded')   
+      setTxLoadingState({ ...txloadingState, [i]: false });   
     } catch (error) {
       console.log(error)
+      setTxLoadingState({ ...txloadingState, [i]: false }); 
     }
   }
 
   const buyProperty = async (nft, i) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-
-    const signer = provider.getSigner()
-
-    const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    let price = ethers.utils.parseUnits(nft.price.toString(), 'ether')
-    let isTokenSale = false;
-
-    let propertyTokenContract = undefined;
-    let amount = undefined;
-
-    if (document.getElementById("pogRadio" + i) != undefined) {
-      if (document.getElementById("pogRadio" + i).checked) {
-        price = ethers.utils.parseUnits("0", 'ether')
-        isTokenSale = true
-        propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer)
-        amount = ethers.utils.parseUnits(nft.tokenSalePrice, 'ether')
-        await propertyTokenContract.allowSender(amount)
+    try {
+      const web3Modal = new Web3Modal();
+      const connection = await web3Modal.connect();
+      const provider = new ethers.providers.Web3Provider(connection);
+      const signer = provider.getSigner();
+  
+      const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
+      let price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
+      let isTokenSale = false;
+  
+      let propertyTokenContract = undefined;
+      let amount = undefined;
+  
+      if (document.getElementById("pogRadio" + i) != undefined) {
+        if (document.getElementById("pogRadio" + i).checked) {
+          price = ethers.utils.parseUnits("0", 'ether');
+          isTokenSale = true;
+          propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer);
+          amount = ethers.utils.parseUnits(nft.tokenSalePrice, 'ether');
+          await propertyTokenContract.allowSender(amount);
+        }
       }
-    }
-
-    const transaction = await contract2.createPropertySale(
-      nftaddress,
-      nft.propertyId,
-      propertytokenaddress,
-      isTokenSale,
-      { value: price }
-    )
-
-    if (document.getElementById("pogRadio" + i) != undefined) {
-      if (document.getElementById("pogRadio" + i).checked) {
-        await propertyTokenContract.allowSender(0);
+  
+      
+      const transaction = await contract2.createPropertySale(
+        nftaddress,
+        nft.propertyId,
+        propertytokenaddress,
+        isTokenSale,
+        { value: price }
+      );
+  
+      if (document.getElementById("pogRadio" + i) != undefined) {
+        if (document.getElementById("pogRadio" + i).checked) {
+          await propertyTokenContract.allowSender(0);
+        }
       }
+      setTxLoadingState({ ...txloadingState, [i]: true });
+      await transaction.wait();
+      loadProperties(currentPage, i);
+    } catch (error) {
+      // Handle the error when the user rejects the transaction in MetaMask
+      console.error("Transaction rejected by the user or an error occurred:", error);
+      setTxLoadingState({ ...txloadingState, [i]: false });   
     }
-
-    await transaction.wait()
-    loadProperties(currentPage)
-  }
+  };
+  
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber)
@@ -191,7 +203,7 @@ const ForSale = () => {
               </svg>
             </Link>
           </div>
-          <img src="autumn.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-5/12 lg:pl-12" />
+          <img src="autumn.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-5/12 lg:pl-12" />          
         </div>
       </div>
     </div>
@@ -356,10 +368,19 @@ const ForSale = () => {
                           )}
                         </div>
                       </div>
-                      <div className="px-2">
-                        <button onClick={() => buyProperty(property, i)} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">
-                          Buy
-                        </button>
+                      <div className="px-2 flex justify-center">
+                        {txloadingState[i] ? (
+                          <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
+                           <SpinnerIcon />
+                          </p>
+                        ) : (
+                          <button
+                            onClick={() => buyProperty(property, i)}
+                            className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded"
+                          >
+                            Buy
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

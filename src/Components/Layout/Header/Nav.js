@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from "react-router-dom";
 import ConnectWalletButton from './ConnectWallet';
-
+const { ethers } = require('ethers');
 
 export default function Nav() {
 
-	useEffect(() => {
+	useEffect(() => {	
 		load()
 	}, [])
 
@@ -71,7 +71,7 @@ export default function Nav() {
 						<img
 							className="object-contain brightness-150 mb-2 mt-1 pl-3"
 							src="./../tokengif.gif"
-							alt=""
+							alt="Blockhouse Bay"
 						></img>
 					</div>
 				</a>

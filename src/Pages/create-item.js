@@ -234,7 +234,7 @@ const CreateItem = () => {
 
   const createSaleEx = async () => {   
     console.log(formInput)
-    const urisn = Object.keys(dataEx.paths).map(uri => "http://arweave.net/" + dataEx.paths[uri].id);
+    const urisn = Object.keys(dataEx.paths).map(uri => "https://arweave.net/" + dataEx.paths[uri].id);
 
     const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()

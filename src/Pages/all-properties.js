@@ -34,7 +34,7 @@ const AllProperties = () => {
 
   const loadProperties = async () => {
     const network = await detectNetwork()
-    
+
     const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
     const rpcUrl = getRpcUrl(network, projectId);
 
@@ -96,6 +96,7 @@ const AllProperties = () => {
         roomsRented: 0,
         renterAddresses: renterAddresses,
         saleHistory: saleHistory,
+        dateSoldHistory: i.dateSoldHistory,
         totalIncomeGenerated: totalIncomeGenerated
       }
       if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
@@ -127,7 +128,7 @@ const AllProperties = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
-          <img src="night.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-2/5 lg:pl-12" />
+          <img src="night.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-5/12 lg:pl-12" />                      
         </div>
       </div>
     </div>
@@ -139,7 +140,7 @@ const AllProperties = () => {
         <div className="px-4" style={{ maxWidth: "1600px" }}>
           <h1 className="text-white mb-5">All Properties</h1>
           <div className="flex text-white pl-4 mb-5">
-            <p className="text-sm lg:text-xl pl-4 font-bold mr-1 mb-2">All Properties of Blockhouse Bay</p>
+            <p className="text-sm lg:text-xl pl-4 font-bold mr-1 mb-2">All Blockhouse Bay properties</p>
             {/* <div className="pb-2">
               <img
                 className="object-none scale-75 pr-0.5 pl-1"
@@ -159,98 +160,98 @@ const AllProperties = () => {
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-white">
 
             {propertyList.map((property, i) => {
-              if (property.roomsRented < 3) {
-                return (
-                  <div
-                    key={1}
-                    className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
-                  >
-                    <img className='w-fit h-fit' src={property.image} alt="" />
-                    <div className="p-4 ">
-                      <p
-                        style={{ height: "50px" }}
 
-                        className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
-                      >
-                        {property.name}
-                      </p>
-                      <div style={{ overflow: "hidden" }}>
-                        <div className='flex justify-between mb-2'>
-                          <div>
-                            <p>Owner:</p>
-                            <p className="text-[10px] text-green-400 font-mono">{property.owner}</p>
-                          </div>
-                          <div className='pt-1.5'>
-                            {property.owner !== 'Unowned' &&
-                              <Blockies
-                                seed={property.owner}
-                              />
-                            }
-                          </div>
+              return (
+                <div
+                  key={1}
+                  className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
+                >
+                  <img className='w-fit h-fit' src={property.image} alt="" />
+                  <div className="p-4 ">
+                    <p
+                      style={{ height: "50px" }}
+
+                      className="text-2xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-green-400"
+                    >
+                      {property.name}
+                    </p>
+                    <div style={{ overflow: "hidden" }}>
+                      <div className='flex justify-between mb-2'>
+                        <div>
+                          <p>Owner:</p>
+                          <p className="text-[10px] text-green-400 font-mono">{property.owner}</p>
                         </div>
-                        <div className="flex flex-col pb-2">
-                          <p>Rooms Rented:</p>
-                          <p className="font-mono text-xs text-green-400">{property.roomsRented}/3</p>
-                        </div>
-                        <div className="flex flex-col pb-2">
-                          <p>Rent Price:</p>
-                          <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
-                        </div>
-                        <div className="flex flex-col">
-                          <p>Total Income Generated:</p>
-                          <p className="font-mono text-xs pb-2 text-green-400">{property.totalIncomeGenerated} Matic</p>
-                        </div>
-                        <p>Tenants:</p>
-                        <div className='text-[10px] mb-3 text-green-400 font-mono'>
-                          {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
-                            <>
-                              <div className='flex items-center justify-between mb-2'>
-                                <p className={" break-words"}>
-                                  {property.renterAddresses[0]}
-                                </p>
-                                <Blockies
-                                  seed={property.renterAddresses[0]}
-                                />
-                              </div>
-                            </>
-                            : <p>0x</p>
+                        <div className='pt-1.5'>
+                          {property.owner !== 'Unowned' &&
+                            <Blockies
+                              seed={property.owner}
+                            />
                           }
-                          {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+                        </div>
+                      </div>
+                      <div className="flex flex-col pb-2">
+                        <p>Rooms Rented:</p>
+                        <p className="font-mono text-xs text-green-400">{property.roomsRented}/3</p>
+                      </div>
+                      <div className="flex flex-col pb-2">
+                        <p>Rent Price:</p>
+                        <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
+                      </div>
+                      <div className="flex flex-col">
+                        <p>Total Income Generated:</p>
+                        <p className="font-mono text-xs pb-2 text-green-400">{property.totalIncomeGenerated} Matic</p>
+                      </div>
+                      <p>Tenants:</p>
+                      <div className='text-[10px] mb-3 text-green-400 font-mono'>
+                        {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
+                          <>
                             <div className='flex items-center justify-between mb-2'>
                               <p className={" break-words"}>
-                                {property.renterAddresses[1]}
+                                {property.renterAddresses[0]}
                               </p>
                               <Blockies
-                                seed={property.renterAddresses[1]}
+                                seed={property.renterAddresses[0]}
                               />
                             </div>
-                            :
-                            <>
-                              {property.renterAddresses[0] === "0.0" &&
-                                <p>0x</p>}
-                            </>
-                          }
-                          {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
-                            <div className='flex items-center justify-between'>
-                              <p className={" break-words"}>
-                                {property.renterAddresses[2]}
-                              </p>
-                              <Blockies
-                                seed={property.renterAddresses[2]}
-                              />
-                            </div>
-                            : <>
-                              {property.renterAddresses[0] === "0.0" &&
-                                <p>0x</p>}
-                            </>
-                          }
-                        </div>
-                        <SaleHistory property={property} />
+                          </>
+                          : <p>0x</p>
+                        }
+                        {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+                          <div className='flex items-center justify-between mb-2'>
+                            <p className={" break-words"}>
+                              {property.renterAddresses[1]}
+                            </p>
+                            <Blockies
+                              seed={property.renterAddresses[1]}
+                            />
+                          </div>
+                          :
+                          <>
+                            {property.renterAddresses[0] === "0.0" &&
+                              <p>0x</p>}
+                          </>
+                        }
+                        {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
+                          <div className='flex items-center justify-between'>
+                            <p className={" break-words"}>
+                              {property.renterAddresses[2]}
+                            </p>
+                            <Blockies
+                              seed={property.renterAddresses[2]}
+                            />
+                          </div>
+                          : <>
+                            {property.renterAddresses[0] === "0.0" &&
+                              <p>0x</p>}
+                          </>
+                        }
                       </div>
+                      <SaleHistory property={property} />
                     </div>
                   </div>
-                )
-              }
+                </div>
+              )
+
             })}
           </section>
         </div>

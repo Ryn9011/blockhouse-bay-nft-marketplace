@@ -6,6 +6,7 @@ import axios from 'axios'
 import { Link } from 'react-router-dom';
 import Blockies from 'react-blockies';
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
+import SpinnerIcon from '../Components/spinner';
 
 import {
   nftaddress, nftmarketaddress, govtaddress
@@ -22,6 +23,7 @@ const ToRent = () => {
 
   const [soldProperties, setSoldProperties] = useState([])
   const [loadingState, setLoadingState] = useState('not-loaded')
+  const [txloadingState, setTxLoadingState] = useState({});
   // const [propertyList, setPropertyList] = useState([]);
 
   const [postsPerPage] = useState(20);
@@ -40,116 +42,128 @@ const ToRent = () => {
     loadProperties()
   }, [currentPage, onlyRentable])
 
-  const loadProperties = async () => {
-    const network = await detectNetwork()
-    const projectId = process.env.ALCHEMY_PROJECT_ID;
-    const rpcUrl = getRpcUrl(network, projectId);
+  const loadProperties = async (prop, i) => {
+    try {
+      const network = await detectNetwork()
+      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+      const rpcUrl = getRpcUrl(network, projectId);
 
-    const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
-    const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
-    const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-    const data = await govtContract.fetchPropertiesSold() //add onlyrentable. change needs to trigger load
+      const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
+      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
+      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
+      const data = await govtContract.fetchPropertiesSold() //add onlyrentable. change needs to trigger load
 
-    const items = await Promise.all(data.map(async i => {
-      const tokenUri = await tokenContract.tokenURI(i.tokenId)
+      const items = await Promise.all(data.map(async i => {
+        const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
-      const nftTagHelper = new NftTagHelper()
-      const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
+        const nftTagHelper = new NftTagHelper()
+        const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
 
-      const tags = await nftTagHelper.getNftTags(arweaveId)
+        const tags = await nftTagHelper.getNftTags(arweaveId)
 
-      const meta = await axios.get(tokenUri)
+        const meta = await axios.get(tokenUri)
 
-      let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
+        let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
 
-      let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-      let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
-      let depositHex = await marketContract.DEPOSIT_REQUIRED()
-      let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
-      const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
-      let saleHistory = [];
+        let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
+        let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
+        let depositHex = await marketContract.DEPOSIT_REQUIRED()
+        let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
+        const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+        let saleHistory = [];
 
-      if (i.saleHistory.length > 0) {
-        i.saleHistory.forEach((item) => {
-          const history = i.saleHistory.map((item) => {
-            return {
-              price: ethers.utils.formatUnits(item[0]),
-              type: item[1].toNumber() === 1 ? "Matic" : "BHB"
-            }
-          });
-          saleHistory = history;
-        })
-        console.log(saleHistory)
+        if (i.saleHistory.length > 0) {
+          i.saleHistory.forEach((item) => {
+            const history = i.saleHistory.map((item) => {
+              return {
+                price: ethers.utils.formatUnits(item[0]),
+                type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+              }
+            });
+            saleHistory = history;
+          })
+          console.log(saleHistory)
 
-      } else {
-        saleHistory.push("Unsold")
-      }
-      let totalIncomeGenerated;
-      if (i.totalIncomeGenerated != 0) {
-        totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
-      } else totalIncomeGenerated = 0;
+        } else {
+          saleHistory.push("Unsold")
+        }
+        let totalIncomeGenerated;
+        if (i.totalIncomeGenerated != 0) {
+          totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+        } else totalIncomeGenerated = 0;
 
-      let item = {
-        price,
-        propertyId: i.propertyId.toNumber(),
-        seller: i.seller,
-        owner: i.owner,
-        image: tokenUri,
-        name: nftName,
-        description: '',
-        roomOneRented: i.roomOneRented,
-        roomTwoRented: i.roomTwoRented,
-        roomThreeRented: i.roomThreeRented,
-        rentPrice: rentPrice,
-        depositRequired: deposit,
-        available: false,
-        roomsRented: 0,
-        renterAddresses: renterAddresses,
-        saleHistory: saleHistory,
-        dateSoldHistory: i.dateSoldHistory,
-        totalIncomeGenerated: totalIncomeGenerated
-      }
-      if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
-        item.available = true;
-      }
-      if (item.roomOneRented == true) {
-        item.roomsRented++
-      }
-      if (item.roomTwoRented == true) {
-        item.roomsRented++
-      }
-      if (item.roomThreeRented == true) {
-        item.roomsRented++
-      }
-      return item
-    }))
-    setSoldProperties(items)
-    // setPropertyList(items)
-    setLoadingState('loaded')
+        let item = {
+          price,
+          propertyId: i.propertyId.toNumber(),
+          seller: i.seller,
+          owner: i.owner,
+          image: tokenUri,
+          name: nftName,
+          description: '',
+          roomOneRented: i.roomOneRented,
+          roomTwoRented: i.roomTwoRented,
+          roomThreeRented: i.roomThreeRented,
+          rentPrice: rentPrice,
+          depositRequired: deposit,
+          available: false,
+          roomsRented: 0,
+          renterAddresses: renterAddresses,
+          saleHistory: saleHistory,
+          dateSoldHistory: i.dateSoldHistory,
+          totalIncomeGenerated: totalIncomeGenerated
+        }
+        if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
+          item.available = true;
+        }
+        if (item.roomOneRented == true) {
+          item.roomsRented++
+        }
+        if (item.roomTwoRented == true) {
+          item.roomsRented++
+        }
+        if (item.roomThreeRented == true) {
+          item.roomsRented++
+        }
+        return item
+      }))
+      setSoldProperties(items)
+      setTxLoadingState({ ...txloadingState, [i]: false });
+      // setPropertyList(items)
+      setLoadingState('loaded')
+    } catch (error) {
+      setTxLoadingState({ ...txloadingState, [i]: false });
+      console.log(error)
+    }
   }
 
-  const rentProperty = async (property) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
+  const rentProperty = async (property, i) => {
+    try {
+      const web3Modal = new Web3Modal()
+      const connection = await web3Modal.connect()
+      const provider = new ethers.providers.Web3Provider(connection)
 
-    const signer = provider.getSigner()
+      const signer = provider.getSigner()
 
-    const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
 
-    const test = await marketContract.DEPOSIT_REQUIRED();
-    const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
-    const num = ethers.utils.formatEther(deposit)
-    const rentals = await marketContract.getPropertiesRented()
-    // ? ethers.utils.parseUnits(property.rentPrice.toString(), 'ether') 
-    // : ethers.utils.parseUnits(contract.defaultRentPrice.toString(), 'ether')
-    //STOP SAME ADDRESS RENTING MORE THAN ONE ROOM?
-    const transaction = await marketContract.rentProperty(property.propertyId, {
-      value: test
-    });
-    await transaction.wait()
-    loadProperties()
+      const test = await marketContract.DEPOSIT_REQUIRED();
+      const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
+      const num = ethers.utils.formatEther(deposit)
+      const rentals = await marketContract.getPropertiesRented()
+      // ? ethers.utils.parseUnits(property.rentPrice.toString(), 'ether') 
+      // : ethers.utils.parseUnits(contract.defaultRentPrice.toString(), 'ether')
+      //STOP SAME ADDRESS RENTING MORE THAN ONE ROOM?            
+      const transaction = await marketContract.rentProperty(property.propertyId, {
+        value: test
+      });
+      setTxLoadingState({ ...txloadingState, [i]: true });
+      await transaction.wait()
+      loadProperties()
+    } catch (error) {
+      setTxLoadingState({ ...txloadingState, [i]: false });
+      console.log(error)
+    }
   }
 
   if (loadingState !== 'loaded') return (
@@ -252,7 +266,7 @@ const ToRent = () => {
                         </div>
                         <div className="flex flex-col pb-2">
                           <p>Rent Price:</p>
-                          <p className="font-mono text-xs text-green-400">3 Matic</p>
+                          <p className="font-mono text-xs text-green-400">{property.rentPrice}</p>
                         </div>
                         {/* <div className="flex flex-col">
                         <p>Total Income Generated:</p>
@@ -342,7 +356,7 @@ const ToRent = () => {
                               A rental deposit of <span className='font-mono text-xs text-blue-400'>10 Matic</span> is required to rent this property
                             </li>
                             <li>
-                              Your deposit is refunded upon vacating a property (deposit is not refunded if evicted from the property)
+                              Rental deposits are refunded upon vacating a property (providing renter is not evicted from the property)
                             </li>
                           </ul>
                         </div>
@@ -350,10 +364,19 @@ const ToRent = () => {
 
                       <div className="text-2xl pt-2 text-white"></div>
 
-                      <div className="px-2 ">
-                        <button onClick={() => rentProperty(property)} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">
-                          Rent Room
-                        </button>
+                      <div className="px-2 flex justify-center">
+                        {txloadingState[i] ? (
+                          <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
+                            <SpinnerIcon />
+                          </p>
+                        ) : (
+                          <button
+                            onClick={() => rentProperty(property, i)}
+                            className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded"
+                          >
+                            Rent
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

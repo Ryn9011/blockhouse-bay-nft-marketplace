@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, useLayoutEffect } from 'react'
 import { ethers } from 'ethers'
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
 import axios from 'axios'
-import { Link } from 'react-router-dom';
-import { Share } from 'react-twitter-widgets'
+import { Link, useLocation } from 'react-router-dom';
+// import { Share } from 'react-twitter-widgets'
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -15,6 +15,7 @@ import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import SaleHistory from '../Components/sale-history'
 import { calculateRankingTotal, calculateRankingPosition } from '../calculateRanking'
+import SpinnerIcon from '../Components/spinner';
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
@@ -24,7 +25,7 @@ import GetPropertyNames from '../getPropertyName'
 
 const useStyles = makeStyles({
   padding: {
-    paddingTop: '7px !important',
+    paddingTop: '0px !important',
     fontSize: '0.75rem !important',
     lineHeight: '1rem !important',
     display: 'flex !important',
@@ -51,9 +52,21 @@ const Owned = () => {
   const [hasSetText, setHasSetText] = useState(false)
   const twitterTextRef = useRef(null);
   const [propertyIdTwitter, setPropertyIdTwitter] = useState();
-
+  const location = useLocation()
+  const [isConnected, setIsConnected] = useState(false);
   const classes = useStyles();
-  const iconColor = "#1DA1F2"
+  const iconColor = "#1DA1F2";
+  const [txloadingState1, setTxLoadingState1] = useState({});
+  const [txloadingState2, setTxLoadingState2] = useState({});
+  const [txloadingState3, setTxLoadingState3] = useState({});
+  const [txloadingState4, setTxLoadingState4] = useState({});
+
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
+  const [marketContract, setMarketContract] = useState(null);
+  const [govtContract, setGovtContract] = useState(null);
+  const [tokenContract, setTokenContract] = useState(null);
+  const [network, setNetwork] = useState(null);
 
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
@@ -61,41 +74,65 @@ const Owned = () => {
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = nfts.slice(indexOfFirstPost, indexOfLastPost);
 
+  const web3Modal = new Web3Modal()
+  const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+  const rpcUrl = getRpcUrl(network, projectId);
 
 
-  useEffect(() => {
-    setLoadingState('not-loaded')
-    loadProperties();
-  }, [currentPage])
 
-  useEffect(() => {
-    getLogData();
-  }, [])
-
-  async function loadProperties() {
-
+  async function initializeContracts() {
     try {
-      const web3Modal = new Web3Modal()
-      const network = await detectNetwork()
-      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-      const rpcUrl = getRpcUrl(network, projectId);
-  
+      setLoadingState2('not-loaded')
+      const network = await detectNetwork();
       const providerOptions = {
         rpc: {
           [network]: rpcUrl,
         },
       };
-    
       const connection = await web3Modal.connect(providerOptions);
-      const provider = new ethers.providers.Web3Provider(connection);
-      //const provider = new ethers.providers.JsonRpcProvider()
-      const signer = provider.getSigner()      
-      const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, signer);
-      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
-      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider);
+      const web3Provider = new ethers.providers.Web3Provider(connection);
+      const web3Signer = web3Provider.getSigner();
+      const market = new ethers.Contract(nftmarketaddress, Market.abi, web3Signer);
+      const govt = new ethers.Contract(govtaddress, GovtFunctions.abi, web3Signer);
+      const token = new ethers.Contract(nftaddress, NFT.abi, web3Provider);
+
+      setNetwork(network);
+      setProvider(web3Provider);
+      setSigner(web3Signer);
+      setMarketContract(market);
+      setGovtContract(govt);
+      setTokenContract(token);
+
+    } catch (error) {
+      console.error('Error initializing contracts:', error);
+    }
+    setLoadingState2('loaded')
+  }
+
+  useLayoutEffect(() => {
+    initializeContracts();
+  }, []);
+
+  useEffect(() => {
+    if (loadingState2 === 'loaded') {
+      setLoadingState('not-loaded')
+      loadProperties();
+      setIsConnected(true);
+    }
+
+  }, [currentPage, loadingState2])
+
+  // useEffect(() => {
+  //   if (loadingState === 'loaded') {
+  //     getLogData();
+  //   }
+  // }, [loadingState])
+
+  async function loadProperties(i) {
+
+    try {
       const data = await govtContract.fetchMyProperties()
       console.log(data)
-
       const propertyIds = [];
 
       for (let i = 0; i < data.length; i++) {
@@ -110,7 +147,6 @@ const Owned = () => {
       renters.forEach(a => {
         console.log(a)
       })
-
 
       let value = ethers.utils.formatUnits(await marketContract.getRentAccumulated(), 'ether')
       setAmountAccumulated(value)
@@ -199,27 +235,42 @@ const Owned = () => {
         return item
       }))
       console.log(items.length)
-     
+
       setNfts(items.slice(0, 20))
-      
+
+
       setLoadingState('loaded')
+      setTxLoadingState1({ ...txloadingState1, [551]: false });
+      setTxLoadingState2({ ...txloadingState2, [i]: false });
+      setTxLoadingState3({ ...txloadingState3, [i]: false });
+      setTxLoadingState4({ ...txloadingState4, [i]: false });
     } catch (ex) {
+      setLoadingState('loaded')
       if (ex.message === 'User Rejected') {
         // Handle user rejection
         console.log('Connection request rejected by the user.');
-        // Display an error message to the user
-        alert('Please connect your wallet to access your properties');
+        // Display an error message to the user        
+        setIsConnected(false);
+        setTxLoadingState1({ ...txloadingState1, [551]: false });
+        setTxLoadingState2({ ...txloadingState2, [i]: false });
+        setTxLoadingState3({ ...txloadingState3, [i]: false });
+        setTxLoadingState4({ ...txloadingState4, [i]: false });
       } else {
         console.log(ex)
+        setIsConnected(false)
+        setTxLoadingState1({ ...txloadingState1, [551]: false });
+        setTxLoadingState2({ ...txloadingState2, [i]: false });
+        setTxLoadingState3({ ...txloadingState3, [i]: false });
+        setTxLoadingState4({ ...txloadingState4, [i]: false });
       }
     }
   }
 
   const SellProperty = async (property, i) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    // const web3Modal = new Web3Modal()
+    // const connection = await web3Modal.connect()
+    // const provider = new ethers.providers.Web3Provider(connection)
+    // const signer = provider.getSigner()
 
     let tokenAmount = document.getElementById('tokenInput' + i).value
     tokenAmount = tokenAmount === "" ? 0 : tokenAmount
@@ -241,6 +292,7 @@ const Owned = () => {
         tokenAmount,
         { value: listingPrice }
       )
+      setTxLoadingState2({ ...txloadingState2, [i]: true });
       await transaction.wait()
     } else {
       const transaction = await contract.sellExclusiveProperty(
@@ -250,6 +302,7 @@ const Owned = () => {
         tokenAmount,
         { value: listingPrice }
       )
+      setTxLoadingState2({ ...txloadingState2, [i]: true });
       await transaction.wait()
     }
     console.log(nfts.length)
@@ -260,17 +313,17 @@ const Owned = () => {
     console.log(propertyIdTwitter)
     let tweetOptions
     //if (hasSetText) {
-        let text = twitterTextRef.current ? twitterTextRef.current.innerText : ""
-        let formattedTweet = text.replace(/(?<!\d)\.(?!\d)/g, '%0A');
+    let text = twitterTextRef.current ? twitterTextRef.current.innerText : ""
+    let formattedTweet = text.replace(/(?<!\d)\.(?!\d)/g, '%0A');
 
-        console.log(text)
-        let url = `http://localhost:3000/property-view/${propertyIdTwitter}%0A`
-        let hashtags = 'BlockhouseBay'   
-        tweetOptions = text + '#BlockhouseBay';
+    console.log(window.location.hostname)
+    let url = `http://localhost:3000/property-view/${propertyIdTwitter}%0A`
+    let hashtags = 'BlockhouseBay'
+    tweetOptions = text + '#BlockhouseBay';
     //}
     setText(formattedTweet)
     console.log(tweetOptions)
-    
+
     setUrl(`http://localhost:3000/property-view/${propertyIdTwitter ? propertyIdTwitter : ''}`)
     setHasSetText(false)
   }, [twitterSaleChecked, twitterRentChecked])
@@ -340,79 +393,78 @@ const Owned = () => {
     console.log(twitterTextRef.current.innerText)
   }
 
-  const getLogData = async () => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
-    const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, provider)
-    const marketAddress = marketContract.address
+  // const getLogData = async () => {
+  //   // const web3Modal = new Web3Modal()
+  //   // const connection = await web3Modal.connect()
+  //   // const provider = new ethers.providers.Web3Provider(connection)
+  //   // const signer = provider.getSigner()
+  //   const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, provider)
+  //   const marketAddress = marketContract.address
 
-    const iface = new ethers.utils.Interface(Market.abi);
+  //   const iface = new ethers.utils.Interface(Market.abi);
 
-    let propertyIds = nfts.map(item => item.propertyId)
-    console.log(propertyIds)
-    let latestBlockNum = await provider.getBlockNumber() - 5 //change this to 150000 when live
-    console.log(latestBlockNum)
-    let latestBlock = await provider.getBlock(latestBlockNum)
-    let latestBlockTimestamp = latestBlock.timestamp
-    console.log(latestBlockTimestamp)
+  //   let propertyIds = nfts.map(item => item.propertyId)
+  //   console.log(propertyIds)
+  //   let latestBlockNum = await provider.getBlockNumber() - 5 //change this to 150000 when live
+  //   console.log(latestBlockNum)
+  //   let latestBlock = await provider.getBlock(latestBlockNum)
+  //   let latestBlockTimestamp = latestBlock.timestamp
+  //   console.log(latestBlockTimestamp)
 
-    const logs = await provider.getLogs({
-      fromBlock: latestBlockNum,
-      toBlock: "latest",
-      address: marketAddress
-    })
-    console.log(logs)
+  //   const logs = await provider.getLogs({
+  //     fromBlock: latestBlockNum,
+  //     toBlock: "latest",
+  //     address: marketAddress
+  //   })
+  //   console.log(logs)
 
-    const decodedEvents = logs.map(log => iface.parseLog(log));
-    console.log(decodedEvents)
+  //   const decodedEvents = logs.map(log => iface.parseLog(log));
+  //   console.log(decodedEvents)
 
-    let testArr = new Array()
-    decodedEvents.map(event => {
-      let arr = new Array()
-      arr.push(event["args"]["tenant"])
-      arr.push(event["args"]["blockTime"])
-      arr.push(event["args"]["propertyId"])
-      testArr.push(arr)
-    })
+  //   let testArr = new Array()
+  //   decodedEvents.map(event => {
+  //     let arr = new Array()
+  //     arr.push(event["args"]["tenant"])
+  //     arr.push(event["args"]["blockTime"])
+  //     arr.push(event["args"]["propertyId"])
+  //     testArr.push(arr)
+  //   })
 
-    let filteredEvents = testArr.filter(item => {
-      let itemNum = item[2].toNumber()
-      return propertyIds.includes(itemNum)
-    })
+  //   let filteredEvents = testArr.filter(item => {
+  //     let itemNum = item[2].toNumber()
+  //     return propertyIds.includes(itemNum)
+  //   })
 
-    filteredEvents.map((item) => {
-      let timeSeconds = item[1].toNumber()
-      let secondsDays = 258000
-      console.log(timeSeconds + secondsDays)
-      console.log(latestBlockTimestamp)
+  //   filteredEvents.map((item) => {
+  //     let timeSeconds = item[1].toNumber()
+  //     let secondsDays = 258000
+  //     console.log(timeSeconds + secondsDays)
+  //     console.log(latestBlockTimestamp)
 
-      //258000 seconds in 3 days
+  //     //258000 seconds in 3 days
 
-      //add 3 days seconds to rentPaid trans timestamp. If < than latest block timestamp then overdue
-      if (timeSeconds + secondsDays < latestBlockTimestamp) {
-        setAddressesOverdue(addressesOverdue => [...addressesOverdue, item[0]])
-        //setAddressesOverdue("0x2546BcD3c84621e976D8185a91A922aE77ECEc30")
-      }
-      console.log(addressesOverdue)
-    })
-    setLoadingState2('loaded')
-    console.log(filteredEvents)
-    console.log(addressesOverdue)
+  //     //add 3 days seconds to rentPaid trans timestamp. If < than latest block timestamp then overdue
+  //     if (timeSeconds + secondsDays < latestBlockTimestamp) {
+  //       setAddressesOverdue(addressesOverdue => [...addressesOverdue, item[0]])
+  //       //setAddressesOverdue("0x2546BcD3c84621e976D8185a91A922aE77ECEc30")
+  //     }
+  //     console.log(addressesOverdue)
+  //   })
+  //   console.log(filteredEvents)
+  //   console.log(addressesOverdue)
 
 
-  }
+  // }
 
-  const CancelSale = async (property) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+  const CancelSale = async (property, i) => {
+    // const web3Modal = new Web3Modal()
+    // const connection = await web3Modal.connect()
+    // const provider = new ethers.providers.Web3Provider(connection)
+    // const signer = provider.getSigner()
 
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     const transaction = await contract.cancelSale(nftaddress, property.tokenId, property.propertyId)
-
+    setTxLoadingState2({ ...txloadingState2, [i]: true });
     await transaction.wait()
     loadProperties()
   }
@@ -428,30 +480,37 @@ const Owned = () => {
     let newPrice = ethers.utils.parseUnits(rentVal, 'ether')
 
     const transaction = await contract.setRentPrice(property.propertyId, newPrice)
+    setTxLoadingState4({ ...txloadingState4, [i]: true });
     await transaction.wait()
     loadProperties()
   }
 
-  const CollectRent = async () => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
-    const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+  const CollectRent = async (i) => {
+    try {
+      // const web3Modal = new Web3Modal()
+      // const connection = await web3Modal.connect()
+      // const provider = new ethers.providers.Web3Provider(connection)
+      // const signer = provider.getSigner()
+      const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
 
-    const transaction = await contract.collectRent()
-    await transaction.wait()
-    loadProperties()
+      const transaction = await contract.collectRent()
+      setTxLoadingState1({ ...txloadingState1, [551]: true });
+      await transaction.wait()
+      loadProperties()
+    } catch (ex) {
+      setTxLoadingState1({ ...txloadingState1, [551]: false });
+    }
   }
 
-  const EvictTenant = async (property) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+  const EvictTenant = async (property, i) => {
+    // const web3Modal = new Web3Modal()
+    // const connection = await web3Modal.connect()
+    // const provider = new ethers.providers.Web3Provider(connection)
+    // const signer = provider.getSigner()
 
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     const transaction = await contract.evictTennant(property.propertyId, tenantToDelete.address)
+    setTxLoadingState3({ ...txloadingState3, [i]: true });
     await transaction.wait()
     loadProperties()
   }
@@ -651,12 +710,8 @@ const Owned = () => {
     } else if (e.target.id === "tenant3") {
       setTenantToDelete({ address: property.renterAddresses[2] })
     }
-
     return setAddresses(property, e, i)
-
   }
-
-
 
   const handleChange = (panel) => (event, isExpanded) => {
     console.log(panel)
@@ -664,17 +719,22 @@ const Owned = () => {
   };
 
   const CheckTimestampExpired = (property, tenantAddress) => {
+    try {
+      const currentObject = property.timestamps.filter(a => a.renter === tenantAddress); // Example timestamp from smart contract in seconds
+      const twentyFourHoursInMillis = 600; // 24 hours in milliseconds
+      const currentTimeInMillis = Math.floor(Date.now() / 1000);
 
-    const currentObject = property.timestamps.filter(a => a.renter === tenantAddress); // Example timestamp from smart contract in seconds
-    const twentyFourHoursInMillis = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-    const currentTimeInMillis = Date.now();
+      if (currentTimeInMillis - (currentObject[0].timestamp.toNumber()) > twentyFourHoursInMillis) {
+        console.log("true")
+        return true
+      } else {
+        console.log("false")
+        return false
+      }
+    }
+    catch (ex) {
+      console.log(ex)
 
-    if (currentTimeInMillis - (currentObject[0].timestamp.toNumber() * 1000) > twentyFourHoursInMillis) {
-      console.log("true")
-      return true
-    } else {
-      console.log("false")
-      return false
     }
   }
 
@@ -707,18 +767,17 @@ const Owned = () => {
     }
   };
 
-
-
-
-
-
-
-
   let test = calculatePageNumber(221, 498)
   console.log(test)
 
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  if (loadingState === 'loaded' && !isConnected) return (
+    <div className='text-sm text-white'>
+      wallet not connected to Polygon Mainnet
+    </div>
+  )
 
   if (loadingState !== 'loaded') return (
     <div className="pt-10 pb-10">
@@ -737,7 +796,7 @@ const Owned = () => {
     </div>
   )
 
-  if (loadingState === 'loaded' && !nfts.length) return (
+  if (loadingState === 'loaded' && !nfts.length && isConnected) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
@@ -764,11 +823,19 @@ const Owned = () => {
                 <p className="pl-1 text-matic-blue">{amountAccumulated} MATIC</p>
               </div>
               {amountAccumulated > 0 &&
-                <button
-                  className="text-pink-400 hover:bg-pink-900 text-base border border-pink-400 rounded py-1 px-2"
-                  onClick={() => CollectRent()}>
-                  Collect Rent
-                </button>
+                <div className="px-2 flex justify-center">
+                  {txloadingState1[551] ? (
+                    <p className='w-full flex justify-center py-1  rounded'>
+                      <SpinnerIcon />
+                    </p>
+                  ) : (
+                    <button
+                      className="text-pink-400 hover:bg-pink-900 border py-1 border-pink-400 text-base rounded px-2"
+                      onClick={() => CollectRent()}>
+                      Collect Rent
+                    </button>
+                  )}
+                </div>
               }
             </div>
           </div>
@@ -854,7 +921,7 @@ const Owned = () => {
                   <div className="p-4 pb-2 pt-2 bg-black">
                     {/*  */}
                     <div className="mb-1 grid-rows-3 divide-y divide-white">
-                      <div className={`flex justify-between ${(!twitterSaleChecked && !twitterRentChecked) ? 'pb-1' : 'pb-3'}`}>
+                      <div className={`flex items-center  justify-between pb-2`}>
                         <div className={`${classes.padding} mr-6`}>
                           <div className="flex text-white">
                             <input
@@ -865,7 +932,6 @@ const Owned = () => {
                               disabled={property.isForSale ? false : true}
                               className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.isForSale === false ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
-
                             <label htmlFor="sellingRadio">
                               Selling
                             </label>
@@ -878,7 +944,7 @@ const Owned = () => {
                               name="twitter"
                               disabled={property.roomsToRent > 2 ? true : false}
                               className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.roomsToRent > 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            />                            
+                            />
                             <label htmlFor="vacantRoomsRadio">
                               Vacant Rooms
                             </label>
@@ -889,7 +955,6 @@ const Owned = () => {
                                 viewBox="0 0 20 20"
                                 fill="currentColor"
                               >
-
                                 <path
                                   fillRule="evenodd"
                                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
@@ -897,8 +962,8 @@ const Owned = () => {
                                 />
                               </svg>
                               <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
-                                <span className="relative flex w-48 z-10 p-2 text-xs leading-none text-white whitespace-no-wrap border border-1 border-white bg-twitter-blue shadow-lg">
-                                  Add for-sale and room-vacant info to your tweet!
+                                <span className="relative flex w-48 z-10 p-2 text-xs leading-none text-white whitespace-no-wrap border border-1 border-white bg-black shadow-lg">
+                                  Select info to add to your tweet!
                                 </span>
                                 <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
                               </div>
@@ -907,22 +972,22 @@ const Owned = () => {
                         </div>
                         <div className={'mt-0.5 flex'} >
                           {/* <div className="btn-o w-[73px] mb-12" ><div  className="tweetBtn" id="b"><i></i><span className="label" id="l">Tweet</span></div></div> */}
-                          {/* <Share url={url} options={text} disabled={true} /> */}                          
+                          {/* <Share url={url} options={text} disabled={true} /> */}
                           <a class="twitter-share-button"
                             href={`https://twitter.com/intent/tweet?text=${text}`}
                             data-size="large"
                             target='new'
                             disabled="true">
-                          <img src='logo-white.png' className='w-6 h-6 ml-4 cursor-pointer hover:blur-[1px]' /></a>
-                          
-                          
-                          
-                          
+                            <div className='border border-1 rounded p-1 px-2 flex'>
+                              <p>Post</p>
+                              <img src='logo-white.png' className='w-6 h-6 ml-4 cursor-pointer' />
+                            </div>
+                          </a>
                         </div>
                       </div>
 
 
-                      <div className={`text-sm text-twitter-blue py-1 ${(twitterSaleChecked || twitterRentChecked) ? "border-t-2 border-b-2 border-white" : "border-none"}`}>
+                      <div className={`text-sm text-twitter-blue hidden pb-1 ${(twitterSaleChecked || twitterRentChecked) ? "border-t-2 border-b-2 border-white" : "border-none"}`}>
                         {(twitterSaleChecked || twitterRentChecked) &&
                           <div className='flex justify-between border-none text-white my-1'>
                             <p className='font-semibold'>Twitter Post Template</p>
@@ -938,21 +1003,21 @@ const Owned = () => {
                               ) : (
                                 <p>{` ${property.tokenPrice} BHB.`}</p>
                               )}
-                              <p>{`http://localhost:3000/property-view/${property.propertyId}`}</p>
+                              <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
                             </div>
                           </div>
                         )}
                         {(property.rentChecked && !property.forSaleChecked) && (
                           <div id="twitterRentSection" ref={twitterTextRef}>
                             <div id={`${property.propertyId}twitterRent`}>
-                              <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
+                              <p>{`Check out my Blockhouse Bay Property - ${property.name}. `}</p>
                               {property.roomsToRent != 3 &&
                                 <p>
-                                  {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic.`}
+                                  {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic. `}
                                 </p>
                               }
                             </div>
-                            <p>{`http://localhost:3000/property-view/${property.propertyId}`}</p>
+                            <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
                           </div>
                         )}
                         {(property.rentChecked && property.forSaleChecked) && (
@@ -961,14 +1026,14 @@ const Owned = () => {
                             {property.propertyId < 501 ? (
                               <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB.</span>}</p>
                             ) : (
-                              <p>{` ${property.tokenPrice} BHB.`}</p>
+                              <p>{` ${property.tokenPrice} BHB. `}</p>
                             )}
                             {property.roomsToRent != 3 &&
                               <p>
-                                {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic.`}
+                                {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic. `}
                               </p>
                             }
-                            <p>{`http://localhost:3000/property-view/${property.propertyId}`}</p>
+                            <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
                           </div>
                         )}
                       </div>
@@ -1027,9 +1092,15 @@ const Owned = () => {
                             </div>
                           </div>
                           <div className="md:justify-self-start">
-                            <button onClick={() => CancelSale(property)} className="w-full bg-yellow-600 text-white font-bold py-2 rounded">
-                              Cancel
-                            </button>
+                            {txloadingState2[i] ? (
+                              <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
+                                <SpinnerIcon />
+                              </p>
+                            ) : (
+                              <button onClick={() => CancelSale(property, i)} className="w-full bg-yellow-600 text-white font-bold py-2 rounded">
+                                Cancel
+                              </button>
+                            )}
                           </div>
                         </div>
                         : <div className="flex flex-col flex-wrap justify-between">
@@ -1124,9 +1195,19 @@ const Owned = () => {
                           </div>
 
                           <div className="md:justify-self-start">
-                            <button onClick={() => SellProperty(property, i)} id={"sellBtn" + i} className="w-full bg-gray-400 cursor-default text-gray-600 font-bold py-2 rounded">
-                              Sell
-                            </button>
+                            <div className=" flex justify-center">
+                              {txloadingState2[i] ? (
+                                <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
+                                  <SpinnerIcon />
+                                </p>
+                              ) : (
+                                <button
+                                  onClick={() => SellProperty(property, i)} id={"sellBtn" + i} className="w-full bg-gray-400 cursor-default text-gray-600 font-bold py-2 rounded"
+                                >
+                                  Sell
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       }
@@ -1206,13 +1287,21 @@ const Owned = () => {
                             </label>
                           </div>
                         </div>
-                        <button
-                          onClick={() => EvictTenant(property)}
-                          className={"w-full text-gray-600 bg-gray-400 font-bold py-2 mb-4 rounded "}
-                          disabled={setEvictButtonStatus(property)}
-                          id={"evictButton" + i}>
-                          Evict
-                        </button>
+                        {txloadingState3[i] ? (
+                          <p className='w-full flex justify-center bg-red-400 text-xs italic px-12 py-1 rounded'>
+                            <SpinnerIcon />
+                          </p>
+                        ) : (
+                          <button
+                            onClick={() => EvictTenant(property, i)}
+                            className={"w-full text-gray-600 bg-gray-400 font-bold py-2 mb-4 rounded "}
+                            disabled={setEvictButtonStatus(property)}
+                            id={"evictButton" + i}>
+                            Evict
+                          </button>
+
+                        )}
+
                       </div>
                       <div className="pt-3">
                         <div className="text-sm font-bold mb-4 mt-1 flex items-center justify-between">
@@ -1257,16 +1346,20 @@ const Owned = () => {
                             />
                             <img className="h-8 w-9 ml-2" src="./polygonsmall.png" />
                           </div>
-                          
                         </div>
+                        {txloadingState4[i] ? (
+                          <p className='w-full flex justify-center bg-pink-400 text-xs italic px-12 py-1 rounded'>
+                            <SpinnerIcon />
+                          </p>
+                        ) : (
+                          <button
+                            className="w-full bg-gray-400 text-gray-600 cursor-default font-bold py-2 rounded"
+                            onClick={() => ChangeRent(property, i)}
 
-                        <button
-                          className="w-full bg-gray-400 text-gray-600 cursor-default font-bold py-2 rounded"
-                          onClick={() => ChangeRent(property, i)}
-
-                          id={"rentButton" + i}>
-                          Change
-                        </button>
+                            id={"rentButton" + i}>
+                            Change
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

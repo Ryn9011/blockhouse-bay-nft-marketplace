@@ -57,9 +57,9 @@ function App() {
           }}
         />
       </div>
-      {location.pathname === "/about" &&
+      {/* {location.pathname === "/about" &&
         <Footer />
-      }
+      } */}
     </div>
   );
 }

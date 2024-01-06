@@ -10,7 +10,8 @@ import { useLocation } from 'react-router-dom';
 import Pagination from '../Pagination'
 import "../style.scss";
 import Display from "../Components/display";
-import {propertytokenaddress} from '../config.js'
+import { propertytokenaddress } from '../config.js'
+import Footer from "../Components/Layout/Footer";
 const copy = require('clipboard-copy')
 
 
@@ -181,7 +182,7 @@ const About = () => {
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">What is Blockhouse Bay?</h3>
                     <div className="lg:hidden">
-                      <img src="small.gif" className="mt-4" />
+                      <img src="small.gif" className="mt-4" alt="buy/sell/rent" />
                     </div>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Real Estate Simulation</p>
                     <p className="mt-2 text-gray-500">
@@ -249,10 +250,38 @@ const About = () => {
                           blockchain and NFT technology, Blockhouse Bay creates a decentralized
                           and secure real estate market that is accessible to everyone.
                         </Typography>
-                        <div className="text-yellow-400">
-                          <a className="mr-4 border border-1 border-yellow-400 rounded py-2 px-4" href="mailto:blockhousebayteam@gmail.com">Contact</a>
-                          <button className="border border-1 border-yellow-400 rounded py-1.5 px-4" onClick={handleModalClose}>Close</button>
+                        <Typography variant="body1" gutterBottom>
+                          <p className="text-yellow-200 font-semibold  mt-4">DISCLAIMER</p>
+                          <p className="italic">Blockhouse Bay is a virtual real estate platform built on the Polygon blockchain that offers users the opportunity to buy, sell, and rent digital properties using non-fungible tokens (NFTs). The project operates within the decentralized application (dapp) ecosystem and allows participants to engage in simulated virtual real estate market.
+
+                            It's important to note that engaging in virtual real estate markets involves inherent risks. The purchase, sale, or rental of properties within Blockhouse Bay may be subject to market volatility and fluctuations in cryptocurrency prices, particularly Matic (the native cryptocurrency of the Polygon network) and BHB tokens used within the platform.
+
+                            Users should exercise caution and conduct thorough research before participating in any transactions within the Blockhouse Bay ecosystem. The use of NFTs and cryptocurrencies carries risks, including but not limited to regulatory, financial, and technological risks.
+
+                            Additionally, Blockhouse Bay does not guarantee the value, authenticity, or future marketability of the digital properties or tokens traded on its platform. Users should be aware that the virtual properties held within the platform may not have real-world value and are solely for entertainment or speculative purposes.
+
+                            Moreover, the project's features, functionalities, and token economics are subject to change, and users should stay updated with the platform's terms of service, policies, and any updates announced by the development team.
+
+                            Blockhouse Bay is not providing financial advice, and users should seek independent financial advice if needed before making any investment decisions within the platform.
+
+                            By using Blockhouse Bay, users acknowledge and accept the associated risks and understand that their participation in the platform's activities is at their own discretion and risk.
+                          </p>
+
+                        </Typography>
+                        <div className="text-yellow-400 flex justify-center">
+                          <button className="border border-1 border-yellow-400 rounded py-1.5 px-4 mt-4" onClick={handleModalClose}>Close</button>
                         </div>
+                        <div className="flex justify-center items-center mt-4 text-sm italic">
+                          <p className="mr-1">Blockhouse Bay was developed by</p>
+                          <div className="flex items-center">
+                            <a className="text-yellow-100 underline" href="/">8BitCities</a>
+                          </div>
+                          <img src={"favicon.ico"} className="h-10 w-10 ml-2" alt="React logo" />
+                        </div>
+                        <div className="text-sm italic flex justify-center">
+                          Copyright &copy; {new Date().getFullYear()}
+                        </div>
+                        
                       </div>
                     </Modal>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Landlord Tenant or Both!</p>
@@ -328,6 +357,8 @@ const About = () => {
                     <p className="mt-2 text-gray-500">
                       Properties can be sold with existing tennants which will transfer over to the new property owner with the sale.
                     </p>
+                    <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Transactions</h3>
+                    <p className="mt-2 text-gray-500">The duration for completing a transaction, whether it involves buying, renting, or selling, can fluctuate based on network activity. Once a transaction is validated on the Polygon blockchain, property details will be automatically updated.</p>
                   </li>
                 </ul>
               </div>
@@ -393,7 +424,7 @@ const About = () => {
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Selling a Property</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Listing Fee</p>
                     <p className="mt-2 text-gray-500">
-                      Property owners have the option to sell their property to other interested buyers. A listing fee of 5 Matic will incur.
+                      Property owners have the option to sell their property to other interested buyers. A listing fee of 10 Matic will incur.
                     </p>
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Payment Options</p>
@@ -411,7 +442,7 @@ const About = () => {
                     </p>
                     <p className="mt-2 text-gray-500">
                       <span className="text-red-600">Warning</span> - Directly transferring your NFT property to another user from your wallet will not transfer ownership of the property on the Blockhouse Bay platform;
-                       this will result in the buyer not being able to participate on the Blockhouse Bay platform.
+                      this will result in the buyer not being able to participate on the Blockhouse Bay platform.
                     </p>
                   </li>
 
@@ -521,13 +552,13 @@ const About = () => {
                     <h3 className="text-2xl font-semibold text-yellow-200">Token Rewards</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">BHB Token Address</p>
                     <p className="mt-2 text-gray-500">
-                      In your wallet select import tokens and paste in the BHB token address -                       
+                      In your wallet select import tokens and paste in the BHB token address -
                     </p>
                     <p>
-                      <span className="text-pink-400 text-xs">                       
+                      <span className="text-pink-400 text-xs">
                         {propertytokenaddress}
                       </span>
-                      <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>                      
+                      <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>
                     </p>
                     <p className="text-white text-base xl3:text-lg italic mt-4">Earning BHB Tokens</p>
                     <p className="mt-2 text-gray-500">

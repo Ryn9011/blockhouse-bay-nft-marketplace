@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from 'react'
+import { React, useEffect, useMemo, useState } from 'react'
 import { ethers } from 'ethers'
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import Web3Modal from 'web3modal'
@@ -15,6 +15,9 @@ import {
 } from '../config'
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
+import SpinnerIcon from '../Components/spinner';
+
+const copy = require('clipboard-copy')
 
 const Renting = () => {
 
@@ -24,12 +27,16 @@ const Renting = () => {
   const [renterTokens, setRenterTokens] = useState(0)
   const [rentAmount, setRentAmount] = useState(0)
   const [rentStatus, setRentStatus] = useState(false)
+  const [rentText, setRentText] = useState('')
 
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [connectedAddress, setConnectedAddress] = useState();
   const [tokenAddress, setTokenAddress] = useState();
   const [renterTimestamps, setRenterTimestamps] = useState();
+  const [txloadingState, setTxLoadingState] = useState({});
+  const [txloadingState1, setTxLoadingState1] = useState({});
+  const [txloadingState2, setTxLoadingState2] = useState({});
 
   // Get current posts
   const indexOfLastPost = currentPage * postsPerPage;
@@ -37,16 +44,24 @@ const Renting = () => {
 
   useEffect(() => {
     setLoadingState('not-loaded')
-    loadProperties()
+    async function loadProps() {
+      await loadProperties()
+    }    
+    // async function loadTimeStamp() {
+    //   await loadTimeStamps()
+    // }  
+    loadProps()
+    //loadTimeStamp()
+    
   }, [currentPage])
 
-  useEffect(() => {    
-    if (loadingState === 'loaded') {
-      loadTimeStamps(rentedProperties.length)
-    }
-  }, [loadingState])
+  // useEffect(() => {
+  //   if (loadingState === 'loaded') {
+  //     loadTimeStamps(rentedProperties.length)
+  //   }
+  // }, [loadingState])
 
-  const loadTimeStamps = async (propertyCount) => {
+  const loadTimeStamps = async (pids) => {
     const web3Modal = new Web3Modal()
 
     const network = await detectNetwork()
@@ -58,51 +73,54 @@ const Renting = () => {
         [network]: rpcUrl,
       },
     };
-  
+
     const connection = await web3Modal.connect(providerOptions);
     const provider = new ethers.providers.Web3Provider(connection);
     console.log(provider)
     const signer = provider.getSigner()
-    
+
     const propertyIds = [];
 
-    for (let i = 0; i < propertyCount; i++) {
-      const item = rentedProperties[i];
-      propertyIds.push(item.propertyId);
-    }
-      
+    // for (let i = 0; i < pids.length; i++) {
+    //   const item = pids[i]
+    //   propertyIds.push(item.propertyId);
+    // }
+
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    const renters = await marketContract.getPropertyPayments(propertyIds);
-    console.log(rentedProperties.length)
-    setRenterTimestamps(renters)
-    rentedProperties.forEach((item, i) => {
-      item.rentStatus = CheckTimestampExpired(item, i)
-    })
-    setTimestampLoadingState('loaded');
+    const renters = await marketContract.getPropertyPayments(pids);
+    console.log(renters)
+    // setRenterTimestamps(renters)    
+    
+    return renters;
   }
 
-  const CheckTimestampExpired = (property, index) => {
-
-    console.log(renterTimestamps)
-    if (renterTimestamps === undefined) {
+  const CheckTimestampExpired = (property, timestamps) => {
+    console.log(timestamps)
+    if (timestamps === undefined) {
       console.log("UNDEFINED");
-      return false
+      return true;
     }
-    const currentObject = renterTimestamps[index] // Example timestamp from smart contract in seconds
-    console.log(currentObject[0])
-    const twentyFourHoursInMillis = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-    const currentTimeInMillis = Date.now();
+    const currentObject = timestamps.filter(a => a.propertyId == property.propertyId)[0] // Example timestamp from smart contract in seconds
+    // console.log(ethers.BigNumber.from(currentObject.timestamp.toNumber())).toNumber()
+    const twentyFourHoursInMillis = 600 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const currentTimeInMillis = Math.floor(Date.now() / 1000);
+    //const currentTimeInMullisPlusOneDay = Date.now() + twentyFourHoursInMillis;
+    console.log(currentObject)
+    console.log(currentTimeInMillis)
+    console.log(currentTimeInMillis - (currentObject.timestamp.toNumber()))
 
-    if (currentTimeInMillis - (currentObject.timestamp.toNumber() * 1000) > twentyFourHoursInMillis) {
+    if ((currentTimeInMillis - (currentObject.timestamp.toNumber())) > twentyFourHoursInMillis) {
       console.log("true")
+     // setRentText('Rent overdue')
       return true
     } else {
       console.log("false")
+     // setRentText('Rent up to date')
       return false
     }
   }
 
-  const loadProperties = async () => {   
+  const loadProperties = async (i) => {
     try {
       const web3Modal = new Web3Modal()
       const network = await detectNetwork()
@@ -114,7 +132,7 @@ const Renting = () => {
           [network]: rpcUrl,
         },
       };
-    
+
       const connection = await web3Modal.connect(providerOptions);
       const provider = new ethers.providers.Web3Provider(connection)
 
@@ -135,33 +153,25 @@ const Renting = () => {
       setRenterTokens(tokens)
 
       let dataFiltered = data.filter(a => a.propertyId.toNumber() !== 0)
-
+      console.log(dataFiltered)
       const propertyIds = [];
 
-        for (let i = 0; i < data.length; i++) {
-          const item = data[i];
-          propertyIds.push(item.propertyId);
-        }
-       
-      const renters = await marketContract.getPropertyPayments(propertyIds);
-      console.log(renters)
-      setRenterTimestamps(renters)
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i];
+        propertyIds.push(item.propertyId);
+      }
 
+      // const renters = await marketContract.getPropertyPayments(propertyIds);
+      // console.log(renters)
+      // setRenterTimestamps(renters)
+      let timestamps = await loadTimeStamps(propertyIds)
+      console.log(renterTimestamps)
       const items = await Promise.all(dataFiltered.map(async i => {
 
         console.log(i.tokenId.toNumber())
 
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
-        
-        // console.log(renters)
-        // let idsToRenters = []
-        // renters.forEach(a => {
-        //   console.log(a)
-        // })
-        // console.log(renters[0])
-        // const timestamps = renters.filter(a => a[1] == address)
-        // console.log(timestamps)
         const meta = await axios.get(tokenUri)
 
         let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
@@ -181,12 +191,12 @@ const Renting = () => {
           description: "",
           roomOneRented: false,
           roomTwoRented: false,
-          roomThreeRented: false,         
+          roomThreeRented: false,
           rentStatus: undefined,
-        }
+        }      
 
-        // let rentDue = CheckTimestampExpired(item, address)
-        item.rentStatus = undefined
+        item.rentStatus = CheckTimestampExpired(item, timestamps)
+        console.log(item.rentStatus)
 
         if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
           item.available = true;
@@ -196,8 +206,15 @@ const Renting = () => {
       }))
 
       setRentedProperties(items.slice(0, 20))
+      setTimestampLoadingState('loaded');
       setLoadingState('loaded')
+      setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingState1({ ...txloadingState1, [i]: false });
+      setTxLoadingState2({ ...txloadingState2, [i]: false });
     } catch (ex) {
+      setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingState1({ ...txloadingState1, [i]: false });
+      setTxLoadingState2({ ...txloadingState2, [i]: false });
       if (ex.message === 'User Rejected') {
         // Handle user rejection
         console.log('Connection request rejected by the user.');
@@ -210,23 +227,28 @@ const Renting = () => {
   }
 
 
+  const PayRent = async (property, i) => {
+    try {
+      const web3Modal = new Web3Modal()
+      const connection = await web3Modal.connect()
+      const provider = new ethers.providers.Web3Provider(connection)
+      const signer = provider.getSigner()
 
-  const PayRent = async (property) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+      const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+      console.log(rentAmount)
+      const transaction = await contract.payRent(
+        property.propertyId,
+        { value: rentAmount }
+      )
 
-    const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    console.log(rentAmount)
-    const transaction = await contract.payRent(
-      property.propertyId,
-      { value: rentAmount }
-    )
-
-    await transaction.wait()
-    
-    loadProperties()
+      setTxLoadingState1({ ...txloadingState1, [i]: true });
+      await transaction.wait();
+      loadProperties()
+    } catch (ex) {
+      console.log(ex)
+      setTxLoadingState1({ ...txloadingState1, [i]: false });
+      alert('transaction failed');
+    }
   }
 
   const CollectTokens = async () => {
@@ -237,12 +259,13 @@ const Renting = () => {
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
 
     const transaction = await contract.withdrawERC20(propertytokenaddress)
+    setTxLoadingState({ ...txloadingState, [551]: true });
     await transaction.wait()
     loadProperties()
   }
 
   //if same address has rented more than one room, this will vacate all of them
-  const Vacate = async (property) => {
+  const Vacate = async (property, i) => {
     const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
@@ -253,10 +276,15 @@ const Renting = () => {
       property.propertyId
     )
 
+    setTxLoadingState2({ ...txloadingState2, [i]: true });
     await transaction.wait()
     console.log(rentedProperties.length)
     loadProperties()
   }
+
+  const handleCopy = () => {
+    copy(propertytokenaddress);
+  };
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -307,11 +335,17 @@ const Renting = () => {
 
               {renterTokens > 0 &&
                 <div className=''>
-                  <button
-                    className="text-pink-400 hover:bg-pink-900 text-base border border-pink-400 rounded py-1 px-2"
-                    onClick={() => CollectTokens()}>
-                    Collect Tokens
-                  </button>
+                  {txloadingState[551] ? (
+                    <p className='w-full flex justify-center border border-pink-400 text-xs italic px-12 py-0 rounded'>
+                      <SpinnerIcon />
+                    </p>
+                  ) : (
+                    <button
+                      className="text-pink-400 hover:bg-pink-900 text-base border border-pink-400 rounded py-1 px-2"
+                      onClick={() => CollectTokens()}>
+                      Collect Tokens
+                    </button>
+                  )}
                 </div>
               }
             </div>
@@ -340,8 +374,12 @@ const Renting = () => {
                 </div>
               </div>
             </div>
-
-            <p className='text-indigo-100 font-mono text-[10px] md:text-sm mb-8'>{tokenAddress}</p>
+            <p className='mb-6'>
+              <span className="text-pink-400 text-xs">
+                {propertytokenaddress}
+              </span>
+              <button className="border px-2 text-white py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>
+            </p>
           </div>
           <Pagination
             postsPerPage={postsPerPage}
@@ -385,8 +423,10 @@ const Renting = () => {
                       <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
                     </div>
                     <div className="flex flex-col pb-2">
-                      <p>Rent Status</p>                   
-                      <p className={`font-mono text-xs text-green-400 ${property.rentStatus ? ' text-yellow-400' : ''}`}>{property.rentStatus ? "rent overdue" : "rent up to date"}</p>                   
+                      <p>Rent Status</p>
+                     
+                     
+                      <p className={`font-mono text-xs text-green-400 ${property.rentStatus ? ' text-yellow-400' : ' text-green-400'}`}>{`${property.rentStatus ? 'text' : 'TEST'} `}</p>
                     </div>
                   </div>
 
@@ -403,20 +443,35 @@ const Renting = () => {
                           <li>
                             Renting from properties with a higher rent price increase token reward
                           </li>
+                          <li>
+                            Rent can't be paid more than once in 24hrs
+                          </li>
                         </ul>
                       </div>
                     </div>
                     <div className="text-2xl pt-2 text-white"></div>
 
                     <div className="px-2 pt-3 pb-4">
-                      <button onClick={() => { PayRent(property) }} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">
-                        Pay Rent
-                      </button>
+                      {txloadingState1[i] ? (
+                        <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
+                          <SpinnerIcon />
+                        </p>
+                      ) : (
+                        <button onClick={() => { PayRent(property, i) }} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">
+                          Pay Rent
+                        </button>
+                      )}
                     </div>
                     <div className="px-2">
-                      <button onClick={() => { Vacate(property) }} className="w-full bg-red-400 text-white font-bold py-2 px-12 rounded">
-                        Vacate
-                      </button>
+                      {txloadingState2[i] ? (
+                        <p className='w-full flex justify-center bg-red-400 text-xs italic px-12 py-1 rounded'>
+                          <SpinnerIcon />
+                        </p>
+                      ) : (
+                        <button onClick={() => { Vacate(property, i) }} className="w-full bg-red-400 text-white font-bold py-2 px-12 rounded">
+                          Vacate
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>

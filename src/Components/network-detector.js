@@ -1,20 +1,25 @@
 const { ethers } = require('ethers');
+const { BigNumber } = require('ethers');
 
+//changed to be hardcoded because detection is unreliable on testnets
 function getNetworkName(chainId) {
   console.log(chainId)
-  if (chainId === 137) {
-    return 'Mainnet';
-  } else if (chainId === 80001) {
-    return 'Mumbai';
-  } else {
-    return 'localhost';
-  }
+  return 'Mumbai'
+  // if (chainId === 137) {
+  //   return 'Mainnet';
+  // } else if (chainId === 80001) {
+  //   return 'Mumbai';
+  // } else {
+  //   return 'localhost';
+  // }
 }
 
 async function detectNetwork() {
   if (window.ethereum) {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
+    //const provider = new ethers.providers.JsonRpcProvider();
     try {
+      //const network = BigNumber.from(await provider.send('eth_chainId', [])).toString();
       const network = await provider.getNetwork();
       const networkName = getNetworkName(network.chainId);
       return networkName;
@@ -37,6 +42,25 @@ function getRpcUrl(network, projectId) {
     rpcUrl = 'http://localhost:8545';
   }
   return rpcUrl;
+}
+
+async function checkNetwork() {
+  if (window.ethereum) {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    try {
+      const network = await provider.getNetwork();
+      // Chain ID for Polygon mainnet is 137
+      if (network.chainId === 137) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.error('Error getting network:', error);
+    }
+  } else {
+    console.error('Ethereum provider not found. Please install MetaMask or a compatible browser extension.');
+  }
 }
 
 export {

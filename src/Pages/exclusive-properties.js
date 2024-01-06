@@ -17,6 +17,7 @@ import GetPropertyNames from '../getPropertyName'
 import SaleHistory from '../Components/sale-history'
 import { calculateRankingTotal, calculateRankingPosition } from '../calculateRanking'
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
+import SpinnerIcon from '../Components/spinner';
 
 const Exclusive = () => {
   const [properties, setProperties] = useState([]);
@@ -25,6 +26,8 @@ const Exclusive = () => {
   const [postsPerPage] = useState(50);
   const [currentPosts, setCurrentPosts] = useState([]);
   const [numForSale, setNumForSale] = useState();
+  const [txloadingState1, setTxLoadingState1] = useState({});
+  const [txloadingState2, setTxLoadingState2] = useState({});
 
   // Get current posts
 
@@ -50,8 +53,8 @@ const Exclusive = () => {
 
   const loadProperties = async () => {
     const network = await detectNetwork()
-    
-    const projectId = process.env.ALCHEMY_PROJECT_ID;
+
+    const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
     const rpcUrl = getRpcUrl(network, projectId);
 
     const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
@@ -123,6 +126,8 @@ const Exclusive = () => {
         item.roomsToRent++
       }
       item.ranking = calculateRankingTotal(item)
+      setTxLoadingState1({ ...txloadingState1, [i]: false });
+      setTxLoadingState2({ ...txloadingState2, [i]: false });
       return item
     }))
     console.log(items)
@@ -165,11 +170,17 @@ const Exclusive = () => {
       isTokenSale,
       // { value: price }
     )
-    await transaction.wait()
-    loadProperties()
+    setTxLoadingState1({ ...txloadingState1, [i]: true });
+    try {
+      await transaction.wait()
+      loadProperties()
+    } catch (error) {
+      console.log(error)
+    }
+    setTxLoadingState1({ ...txloadingState1, [i]: true });    
   }
 
-  const rentProperty = async (property) => {
+  const rentProperty = async (property, i) => {
     const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
@@ -179,10 +190,11 @@ const Exclusive = () => {
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
 
     const deposit = await marketContract.DEPOSIT_REQUIRED();
-    
+
     const transaction = await marketContract.rentProperty(property.propertyId, {
       value: deposit
     });
+    setTxLoadingState2({ ...txloadingState2, [i]: false });
     await transaction.wait()
     loadProperties()
   }
@@ -215,17 +227,17 @@ const Exclusive = () => {
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
         <div className="px-4" style={{ maxWidth: "1600px" }}>
-        
+
           <h1 className="text-5xl text-center md:text-left xl3:text-6xl mb-5">Blockhouse Bay Gardens</h1>
-          
-         
+
+
           <div className="flex text-white pl-4 mb-6 lg:w-3/5">
-            <p className='text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500'>Blockhouse Bay Gardens, an exclusive street of grand and stunning homes, is a paradise of luxurious living. From impressive architecture to immaculate gardens, each house is a masterpiece of sophistication, offering an unparalleled lifestyle in one of the bay's most beautiful settings.</p>          
+            <p className='text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500'>Blockhouse Bay Gardens, an exclusive street of grand and stunning homes, is a paradise of luxurious living. From impressive architecture to immaculate gardens, each house is a masterpiece of sophistication, offering an unparalleled lifestyle in one of the bay's most beautiful settings.</p>
           </div>
           <h5 className='text-white text-center md:text-left mb-4'>These exlusive properties are limited to only 50 and can be purchased only with BHB tokens</h5>
           <p className='text-white text-center md:text-left italic mb-12'>Tripple the amount of BHB tokens are paid out when renting on this street!</p>
-          
-      
+
+
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-3 text-white">
             {currentPosts.map((property, i) => {
               return (
@@ -305,13 +317,13 @@ const Exclusive = () => {
                             </div>
                           </>
                         }
-                        {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+                        {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
                           <div className='flex items-center h-10 justify-between'>
                             <p className={" break-words"}>
-                              {property.renterAddresses[1]}
+                              {property.renterAddresses[2]}
                             </p>
                             <Blockies
-                              seed={property.renterAddresses[1]}
+                              seed={property.renterAddresses[2]}
                             />
                           </div>
                           :
@@ -370,9 +382,17 @@ const Exclusive = () => {
                       </div>
                       <div className="px-2">
                         {(property.owner === 'Unowned' || property.isForSale) ? (
-                          <button onClick={() => buyProperty(property, i)} className="mb-3 w-full bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded">
-                            Buy
-                          </button>
+                          <>
+                            {txloadingState1[i] ? (
+                              <p className='w-full flex justify-center bg-btn-gold text-xs italic px-12 mt-1 mb-3 py-1 rounded'>
+                              <SpinnerIcon />
+                            </p>
+                          ) : (
+                            <button onClick={() => buyProperty(property, i)} className="mb-3 w-full bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded">
+                              Buy
+                            </button>
+                            )}
+                          </>
                         ) : (
                           <div className='flex justify-center'>
                             <button disabled={true} className="md:mb-5 lg:mb-4 w-full  text-white font-bold py-2 mt-1 px-12 rounded">
@@ -382,9 +402,17 @@ const Exclusive = () => {
                         )
                         }
                         {property.roomsToRent !== 3 ? (
-                          <button onClick={() => rentProperty(property)} disabled={property.owner === "Unowned"} className={`w-full bg-matic-blue text-white font-bold py-2 px-12 rounded ${property.owner === "Unowned" ? "bg-gray-600 text-gray-400" : ""} `}>
-                            Rent Room
-                          </button>
+                          <>
+                            {txloadingState2[i] ? (
+                              <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 mb-3 rounded'>
+                                <SpinnerIcon />
+                              </p>
+                            ) : (
+                              <button onClick={() => rentProperty(property, i)} disabled={property.owner === "Unowned"} className={`w-full bg-matic-blue text-white font-bold py-2 px-12 rounded ${property.owner === "Unowned" ? "bg-gray-600 text-gray-400" : ""} `}>
+                                Rent Room
+                              </button>
+                            )}
+                          </>
                         ) : (
                           <button disabled='true' className="w-full bg-black text-red-400 font-bold py-2 px-12 rounded">
                             No Vacancy
