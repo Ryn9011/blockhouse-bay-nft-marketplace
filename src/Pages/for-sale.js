@@ -8,12 +8,13 @@ import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 
 
 import {
-  nftaddress, nftmarketaddress, propertytokenaddress
+  nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
 } from '../config'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToken.json'
+import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import Pagination from '../Pagination'
 import SaleHistory from '../Components/sale-history'
 import GetPropertyNames from '../getPropertyName'
@@ -50,9 +51,10 @@ const ForSale = () => {
 
       const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
       const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
-      //const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
+      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
       const data = await marketContract.fetchPropertiesForSale(currentPage)
-      const numForSale = await marketContract.getPropertiesForSale();
+      console.log(data)
+      const numForSale = await govtContract.getPropertiesForSale();
 
       const currentPageNumItems = numForSale - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
@@ -75,6 +77,10 @@ const ForSale = () => {
             return currentPosts.filter(p =>
               p.tokenSalePrice > 0)
           }
+        }
+
+        if (i.propertyId == 2) {
+          console.log('THIS ONE:' ,i)
         }
 
         let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')

@@ -176,8 +176,8 @@ const Exclusive = () => {
       loadProperties()
     } catch (error) {
       console.log(error)
+      setTxLoadingState1({ ...txloadingState1, [i]: false });    
     }
-    setTxLoadingState1({ ...txloadingState1, [i]: true });    
   }
 
   const rentProperty = async (property, i) => {
@@ -187,16 +187,21 @@ const Exclusive = () => {
 
     const signer = provider.getSigner()
 
-    const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    const govtContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
 
-    const deposit = await marketContract.DEPOSIT_REQUIRED();
+    const deposit = await govtContract.getDepositRequired();
 
-    const transaction = await marketContract.rentProperty(property.propertyId, {
+    const transaction = await govtContract.rentProperty(property.propertyId, {
       value: deposit
     });
-    setTxLoadingState2({ ...txloadingState2, [i]: false });
-    await transaction.wait()
-    loadProperties()
+    setTxLoadingState2({ ...txloadingState2, [i]: true });  
+    try {
+      await transaction.wait()
+      loadProperties()
+    } catch (error) {
+      console.log(error)
+      setTxLoadingState2({ ...txloadingState2, [i]: false });  
+    }    
   }
 
 
@@ -388,7 +393,7 @@ const Exclusive = () => {
                               <SpinnerIcon />
                             </p>
                           ) : (
-                            <button onClick={() => buyProperty(property, i)} className="mb-3 w-full bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded">
+                            <button onClick={() => buyProperty(property, i)} className="mb-3 w-full bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded cursor-pointer">
                               Buy
                             </button>
                             )}
@@ -408,7 +413,7 @@ const Exclusive = () => {
                                 <SpinnerIcon />
                               </p>
                             ) : (
-                              <button onClick={() => rentProperty(property, i)} disabled={property.owner === "Unowned"} className={`w-full bg-matic-blue text-white font-bold py-2 px-12 rounded ${property.owner === "Unowned" ? "bg-gray-600 text-gray-400" : ""} `}>
+                              <button onClick={() => rentProperty(property, i)} disabled={property.owner === "Unowned"} className={`w-full bg-matic-blue cursor-pointer text-white font-bold py-2 px-12 rounded ${property.owner === "Unowned" ? "bg-gray-600 text-gray-400" : ""} `}>
                                 Rent Room
                               </button>
                             )}

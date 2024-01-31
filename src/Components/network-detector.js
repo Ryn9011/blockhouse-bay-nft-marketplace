@@ -4,7 +4,7 @@ const { BigNumber } = require('ethers');
 //changed to be hardcoded because detection is unreliable on testnets
 function getNetworkName(chainId) {
   console.log(chainId)
-  return 'Mumbai'
+  return 'localhost'
   // if (chainId === 137) {
   //   return 'Mainnet';
   // } else if (chainId === 80001) {

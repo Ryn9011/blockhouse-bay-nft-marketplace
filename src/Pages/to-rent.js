@@ -52,7 +52,7 @@ const ToRent = () => {
       const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
       const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-      const data = await govtContract.fetchPropertiesSold() //add onlyrentable. change needs to trigger load
+      const data = await govtContract.fetchPropertiesSold(currentPage) //add onlyrentable. change needs to trigger load
 
       const items = await Promise.all(data.map(async i => {
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
@@ -68,7 +68,7 @@ const ToRent = () => {
 
         let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
-        let depositHex = await marketContract.DEPOSIT_REQUIRED()
+        let depositHex = await govtContract.getDepositRequired();
         let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
         const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
         let saleHistory = [];
@@ -145,16 +145,16 @@ const ToRent = () => {
 
       const signer = provider.getSigner()
 
-      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
-      const test = await marketContract.DEPOSIT_REQUIRED();
+      const test = await govtContract.getDepositRequired();
       const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
       const num = ethers.utils.formatEther(deposit)
-      const rentals = await marketContract.getPropertiesRented()
+      const rentals = await govtContract.getPropertiesRented()
       // ? ethers.utils.parseUnits(property.rentPrice.toString(), 'ether') 
       // : ethers.utils.parseUnits(contract.defaultRentPrice.toString(), 'ether')
       //STOP SAME ADDRESS RENTING MORE THAN ONE ROOM?            
-      const transaction = await marketContract.rentProperty(property.propertyId, {
+      const transaction = await govtContract.rentProperty(property.propertyId, {
         value: test
       });
       setTxLoadingState({ ...txloadingState, [i]: true });

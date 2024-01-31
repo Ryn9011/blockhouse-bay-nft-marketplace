@@ -122,16 +122,11 @@ const Owned = () => {
 
   }, [currentPage, loadingState2])
 
-  // useEffect(() => {
-  //   if (loadingState === 'loaded') {
-  //     getLogData();
-  //   }
-  // }, [loadingState])
-
   async function loadProperties(i) {
 
     try {
-      const data = await govtContract.fetchMyProperties()
+      console.log(currentPage)
+      const data = await marketContract.fetchMyProperties(currentPage)
       console.log(data)
       const propertyIds = [];
 
@@ -148,7 +143,7 @@ const Owned = () => {
         console.log(a)
       })
 
-      let value = ethers.utils.formatUnits(await marketContract.getRentAccumulated(), 'ether')
+      let value = ethers.utils.formatUnits(await govtContract.getRentAccumulated(), 'ether')
       setAmountAccumulated(value)
 
       console.log(data)
@@ -221,6 +216,9 @@ const Owned = () => {
           totalIncomeGenerated: totalIncomeGenerated,
           ranking: 0
         }
+
+          console.log('THIS ONE:' ,i)
+        
 
         if (item.roomOneRented === true) {
           item.roomsToRent++
@@ -475,7 +473,7 @@ const Owned = () => {
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
 
-    const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+    const contract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
     let rentVal = document.getElementById('rentInput' + i).value
     let newPrice = ethers.utils.parseUnits(rentVal, 'ether')
 
@@ -491,7 +489,7 @@ const Owned = () => {
       // const connection = await web3Modal.connect()
       // const provider = new ethers.providers.Web3Provider(connection)
       // const signer = provider.getSigner()
-      const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+      const contract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
       const transaction = await contract.collectRent()
       setTxLoadingState1({ ...txloadingState1, [551]: true });

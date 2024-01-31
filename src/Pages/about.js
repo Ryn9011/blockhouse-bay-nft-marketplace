@@ -186,7 +186,7 @@ const About = () => {
                     </div>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Real Estate Simulation</p>
                     <p className="mt-2 text-gray-500">
-                      Blockhouse Bay is a captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! <button className="text-indigo-400 underline" onClick={handleModalOpen}>TLDR</button>
+                      Blockhouse Bay is a simple but captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! <button className="text-indigo-400 underline" onClick={handleModalOpen}>TLDR</button>
                     </p>
                     <Modal
                       open={isOpen}
@@ -364,8 +364,11 @@ const About = () => {
               </div>
 
               <div className="lg:ml-16 content-center">
+                <div className="flex justify-center pr-16">
+                <div className="">Test</div>
+                </div>                
                 <div className="flex justify-center lg:justify-start 2xl:justify-center">
-                  <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-3/5 lg:w-full lg:h-full xl3:w-4/5 pr-16 max-w-[40rem]" src="forsale.png" />
+                  <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-3/5 lg:w-full lg:h-full xl3:w-4/6 pr-16 max-w-[40rem]" src="forsale.png" />
                 </div>
               </div>
             </div>

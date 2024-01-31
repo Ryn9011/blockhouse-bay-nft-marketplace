@@ -12,11 +12,7 @@ async function main() {
   await rewardCalculator.deployed();
   console.log("Reward calculator deployed to:", rewardCalculator.address);
 
-  const PropertyMarket = await ethers.getContractFactory("PropertyMarket", {
-    libraries: {
-      RewardCalculator: rewardCalculator.address,
-    },
-  });
+  const PropertyMarket = await ethers.getContractFactory("PropertyMarket");
   const propertyMarket = await PropertyMarket.deploy();
   await propertyMarket.deployed();
   console.log("PropertyMarket deployed to:", propertyMarket.address);
@@ -28,7 +24,11 @@ async function main() {
   });
   await tx.wait();
 
-  const GovtFunctions = await ethers.getContractFactory("GovtFunctions");
+  const GovtFunctions = await ethers.getContractFactory("GovtFunctions", {
+    libraries: {
+      RewardCalculator: rewardCalculator.address,
+    },
+  });
   const govtFunctions = await GovtFunctions.deploy(propertyMarket.address);
   await govtFunctions.deployed();
   console.log("GovtFunctions deployed to:", govtFunctions.address);

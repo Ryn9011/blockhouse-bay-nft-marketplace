@@ -42,7 +42,7 @@ const AllProperties = () => {
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-    const data = await govtContract.fetchAllProperties(currentPage)
+    const data = await marketContract.fetchAllProperties(currentPage)
 
     const items = await Promise.all(data.map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
@@ -52,7 +52,7 @@ const AllProperties = () => {
       let nftName = GetPropertyNames(meta)
 
       let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-      let depositHex = await marketContract.DEPOSIT_REQUIRED()
+      let depositHex = await govtContract.getDepositRequired()
       let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
 
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);

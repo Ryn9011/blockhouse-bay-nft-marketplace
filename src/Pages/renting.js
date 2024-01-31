@@ -44,13 +44,14 @@ const Renting = () => {
 
   useEffect(() => {
     setLoadingState('not-loaded')
-    async function loadProps() {
-      await loadProperties()
-    }    
+    // async function loadProps() {
+      //await 
+      loadProperties()
+    // }    
     // async function loadTimeStamp() {
     //   await loadTimeStamps()
     // }  
-    loadProps()
+    //loadProps()
     //loadTimeStamp()
     
   }, [currentPage])
@@ -61,46 +62,38 @@ const Renting = () => {
   //   }
   // }, [loadingState])
 
-  const loadTimeStamps = async (pids) => {
-    const web3Modal = new Web3Modal()
+  // const loadTimeStamps = async (pids) => {
+  //   const web3Modal = new Web3Modal()
 
-    const network = await detectNetwork()
-    const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-    const rpcUrl = getRpcUrl(network, projectId);
+  //   const network = await detectNetwork()
+  //   const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+  //   const rpcUrl = getRpcUrl(network, projectId);
 
-    const providerOptions = {
-      rpc: {
-        [network]: rpcUrl,
-      },
-    };
+  //   const providerOptions = {
+  //     rpc: {
+  //       [network]: rpcUrl,
+  //     },
+  //   };
 
-    const connection = await web3Modal.connect(providerOptions);
-    const provider = new ethers.providers.Web3Provider(connection);
-    console.log(provider)
-    const signer = provider.getSigner()
+  //   const connection = await web3Modal.connect(providerOptions);
+  //   const provider = new ethers.providers.Web3Provider(connection);
+  //   const signer = provider.getSigner()
 
-    const propertyIds = [];
-
-    // for (let i = 0; i < pids.length; i++) {
-    //   const item = pids[i]
-    //   propertyIds.push(item.propertyId);
-    // }
-
-    const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    const renters = await marketContract.getPropertyPayments(pids);
-    console.log(renters)
-    // setRenterTimestamps(renters)    
+  //   const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+  //   const renters = await marketContract.getPropertyPayments(pids);
+  //   console.log(renters)
+  //   // setRenterTimestamps(renters)    
     
-    return renters;
-  }
+  //   return renters;
+  // }
 
-  const CheckTimestampExpired = (property, timestamps) => {
-    console.log(timestamps)
-    if (timestamps === undefined) {
+  const CheckTimestampExpired = (property) => {
+    
+    if (property.timestamp === undefined) {
       console.log("UNDEFINED");
       return true;
     }
-    const currentObject = timestamps.filter(a => a.propertyId == property.propertyId)[0] // Example timestamp from smart contract in seconds
+    const currentObject = property.timestamps.filter(a => a.propertyId == property.propertyId)[0] // Example timestamp from smart contract in seconds
     // console.log(ethers.BigNumber.from(currentObject.timestamp.toNumber())).toNumber()
     const twentyFourHoursInMillis = 600 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
     const currentTimeInMillis = Math.floor(Date.now() / 1000);
@@ -146,7 +139,7 @@ const Renting = () => {
       const tokenContractAddress = await tokenContract.address;
       setTokenAddress(tokenContractAddress);
 
-      const data = await govtContract.fetchMyRentals()
+      const data = await marketContract.fetchMyRentals()
       const tokensHex = await marketContract.getTokensEarned()
       const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
       console.log(tokens)
@@ -163,8 +156,7 @@ const Renting = () => {
 
       // const renters = await marketContract.getPropertyPayments(propertyIds);
       // console.log(renters)
-      // setRenterTimestamps(renters)
-      let timestamps = await loadTimeStamps(propertyIds)
+      // setRenterTimestamps(renters)      
       console.log(renterTimestamps)
       const items = await Promise.all(dataFiltered.map(async i => {
 
@@ -193,9 +185,10 @@ const Renting = () => {
           roomTwoRented: false,
           roomThreeRented: false,
           rentStatus: undefined,
+          timestamps: i.timestamps
         }      
 
-        item.rentStatus = CheckTimestampExpired(item, timestamps)
+        item.rentStatus = CheckTimestampExpired(item)
         console.log(item.rentStatus)
 
         if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
@@ -234,9 +227,10 @@ const Renting = () => {
       const provider = new ethers.providers.Web3Provider(connection)
       const signer = provider.getSigner()
 
-      const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
+      // const contract = new ethers.Contract(govtaddress, govtContract.abi, signer)
       console.log(rentAmount)
-      const transaction = await contract.payRent(
+      const transaction = await govtContract.payRent(
         property.propertyId,
         { value: rentAmount }
       )
@@ -271,7 +265,7 @@ const Renting = () => {
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
 
-    const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    const contract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
     const transaction = await contract.vacateProperty(
       property.propertyId
     )
@@ -310,8 +304,8 @@ const Renting = () => {
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
           <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Rented Properties</p>
-          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">You are not currently renting any properties</p>
-          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent an owned property and check back here</p>
+          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">You are not currently renting any properties.</p>
+          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent a property then check back here.</p>
         </div>
       </div>
     </div>
@@ -426,7 +420,7 @@ const Renting = () => {
                       <p>Rent Status</p>
                      
                      
-                      <p className={`font-mono text-xs text-green-400 ${property.rentStatus ? ' text-yellow-400' : ' text-green-400'}`}>{`${property.rentStatus ? 'text' : 'TEST'} `}</p>
+                      <p className={`font-mono text-xs text-green-400 ${property.rentStatus ? ' text-yellow-400' : ' text-green-400'}`}>{`${property.rentStatus ? 'Overdue' : 'Up-to-date'} `}</p>
                     </div>
                   </div>
 
