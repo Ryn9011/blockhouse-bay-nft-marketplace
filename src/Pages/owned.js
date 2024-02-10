@@ -136,14 +136,17 @@ const Owned = () => {
       }
 
       propertyIds.forEach(a => { console.log(a) })
-      const renters = await marketContract.getPropertyPayments(propertyIds);
+      const renters = await marketContract.getPropertyDetails(propertyIds, true);
       console.log(renters)
       let idsToRenters = []
       renters.forEach(a => {
         console.log(a)
       })
 
-      let value = ethers.utils.formatUnits(await govtContract.getRentAccumulated(), 'ether')
+      console.log(signer)
+      console.log(provider)
+
+      let value = ethers.utils.formatUnits(await govtContract.getRentAccumulatedSender(), 'ether')
       setAmountAccumulated(value)
 
       console.log(data)
@@ -162,6 +165,7 @@ const Owned = () => {
         let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
 
         const timestamps = renters.filter(a => a.propertyId == i.propertyId.toNumber())
+        console.log(timestamps)
 
         let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
@@ -217,8 +221,8 @@ const Owned = () => {
           ranking: 0
         }
 
-          console.log('THIS ONE:' ,i)
-        
+        console.log('THIS ONE:', i)
+
 
         if (item.roomOneRented === true) {
           item.roomsToRent++
@@ -275,34 +279,43 @@ const Owned = () => {
 
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     const listingPrice = await contract.getListingPrice()
+    console.log('listing price:', listingPrice)
 
     const nftContract = new ethers.Contract(nftaddress, NFT.abi, signer)
     await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction
 
-    if (property.propertyId < 501) {
-      let maticAmount = document.getElementById('amountInput' + i).value
-      const priceFormatted = ethers.utils.parseUnits(maticAmount, 'ether')
-      const transaction = await contract.sellUserProperty(
-        nftaddress,
-        property.tokenId,
-        property.propertyId,
-        priceFormatted,
-        tokenAmount,
-        { value: listingPrice }
-      )
-      setTxLoadingState2({ ...txloadingState2, [i]: true });
+    const isExclusive = property.isExclusive
+
+    let maticAmount = document.getElementById('amountInput' + i).value
+    const priceFormatted = ethers.utils.parseUnits(maticAmount, 'ether')
+    const transaction = await contract.sellProperty(
+      nftaddress,
+      property.tokenId,
+      property.propertyId,
+      priceFormatted,
+      tokenAmount,
+      isExclusive,
+      { value: listingPrice }
+    )
+    setTxLoadingState2({ ...txloadingState2, [i]: true });
+    try {
       await transaction.wait()
-    } else {
-      const transaction = await contract.sellExclusiveProperty(
-        nftaddress,
-        property.tokenId,
-        property.propertyId,
-        tokenAmount,
-        { value: listingPrice }
-      )
-      setTxLoadingState2({ ...txloadingState2, [i]: true });
-      await transaction.wait()
+    } catch (Ex) {
+      setTxLoadingState2({ ...txloadingState2, [i]: false });
+      console.log('Transaction failed', Ex.message)
     }
+
+    // } else {
+    //   const transaction = await contract.sellExclusiveProperty(
+    //     nftaddress,
+    //     property.tokenId,
+    //     property.propertyId,
+    //     tokenAmount,
+    //     { value: listingPrice }
+    //   )
+    //   setTxLoadingState2({ ...txloadingState2, [i]: true });
+    //   await transaction.wait()
+    // }
     console.log(nfts.length)
     loadProperties()
   }
@@ -718,7 +731,9 @@ const Owned = () => {
 
   const CheckTimestampExpired = (property, tenantAddress) => {
     try {
+      console.log(property)
       const currentObject = property.timestamps.filter(a => a.renter === tenantAddress); // Example timestamp from smart contract in seconds
+      console.log(currentObject)
       const twentyFourHoursInMillis = 600; // 24 hours in milliseconds
       const currentTimeInMillis = Math.floor(Date.now() / 1000);
 

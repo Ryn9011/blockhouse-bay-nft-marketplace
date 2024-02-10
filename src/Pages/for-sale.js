@@ -382,7 +382,7 @@ const ForSale = () => {
                         ) : (
                           <button
                             onClick={() => buyProperty(property, i)}
-                            className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded"
+                            className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded cursor-pointer"
                           >
                             Buy
                           </button>

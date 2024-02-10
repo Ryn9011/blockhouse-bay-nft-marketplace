@@ -50,9 +50,10 @@ const ToRent = () => {
 
       const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
       const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
-      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
+      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider) 
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-      const data = await govtContract.fetchPropertiesSold(currentPage) //add onlyrentable. change needs to trigger load
+      const data = await govtContract.fetchPropertiesSold(currentPage) 
+      console.log('data: ',data.length)
 
       const items = await Promise.all(data.map(async i => {
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
@@ -71,6 +72,7 @@ const ToRent = () => {
         let depositHex = await govtContract.getDepositRequired();
         let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
         const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+        console.log('renterAddresses: ',renterAddresses)
         let saleHistory = [];
 
         if (i.saleHistory.length > 0) {
@@ -146,11 +148,12 @@ const ToRent = () => {
       const signer = provider.getSigner()
 
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
+      //const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider) 
 
       const test = await govtContract.getDepositRequired();
       const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
       const num = ethers.utils.formatEther(deposit)
-      const rentals = await govtContract.getPropertiesRented()
+      //const rentals = await marketContract.getPropertiesRented()
       // ? ethers.utils.parseUnits(property.rentPrice.toString(), 'ether') 
       // : ethers.utils.parseUnits(contract.defaultRentPrice.toString(), 'ether')
       //STOP SAME ADDRESS RENTING MORE THAN ONE ROOM?            
@@ -158,11 +161,13 @@ const ToRent = () => {
         value: test
       });
       setTxLoadingState({ ...txloadingState, [i]: true });
-      await transaction.wait()
+      
+      let trans = await transaction.wait();
+      console.log(trans)
       loadProperties()
     } catch (error) {
       setTxLoadingState({ ...txloadingState, [i]: false });
-      console.log(error)
+      console.log('Pay rent error:', error)
     }
   }
 
@@ -209,7 +214,7 @@ const ToRent = () => {
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
             <header className="flex items-center h-16">
-              <div className="text-sm lg:text-xl font-bold">Rent a room from an owner and earn BHB tokens</div>
+              <div className="text-sm lg:text-xl font-bold">Rent a room from a home owner and earn BHB tokens</div>
             </header>
             <div className=" hidden lg:block">
               <img

@@ -5,15 +5,18 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./PropertyMarket.sol";
 import {RewardCalculator} from "./RewardCalculator.sol";
 
-contract GovtFunctions is ReentrancyGuard {
-    PropertyMarket public propertyMarketContract;  
+import "hardhat/console.sol";
 
+contract GovtFunctions is ReentrancyGuard {
+    
+    PropertyMarket public propertyMarketContract;  
+    address internal immutable i_propertyMarketAddress;
     uint256 constant WEI_TO_ETH = 1000000000000000000;  
     uint256 public constant DEPOSIT_REQUIRED = 0.001 ether; 
     uint256 public totalDepositBal = 0;
     mapping(address => uint256) public rentAccumulated;
     mapping(address => uint256) public renterDepositBalance;
-
+        
     event RentPaid(
         address indexed tenant,
         uint256 blockTime,
@@ -26,13 +29,27 @@ contract GovtFunctions is ReentrancyGuard {
         uint256 timestamp;
     }    
 
+    modifier onlyPropertyMarket() {
+        require(i_propertyMarketAddress == msg.sender, "only propertyMarket can call this function");
+        _;
+    }
+
     constructor(address propertyMarketAddress) {
         propertyMarketContract = PropertyMarket(payable(propertyMarketAddress));    
-        propertyMarketContract.setGovtContractAddress(address(this));    
+        propertyMarketContract.setGovtContractAddress(address(this));  
+        i_propertyMarketAddress = propertyMarketAddress;
+    }
+
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
     }
 
     function getRentAccumulated(address user) public view returns (uint256) {
         return rentAccumulated[user];
+    }
+
+    function getRentAccumulatedSender() public view returns (uint256) {
+        return rentAccumulated[msg.sender];
     }
 
     function setRentAccumulated(uint256 amount, address caller) internal {
@@ -112,16 +129,13 @@ contract GovtFunctions is ReentrancyGuard {
         return allProperties;
     }
 
-
-    
-
     function fetchExclusiveProperties()
         public
         view
         returns (PropertyMarket.Property[] memory)
     {
         uint256 currentId = 501;
-        uint256 currentIndex = 0;
+        // uint256 currentIndex = 0;
 
         PropertyMarket.Property[]
             memory allProperties = new PropertyMarket.Property[](50);
@@ -140,36 +154,52 @@ contract GovtFunctions is ReentrancyGuard {
 
         uint256 totalProperties = propertyMarketContract.getRelistCount() +
             propertyMarketContract.getPropertiesSold();
-        
+        //console.log('startIndex: ', startIndex);        
+        //console.log('totalProperties: ', totalProperties);
         if (startIndex >= totalProperties) {
+            //console.log('returning empty array');
             // No properties to return on this page
             return new PropertyMarket.Property[](0);
         }
 
-        uint256[] memory propertyIds = new uint256[](itemsPerPage);
+        uint256 size;
+        if (totalProperties < 20) {
+            size = totalProperties;
+        } else {size = 20;}
+
+        uint256[] memory propertyIds = new uint256[](size);
         uint256 currentIndex = 0;
 
-        // Populate propertyIds array with the required property IDs
-        for (uint256 i = startIndex + 1; i <= startIndex + itemsPerPage; i++) {
-            propertyIds[currentIndex] = i;
-            currentIndex++;
-        }
+        //console.log('propertyIds: ', propertyIds.length);
 
+        // Populate propertyIds array with the required property IDs
+        for (uint256 i = startIndex; i < startIndex + size; i++) {            
+            propertyIds[currentIndex] = i+1;
+            //console.log('propertyIds[currentIndex] ',propertyIds[currentIndex]);
+            currentIndex++;
+        }        
+        
         // Retrieve property details for the specified property IDs
         PropertyMarket.Property[] memory allProperties = propertyMarketContract.getPropertyDetails(propertyIds, false);
-
+        //console.log('allProperties: ', allProperties.length);
         // Filter properties based on room availability
-        PropertyMarket.Property[] memory propertiesSold = new PropertyMarket.Property[](itemsPerPage);
-        currentIndex = 0;
 
-        for (uint256 i = 0; i < allProperties.length; i++) {
+        console.log('allPropertiesLength: ', allProperties.length);
+        
+ 
+
+        PropertyMarket.Property[] memory propertiesSold = new PropertyMarket.Property[](size);
+        currentIndex = 0;        
+      
+        for (uint256 i = 0; i < size; i++) {
             PropertyMarket.Property memory currentItem = allProperties[i];
-
+            //console.log('currentItem', currentItem.owner,' ', currentItem.propertyId);
             // Check conditions for including the property in the result
-            if (currentItem.owner != address(0) &&
-                currentItem.roomOneRented == false &&
-                currentItem.roomTwoRented == false &&
-                currentItem.roomThreeRented == false &&
+            console.log('owner: ', currentItem.owner);
+            if ((currentItem.owner != address(0)) && (
+                currentItem.roomOneRented == false ||
+                currentItem.roomTwoRented == false ||
+                currentItem.roomThreeRented == false ) &&
                 currentItem.propertyId <= 500) {
 
                 propertiesSold[currentIndex] = currentItem;
@@ -181,79 +211,126 @@ contract GovtFunctions is ReentrancyGuard {
                 }
             }
         }
+        console.log('currentIndex: ', currentIndex);
+        console.log('itemsPerPage: ', itemsPerPage);
+        console.log('totalProperties: ', totalProperties);
+        console.log('startIndex: ', startIndex);
 
-        // If needed, fetch additional properties recursively
         if (currentIndex < itemsPerPage) {
-            uint256 additionalPropertiesToFetch = itemsPerPage - currentIndex;
-
-            // Fetch additional properties with available rooms recursively
-            PropertyMarket.Property[] memory additionalProperties = fetchAdditionalPropertiesWithAvailableRooms(additionalPropertiesToFetch);
-
-            // Append additional properties to the result
-            for (uint256 i = 0; i < additionalProperties.length; i++) {
-                propertiesSold[currentIndex] = additionalProperties[i];
-                currentIndex++;
-
-                // Check if we've collected enough properties for this page
-                if (currentIndex >= itemsPerPage) {
-                    break;
+            uint256 additionalPropertiesToFetch = 0;
+            for (uint256 i = 0; i < propertiesSold.length; i++) {
+                if (propertiesSold[i].propertyId != 0) {
+                    additionalPropertiesToFetch++;                    
                 }
             }
+            console.log('propertiesSold.length: ', propertiesSold.length);
+            console.log('currentIndex < currrentItem');
+            while (currentIndex < itemsPerPage) {
+                console.log('enter while loop');
+                if (currentIndex < itemsPerPage) {
+                    startIndex = startIndex + size;
+                    for (uint256 i = startIndex; i < startIndex + size; i++) {    
+                        console.log('startIndex: ', startIndex);
+                        console.log('currentIndex: ', currentIndex);        
+                        propertyIds[currentIndex] = i+1;
+                        //console.log('propertyIds[currentIndex] ',propertyIds[currentIndex]);                        
+                    }  
+                       for (uint256 i = 0; i < propertyIds.length; i++) {
+                            console.log('propertiesIds: ', propertyIds[i]);
+                        }
+                    //loop allproperties and print property id
+              
+                    allProperties = propertyMarketContract.getPropertyDetails(propertyIds, false);
+                  
+                    // Append additional properties to the result
+                    for (uint256 i = 0; i < propertiesSold.length; i++) {
+                        PropertyMarket.Property memory currentItem = allProperties[i];
+                        if ((currentItem.owner != address(0)) && (
+                            currentItem.roomOneRented == false ||
+                            currentItem.roomTwoRented == false ||
+                            currentItem.roomThreeRented == false ) &&
+                            currentItem.propertyId <= 500) {
+                            propertiesSold[currentIndex] = allProperties[i];
+                            currentIndex++;                            
+                            // Check if we've collected enough properties for this page
+                            if (currentIndex >= itemsPerPage) {
+                                break;
+                            }
+                            if (i == 500) {
+                                break;
+                            }
+                            size = size + 20;
+                        }
+                    }
+                }
+            }            
         }
-
+        
         assembly {
             mstore(propertiesSold, currentIndex)
         }
+        // for (uint256 i = 0; i < propertiesSold.length; i++) {
+        //     console.log('propertiesIds: ', propertiesSold[i].propertyId);
+        // }
 
         return propertiesSold;
     }
 
-    function fetchAdditionalPropertiesWithAvailableRooms(uint256 count) internal view returns (PropertyMarket.Property[] memory) {
-        uint256 totalProperties = propertyMarketContract.getRelistCount() +
-            propertyMarketContract.getPropertiesSold();
+    // function fetchAdditionalPropertiesWithAvailableRooms(uint256 count, uint256 totalProperties, uint256 page) internal view returns (PropertyMarket.Property[] memory) {  
+    //     uint256 itemsPerPage = 20;
+    //     uint256 startIndex = itemsPerPage * (page);              
+        
+    //     uint256 remainingProperties = count;
 
-        // Calculate the remaining properties needed to reach the count
-        uint256 remainingProperties = count;
+    //     // Determine the starting index for the next batch
+        
 
-        // Determine the starting index for the next batch
-        uint256 startIndex = totalProperties + 1;
+    //     // Continue fetching properties until reaching the count or maximum available
+    //     PropertyMarket.Property[] memory additionalProperties = new PropertyMarket.Property[](count);
+    //     console.log('remainingProperties: ', remainingProperties);
+    //     console.log('startIndex: ', startIndex);
+    //     while (remainingProperties > 0) {
+            
+    //         uint256 currentIndex = 0;
+    //         uint256 size = 20;
+    //         uint256[] memory propertyIds = new uint256[](size);
+    //         for (uint256 i = startIndex; i < startIndex + size; i++) {            
+    //         propertyIds[currentIndex] = i+1;
+    //         //console.log('propertyIds[currentIndex] ',propertyIds[currentIndex]);
+    //         currentIndex++;
+    //         }    
 
-        // Continue fetching properties until reaching the count or maximum available
-        PropertyMarket.Property[] memory additionalProperties = new PropertyMarket.Property[](count);
+    //         PropertyMarket.Property[] memory propertiesBatch = propertyMarketContract.getPropertyDetails(propertyIds, false);
 
-        while (remainingProperties > 0 && startIndex <= totalProperties) {
-            // Retrieve property details for the next property IDs
-            uint256[] memory propertyIds = new uint256[](1);
-            propertyIds[0] = startIndex;
+    //         if (propertiesBatch.length > 0) {
+    //             PropertyMarket.Property memory currentItem = propertiesBatch[0];
 
-            PropertyMarket.Property[] memory propertiesBatch = propertyMarketContract.getPropertyDetails(propertyIds, false);
+    //             // Check conditions for including the property in the result
+    //             if (currentItem.owner != address(0) &&
+    //                 currentItem.roomOneRented == false ||
+    //                 currentItem.roomTwoRented == false ||
+    //                 currentItem.roomThreeRented == false &&
+    //                 currentItem.propertyId <= 500) {
 
-            if (propertiesBatch.length > 0) {
-                PropertyMarket.Property memory currentItem = propertiesBatch[0];
+    //                 additionalProperties[count - remainingProperties] = currentItem;
+    //                 remainingProperties--;
+    //                 console.log('additional propertie pID: ', currentItem.propertyId);
 
-                // Check conditions for including the property in the result
-                if (currentItem.owner != address(0) &&
-                    currentItem.roomOneRented == false &&
-                    currentItem.roomTwoRented == false &&
-                    currentItem.roomThreeRented == false &&
-                    currentItem.propertyId <= 500) {
-
-                    additionalProperties[count - remainingProperties] = currentItem;
-                    remainingProperties--;
-
-                    // Increment the index for the next iteration
-                    startIndex++;
-                } else {
-                    // Skip the current property and move to the next one
-                    startIndex++;
-                }
-            } else {
-                // No property details returned, increment the index and try the next one
-                startIndex++;
-            }
-        }
-        return additionalProperties;
-    }
+    //                 // Increment the index for the next iteration
+    //                 size = size + 20;
+    //                 startIndex++;
+    //             } else {
+    //                 // Skip the current property and move to the next one
+    //                 startIndex++;
+    //                 size = size + 20;
+    //             }
+    //         } else {
+    //             // No property details returned, increment the index and try the next one
+    //             startIndex++;
+    //         }
+    //     }
+    //     return additionalProperties;
+    // }
     
     function rentProperty(uint256 propertyId) external payable nonReentrant {        
         uint256[] memory propertyIds = new uint256[](1);
@@ -262,6 +339,7 @@ contract GovtFunctions is ReentrancyGuard {
         PropertyMarket.Property[] memory currentProperty = propertyMarketContract.getPropertyDetails(propertyIds, false);
 
         require(msg.value == DEPOSIT_REQUIRED, "deposit required");
+        //console.log('currentProperty[0]: ', propertyIds[0], currentProperty[0].owner, msg.sender);
         require(currentProperty[0].owner != msg.sender && currentProperty[0].owner != address(0), "can't rent your own property");
 
         address[3] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
@@ -281,6 +359,7 @@ contract GovtFunctions is ReentrancyGuard {
         for (uint256 i = 0; i < 3; i++) {
             if (propertyRenters[i] == address(0)) {
                 propertyRenters[i] = msg.sender;
+                propertyMarketContract.setPropertyRenters(propertyId, propertyRenters);                
                 break;
             }
         }
@@ -296,12 +375,12 @@ contract GovtFunctions is ReentrancyGuard {
                 break;
             }
         }
-        propertyMarketContract.setRenterToPropertyTimestamp(propertyId, block.timestamp, msg.sender);
+        //propertyMarketContract.setRenterToPropertyTimestamp(propertyId, block.timestamp, msg.sender);
     }
 
     function checkSetRoomAvailability(
         PropertyMarket.Property memory property
-    ) internal returns (bool) {        
+    ) internal pure returns (bool) {        
         if (!property.roomOneRented) {
             property.roomOneRented = true;
             return true;
@@ -324,9 +403,10 @@ contract GovtFunctions is ReentrancyGuard {
         }   
     }
 
-    function vacatePropertyAfterBuy(uint256 propertyId, address sender) public {
+    function vacatePropertyAfterBuy(uint256 propertyId, address sender) external {
         propertyMarketContract.vacateCommonTasks(propertyId, sender);
         bool wasTenant = propertyMarketContract.vacateCommonTasks(propertyId, sender); 
+        // console.log('wasTenant: ', wasTenant);
             if (wasTenant) {
             setTotalDepositBalance(DEPOSIT_REQUIRED, false);
             propertyMarketContract.decrementRelistCount();
@@ -358,7 +438,7 @@ contract GovtFunctions is ReentrancyGuard {
                 isRenter = true;
                 break;
             }
-        } //YO YO YO, MOVE ABOVE LOGIC TO SETTENANTSMAPPING FUNCTION AND DO AWAY IT GET TENNANTS MAPPING ABOVE
+        }
 
         require(isRenter, "not tenant");
         uint256 accumulated = getRentAccumulated(currentItem.owner);
@@ -413,5 +493,10 @@ contract GovtFunctions is ReentrancyGuard {
         uint256 rentToTransfer = (rentAccumulated[msg.sender] * 500) / 10000;
         payable(msg.sender).transfer(rentAccumulated[msg.sender] - rentToTransfer);
         rentAccumulated[msg.sender] = 0;
+    }
+    function withdrawRentTax() public onlyPropertyMarket nonReentrant {
+        require(address(this).balance > 0, "no tax");
+        uint256 bal = address(this).balance - totalDepositBal;
+        payable(i_propertyMarketAddress).transfer(bal);        
     }
 }

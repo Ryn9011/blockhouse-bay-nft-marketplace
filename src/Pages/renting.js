@@ -88,12 +88,24 @@ const Renting = () => {
   // }
 
   const CheckTimestampExpired = (property) => {
-    
-    if (property.timestamp === undefined) {
+    console.log(property)
+    if (property.payments === undefined) {
       console.log("UNDEFINED");
       return true;
     }
-    const currentObject = property.timestamps.filter(a => a.propertyId == property.propertyId)[0] // Example timestamp from smart contract in seconds
+
+    const allTimestampsZero = property.payments.every(payment => {        
+        const timestamp = payment[2];
+
+        console.log(payment[2])        
+        return timestamp === 0 || timestamp === '0x00';
+    });
+
+    if (!allTimestampsZero) {
+      return true;
+    }
+
+    const currentObject = property.payments.filter(a => a.propertyId == property.propertyId)[0] // Example timestamp from smart contract in seconds
     // console.log(ethers.BigNumber.from(currentObject.timestamp.toNumber())).toNumber()
     const twentyFourHoursInMillis = 600 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
     const currentTimeInMillis = Math.floor(Date.now() / 1000);
@@ -185,9 +197,10 @@ const Renting = () => {
           roomTwoRented: false,
           roomThreeRented: false,
           rentStatus: undefined,
-          timestamps: i.timestamps
+          payments: i.payments
         }      
 
+        console.log(dataFiltered)
         item.rentStatus = CheckTimestampExpired(item)
         console.log(item.rentStatus)
 
