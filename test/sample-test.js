@@ -9,6 +9,7 @@ const dataEx = require('../src/exc-manifest.json');
 const fs = require('fs');
 
 describe("PropertyMarket", function () {
+  this.timeout(120000);
   it("Should create and execute market sales", async function () {
   
     const deployingAddress = "0xa2Fe6EB40BE5768d929c0ef13dF6936522348067";
@@ -126,37 +127,39 @@ describe("PropertyMarket", function () {
     console.log('initial balance of govtFunctions', (await ethers.provider.getBalance(govtFunctions.address)).toString());
     console.log('initial balance of propertyMarket', (await ethers.provider.getBalance(propertyMarket.address)).toString());
  
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 1, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 2, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 3, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 4, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 5, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 1, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 2, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 3, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 4, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 5, tokenContractAddress, false, { value: initialSalePrice}) 
 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 6, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 7, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 8, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 9, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 10, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 6, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 7, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 8, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 9, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 10, tokenContractAddress, false, { value: initialSalePrice}) 
     
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 11, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 12, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 13, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 14, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 15, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 11, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 12, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 13, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 14, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 15, tokenContractAddress, false, { value: initialSalePrice}) 
     
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 16, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 22, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 18, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 19, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 25, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 16, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 282, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 18, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 19, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 295, tokenContractAddress, false, { value: initialSalePrice}) 
 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 444, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 222, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 233, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 440, tokenContractAddress, false, { value: initialSalePrice}) 
-    await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 500, tokenContractAddress, false, { value: initialSalePrice}) 
-    
-    
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 444, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 222, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 233, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 440, tokenContractAddress, false, { value: initialSalePrice}) 
+    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 500, tokenContractAddress, false, { value: initialSalePrice}) 
+    const numberOfTimes = 500;
+    for (let i = 1; i <= numberOfTimes; i++) {
+      await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, i, tokenContractAddress, false, { value: initialSalePrice });
+    }
     
     //await nft.connect(buyerAddress).giveResaleApproval(1);
     //await propertyMarket.connect(buyerAddress).sellUserProperty(nft.address, 1, 1, rentdeposit, defaultTokenPrice, { value: listingPrice})
@@ -167,15 +170,15 @@ describe("PropertyMarket", function () {
     // let allproperties = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(1)
     // console.log(allproperties)
     await govtFunctions.connect(renterAddress).rentProperty(1, { value: rentdeposit })
-    let sold = await govtFunctions.connect(buyerAddress).fetchPropertiesSold(1)
-    console.log('SOLD: ',sold.length)  
+    //let sold = await propertyMarket.connect(buyerAddress).fetchPropertiesSold(1)
+    //console.log('SOLD: ',sold.length)  
 
     
   
 
 
 
-    // const renters = await propertyMarket.connect(buyerAddress).getPropertyRenters(1)
+    const renters = await propertyMarket.connect(buyerAddress).getPropertyRenters(1)
 
     // //console log renters and payments array where propertyId is not 0
     // for (let i = 0; i < renters.length; i++) {
@@ -189,7 +192,7 @@ describe("PropertyMarket", function () {
     //   }
     // }
     // await propertyMarket.connect(buyer2Address).rentProperty(1, { value: rentdeposit })   
-    // await propertyMarket.connect(renter2).rentProperty(1, { value: rentdeposit })   
+    //await propertyMarket.connect(renter2).rentProperty(1, { value: rentdeposit })   
     await govtFunctions.connect(buyerAddress).setRentPrice(1,ethers.utils.parseUnits('100', 'ether'))
 
 
@@ -240,7 +243,7 @@ describe("PropertyMarket", function () {
     console.log('matic balance of govtFunctions after withDrawRentTax', (await ethers.provider.getBalance(govtFunctions.address)).toString());
     console.log('matic balance of propertyMarket after withDrawPropertyTax', (await ethers.provider.getBalance(propertyMarket.address)).toString());
     // }
-    // await propertyMarket.connect(buyerAddress).setRentPrice(1,ethers.utils.parseUnits('3', 'ether'))
+     await govtFunctions.connect(buyerAddress).setRentPrice(1,ethers.utils.parseUnits('3', 'ether'))
     // for (let i = 0; i < 2; i++) {
     //   await propertyMarket.connect(buyer2Address).payRent(1, { value: ethers.utils.parseUnits('3', 'ether')})                    
     //   const tokensHex = await propertyMarket.connect(buyer2Address).getTokensEarned();
@@ -249,23 +252,25 @@ describe("PropertyMarket", function () {
     //     console.log("Balance of PropertyMarket:", (await propertyTokenContract.balanceOf(propertyMarket.address)).toString());
     //     console.log("Reward amount2: ", (tokens).toString());    
     //   }  
-    //   await propertyMarket.connect(buyer2Address).withdrawERC20(tokenContractAddress)
-    //   // console.log("Balance of renter:", (await propertyTokenContract.balanceOf(renterAddress.address)).toString());
+      //  await propertyMarket.connect(buyer2Address).withdrawERC20(tokenContractAddress)
+      //  console.log("Balance of renter:", (await propertyTokenContract.balanceOf(renterAddress.address)).toString());
     // }
     
     
     
     // //property owner gives resale approval to contract pass in propId
-    //await nft.connect(buyerAddress).giveResaleApproval(1);
+    await nft.connect(buyerAddress).giveResaleApproval(1);
     // //property owner lists property for resale
-    //await propertyMarket.connect(buyerAddress).sellProperty(nft.address, 1, 1, initialSalePrice+5, defaultTokenPrice, false ,{ value: initialSalePrice })
-    // let myProperties = await propertyMarket.connect(buyerAddress).fetchMyProperties(1);
-    // let userProps = await propertyMarket.connect(buyerAddress).getUserProperties();
-    // console.log('user properties', userProps)
-    // console.log('buyer properties after resell listing', myProperties)
+    await propertyMarket.connect(buyerAddress).sellProperty(nft.address, 1, 1, initialSalePrice+5, defaultTokenPrice, false ,{ value: initialSalePrice })
+    console.log('before myProperties')
+    let myProperties = await propertyMarket.connect(buyerAddress).fetchMyProperties(1);
+    console.log('after myProperties')
+    let userProps = await propertyMarket.connect(buyerAddress).getUserProperties();
+     console.log('user properties', userProps)
+    //console.log('buyer properties after resell listing', myProperties)
 
-    // let sale = await propertyMarket.fetchPropertiesForSale()
-    // console.log('all propertiesForSale', sale)  
+     let sale = await propertyMarket.fetchPropertiesForSale(1)
+    console.log('all propertiesForSale', sale.length)  
 
     // console.log('renter amount of token: ', await propertyTokenContract.balanceOf(renterAddress.address))
 

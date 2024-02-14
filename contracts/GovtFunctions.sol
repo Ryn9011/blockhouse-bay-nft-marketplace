@@ -148,133 +148,51 @@ contract GovtFunctions is ReentrancyGuard {
         return allProperties;
     }
 
-   function fetchPropertiesSold(uint256 page) public view returns (PropertyMarket.Property[] memory) {
+    function fetchPropertiesSold(uint256 page) public view returns (PropertyMarket.Property[] memory) {
         uint256 itemsPerPage = 20;
         uint256 startIndex = itemsPerPage * (page - 1);
+        uint256 endIndex = startIndex + itemsPerPage;
 
-        uint256 totalProperties = propertyMarketContract.getRelistCount() +
-            propertyMarketContract.getPropertiesSold();
-        //console.log('startIndex: ', startIndex);        
-        //console.log('totalProperties: ', totalProperties);
-        if (startIndex >= totalProperties) {
-            //console.log('returning empty array');
-            // No properties to return on this page
+        uint256 propertyCount = propertyMarketContract.getRelistCount() + propertyMarketContract.getPropertiesSold();
+        if (startIndex >= propertyCount) {
+            // If the start index is beyond the total count, return an empty array
             return new PropertyMarket.Property[](0);
         }
 
-        uint256 size;
-        if (totalProperties < 20) {
-            size = totalProperties;
-        } else {size = 20;}
+        // Adjust endIndex if it exceeds the total count
+        if (endIndex > propertyCount) {
+            endIndex = propertyCount;
+        }
 
-        uint256[] memory propertyIds = new uint256[](size);
+        uint256 totalProperties = endIndex - startIndex;
+        PropertyMarket.Property[] memory propertiesSold = new PropertyMarket.Property[](totalProperties);
+
         uint256 currentIndex = 0;
 
-        //console.log('propertyIds: ', propertyIds.length);
+        uint256[] memory propertyIds = new uint256[](1);
+        propertyIds[0] = 1;
 
-        // Populate propertyIds array with the required property IDs
-        for (uint256 i = startIndex; i < startIndex + size; i++) {            
-            propertyIds[currentIndex] = i+1;
-            //console.log('propertyIds[currentIndex] ',propertyIds[currentIndex]);
-            currentIndex++;
-        }        
+       
+        PropertyMarket.Property[] memory properties = propertyMarketContract.getPropertyDetails(propertyIds, false);
+            
+         
         
-        // Retrieve property details for the specified property IDs
-        PropertyMarket.Property[] memory allProperties = propertyMarketContract.getPropertyDetails(propertyIds, false);
-        //console.log('allProperties: ', allProperties.length);
-        // Filter properties based on room availability
 
-        console.log('allPropertiesLength: ', allProperties.length);
-        
- 
-
-        PropertyMarket.Property[] memory propertiesSold = new PropertyMarket.Property[](size);
-        currentIndex = 0;        
-      
-        for (uint256 i = 0; i < size; i++) {
-            PropertyMarket.Property memory currentItem = allProperties[i];
-            //console.log('currentItem', currentItem.owner,' ', currentItem.propertyId);
-            // Check conditions for including the property in the result
-            console.log('owner: ', currentItem.owner);
-            if ((currentItem.owner != address(0)) && (
-                currentItem.roomOneRented == false ||
-                currentItem.roomTwoRented == false ||
-                currentItem.roomThreeRented == false ) &&
-                currentItem.propertyId <= 500) {
-
-                propertiesSold[currentIndex] = currentItem;
-                currentIndex++;
-
-                // Check if we've collected enough properties for this page
-                if (currentIndex >= itemsPerPage) {
-                    break;
-                }
-            }
-        }
-        console.log('currentIndex: ', currentIndex);
-        console.log('itemsPerPage: ', itemsPerPage);
-        console.log('totalProperties: ', totalProperties);
-        console.log('startIndex: ', startIndex);
-
-        if (currentIndex < itemsPerPage) {
-            uint256 additionalPropertiesToFetch = 0;
-            for (uint256 i = 0; i < propertiesSold.length; i++) {
-                if (propertiesSold[i].propertyId != 0) {
-                    additionalPropertiesToFetch++;                    
-                }
-            }
-            console.log('propertiesSold.length: ', propertiesSold.length);
-            console.log('currentIndex < currrentItem');
-            while (currentIndex < itemsPerPage) {
-                console.log('enter while loop');
-                if (currentIndex < itemsPerPage) {
-                    startIndex = startIndex + size;
-                    for (uint256 i = startIndex; i < startIndex + size; i++) {    
-                        console.log('startIndex: ', startIndex);
-                        console.log('currentIndex: ', currentIndex);        
-                        propertyIds[currentIndex] = i+1;
-                        //console.log('propertyIds[currentIndex] ',propertyIds[currentIndex]);                        
-                    }  
-                       for (uint256 i = 0; i < propertyIds.length; i++) {
-                            console.log('propertiesIds: ', propertyIds[i]);
-                        }
-                    //loop allproperties and print property id
-              
-                    allProperties = propertyMarketContract.getPropertyDetails(propertyIds, false);
-                  
-                    // Append additional properties to the result
-                    for (uint256 i = 0; i < propertiesSold.length; i++) {
-                        PropertyMarket.Property memory currentItem = allProperties[i];
-                        if ((currentItem.owner != address(0)) && (
-                            currentItem.roomOneRented == false ||
-                            currentItem.roomTwoRented == false ||
-                            currentItem.roomThreeRented == false ) &&
-                            currentItem.propertyId <= 500) {
-                            propertiesSold[currentIndex] = allProperties[i];
-                            currentIndex++;                            
-                            // Check if we've collected enough properties for this page
-                            if (currentIndex >= itemsPerPage) {
-                                break;
-                            }
-                            if (i == 500) {
-                                break;
-                            }
-                            size = size + 20;
-                        }
-                    }
-                }
-            }            
-        }
-        
         assembly {
             mstore(propertiesSold, currentIndex)
         }
-        // for (uint256 i = 0; i < propertiesSold.length; i++) {
-        //     console.log('propertiesIds: ', propertiesSold[i].propertyId);
-        // }
 
         return propertiesSold;
     }
+
+
+
+
+
+
+
+
+
 
     // function fetchAdditionalPropertiesWithAvailableRooms(uint256 count, uint256 totalProperties, uint256 page) internal view returns (PropertyMarket.Property[] memory) {  
     //     uint256 itemsPerPage = 20;

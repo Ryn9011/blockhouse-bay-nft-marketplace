@@ -206,7 +206,7 @@ contract PropertyMarket is ReentrancyGuard {
 
     function setRenterToPropertyTimestamp(uint256 propertyId, uint256 timestamp, address caller) external onlyGovtContract {
         renterToPropertyPaymentTimestamps[caller][propertyId] = timestamp;
-        console.log('renterToPropertyPaymentTimestamps[caller][propertyId]: ', renterToPropertyPaymentTimestamps[caller][propertyId]);
+        // console.log('renterToPropertyPaymentTimestamps[caller][propertyId]: ', renterToPropertyPaymentTimestamps[caller][propertyId]);
     }
 
     function fetchPropertiesForSale(uint256 page) public view returns (Property[] memory) {
@@ -249,27 +249,25 @@ contract PropertyMarket is ReentrancyGuard {
 
         Property[] memory items = new Property[](endIndex - startIndex);
         uint256 itemCount = 0;
-
+        
         // Fetch property details for properties within the pagination range
+        uint256[] memory propertyIds = new uint256[](endIndex - startIndex);
         for (uint256 i = startIndex; i < endIndex; i++) {
-            Property[] memory properties = getPropertyDetails(userPropertyIds, true);
-            if (properties.length > 0 && properties[i].owner == msg.sender) {
-                items[itemCount] = properties[i];
-                itemCount++;
+            propertyIds[itemCount] = userPropertyIds[i];
+            itemCount++;
+        }
+        
+        Property[] memory properties = getPropertyDetails(propertyIds, true);
+        
+        // Filter properties owned by the message sender
+        for (uint256 i = 0; i < properties.length; i++) {
+            if (properties[i].owner == msg.sender) {
+                items[i] = properties[i];
             }
         }
 
-        // Resize the array to the actual itemCount
-        Property[] memory result = new Property[](itemCount);
-        for (uint256 i = 0; i < itemCount; i++) {
-            result[i] = items[i];
-        }
-
-        return result;
+        return items;
     }
-
-
-
 
     function fetchMyRentals() public view returns (Property[] memory) {
         uint256[3] memory rentedPropertyIds = getTenantProperties(msg.sender);
@@ -327,6 +325,32 @@ contract PropertyMarket is ReentrancyGuard {
     //     totalDepositBal += amount;
     // }
 
+    function fetchPropertiesSold(uint256 page) public view returns (Property[] memory) {
+        uint256 propertyCount = _propertyIds.current();
+        uint256 currentIndex = 0;
+        uint256 startIndex = 20 * (page - 1);
+        uint256 endIndex = startIndex + 20;
+        uint256 totalSoldProperties = _relistCount.current() + _propertiesSold.current();
+        if (endIndex > totalSoldProperties) {
+            endIndex = totalSoldProperties;
+        }
+        Property[] memory propertiesSold = new Property[](endIndex - startIndex);
+        for (uint256 i = 0; i < propertyCount && currentIndex < propertiesSold.length; i++) {
+            uint256[] memory id = new uint256[](1);
+            id[0] = i;
+            Property[] memory currentItem = getPropertyDetails(id, false);
+            if (currentItem[i].owner != address(0) && (!currentItem[i].roomOneRented && !currentItem[i].roomTwoRented && !currentItem[i].roomThreeRented)) {
+                if (currentIndex >= startIndex) {
+                    propertiesSold[currentIndex - startIndex] = currentItem[i];
+                }
+                currentIndex++;
+            }
+        }
+        return propertiesSold;
+    }
+
+  
+
     function getPropertyDetails(
         uint256[] memory propertyIds, bool getPayments
     ) public view returns (Property[] memory) {
@@ -339,7 +363,7 @@ contract PropertyMarket is ReentrancyGuard {
             if (getPayments) {
                 address[3] storage renters = propertyToRenters[propertyId];
                 properties[i].payments = getPropertyPayments(propertyId, renters);           
-                console.log('does this hit?')    ; 
+                // console.log('does this hit?')    ; 
             }
         }
         return properties;
