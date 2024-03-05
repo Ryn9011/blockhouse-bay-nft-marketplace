@@ -15,6 +15,10 @@ import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMa
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import SaleHistory from '../Components/sale-history'
 
+window.ethereum.on('accountsChanged', function (accounts) {                 
+  window.location.reload();
+});
+
 const AllProperties = () => {
 
   const [loadingState, setLoadingState] = useState('not-loaded')

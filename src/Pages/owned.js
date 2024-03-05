@@ -32,6 +32,10 @@ const useStyles = makeStyles({
   }
 });
 
+window.ethereum.on('accountsChanged', function (accounts) {                 
+  window.location.reload();
+});
+
 const Owned = () => {
 
   const [nfts, setNfts] = useState([])
@@ -79,7 +83,6 @@ const Owned = () => {
   const rpcUrl = getRpcUrl(network, projectId);
 
 
-
   async function initializeContracts() {
     try {
       setLoadingState2('not-loaded')
@@ -125,7 +128,7 @@ const Owned = () => {
   async function loadProperties(i) {
 
     try {
-      console.log(currentPage)
+      //console.log(currentPage)
       const data = await marketContract.fetchMyProperties(currentPage)
       console.log(data)
       const propertyIds = [];
@@ -135,23 +138,24 @@ const Owned = () => {
         propertyIds.push(item.propertyId);
       }
 
-      propertyIds.forEach(a => { console.log(a) })
+      propertyIds.forEach(a => {  })
       const renters = await marketContract.getPropertyDetails(propertyIds, true);
-      console.log(renters)
+      //console.log(renters)
       let idsToRenters = []
       renters.forEach(a => {
-        console.log(a)
+        //console.log(a)
       })
 
-      console.log(signer)
-      console.log(provider)
+      //console.log(signer)
+      //console.log(provider)
 
       let value = ethers.utils.formatUnits(await govtContract.getRentAccumulatedSender(), 'ether')
       setAmountAccumulated(value)
 
-      console.log(data)
+      //console.log(data)
 
-      const items = await Promise.all(data.map(async i => {
+      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() !== 0).map(async i => {
+        console.log(i)
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
         //const meta = await axios.get(tokenUri)
 
@@ -165,7 +169,7 @@ const Owned = () => {
         let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
 
         const timestamps = renters.filter(a => a.propertyId == i.propertyId.toNumber())
-        console.log(timestamps)
+        //console.log(timestamps)
 
         let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
@@ -173,7 +177,7 @@ const Owned = () => {
         // const tokensHex = await marketContract.getTokensEarned()
         // const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
         let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
-        console.log(tokenSalePriceFormatted)
+        //console.log(tokenSalePriceFormatted)
         let saleHistory = [];
         if (i.saleHistory.length > 0) {
           i.saleHistory.forEach((item) => {
@@ -191,7 +195,7 @@ const Owned = () => {
         let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
 
         const propertyId = ethers.BigNumber.from(i.propertyId).toNumber();
-        console.log(propertyId)
+        //console.log(propertyId)
 
         let item = {
           price,
@@ -209,7 +213,7 @@ const Owned = () => {
           renterAddresses: renterAddresses,
           isForSale: i.isForSale,
           tokenPrice: tokenSalePriceFormatted,
-          timestamps: timestamps,
+          payments: i.payments,
           isExclusive: i.isExclusive,
           saleHistory: saleHistory,
           dateSoldHistory: i.dateSoldHistory,
@@ -221,7 +225,7 @@ const Owned = () => {
           ranking: 0
         }
 
-        console.log('THIS ONE:', i)
+        //console.log('THIS ONE:', i)
 
 
         if (item.roomOneRented === true) {
@@ -236,7 +240,7 @@ const Owned = () => {
         item.ranking = calculateRankingTotal(item)
         return item
       }))
-      console.log(items.length)
+      //console.log(items.length)
 
       setNfts(items.slice(0, 20))
 
@@ -250,7 +254,7 @@ const Owned = () => {
       setLoadingState('loaded')
       if (ex.message === 'User Rejected') {
         // Handle user rejection
-        console.log('Connection request rejected by the user.');
+        //console.log('Connection request rejected by the user.');
         // Display an error message to the user        
         setIsConnected(false);
         setTxLoadingState1({ ...txloadingState1, [551]: false });
@@ -258,7 +262,7 @@ const Owned = () => {
         setTxLoadingState3({ ...txloadingState3, [i]: false });
         setTxLoadingState4({ ...txloadingState4, [i]: false });
       } else {
-        console.log(ex)
+        //console.log(ex)
         setIsConnected(false)
         setTxLoadingState1({ ...txloadingState1, [551]: false });
         setTxLoadingState2({ ...txloadingState2, [i]: false });
@@ -273,21 +277,25 @@ const Owned = () => {
     // const connection = await web3Modal.connect()
     // const provider = new ethers.providers.Web3Provider(connection)
     // const signer = provider.getSigner()
-
+    console.log(property)
     let tokenAmount = document.getElementById('tokenInput' + i).value
     tokenAmount = tokenAmount === "" ? 0 : tokenAmount
 
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     const listingPrice = await contract.getListingPrice()
-    console.log('listing price:', listingPrice)
-
+    //console.log('listing price:', listingPrice)
+    console.log('TWO')
     const nftContract = new ethers.Contract(nftaddress, NFT.abi, signer)
     await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction
+    console.log('TWO POINT FIVE')
 
     const isExclusive = property.isExclusive
+    console.log(document.getElementById('amountInput' + i))
 
-    let maticAmount = document.getElementById('amountInput' + i).value
+    let maticAmount = !isExclusive ? document.getElementById('amountInput' + i).value : document.getElementById('tokenInput' + i).value
+    console.log('2.5')
     const priceFormatted = ethers.utils.parseUnits(maticAmount, 'ether')
+    console.log('THREE')
     const transaction = await contract.sellProperty(
       nftaddress,
       property.tokenId,
@@ -297,8 +305,11 @@ const Owned = () => {
       isExclusive,
       { value: listingPrice }
     )
+    console.log('FOUR')
+    console.log(transaction)
     setTxLoadingState2({ ...txloadingState2, [i]: true });
     try {
+      console.log('does get here?')
       await transaction.wait()
     } catch (Ex) {
       setTxLoadingState2({ ...txloadingState2, [i]: false });
@@ -316,31 +327,31 @@ const Owned = () => {
     //   setTxLoadingState2({ ...txloadingState2, [i]: true });
     //   await transaction.wait()
     // }
-    console.log(nfts.length)
+    //console.log(nfts.length)
     loadProperties()
   }
 
   useEffect(() => {
-    console.log(propertyIdTwitter)
+    //console.log(propertyIdTwitter)
     let tweetOptions
     //if (hasSetText) {
     let text = twitterTextRef.current ? twitterTextRef.current.innerText : ""
     let formattedTweet = text.replace(/(?<!\d)\.(?!\d)/g, '%0A');
 
-    console.log(window.location.hostname)
+    //console.log(window.location.hostname)
     let url = `http://localhost:3000/property-view/${propertyIdTwitter}%0A`
     let hashtags = 'BlockhouseBay'
     tweetOptions = text + '#BlockhouseBay';
     //}
     setText(formattedTweet)
-    console.log(tweetOptions)
+    //console.log(tweetOptions)
 
     setUrl(`http://localhost:3000/property-view/${propertyIdTwitter ? propertyIdTwitter : ''}`)
     setHasSetText(false)
   }, [twitterSaleChecked, twitterRentChecked])
 
   const handleForSaleCheck = (propertyObj, e) => {
-    console.log(propertyObj)
+    //console.log(propertyObj)
     setPropertyIdTwitter(propertyObj.propertyId);
     setNfts((prevList) =>
       prevList.map((property) =>
@@ -352,7 +363,7 @@ const Owned = () => {
     setTwitterSaleChecked(e.target.checked);
     seTwitterRef(propertyObj);
 
-    console.log(propertyObj)
+    //console.log(propertyObj)
 
   };
 
@@ -368,7 +379,7 @@ const Owned = () => {
     let text = propertyObj.rentPrice
     setTwitterRentChecked(e.target.checked)
     seTwitterRef(propertyObj)
-    console.log(propertyObj)
+    //console.log(propertyObj)
   };
 
   const seTwitterRef = (property) => {
@@ -376,13 +387,13 @@ const Owned = () => {
       twitterTextRef.current = document.getElementById("twitterSaleSection");
     } else if (!twitterSaleChecked && twitterRentChecked) {
       twitterTextRef.current = document.getElementById("twitterRentSection");
-      console.log(twitterTextRef.current)
+      //console.log(twitterTextRef.current)
     } else if (twitterSaleChecked && twitterRentChecked) {
       twitterTextRef.current = document.getElementById("twitterSaleRentSection");
     }
     setHasSetText(true)
 
-    // console.log(twitterTextRef.current.innerText)
+    // //console.log(twitterTextRef.current.innerText)
   }
 
   // const getOptions = () => {
@@ -401,7 +412,7 @@ const Owned = () => {
 
 
   const logOutTwitter = () => {
-    console.log(twitterTextRef.current.innerText)
+    //console.log(twitterTextRef.current.innerText)
   }
 
   // const getLogData = async () => {
@@ -415,22 +426,22 @@ const Owned = () => {
   //   const iface = new ethers.utils.Interface(Market.abi);
 
   //   let propertyIds = nfts.map(item => item.propertyId)
-  //   console.log(propertyIds)
+  //   //console.log(propertyIds)
   //   let latestBlockNum = await provider.getBlockNumber() - 5 //change this to 150000 when live
-  //   console.log(latestBlockNum)
+  //   //console.log(latestBlockNum)
   //   let latestBlock = await provider.getBlock(latestBlockNum)
   //   let latestBlockTimestamp = latestBlock.timestamp
-  //   console.log(latestBlockTimestamp)
+  //   //console.log(latestBlockTimestamp)
 
   //   const logs = await provider.getLogs({
   //     fromBlock: latestBlockNum,
   //     toBlock: "latest",
   //     address: marketAddress
   //   })
-  //   console.log(logs)
+  //   //console.log(logs)
 
   //   const decodedEvents = logs.map(log => iface.parseLog(log));
-  //   console.log(decodedEvents)
+  //   //console.log(decodedEvents)
 
   //   let testArr = new Array()
   //   decodedEvents.map(event => {
@@ -449,8 +460,8 @@ const Owned = () => {
   //   filteredEvents.map((item) => {
   //     let timeSeconds = item[1].toNumber()
   //     let secondsDays = 258000
-  //     console.log(timeSeconds + secondsDays)
-  //     console.log(latestBlockTimestamp)
+  //     //console.log(timeSeconds + secondsDays)
+  //     //console.log(latestBlockTimestamp)
 
   //     //258000 seconds in 3 days
 
@@ -459,10 +470,10 @@ const Owned = () => {
   //       setAddressesOverdue(addressesOverdue => [...addressesOverdue, item[0]])
   //       //setAddressesOverdue("0x2546BcD3c84621e976D8185a91A922aE77ECEc30")
   //     }
-  //     console.log(addressesOverdue)
+  //     //console.log(addressesOverdue)
   //   })
-  //   console.log(filteredEvents)
-  //   console.log(addressesOverdue)
+  //   //console.log(filteredEvents)
+  //   //console.log(addressesOverdue)
 
 
   // }
@@ -610,7 +621,7 @@ const Owned = () => {
 
   const setAddresses = (property, e, i) => {
     if (property !== undefined) {
-      console.log(i)
+      //console.log(i)
       return (
         // <div className='text-xs mt-2 text-green-200'>
         <div className='text-[10px] font-mono text-green-400'>
@@ -725,14 +736,44 @@ const Owned = () => {
   }
 
   const handleChange = (panel) => (event, isExpanded) => {
-    console.log(panel)
+    //console.log(panel)
     setExpanded(isExpanded ? panel : null);
   };
 
   const CheckTimestampExpired = (property, tenantAddress) => {
     try {
       console.log(property)
-      const currentObject = property.timestamps.filter(a => a.renter === tenantAddress); // Example timestamp from smart contract in seconds
+      if (property.payments === undefined) {
+        console.log("UNDEFINED");
+        return true;
+      }
+
+      const allTimestampsZero = property.payments.every(payment => {        
+        const timestamp = payment[2];
+
+        console.log('timestamp ', timestamp.toNumber())  
+        if (timestamp == 0 || timestamp === '0x00')  {
+          return false;
+        }            
+      });
+
+      if (allTimestampsZero) {
+        return true;
+      }
+      console.log(tenantAddress)
+
+      console.log(property)
+      const currentObject = property.payments.filter(a => a.renter === tenantAddress); // Example timestamp from smart contract in seconds
+      if (currentObject === undefined) {
+        return false;
+      }
+      if (currentObject.length === 0) {
+        return true;
+      }
+
+      if (currentObject.timestamp == 0 || currentObject.timestamp === '0x00')  {
+        return false;
+      }  
       console.log(currentObject)
       const twentyFourHoursInMillis = 600; // 24 hours in milliseconds
       const currentTimeInMillis = Math.floor(Date.now() / 1000);
@@ -752,7 +793,7 @@ const Owned = () => {
   }
 
   const getTenantToDeleteColour = (tenant, i) => {
-    console.log(i)
+    //console.log(i)
     if (tenant.renterAddresses[i] === tenantToDelete.address && tenant.propertyId == tenantToDeleteProperty) {
       return "text-red-400"
     } else if (CheckTimestampExpired(tenant, tenant.renterAddresses[i])) {
@@ -781,7 +822,7 @@ const Owned = () => {
   };
 
   let test = calculatePageNumber(221, 498)
-  console.log(test)
+  //console.log(test)
 
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);

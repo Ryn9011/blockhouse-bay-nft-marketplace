@@ -19,6 +19,10 @@ import { calculateRankingTotal, calculateRankingPosition } from '../calculateRan
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import SpinnerIcon from '../Components/spinner';
 
+window.ethereum.on('accountsChanged', function (accounts) {                 
+  window.location.reload();
+});
+
 const Exclusive = () => {
   const [properties, setProperties] = useState([]);
   const [loadingState, setLoadingState] = useState('not-loaded')
@@ -28,9 +32,6 @@ const Exclusive = () => {
   const [numForSale, setNumForSale] = useState();
   const [txloadingState1, setTxLoadingState1] = useState({});
   const [txloadingState2, setTxLoadingState2] = useState({});
-
-  // Get current posts
-
 
   useEffect(() => {
     loadProperties(currentPage)
@@ -187,7 +188,7 @@ const Exclusive = () => {
 
     const signer = provider.getSigner()
 
-    const govtContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
     const deposit = await govtContract.getDepositRequired();
 

@@ -20,6 +20,9 @@ import SaleHistory from '../Components/sale-history'
 import GetPropertyNames from '../getPropertyName'
 import SpinnerIcon from '../Components/spinner';
 
+window.ethereum.on('accountsChanged', function (accounts) {                 
+  window.location.reload();
+});
 
 const ForSale = () => {
   const [loadingState, setLoadingState] = useState('not-loaded')
@@ -145,6 +148,11 @@ const ForSale = () => {
 
   const buyProperty = async (nft, i) => {
     try {
+      let brb = document.getElementById("pogRadio" + i)
+      let matic = document.getElementById("maticRadio" + i)
+      if (brb.checked === false && matic.checked === false) {
+        return;
+      }
       const web3Modal = new Web3Modal();
       const connection = await web3Modal.connect();
       const provider = new ethers.providers.Web3Provider(connection);
@@ -157,8 +165,8 @@ const ForSale = () => {
       let propertyTokenContract = undefined;
       let amount = undefined;
   
-      if (document.getElementById("pogRadio" + i) != undefined) {
-        if (document.getElementById("pogRadio" + i).checked) {
+      if (brb != undefined) {
+        if (brb.checked) {
           price = ethers.utils.parseUnits("0", 'ether');
           isTokenSale = true;
           propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer);

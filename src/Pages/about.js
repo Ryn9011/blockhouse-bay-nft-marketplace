@@ -56,6 +56,10 @@ const useStyles = makeStyles({
   },
 });
 
+window.ethereum.on('accountsChanged', function (accounts) {                 
+  window.location.reload();
+});
+
 const About = () => {
   const [expanded, setExpanded] = React.useState(false);
   const [defaultExpanded, setDefaultExpanded] = React.useState(false);
@@ -655,7 +659,7 @@ const About = () => {
                 </li>
                 <li className="py-4">
                   <h3 className="text-lg italic font-semibold">Ranking</h3>
-                  <p className="mt-2 text-gray-500">These properties are ranked based on total income generated from rent and sale history total.</p>
+                  <p className="mt-2 text-gray-500">Once a property on this street has been sold, they will be given a ranking and ordered accordingly based on total income generated from rent and sale history total.</p>
                 </li>
               </ul>
               <div className="gallery h-fit pb-16 md:pb-40 lg:pb-0 lg:h-full cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">

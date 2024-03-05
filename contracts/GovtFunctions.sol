@@ -40,6 +40,24 @@ contract GovtFunctions is ReentrancyGuard {
         i_propertyMarketAddress = propertyMarketAddress;
     }
 
+    function giftProperties (
+        address nftContract,
+        uint256 propertyId,
+        address recipient
+    ) public onlyPropertyMarket {
+        PropertyMarket.Property memory currentItem = fetchSingleProperty(propertyId);
+
+        currentItem.owner = payable(recipient);
+        currentItem.isForSale = false;
+        currentItem.seller = payable(address(0));
+
+        uint256 propertiesSold = propertyMarketContract.getPropertiesSold();
+        require(propertiesSold <= 10, "");
+
+        propertyMarketContract.giftProperties(nftContract, propertyId, recipient);
+
+    }
+
     function getBalance() public view returns (uint256) {
         return address(this).balance;
     }
@@ -175,8 +193,6 @@ contract GovtFunctions is ReentrancyGuard {
        
         PropertyMarket.Property[] memory properties = propertyMarketContract.getPropertyDetails(propertyIds, false);
             
-         
-        
 
         assembly {
             mstore(propertiesSold, currentIndex)
@@ -257,8 +273,8 @@ contract GovtFunctions is ReentrancyGuard {
         PropertyMarket.Property[] memory currentProperty = propertyMarketContract.getPropertyDetails(propertyIds, false);
 
         require(msg.value == DEPOSIT_REQUIRED, "deposit required");
-        //console.log('currentProperty[0]: ', propertyIds[0], currentProperty[0].owner, msg.sender);
-        require(currentProperty[0].owner != msg.sender && currentProperty[0].owner != address(0), "can't rent your own property");
+        require(currentProperty[0].owner != msg.sender, "You can't rent your own property");
+        require(currentProperty[0].owner != address(0), "Property owner address should not be zero");
 
         address[3] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
 
@@ -274,10 +290,10 @@ contract GovtFunctions is ReentrancyGuard {
         bool availableRoom = checkSetRoomAvailability(currentProperty[0]);
         require(availableRoom, "no vacancy");
 
-        for (uint256 i = 0; i < 3; i++) {
+        for (uint8 i = 0; i < 3; i++) {
             if (propertyRenters[i] == address(0)) {
                 propertyRenters[i] = msg.sender;
-                propertyMarketContract.setPropertyRenters(propertyId, propertyRenters);                
+                propertyMarketContract.setPropertyRenters(propertyId, propertyRenters, i);                
                 break;
             }
         }
@@ -312,24 +328,25 @@ contract GovtFunctions is ReentrancyGuard {
         return false;        
     }
 
-    function vacateProperty(uint256 propertyId) public nonReentrant {
-        address sender = msg.sender;        
-        bool wasTenant = propertyMarketContract.vacateCommonTasks(propertyId, sender); 
-        if (wasTenant) {
-            setTotalDepositBalance(DEPOSIT_REQUIRED, false);
-            payable(sender).transfer(DEPOSIT_REQUIRED);       
-        }   
-    }
+    // function vacateProperty(uint256 propertyId) public nonReentrant {
+    //     address sender = msg.sender;        
+    //     propertyMarketContract.vacateCommonTasks(propertyId, sender); 
+    //     // if (wasTenant) {
+    //     //     setTotalDepositBalance(DEPOSIT_REQUIRED, false);
+    //     //     payable(sender).transfer(DEPOSIT_REQUIRED);       
+    //     // }   
+    // }
 
-    function vacatePropertyAfterBuy(uint256 propertyId, address sender) external {
-        propertyMarketContract.vacateCommonTasks(propertyId, sender);
-        bool wasTenant = propertyMarketContract.vacateCommonTasks(propertyId, sender); 
+
+     function refundDeposit(uint256 propertyId, address renterAddress) onlyPropertyMarket external {
+        // propertyMarketContract.vacateCommonTasks(propertyId, sender);
+        //bool wasTenant = propertyMarketContract.vacateCommonTasks(propertyId, msg.sender); 
         // console.log('wasTenant: ', wasTenant);
-            if (wasTenant) {
+ 
             setTotalDepositBalance(DEPOSIT_REQUIRED, false);
-            propertyMarketContract.decrementRelistCount();
-            payable(sender).transfer(DEPOSIT_REQUIRED);      
-        }
+            // propertyMarketContract.decrementRelistCount();
+            payable(msg.sender).transfer(DEPOSIT_REQUIRED);      
+   
     }
 
     function payRent(uint256 propertyId) external payable nonReentrant {
@@ -346,13 +363,14 @@ contract GovtFunctions is ReentrancyGuard {
         );
 
         uint256[3][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
-
+   
         bool isRenter = false;
-        uint256 tenantLength = tennants.length;
+        uint256 tenantLength = tennants[0].length;
 
         for (uint8 i = 0; i < tenantLength; i++) {
-            if (tennants[i][0] == propertyId) {
-                propertyMarketContract.setTenantsMapping(msg.sender, propertyId, i);
+            console.log('tenantlength: ', tenantLength);
+            if (tennants[0][i] == propertyId) {
+                //propertyMarketContract.setTenantsMapping(msg.sender, propertyId, i);
                 isRenter = true;
                 break;
             }
@@ -361,7 +379,7 @@ contract GovtFunctions is ReentrancyGuard {
         require(isRenter, "not tenant");
         uint256 accumulated = getRentAccumulated(currentItem.owner);
         setRentAccumulated((msg.value + accumulated), currentItem.owner);
-        currentItem.totalIncomeGenerated += msg.value;
+        propertyMarketContract.setTotalIncomeGenerated(propertyId, msg.value);
         propertyMarketContract.setRenterToPropertyTimestamp(propertyId, block.timestamp, msg.sender);
 
         uint256 price;

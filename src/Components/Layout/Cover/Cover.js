@@ -1,4 +1,7 @@
 export default function Cover() {
+    window.ethereum.on('accountsChanged', function (accounts) {                 
+        window.location.reload();
+    });
     return (
         <div className="bg-black lg:h-screen">
             <section className="text-white justify-center">
@@ -16,4 +19,4 @@ export default function Cover() {
             </section>
         </div>
     )
-}
+}       

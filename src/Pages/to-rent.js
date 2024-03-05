@@ -19,6 +19,10 @@ import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
 import SaleHistory from '../Components/sale-history'
 
+window.ethereum.on('accountsChanged', function (accounts) {                 
+  window.location.reload();
+});
+
 const ToRent = () => {
 
   const [soldProperties, setSoldProperties] = useState([])
@@ -52,12 +56,13 @@ const ToRent = () => {
       const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
       const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider) 
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-      const data = await govtContract.fetchPropertiesSold(currentPage) 
-      console.log('data: ',data.length)
+      const data = await marketContract.fetchPropertiesSold(currentPage) 
+      console.log('data: ',data)
 
-      const items = await Promise.all(data.map(async i => {
+      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0).map(async i => {
+        console.log(i.tokenId);
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
-
+        console.log('tokenUri: ',tokenUri)
         const nftTagHelper = new NftTagHelper()
         const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
 
@@ -74,7 +79,8 @@ const ToRent = () => {
         const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
         console.log('renterAddresses: ',renterAddresses)
         let saleHistory = [];
-
+        console.log(i.propertyId.toNumber())
+        console.log(i.saleHistory)
         if (i.saleHistory.length > 0) {
           i.saleHistory.forEach((item) => {
             const history = i.saleHistory.map((item) => {
@@ -94,7 +100,7 @@ const ToRent = () => {
         if (i.totalIncomeGenerated != 0) {
           totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
         } else totalIncomeGenerated = 0;
-
+        console.log('totalIncomeGenerated: ',totalIncomeGenerated)
         let item = {
           price,
           propertyId: i.propertyId.toNumber(),

@@ -28,6 +28,7 @@ const Renting = () => {
   const [rentAmount, setRentAmount] = useState(0)
   const [rentStatus, setRentStatus] = useState(false)
   const [rentText, setRentText] = useState('')
+  const [retries, setRetries] = useState(5)
 
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,53 +43,18 @@ const Renting = () => {
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
 
+  window.ethereum.on('accountsChanged', function (accounts) {                 
+    window.location.reload();
+  });
+
   useEffect(() => {
     setLoadingState('not-loaded')
-    // async function loadProps() {
-      //await 
-      loadProperties()
-    // }    
-    // async function loadTimeStamp() {
-    //   await loadTimeStamps()
-    // }  
-    //loadProps()
-    //loadTimeStamp()
-    
+    loadProperties()  
   }, [currentPage])
 
-  // useEffect(() => {
-  //   if (loadingState === 'loaded') {
-  //     loadTimeStamps(rentedProperties.length)
-  //   }
-  // }, [loadingState])
-
-  // const loadTimeStamps = async (pids) => {
-  //   const web3Modal = new Web3Modal()
-
-  //   const network = await detectNetwork()
-  //   const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-  //   const rpcUrl = getRpcUrl(network, projectId);
-
-  //   const providerOptions = {
-  //     rpc: {
-  //       [network]: rpcUrl,
-  //     },
-  //   };
-
-  //   const connection = await web3Modal.connect(providerOptions);
-  //   const provider = new ethers.providers.Web3Provider(connection);
-  //   const signer = provider.getSigner()
-
-  //   const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-  //   const renters = await marketContract.getPropertyPayments(pids);
-  //   console.log(renters)
-  //   // setRenterTimestamps(renters)    
-    
-  //   return renters;
-  // }
-
-  const CheckTimestampExpired = (property) => {
+  const CheckTimestampExpired = (property, connectedAddress) => {
     console.log(property)
+    console.log(connectedAddress)
     if (property.payments === undefined) {
       console.log("UNDEFINED");
       return true;
@@ -97,22 +63,29 @@ const Renting = () => {
     const allTimestampsZero = property.payments.every(payment => {        
         const timestamp = payment[2];
 
-        console.log(payment[2])        
-        return timestamp === 0 || timestamp === '0x00';
+        console.log('timestamp ', timestamp.toNumber())        
+        return timestamp == 0 || timestamp === '0x00';
     });
 
-    if (!allTimestampsZero) {
+    console.log('allTimestampsZero ', allTimestampsZero)
+
+    if (allTimestampsZero) {
       return true;
     }
+    console.log(property.payments)
 
-    const currentObject = property.payments.filter(a => a.propertyId == property.propertyId)[0] // Example timestamp from smart contract in seconds
+    const currentObject = property.payments.filter(a => a.propertyId == property.propertyId && a.renter == connectedAddress)[0] 
+    
     // console.log(ethers.BigNumber.from(currentObject.timestamp.toNumber())).toNumber()
-    const twentyFourHoursInMillis = 600 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const twentyFourHoursInMillis = 700 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
     const currentTimeInMillis = Math.floor(Date.now() / 1000);
     //const currentTimeInMullisPlusOneDay = Date.now() + twentyFourHoursInMillis;
+    if (currentObject === undefined) {
+      return true;
+    }
     console.log(currentObject)
-    console.log(currentTimeInMillis)
-    console.log(currentTimeInMillis - (currentObject.timestamp.toNumber()))
+    // console.log(currentTimeInMillis)
+    // console.log(currentTimeInMillis - (currentObject.timestamp.toNumber()))
 
     if ((currentTimeInMillis - (currentObject.timestamp.toNumber())) > twentyFourHoursInMillis) {
       console.log("true")
@@ -143,6 +116,7 @@ const Renting = () => {
 
       const signer = provider.getSigner()
       const address = await signer.getAddress();
+      console.log(address)
       setConnectedAddress(address);
 
       const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
@@ -152,6 +126,8 @@ const Renting = () => {
       setTokenAddress(tokenContractAddress);
 
       const data = await marketContract.fetchMyRentals()
+      console.log(data)    
+
       const tokensHex = await marketContract.getTokensEarned()
       const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
       console.log(tokens)
@@ -201,7 +177,7 @@ const Renting = () => {
         }      
 
         console.log(dataFiltered)
-        item.rentStatus = CheckTimestampExpired(item)
+        item.rentStatus = CheckTimestampExpired(item, address)
         console.log(item.rentStatus)
 
         if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
@@ -225,12 +201,15 @@ const Renting = () => {
         // Handle user rejection
         console.log('Connection request rejected by the user.');
         // Display an error message to the user
-        alert('Please connect your wallet to access your rentals');
+        
+        if (retries > 0) {
+          setRetries(retries - 1);
+          loadProperties()
+        }        
       } else {
-        console.log(ex)
-      }
+        console.log(ex)        
     }
-  }
+  }}
 
 
   const PayRent = async (property, i) => {
@@ -279,7 +258,7 @@ const Renting = () => {
     const signer = provider.getSigner()
 
     const contract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
-    const transaction = await contract.vacateProperty(
+    const transaction = await contract.vacateCommonTasks(
       property.propertyId
     )
 
@@ -295,7 +274,7 @@ const Renting = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  if (loadingState !== 'loaded' && timestampLoadingState !== 'loaded') return (
+  if (loadingState !== 'loaded') return (
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>

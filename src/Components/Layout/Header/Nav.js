@@ -120,7 +120,7 @@ export default function Nav() {
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "about" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/about">About</a></li>
+					<li><a className={splitLocation[1] === "about" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/about">How to Play</a></li>
 				</ul>
 				<div className='hidden lg:block'>
 					<ConnectWalletButton />
