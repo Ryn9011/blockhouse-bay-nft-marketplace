@@ -12,7 +12,7 @@ contract GovtFunctions is ReentrancyGuard {
     PropertyMarket public propertyMarketContract;  
     address internal immutable i_propertyMarketAddress;
     uint256 constant WEI_TO_ETH = 1000000000000000000;  
-    uint256 public constant DEPOSIT_REQUIRED = 0.001 ether; 
+    //uint256 public constant DEPOSIT_REQUIRED = 0.001 ether; 
     uint256 public totalDepositBal = 0;
     mapping(address => uint256) public rentAccumulated;
     mapping(address => uint256) public renterDepositBalance;
@@ -90,9 +90,9 @@ contract GovtFunctions is ReentrancyGuard {
         }        
     }
 
-    function getDepositRequired() public pure returns (uint256) {
-        return DEPOSIT_REQUIRED;
-    }
+    // function getDepositRequired() public pure returns (uint256) {
+    //     return DEPOSIT_REQUIRED;
+    // }
 
 
     function getPropertiesForSale() public view returns (uint256) {
@@ -106,9 +106,20 @@ contract GovtFunctions is ReentrancyGuard {
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
         
         require(property[0].owner == msg.sender, "Not owner");
-        require(rentPrice >= DEPOSIT_REQUIRED && rentPrice <= 500 ether, "Invalid rent price range");
+        require(rentPrice >= property[0].deposit && rentPrice <= 500 ether, "Invalid rent price range");
 
         propertyMarketContract.setRentPrice(propertyId, rentPrice);
+    }
+
+    function setDeposit(uint256 propertyId, uint256 rentPrice) public nonReentrant {   
+        uint256[] memory propertyIds = new uint256[](1);
+        propertyIds[0] = propertyId;     
+        PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
+        
+        require(property[0].owner == msg.sender, "Not owner");
+        require(rentPrice >= property[0].deposit && rentPrice <= 500 ether, "Invalid deposit price range");
+
+        propertyMarketContract.setDeposit(propertyId, rentPrice);
     }
 
     function fetchSingleProperty(uint256 propertyId) public view returns (PropertyMarket.Property memory) {
@@ -272,13 +283,15 @@ contract GovtFunctions is ReentrancyGuard {
 
         PropertyMarket.Property[] memory currentProperty = propertyMarketContract.getPropertyDetails(propertyIds, false);
 
-        require(msg.value == DEPOSIT_REQUIRED, "deposit required");
+        console.log(currentProperty[0].deposit);
+
+        require(msg.value == currentProperty[0].deposit, "deposit required");
         require(currentProperty[0].owner != msg.sender, "You can't rent your own property");
         require(currentProperty[0].owner != address(0), "Property owner address should not be zero");
 
         address[3] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
 
-        bool isAlreadyRenter = false;
+        bool isAlreadyRenter = false;  
         for (uint i = 0; i < 3; i++) {
             if (propertyRenters[i] == msg.sender) {
                 isAlreadyRenter = true;
@@ -342,10 +355,13 @@ contract GovtFunctions is ReentrancyGuard {
         // propertyMarketContract.vacateCommonTasks(propertyId, sender);
         //bool wasTenant = propertyMarketContract.vacateCommonTasks(propertyId, msg.sender); 
         // console.log('wasTenant: ', wasTenant);
+
+            //get sinlge property
+            PropertyMarket.Property memory currentItem = fetchSingleProperty(propertyId);
  
-            setTotalDepositBalance(DEPOSIT_REQUIRED, false);
+            setTotalDepositBalance(currentItem.deposit, false);
             // propertyMarketContract.decrementRelistCount();
-            payable(msg.sender).transfer(DEPOSIT_REQUIRED);      
+            payable(msg.sender).transfer(currentItem.deposit);      
    
     }
 

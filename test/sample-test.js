@@ -138,13 +138,17 @@ describe("PropertyMarket", function () {
     var [_,_,_,_,_,_, renter3] = await ethers.getSigners()  
     var [_,_,_,_,_,_,_, renter4] = await ethers.getSigners()  
 
-    // let allproperti2es = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(1)
+    let allproperti2es = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(1)
  
     console.log('initial balance of govtFunctions', (await ethers.provider.getBalance(govtFunctions.address)).toString());
     console.log('initial balance of propertyMarket', (await ethers.provider.getBalance(propertyMarket.address)).toString());
  
     await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 1, tokenContractAddress, false, { value: initialSalePrice}) 
     await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 2, tokenContractAddress, false, { value: initialSalePrice}) 
+    let allproperti2es3 = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(25)
+    console.log(allproperti2es3.length)
+
+    const numForSale = await govtFunctions.connect(buyerAddress).getPropertiesForSale();
     // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 3, tokenContractAddress, false, { value: initialSalePrice}) 
     // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 4, tokenContractAddress, false, { value: initialSalePrice}) 
     // await propertyMarket.connect(buyerAddress).createPropertySale(nft.address, 5, tokenContractAddress, false, { value: initialSalePrice}) 

@@ -38,7 +38,7 @@ window.ethereum.on('accountsChanged', function (accounts) {
 
 const Owned = () => {
 
-  const [nfts, setNfts] = useState([])
+  const [currentPosts, setCurrentPosts] = useState([]);
   const [loadingState, setLoadingState] = useState('not-loaded')
   const [loadingState2, setLoadingState2] = useState('not-loaded')
   const [acceptToken, setAcceptToken] = useState(false)
@@ -64,6 +64,7 @@ const Owned = () => {
   const [txloadingState2, setTxLoadingState2] = useState({});
   const [txloadingState3, setTxLoadingState3] = useState({});
   const [txloadingState4, setTxLoadingState4] = useState({});
+  const [totalUserPropertyCount, setTotalUserPropertyCount] = useState(0);
 
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
@@ -75,8 +76,7 @@ const Owned = () => {
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = nfts.slice(indexOfFirstPost, indexOfLastPost);
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;  
 
   const web3Modal = new Web3Modal()
   const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
@@ -130,6 +130,10 @@ const Owned = () => {
     try {
       //console.log(currentPage)
       const data = await marketContract.fetchMyProperties(currentPage)
+      const propertyCount = await marketContract.getUserProperties();
+
+      setTotalUserPropertyCount(23)
+      console.log(propertyCount)
       console.log(data)
       const propertyIds = [];
 
@@ -154,7 +158,7 @@ const Owned = () => {
 
       //console.log(data)
 
-      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() !== 0).map(async i => {
+      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() !== 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
         console.log(i)
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
         //const meta = await axios.get(tokenUri)
@@ -242,7 +246,7 @@ const Owned = () => {
       }))
       //console.log(items.length)
 
-      setNfts(items.slice(0, 20))
+      setCurrentPosts(items.slice(0, 20))
 
 
       setLoadingState('loaded')
@@ -353,7 +357,7 @@ const Owned = () => {
   const handleForSaleCheck = (propertyObj, e) => {
     //console.log(propertyObj)
     setPropertyIdTwitter(propertyObj.propertyId);
-    setNfts((prevList) =>
+    setCurrentPosts((prevList) =>
       prevList.map((property) =>
         property.propertyId === propertyObj.propertyId
           ? { ...property, forSaleChecked: e.target.checked }
@@ -369,7 +373,7 @@ const Owned = () => {
 
   const handleRentCheck = (propertyObj, e) => {
     setPropertyIdTwitter(propertyObj.propertyId);
-    setNfts((prevList) =>
+    setCurrentPosts((prevList) =>
       prevList.map((property) =>
         property.propertyId === propertyObj.propertyId
           ? { ...property, rentChecked: e.target.checked }
@@ -491,6 +495,27 @@ const Owned = () => {
     loadProperties()
   }
 
+  const ChangeDeposit = async (property, i) => {
+    const web3Modal = new Web3Modal()
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+    const signer = provider.getSigner()
+
+    const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+    let rentVal = document.getElementById('depositInput' + i).value
+    console.log(rentVal)
+    let newPrice = ethers.utils.parseUnits(rentVal, 'ether')
+    console.log(newPrice)
+    const transaction = await contract.setDeposit(property.propertyId, newPrice)
+    setTxLoadingState4({ ...txloadingState4, [i]: true });
+    try {
+      await transaction.wait()
+    } catch (ex) {
+      console.log(ex)
+    }    
+    loadProperties()
+  }
+
   const ChangeRent = async (property, i) => {
     const web3Modal = new Web3Modal()
     const connection = await web3Modal.connect()
@@ -499,7 +524,9 @@ const Owned = () => {
 
     const contract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
     let rentVal = document.getElementById('rentInput' + i).value
+    console.log()
     let newPrice = ethers.utils.parseUnits(rentVal, 'ether')
+    console.log(newPrice)
 
     const transaction = await contract.setRentPrice(property.propertyId, newPrice)
     setTxLoadingState4({ ...txloadingState4, [i]: true });
@@ -721,6 +748,18 @@ const Owned = () => {
     }
   }
 
+  function setDepositButton(e, i) {
+    if (document.getElementById("depositInput" + i).value.length == 0) {
+      document.getElementById("depositButton" + i).disabled = true
+      document.getElementById("depositButton" + i).classList.remove("bg-green-400", "cursor-pointer", "text-white", "hover:bg-pink-500")
+      document.getElementById("depositButton" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
+    } else {
+      document.getElementById("depositButton" + i).disabled = false
+      document.getElementById("depositButton" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
+      document.getElementById("depositButton" + i).classList.add("bg-green-400", "cursor-pointer", "text-white", "hover:bg-green-500")
+    }
+  }
+
   function SetTenantToDelete1(e, i, property) {
     document.getElementById("evictButton" + i).classList.remove("bg-gray-400", "text-gray-600")
     document.getElementById("evictButton" + i).classList.add("bg-red-400", "test-white", "hover:bg-red-500")
@@ -850,7 +889,7 @@ const Owned = () => {
     </div>
   )
 
-  if (loadingState === 'loaded' && !nfts.length && isConnected) return (
+  if (loadingState === 'loaded' && !currentPosts.length && isConnected) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
@@ -895,7 +934,7 @@ const Owned = () => {
           </div>
           <Pagination
             postsPerPage={postsPerPage}
-            totalPosts={nfts.length}
+            totalPosts={totalUserPropertyCount}
             paginate={paginate}
             currentPage={currentPage}
           />
@@ -1031,7 +1070,7 @@ const Owned = () => {
                             href={`https://twitter.com/intent/tweet?text=${text}`}
                             data-size="large"
                             target='new'
-                            disabled="true">
+                            >
                             <div className='border border-1 rounded p-1 px-2 flex'>
                               <p>Post</p>
                               <img src='logo-white.png' className='w-6 h-6 ml-4 cursor-pointer' />
@@ -1078,7 +1117,7 @@ const Owned = () => {
                           <div id="twitterSaleRentSection" ref={twitterTextRef}>
                             <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
                             {property.propertyId < 501 ? (
-                              <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB.</span>}</p>
+                              <p>{`Sale: ${property.price} Matic`} {property.tokenPrice != 0 && <span> / {property.tokenPrice} BHB - </span>}</p>
                             ) : (
                               <p>{` ${property.tokenPrice} BHB. `}</p>
                             )}
@@ -1407,14 +1446,73 @@ const Owned = () => {
                           </p>
                         ) : (
                           <button
-                            className="w-full bg-gray-400 text-gray-600 cursor-default font-bold py-2 rounded"
+                            className="w-full bg-gray-400 text-gray-600 cursor-default mb-4 font-bold py-2 rounded"
                             onClick={() => ChangeRent(property, i)}
 
                             id={"rentButton" + i}>
-                            Change
+                            Change Rent
                           </button>
                         )}
                       </div>
+
+                      <div className="pt-3">
+                        <div className="text-sm font-bold mb-4 mt-1 flex items-center justify-between">
+                          <div className='flex'>
+                            <p className="pr-1">Change Required Deposit</p>
+                            <div className="mb-1 relative">
+                              <div className="relative flex flex-col items-center group">
+                                <Link to="/about?section=owning" target='new'>
+                                  <svg
+                                    className="w-4 h-4 text-white"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                </Link>
+                                <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
+                                  <span className="relative z-10 p-2 text-xs leading-none text-black whitespace-no-wrap bg-white shadow-lg">
+                                    Learn more
+                                  </span>
+                                  <div className="w-3 h-3 -mt-2 rotate-45 bg-white"></div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className='flex items-center'>
+                            <input
+                              className="w-20 xl:w-24 h-6 bg-black shadow appearance-none border rounded py-2 text-white leading-tight focus:outline-none focus:shadow-outline "
+                              type="number"
+                              min="1"
+                              step="1"
+                              onBlur={handleBlur}
+                              onKeyDown={handleKeyPress}
+                              onChange={(e) => setDepositButton(e, i)}
+                              id={"depositInput" + i}
+                            />
+                            <img className="h-8 w-9 ml-2" src="./polygonsmall.png" />
+                          </div>
+                        </div>
+                        {txloadingState4[i] ? (
+                          <p className='w-full flex justify-center bg-pink-400 text-xs italic px-12 py-1 rounded'>
+                            <SpinnerIcon />
+                          </p>
+                        ) : (
+                          <button
+                            className="w-full bg-gray-400 text-gray-600 cursor-default font-bold py-2 rounded"
+                            onClick={() => ChangeDeposit(property, i)}
+                            id={"depositButton" + i}>
+                            Change Deposit
+                          </button>
+                        )}
+                      </div>
+
                     </div>
                   </div>
                 </div>

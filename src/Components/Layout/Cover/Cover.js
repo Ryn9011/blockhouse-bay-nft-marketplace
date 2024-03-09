@@ -1,7 +1,7 @@
+import { Add } from "@material-ui/icons";
+import AddTokenButton from "../AddTokenButton";
+
 export default function Cover() {
-    window.ethereum.on('accountsChanged', function (accounts) {                 
-        window.location.reload();
-    });
     return (
         <div className="bg-black lg:h-screen">
             <section className="text-white justify-center">
@@ -16,7 +16,8 @@ export default function Cover() {
                 <div className="flex justify-center relative px-4 lg:px-0 lg:pb-12 xl3:pb-0">
                     <img src="test48.png" className=" lg:w-2/5" alt="" />
                 </div>
+                <AddTokenButton />
             </section>
         </div>
     )
-}       
+}

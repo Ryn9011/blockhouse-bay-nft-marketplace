@@ -55,6 +55,7 @@ const ForSale = () => {
       const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
       const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
+      console.log(currentPage )
       const data = await marketContract.fetchPropertiesForSale(currentPage)
       console.log(data)
       const numForSale = await govtContract.getPropertiesForSale();
@@ -64,8 +65,11 @@ const ForSale = () => {
       setShowBottomNav(showBottomNav);
       setNumForSale(numForSale.toNumber());
 
-      const items = await Promise.all(data.map(async i => {
+      const items = await Promise.all(data.filter(a => a.tokenId.toNumber() !== 0).map(async i => {        
+
+        console.log(i.tokenId.toNumber())
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        
         console.log(i.propertyId.toNumber())
         const meta = await axios.get(tokenUri) //not used?  
 

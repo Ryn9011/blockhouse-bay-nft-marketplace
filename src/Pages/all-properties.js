@@ -48,7 +48,7 @@ const AllProperties = () => {
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
     const data = await govtContract.fetchAllProperties(currentPage)
 
-    const items = await Promise.all(data.map(async i => {
+    const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
       const meta = await axios.get(tokenUri)
@@ -56,8 +56,8 @@ const AllProperties = () => {
       let nftName = GetPropertyNames(meta)
 
       let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-      let depositHex = await govtContract.getDepositRequired()
-      let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
+      //let depositHex = await govtContract.getDepositRequired()
+      //et deposit = await ethers.utils.formatUnits(depositHex, 'ether')
 
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
       console.log(i.propertyId.toNumber())
@@ -95,7 +95,7 @@ const AllProperties = () => {
         roomTwoRented: i.roomTwoRented,
         roomThreeRented: i.roomThreeRented,
         rentPrice: rentPrice,
-        depositRequired: deposit,
+        depositRequired: i.deposit,
         available: false,
         roomsRented: 0,
         renterAddresses: renterAddresses,

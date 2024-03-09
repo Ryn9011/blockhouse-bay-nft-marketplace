@@ -369,7 +369,7 @@ const About = () => {
 
               <div className="lg:ml-16 content-center">
                 <div className="flex justify-center pr-16">
-                <div className="">Test</div>
+                {/* <div className="">Test</div> */}
                 </div>                
                 <div className="flex justify-center lg:justify-start 2xl:justify-center">
                   <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-3/5 lg:w-full lg:h-full xl3:w-4/6 pr-16 max-w-[40rem]" src="forsale.png" />
@@ -414,6 +414,14 @@ const About = () => {
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Set Rent Price</p>
                     <p className="mt-2 text-gray-500">
                       Property owners have complete control over their rental properties and can set the rent price to their desired amount.
+                    </p>
+
+                    <p className="text-white text-base xl3:text-lg  italic mt-4">Set Required Depsoit</p>
+                    <p className="mt-2 text-gray-500">
+                      Renter deposits are held by the platform not the property owner to prevent an owner potentially evicting a tenant with an agenda of taking a tenant's deposit.                      
+                    </p>
+                    <p className="mt-2 text-gray-500">
+                      An owner may choose to set a higher deposit however if they feel need to deter potential bad tenants.
                     </p>
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Track Late Rent Payments</p>

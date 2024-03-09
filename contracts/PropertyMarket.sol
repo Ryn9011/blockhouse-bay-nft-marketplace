@@ -64,7 +64,7 @@ contract PropertyMarket is ReentrancyGuard {
     address payable immutable i_govt;
     address payable i_govtContract;
     bool public govtContractSet = false;
-    uint256 public constant DEPOSIT_REQUIRED = 0.001 ether; //rent also
+    //uint256 public constant DEPOSIT_REQUIRED = 0.001 ether; //rent also
     uint256 public constant LISTING_PRICE = 0.001 ether;
     uint256 public constant INITIAL_SALE_PRICE = 0.001 ether;
     uint256 constant INITIAL_TOKEN_PRICE = 1 ether;
@@ -93,6 +93,7 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 tokenId;
         address payable seller;
         address payable owner;
+        uint256 deposit;
         uint256 salePrice;
         uint256 tokenSalePrice;
         uint256 rentPrice;
@@ -495,7 +496,7 @@ contract PropertyMarket is ReentrancyGuard {
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
     }
 
-    //initial sale from after mint
+    //initial sale from after minto
     function createPropertyListing(
         address nftContract,
         uint256[] memory tokenIds
@@ -510,7 +511,8 @@ contract PropertyMarket is ReentrancyGuard {
             listing.propertyId = tokenId;
             listing.nftContract = nftContract;
             listing.tokenId = tokenId;
-            listing.rentPrice = DEPOSIT_REQUIRED;
+            listing.rentPrice = 0.001 ether;
+            listing.deposit = 0.001 ether;
             listing.seller = payable(msg.sender);
             listing.owner = payable(address(0));
             listing.isForSale = true;
@@ -651,6 +653,12 @@ contract PropertyMarket is ReentrancyGuard {
         idToProperty[propertyId].rentPrice = rent;
     }
 
+
+    //set deposit on property
+    function setDeposit(uint256 propertyId, uint256 amount) public onlyGovtContract nonReentrant {
+        idToProperty[propertyId].deposit = amount;
+    }
+
     // this function resets the propertyToRenters mapping to 0
     function resetPropertyToRenters(uint256 propertyId, address sender) internal {
         for (uint256 i = 0; i < 3; i++) {
@@ -669,7 +677,7 @@ contract PropertyMarket is ReentrancyGuard {
         for (uint256 i = 0; i < 3; i++) {
             if (tenants[sender][i] == propertyId) {                
                 tenants[sender][i] = 0;
-                propertyToRenters[propertyId][i] = address(0);
+                //propertyToRenters[propertyId][i] = address(0);
                 // payable(sender).transfer(DEPOSIT_REQUIRED); //withdraw from contract
                 // totalDepositBal -= DEPOSIT_REQUIRED;
                 uint256 timestamp = renterToPropertyPaymentTimestamps[sender][propertyId];

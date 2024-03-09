@@ -64,7 +64,7 @@ const Exclusive = () => {
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
     const data = await govtContract.fetchExclusiveProperties();
 
-    const items = await Promise.all(data.map(async i => {
+    const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
       const meta = await axios.get(tokenUri)
@@ -190,7 +190,7 @@ const Exclusive = () => {
 
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
-    const deposit = await govtContract.getDepositRequired();
+    const deposit = property.deposit; //await govtContract.getDepositRequired();
 
     const transaction = await govtContract.rentProperty(property.propertyId, {
       value: deposit

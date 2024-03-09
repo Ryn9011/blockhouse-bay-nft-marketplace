@@ -146,7 +146,7 @@ const Renting = () => {
       // console.log(renters)
       // setRenterTimestamps(renters)      
       console.log(renterTimestamps)
-      const items = await Promise.all(dataFiltered.map(async i => {
+      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
 
         console.log(i.tokenId.toNumber())
 
@@ -257,8 +257,8 @@ const Renting = () => {
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
 
-    const contract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
-    const transaction = await contract.vacateCommonTasks(
+    const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    const transaction = await contract.vacate(
       property.propertyId
     )
 
@@ -297,7 +297,12 @@ const Renting = () => {
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
           <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Rented Properties</p>
           <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">You are not currently renting any properties.</p>
-          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent a property then check back here.</p>
+          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent a property then check back here.</p>        
+          <p className='text-white text-xs mt-4 pl-6'>Add the BHB Token address to your wallet</p>               
+          <span className="text-pink-400 text-xs ml-6">
+            {propertytokenaddress}
+          </span>
+          <button className="border px-2 text-white py-0.5 ml-2 border-1 text-xs cursor-pointer" onClick={handleCopy}>Copy</button>
         </div>
       </div>
     </div>

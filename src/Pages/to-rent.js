@@ -59,7 +59,7 @@ const ToRent = () => {
       const data = await marketContract.fetchPropertiesSold(currentPage) 
       console.log('data: ',data)
 
-      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0).map(async i => {
+      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
         console.log(i.tokenId);
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
         console.log('tokenUri: ',tokenUri)
@@ -74,8 +74,10 @@ const ToRent = () => {
 
         let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
-        let depositHex = await govtContract.getDepositRequired();
-        let deposit = await ethers.utils.formatUnits(depositHex, 'ether')
+        let depositHex = i.deposit//await govtContract.getDepositRequired();
+        let deposit = ethers.utils.formatUnits(depositHex, 'ether')
+       
+        console.log('deposit: ',deposit)
         const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
         console.log('renterAddresses: ',renterAddresses)
         let saleHistory = [];
@@ -113,7 +115,8 @@ const ToRent = () => {
           roomTwoRented: i.roomTwoRented,
           roomThreeRented: i.roomThreeRented,
           rentPrice: rentPrice,
-          depositRequired: deposit,
+          depositRequired: deposit,   
+          depositHex: depositHex,       
           available: false,
           roomsRented: 0,
           renterAddresses: renterAddresses,
@@ -156,15 +159,16 @@ const ToRent = () => {
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
       //const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider) 
 
-      const test = await govtContract.getDepositRequired();
-      const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
-      const num = ethers.utils.formatEther(deposit)
+      // const test = i.depositRequired//await govtContract.getDepositRequired();
+      // console.log('test: ',test)
+      // const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
+      // const num = ethers.utils.formatEther(deposit)
       //const rentals = await marketContract.getPropertiesRented()
       // ? ethers.utils.parseUnits(property.rentPrice.toString(), 'ether') 
       // : ethers.utils.parseUnits(contract.defaultRentPrice.toString(), 'ether')
       //STOP SAME ADDRESS RENTING MORE THAN ONE ROOM?            
       const transaction = await govtContract.rentProperty(property.propertyId, {
-        value: test
+        value: property.depositHex
       });
       setTxLoadingState({ ...txloadingState, [i]: true });
       
