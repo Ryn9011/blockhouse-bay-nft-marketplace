@@ -27,7 +27,7 @@ const AllProperties = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = propertyList.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = propertyList.slice(indexOfFirstPost, indexOfLastPost);  
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -94,6 +94,7 @@ const AllProperties = () => {
         roomOneRented: i.roomOneRented,
         roomTwoRented: i.roomTwoRented,
         roomThreeRented: i.roomThreeRented,
+        roomFourRented: i.roomFourRented,
         rentPrice: rentPrice,
         depositRequired: i.deposit,
         available: false,
@@ -113,6 +114,9 @@ const AllProperties = () => {
         item.roomsRented++
       }
       if (item.roomThreeRented == true) {
+        item.roomsRented++
+      }
+      if (item.roomFourRented == true) {
         item.roomsRented++
       }
       return item
@@ -195,7 +199,7 @@ const AllProperties = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rooms Rented:</p>
-                        <p className="font-mono text-xs text-green-400">{property.roomsRented}/3</p>
+                        <p className="font-mono text-xs text-green-400">{property.roomsRented}/4</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
@@ -236,12 +240,26 @@ const AllProperties = () => {
                           </>
                         }
                         {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
-                          <div className='flex items-center justify-between'>
+                          <div className='flex items-center justify-between mb-2'>
                             <p className={" break-words"}>
                               {property.renterAddresses[2]}
                             </p>
                             <Blockies
                               seed={property.renterAddresses[2]}
+                            />
+                          </div>
+                          : <>
+                            {property.renterAddresses[0] === "0.0" &&
+                              <p>0x</p>}
+                          </>
+                        }
+                        {ethers.utils.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
+                          <div className='flex items-center justify-between'>
+                            <p className={" break-words"}>
+                              {property.renterAddresses[3]}
+                            </p>
+                            <Blockies
+                              seed={property.renterAddresses[3]}
                             />
                           </div>
                           : <>
@@ -258,6 +276,16 @@ const AllProperties = () => {
 
             })}
           </section>
+         
+            <div className='mt-6'>
+              <Pagination
+                postsPerPage={postsPerPage}
+                totalPosts={500}
+                paginate={paginate}
+                currentPage={currentPage}
+              />
+            </div>
+          
         </div>
       </div>
     </div>

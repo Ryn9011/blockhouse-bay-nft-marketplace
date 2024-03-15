@@ -46,7 +46,7 @@ function App() {
             <Route path="/owned" element={<Owned />} />
             <Route path="/renting" element={<Renting />} />
             <Route path="/blockhouse-bay-gardens" element={<Exclusive />} />
-            <Route path="/about" element={<About />} />
+            <Route path="/how-to-play" element={<About />} />
             <Route path="/create-item" element={<CreateItem />} />
             <Route path="/property-view/:propertyId" element={<PropertyView />} />
           </Routes>

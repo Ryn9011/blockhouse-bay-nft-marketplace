@@ -56,7 +56,7 @@ const useStyles = makeStyles({
   },
 });
 
-window.ethereum.on('accountsChanged', function (accounts) {                 
+window.ethereum.on('accountsChanged', function (accounts) {
   window.location.reload();
 });
 
@@ -67,6 +67,7 @@ const About = () => {
   const [ownedExpanded, setOwnedExpanded] = React.useState(false);
   const [rentingExpanded, setRentingExpanded] = React.useState(false);
   const [exclusiveExpanded, setExclusiveExpanded] = React.useState(false);
+  const [feesExpanded, setFeesExpanded] = React.useState(false);
 
   const classes = useStyles();
   const location = useLocation();
@@ -140,6 +141,12 @@ const About = () => {
     } else {
       setExclusiveExpanded(false)
     }
+
+    if (panel === "fees" && isExpanded) {
+      setFeesExpanded(true)
+    } else {
+      setFeesExpanded(false)
+    }
   };
 
   const handleModalOpen = () => {
@@ -189,8 +196,8 @@ const About = () => {
                       <img src="small.gif" className="mt-4" alt="buy/sell/rent" />
                     </div>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Real Estate Simulation</p>
-                    <p className="mt-2 text-gray-500">
-                      Blockhouse Bay is a simple but captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! <button className="text-indigo-400 underline" onClick={handleModalOpen}>TLDR</button>
+                    <p className="mt-2 text-gray-400">
+                      Blockhouse Bay is a simple but captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! 
                     </p>
                     <Modal
                       open={isOpen}
@@ -232,7 +239,8 @@ const About = () => {
                           the Polygon network, and renters are rewarded with BHB tokens for
                           paying their rent. BHB tokens can be used to buy and sell properties on
                           the platform or to purchase exclusive properties that are only
-                          available for purchase with BHB tokens.
+                          available for purchase with BHB tokens. The higher the rent price, the higher the token reward.
+                          A diminishing supply factor is in place and so as supply runs lower, the amount of tokens paid out will decrease.
                         </Typography>
                         <Typography variant="body1" gutterBottom>
                           10000000 BHB tokens were minted at the start of the project.
@@ -253,6 +261,9 @@ const About = () => {
                           significant capital investment. By leveraging the power of the Polygon
                           blockchain and NFT technology, Blockhouse Bay creates a decentralized
                           and secure real estate market that is accessible to everyone.
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                          The smart contracts behind the platform have been audited by an industry expert but risks can still potentially exist. See disclaimer below.
                         </Typography>
                         <Typography variant="body1" gutterBottom>
                           <p className="text-yellow-200 font-semibold  mt-4">DISCLAIMER</p>
@@ -278,18 +289,18 @@ const About = () => {
                         <div className="flex justify-center items-center mt-4 text-sm italic">
                           <p className="mr-1">Blockhouse Bay was developed by</p>
                           <div className="flex items-center">
-                            <a className="text-yellow-100 underline" href="/">8BitCities</a>
+                          <a href="mailto:ryanj.dev@icloud.com" className="text-yellow-100 underline">Ryan J</a>
                           </div>
-                          <img src={"favicon.ico"} className="h-10 w-10 ml-2" alt="React logo" />
+                          {/* <img src={"favicon.ico"} className="h-10 w-10 ml-2" alt="React logo" /> */}
                         </div>
                         <div className="text-sm italic flex justify-center">
                           Copyright &copy; {new Date().getFullYear()}
                         </div>
-                        
+
                       </div>
                     </Modal>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Landlord Tenant or Both!</p>
-                    <p className="mt-2 mb-3.5 text-gray-500">
+                    <p className="mt-2 mb-3.5 text-gray-400">
                       With Blockhouse Bay, you have the flexibility to choose your role: be a landlord, a tenant, or even both! Dive into the dynamic world of real estate and embrace the opportunities that come your way.
                     </p>
                     <div className="flex">
@@ -300,27 +311,31 @@ const About = () => {
                       </div>
                     </div>
 
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Blockhouse Bay operates on the Polygon Layer 2 blockchain, allowing for minimal transaction fees. This means that you can engage in buying, selling, or renting activities without any worries about transaction costs.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       All property NFT images are stored on Arweave's decentralized permanent storage.
                     </p>
+                    <p className="text-white text-base xl3:text-lg italic mr-2 pt-0.5 mt-3">About the Developer</p>
+                    <p className="mt-2 text-gray-400">
+                      My name is Ryan, I'm a Web3 enthusiast and developer. I created Blockhouse Bay for two reasons: Firstly, as a fun way to learn about blockchain and NFT concepts, and secondly, as a means to try to fund a new laptop - Just opening Notepad on mine is enough to heat up the chassis to about 2000 degrees, causing the cooling fans to generate more noise than a hovercraft..                   
+                      </p>
+                      <button className="text-indigo-400 underline mt-2" onClick={handleModalOpen}>TLDR</button>
                   </li>
-
                   <li className="pt-3 pb-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Passive Income</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Earn MATIC and BHB Tokens</p>
 
 
-                    <p className="mt-1 text-gray-500">
+                    <p className="mt-1 text-gray-400">
                       As a landlord, you'll enjoy the satisfaction of earning real money from your renters in the form of MATIC tokens. You'll also have the chance to receive exclusive Blockhouse Bay tokens (BHB) every time rent is paid. These tokens open up exciting possibilities and provide a cost-effective way to purchase properties.
                     </p>
                   </li>
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Exclusive Properties</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Spend BHB Tokens</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Discover a collection of stunning exclusive properties that can only be acquired with BHB tokens. Take a peek at the Blockhouse Bay Gardens properties and find your dream property that sets you apart from the rest.
                     </p>
                   </li>
@@ -347,30 +362,35 @@ const About = () => {
                 <ul className="divide-y divide-gray-200">
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Buying</h3>
+                    <p className="text-white text-base xl3:text-lg italic mt-4">Availability</p>
+                    <p className="mt-2 text-gray-400">
+                      There are a total of 500 standard properties and 50 exclusive properties available for purchase. Each property is represented by a pre minted non-fungible token (NFT).
+                    </p>
                     <p className="text-white text-base xl3:text-lg italic mt-4">Payment Options</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Properties can be bought by paying the asking price in MATIC or BHB tokens.
                     </p>
-                    <p className="mt-2 text-gray-500">BHB tokens can be obtained by becoming a renter on an owned property.</p>
-                    <p className="mt-2 text-gray-500">A 5 Matic fee is required when buying with BHB tokens.</p>
-
+                    <p className="mt-2 text-gray-400">BHB tokens can be acquired by becoming a tenant in a property owned by another user. Tenants are rewarded with tokens when they pay rent and the higher the rent price, the more tokens are rewarded</p>
+                    <p className="text-white text-base xl3:text-lg italic mt-4">Generating Income</p>
+                    <p className="mt-2 text-gray-400">
+                      Becoming a property owner can earn income in two ways: Passivly when tenants pay rent and by selling the property for a profit. As more properties are sold, inflation will come into play and properties will become more valable
+                    </p>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Property Resale</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Property owners have the option to resell their property for either MATIC or BHB tokens.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Properties can be sold with existing tennants which will transfer over to the new property owner with the sale.
                     </p>
-                    <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Transactions</h3>
-                    <p className="mt-2 text-gray-500">The duration for completing a transaction, whether it involves buying, renting, or selling, can fluctuate based on network activity. Once a transaction is validated on the Polygon blockchain, property details will be automatically updated.</p>
                   </li>
                 </ul>
               </div>
 
               <div className="lg:ml-16 content-center">
-                <div className="flex justify-center pr-16">
-                {/* <div className="">Test</div> */}
-                </div>                
+                <div className="flex justify-center">
+                  <p className="italic ">Property Sale Panel</p>
+                </div>
+
                 <div className="flex justify-center lg:justify-start 2xl:justify-center">
                   <img className="mt-4 brightness-110 transform sm:h-3/5 sm:w-4/5 md:h-1/5 md:w-3/5 lg:w-full lg:h-full xl3:w-4/6 pr-16 max-w-[40rem]" src="forsale.png" />
                 </div>
@@ -395,42 +415,39 @@ const About = () => {
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Property Owner Actions</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Collect Rent</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Property owners can easily manage each of their properties and collect rent from the Property Management Panel.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Any uncollected rent will accumulate and can be withdrawn at the owner's convenience. Rent is paid in MATIC tokens.
                     </p>
-                    <p className="mt-2 text-gray-500">
-                      A 5% text will be deducted from the rent amount collected.
-                    </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Owned properties are automatically listed as available to rent for potential tenants.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Each property has three rooms available for tenants to rent.
                     </p>
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Set Rent Price</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Property owners have complete control over their rental properties and can set the rent price to their desired amount.
                     </p>
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Set Required Depsoit</p>
-                    <p className="mt-2 text-gray-500">
-                      Renter deposits are held by the platform not the property owner to prevent an owner potentially evicting a tenant with an agenda of taking a tenant's deposit.                      
+                    <p className="mt-2 text-gray-400">
+                      Renter deposits are held by the platform not the property owner to prevent an owner potentially evicting a tenant with an agenda of taking a tenant's deposit.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       An owner may choose to set a higher deposit however if they feel need to deter potential bad tenants.
                     </p>
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Track Late Rent Payments</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       To help owners stay on top of their tenants, any address with late rent payment will flag up in yellow. Renters are expected to pay rent daily.
                     </p>
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Evict Tenants</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Owners can evict a tenant if the tenant consistently fails to pay rent. It is ultimately down to the owner's discretion to decide whether to evict a tenant or not.
                     </p>
                   </li>
@@ -438,24 +455,20 @@ const About = () => {
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Selling a Property</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Listing Fee</p>
-                    <p className="mt-2 text-gray-500">
-                      Property owners have the option to sell their property to other interested buyers. A listing fee of 10 Matic will incur.
-                    </p>
+
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Payment Options</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Properties can be sold for MATIC or BHB tokens as payment. Mixed payments are not available.
                       Properties cannot be sold for less than their original price when being sold for MATIC tokens.
                     </p>
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Withdraw Sale</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       A property for sale can be withdrawn from the market by the owner at any time. Listing fee not refunded.
                     </p>
-                    <p className="mt-2 text-gray-500">
-                      5% of the sale amount will be deducted when a sale is made.
-                    </p>
-                    <p className="mt-2 text-gray-500">
+
+                    <p className="mt-2 text-gray-400">
                       <span className="text-red-600">Warning</span> - Directly transferring your NFT property to another user from your wallet will not transfer ownership of the property on the Blockhouse Bay platform;
                       this will result in the buyer not being able to participate on the Blockhouse Bay platform.
                     </p>
@@ -464,13 +477,13 @@ const About = () => {
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Sharing Your Property</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Twitter</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Whether you're looking for renters or buyers, you can share your property on Twitter with the click of a button.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       The tweet button will open a Twitter post for you to cutomize with a link to your individual property.
                     </p>
-                    <p className="mt-2 text-gray-500 mb-12">
+                    <p className="mt-2 text-gray-400 mb-12">
                       There are two checkboxes which if checked will add additional sale and rent information to the tweet.
                     </p>
                     <div className="flex justify-center lg:justify-start">
@@ -482,10 +495,8 @@ const About = () => {
               </div>
               <div className="lg:pt-1  xl3:ml-0">
                 <div className="xl3:ml-14 lg:w-4/5 xl3:w-1/2 pt-2">
-                  <div className="flex justify-center pt-3 pb-2 italic">
-                    <p>Property Owner Management Panel</p>
-                  </div>
-                  <div className="flex h-9 mb-3 justify-center lg:justify-end">
+                  <div className="flex h-9 mb-3 justify-center lg:justify-between">
+                    <p className="italic">Property Owner Management Panel</p>
                     <Pagination
                       postsPerPage={1}
                       totalPosts={2}
@@ -535,38 +546,35 @@ const About = () => {
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200">Renting a Room</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Rental Deposit</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       To rent a room in a property, a deposit of 10 Matic must be made. This is refunded when the renter decides to vacate the room.
                     </p>
-                    <p className="mt-2 text-gray-500">
-                      A user can rent only one room on the same property.
-                    </p>
-                    <p className="mt-2 text-gray-500">
-                      A total of 3 deposits can be made at any one time for an inidival wallet address.
-                    </p>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Rent Payment Obligation</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Rent must be paid daily. A renter will be flagged as a late payer to the owner if no payment is made on time. It's down to the property owner's discretion to evict a tenant if they fail to pay rent consistently.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       If a renter is evicted, they will lose their rental deposit.
                     </p>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Restrictions</p>
-                    <p className=" text-gray-500 mt-2">
+                    <p className=" text-gray-400 mt-2">
                       Properties with at least one available spare room can be rented from the property owner.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       A user can rent only one room on the same property.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       A user cannot rent a room on a property they own.
+                    </p>
+                    <p className="mt-2 text-gray-400">
+                      A total of 4 deposits can be made at any one time for an inidival wallet address and so a maximum of 4 properties can be rented at any one time.
                     </p>
                   </li>
 
                   <li className="py-4">
                     <h3 className="text-2xl font-semibold text-yellow-200">Token Rewards</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">BHB Token Address</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       In your wallet select import tokens and paste in the BHB token address -
                     </p>
                     <p>
@@ -576,35 +584,39 @@ const About = () => {
                       <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>
                     </p>
                     <p className="text-white text-base xl3:text-lg italic mt-4">Earning BHB Tokens</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in MATIC.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       The higher the rent price paid, the higher the token rewards will be for the tenant.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
 
                     </p>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Spending BHB Tokens</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       The initial token price of 2000 BHB works out to be cheaper than buying the property in MATIC. Renting is ideal for those who don't want to fork out up front the MATIC to buy a property and is a cheaper pathway to owning a property.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
 
                     </p>
                     <p className="text-white text-base xl3:text-lg italic mt-4">Blockhouse Bay Gardens</p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       You can also rent from the exclusive Blockhouse Bay Gardens properties. These properties are more expensive to rent but offer tripple token rewards.
                     </p>
-                    <p className="mt-2 text-gray-500">
+                    <p className="mt-2 text-gray-400">
                       If enough BHB tokens are accumulated, you will be able to purchase a property on Blockhouse Bay Gardens - availability permitting.
                     </p>
                   </li>
                 </ul>
               </div>
+
+              {/* <div className="flex h-9 mb-3 justify-center lg:justify-between">
+                  <p className="italic">Property Owner Management Panel</p> */}
               <div className="lg:pt-1  xl3:ml-0">
                 <div className="xl3:ml-14 lg:w-4/5 xl3:w-1/2">
-                  <div className="flex h-9 mb-3 justify-center lg:justify-start">
+                  <div className="flex h-9 mb-3 justify-center lg:justify-between">
+                    <p className="italic">To-Rent / Renter Management Panel</p>
                     <Pagination
                       postsPerPage={1}
                       totalPosts={2}
@@ -651,7 +663,7 @@ const About = () => {
               <ul className="divide-y divide-gray-200 ">
                 <li className="py-4">
                   <h3 className="text-2xl font-semibold text-green-300">Blockhouse Bay Gardens</h3>
-                  <p className="mt-2 text-gray-500">
+                  <p className="mt-2 text-gray-400">
                     Blockhouse Bay Gardens, a long exclusive street of grand and stunning homes,
                     is a paradise of luxurious living. From impressive architecture to immaculate gardens,
                     each house is a masterpiece of sophistication,
@@ -659,15 +671,15 @@ const About = () => {
                 </li>
                 <li className="py-4">
                   <h3 className="text-lg italic font-semibold">Buying</h3>
-                  <p className="mt-2 text-gray-500">Properties on Blockhouse Bay Gardens can only be purchased and sold using BHB tokens</p>
+                  <p className="mt-2 text-gray-400">Properties on Blockhouse Bay Gardens can only be purchased and sold using BHB tokens</p>
                 </li>
                 <li className="py-4">
                   <h3 className="text-lg italic font-semibold">Renting</h3>
-                  <p className="mt-2 text-gray-500">Tripple BHB token rewards will be given to renters on this street</p>
+                  <p className="mt-2 text-gray-400">Tripple BHB token rewards will be given to renters on this street</p>
                 </li>
                 <li className="py-4">
                   <h3 className="text-lg italic font-semibold">Ranking</h3>
-                  <p className="mt-2 text-gray-500">Once a property on this street has been sold, they will be given a ranking and ordered accordingly based on total income generated from rent and sale history total.</p>
+                  <p className="mt-2 text-gray-400">Once a property on this street has been sold, they will be given a ranking and ordered accordingly based on total income generated from rent and sale history total.</p>
                 </li>
               </ul>
               <div className="gallery h-fit pb-16 md:pb-40 lg:pb-0 lg:h-full cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
@@ -687,6 +699,48 @@ const About = () => {
                   <img src="gallery5.png" id="clipped" />
                 </a>
                 {/* <div className="shadow"></div> */}
+                
+              </div>
+            </div>
+          </AccordionDetails>
+
+        </Accordion>
+        <Accordion className={classes.root} expanded={expanded === 'fees'} onChange={handleChange('fees')}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'fees' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
+            <div>
+              <div>
+                <p className={(feesExpanded ? "mr-4 ml-6 font-semibold text-3xl lg:text-4xl border border-2 p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold")}>Transactions & Fees</p>
+              </div>
+            </div>
+          </AccordionSummary>
+          <AccordionDetails className={classes.details}>
+            <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:mb-6">
+              <div className="lg:col-span-2 lg:pr-32 xl:text-xl ">
+                <ul>
+                  <h3 className="text-2xl font-semibold text-yellow-200 pt-4">Transactions</h3>
+                  <p className="mt-2 text-gray-400">The duration for completing a transaction, whether it involves buying, renting, or selling, can fluctuate based on network activity. Once a transaction is validated on the Polygon blockchain, property details will be automatically updated.</p>
+                  <p className="text-white text-base xl3:text-lg italic mt-4">Buying</p>
+                  <p className="mt-2 text-gray-400">
+                    When buying a property using your BHB tokens, an additional transaction is required to approve the Blockhouse Bay platform to transfer tokens from the buyer to the seller.
+                  </p>
+                  <p className="text-white text-base xl3:text-lg italic mt-4">Selling</p>
+                  <p className="mt-2 text-gray-400">
+                    When selling a property, an additional transaction will occur as the Blockhouse Bay platform requires your approval to sell your property on your behalf
+                  </p>
+                  <li className="py-4">
+                    <h3 className="text-2xl font-semibold text-yellow-200">Fees</h3>
+                    <p className="text-white text-base xl3:text-lg  italic mt-4">Buying</p>
+                    <p className="mt-2 text-gray-400">A 5 Matic fee is required when buying a property with BHB tokens.</p>
+                    <p className="text-white text-base xl3:text-lg  italic mt-4">Selling</p>
+                    <p className="mt-2 text-gray-400">
+                      Property owners have the option to sell their property to other interested buyers. A listing fee of 10 Matic will incur and 5% of the sale amount will be deducted when a sale is made.
+                    </p>
+                    <p className="text-white text-base xl3:text-lg  italic mt-4">Renting</p>
+                    <p className="mt-2 text-gray-400">
+                      A 5% fee will be deducted from the rent amount collected.
+                    </p>
+                  </li>
+                </ul>
               </div>
             </div>
           </AccordionDetails>

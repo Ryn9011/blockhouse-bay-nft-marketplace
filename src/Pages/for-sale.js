@@ -20,7 +20,7 @@ import SaleHistory from '../Components/sale-history'
 import GetPropertyNames from '../getPropertyName'
 import SpinnerIcon from '../Components/spinner';
 
-window.ethereum.on('accountsChanged', function (accounts) {                 
+window.ethereum.on('accountsChanged', function (accounts) {
   window.location.reload();
 });
 
@@ -38,7 +38,7 @@ const ForSale = () => {
     loadProperties(currentPage)
   }, [currentPage])
 
-  const loadProperties = async (currentPaged,i) => {
+  const loadProperties = async (currentPaged, i) => {
     const indexOfLastPost = currentPage * postsPerPage;
     const indexOfFirstPost = indexOfLastPost - postsPerPage;
     try {
@@ -55,7 +55,7 @@ const ForSale = () => {
       const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
       const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-      console.log(currentPage )
+      console.log(currentPage)
       const data = await marketContract.fetchPropertiesForSale(currentPage)
       console.log(data)
       const numForSale = await govtContract.getPropertiesForSale();
@@ -65,11 +65,11 @@ const ForSale = () => {
       setShowBottomNav(showBottomNav);
       setNumForSale(numForSale.toNumber());
 
-      const items = await Promise.all(data.filter(a => a.tokenId.toNumber() !== 0).map(async i => {        
+      const items = await Promise.all(data.filter(a => a.tokenId.toNumber() !== 0).map(async i => {
 
         console.log(i.tokenId.toNumber())
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
-        
+
         console.log(i.propertyId.toNumber())
         const meta = await axios.get(tokenUri) //not used?  
 
@@ -87,7 +87,7 @@ const ForSale = () => {
         }
 
         if (i.propertyId == 2) {
-          console.log('THIS ONE:' ,i)
+          console.log('THIS ONE:', i)
         }
 
         let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
@@ -122,6 +122,7 @@ const ForSale = () => {
           roomOneRented: i.roomOneRented,
           roomTwoRented: i.roomTwoRented,
           roomThreeRented: i.roomThreeRented,
+          roomFourRented: i.roomFourRented,
           roomsToRent: 0,
           saleHistory: saleHistory,
           dateSoldHistory: i.dateSoldHistory,
@@ -139,14 +140,17 @@ const ForSale = () => {
         if (item.roomThreeRented == true) {
           item.roomsToRent++
         }
+        if (item.roomFourRented == true) {
+          item.roomsToRent++
+        }
         return item
       }))
       setCurrentPosts(items.slice(0, 20))
-      setLoadingState('loaded')   
-      setTxLoadingState({ ...txloadingState, [i]: false });   
+      setLoadingState('loaded')
+      setTxLoadingState({ ...txloadingState, [i]: false });
     } catch (error) {
       console.log(error)
-      setTxLoadingState({ ...txloadingState, [i]: false }); 
+      setTxLoadingState({ ...txloadingState, [i]: false });
     }
   }
 
@@ -161,14 +165,14 @@ const ForSale = () => {
       const connection = await web3Modal.connect();
       const provider = new ethers.providers.Web3Provider(connection);
       const signer = provider.getSigner();
-  
+
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
       let price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
       let isTokenSale = false;
-  
+
       let propertyTokenContract = undefined;
       let amount = undefined;
-  
+
       if (brb != undefined) {
         if (brb.checked) {
           price = ethers.utils.parseUnits("0", 'ether');
@@ -178,8 +182,8 @@ const ForSale = () => {
           await propertyTokenContract.allowSender(amount);
         }
       }
-  
-      
+
+
       const transaction = await contract2.createPropertySale(
         nftaddress,
         nft.propertyId,
@@ -187,7 +191,7 @@ const ForSale = () => {
         isTokenSale,
         { value: price }
       );
-  
+
       if (document.getElementById("pogRadio" + i) != undefined) {
         if (document.getElementById("pogRadio" + i).checked) {
           await propertyTokenContract.allowSender(0);
@@ -199,10 +203,10 @@ const ForSale = () => {
     } catch (error) {
       // Handle the error when the user rejects the transaction in MetaMask
       console.error("Transaction rejected by the user or an error occurred:", error);
-      setTxLoadingState({ ...txloadingState, [i]: false });   
+      setTxLoadingState({ ...txloadingState, [i]: false });
     }
   };
-  
+
 
   const paginate = (pageNumber) => {
     setCurrentPage(pageNumber)
@@ -221,7 +225,7 @@ const ForSale = () => {
               </svg>
             </Link>
           </div>
-          <img src="autumn.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-5/12 lg:pl-12" />          
+          <img src="autumn.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-5/12 lg:pl-12" />
         </div>
       </div>
     </div>
@@ -292,7 +296,7 @@ const ForSale = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rooms Rented:</p>
-                        <p className="font-mono text-xs text-green-400">{property.roomsToRent}/3</p>
+                        <p className="font-mono text-xs text-green-400">{property.roomsToRent}/4</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
@@ -319,10 +323,10 @@ const ForSale = () => {
                             //onChange={onCurrencyChange}
                             />
                           </div>
-                          <div className="mb-2 mr-12 pt-2 text-white">
+                          <label htmlFor={"maticRadio" + i}  className="cursor-pointer mb-2 mr-12 pt-2 text-white">
                             <p className="font-bold whitespace-break-spaces">{property.price} </p>
                             <p className='font-bold'>MATIC</p>
-                          </div>
+                          </label>
                           <div>
                             <img className="h-9 w-10 mr-2 mt-3.5" src="./polygonsmall.png" />
                           </div>
@@ -342,9 +346,9 @@ const ForSale = () => {
                                 />
                               </div>
                               <div className='flex'>
-                                <div className="mb-2 pt-2 text-white">
+                              <label htmlFor={"pogRadio" + i} className="mb-2 cursor-pointer pt-2 text-white">
                                   <p className="font-bold">{property.tokenSalePrice} BHB</p>
-                                </div>
+                                </label>
 
                                 <div>
                                   <img
@@ -360,7 +364,7 @@ const ForSale = () => {
                             <>
                               <div className=''>
                                 <input
-                                  className="mt-4 mr-3 cursor-default rounded-full flex-shrink-0 h-3 w-3 border border-gray-500 bg-gray-600 checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
+                                  className="mt-4 mr-3 rounded-full flex-shrink-0 h-3 w-3 border border-gray-500 bg-gray-600 checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
                                   type="radio"
                                   name="flexRadioDefault"
                                   id={"pogRadio" + i}
@@ -370,9 +374,9 @@ const ForSale = () => {
                                 />
                               </div>
                               <div className='flex'>
-                                <div className="mb-2 mr-8 pt-2 text-gray-500">
+                                <label htmlFor={"pogRadio" + i} className="cursor-pointer mb-2 mr-8 pt-2 text-gray-500">
                                   <p className="font-bold">{property.tokenSalePrice} BHB</p>
-                                </div>
+                                </label>
 
                                 <div>
                                   <img
@@ -389,12 +393,12 @@ const ForSale = () => {
                       <div className="px-2 flex justify-center">
                         {txloadingState[i] ? (
                           <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
-                           <SpinnerIcon />
+                            <SpinnerIcon />
                           </p>
                         ) : (
                           <button
                             onClick={() => buyProperty(property, i)}
-                            className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded cursor-pointer"
+                            className="w-full hover:bg-sky-700 bg-matic-blue text-white font-bold py-2 px-12 rounded cursor-pointer"
                           >
                             Buy
                           </button>

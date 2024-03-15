@@ -1,19 +1,28 @@
 import Ticker from 'react-ticker';
 import { ethers } from 'ethers'
+import { useLocation } from 'react-router-dom';
 
 const SaleHistory = (props) => {
+  const location = useLocation();
   const property = props.property;
   let dateSoldHistory = [];
-  if (property.dateSoldHistory) {    
+  if (property.dateSoldHistory) {
     dateSoldHistory = property.dateSoldHistory.map(a => {
       const decimalValue = ethers.BigNumber.from(a).toNumber();
-      return new Date(decimalValue * 1000).toString().substring(4,15);
+      return new Date(decimalValue * 1000).toString().substring(4, 15);
     });
   }
 
   return (
     <div className="flex flex-col">
-      <p className='text-indigo-100'>Sale History:</p>
+      {property.isForSale && location.pathname === '/to-rent' ? (
+        <p className='text-indigo-100'>Sale History - <a href={`http://localhost:3000/property-view/${property.propertyId}`}
+          className='cursor-pointer underline italic text-sm text-sky-400'>Currently Selling</a></p>
+          
+      ) : (
+        <p className='text-indigo-100'>Sale History:</p>
+      )}
+
       <div className='font-mono text-xs text-green-400'>
         {property.saleHistory == "Unsold" ? (
           <div className="w-full flex justify-start">
@@ -30,7 +39,6 @@ const SaleHistory = (props) => {
                     {property.saleHistory.map((item, index) => (
                       <p className='pr-8 whitespace-nowrap' key={index}>{`[${item["price"]} ${item["type"]}, ${dateSoldHistory[index]}]`}</p>
                     ))}
-
                     <p className="invisible pl-2">
                       {property.saleHistory[0]["price"]}
                     </p>

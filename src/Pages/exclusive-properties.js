@@ -19,7 +19,7 @@ import { calculateRankingTotal, calculateRankingPosition } from '../calculateRan
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import SpinnerIcon from '../Components/spinner';
 
-window.ethereum.on('accountsChanged', function (accounts) {                 
+window.ethereum.on('accountsChanged', function (accounts) {
   window.location.reload();
 });
 
@@ -69,6 +69,8 @@ const Exclusive = () => {
 
       const meta = await axios.get(tokenUri)
       let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
+      let depositHex = i.deposit//await govtContract.getDepositRequired();
+      let deposit = ethers.utils.formatUnits(depositHex, 'ether')
 
       let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
@@ -104,8 +106,11 @@ const Exclusive = () => {
         roomOneRented: i.roomOneRented,
         roomTwoRented: i.roomTwoRented,
         roomThreeRented: i.roomThreeRented,
+        roomFourRented: i.roomFourRented,
         roomsToRent: 0,
         tokenSalePrice: tokenSalePriceFormatted,
+        depositRequired: deposit,   
+        depositHex: depositHex, 
         renterAddresses: renterAddresses,
         isForSale: i.isForSale,
         saleHistory: saleHistory,
@@ -124,6 +129,10 @@ const Exclusive = () => {
       }
       if (item.roomThreeRented == true) {
         console.log("hit3")
+        item.roomsToRent++
+      }
+      if (item.roomFourRented == true) {
+        console.log("hit4")
         item.roomsToRent++
       }
       item.ranking = calculateRankingTotal(item)
@@ -177,7 +186,7 @@ const Exclusive = () => {
       loadProperties()
     } catch (error) {
       console.log(error)
-      setTxLoadingState1({ ...txloadingState1, [i]: false });    
+      setTxLoadingState1({ ...txloadingState1, [i]: false });
     }
   }
 
@@ -193,16 +202,16 @@ const Exclusive = () => {
     const deposit = property.deposit; //await govtContract.getDepositRequired();
 
     const transaction = await govtContract.rentProperty(property.propertyId, {
-      value: deposit
+      value: property.depositHex
     });
-    setTxLoadingState2({ ...txloadingState2, [i]: true });  
+    setTxLoadingState2({ ...txloadingState2, [i]: true });
     try {
       await transaction.wait()
       loadProperties()
     } catch (error) {
       console.log(error)
-      setTxLoadingState2({ ...txloadingState2, [i]: false });  
-    }    
+      setTxLoadingState2({ ...txloadingState2, [i]: false });
+    }
   }
 
 
@@ -282,7 +291,7 @@ const Exclusive = () => {
                       </div>
                       <div className="flex flex-col mb-2">
                         <p className='text-indigo-100'>Rooms Rented:</p>
-                        <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/3</p>
+                        <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/4</p>
                       </div>
 
                       <p className={`text-indigo-100 ${property.renterAddresses[0] === '0x0000000000000000000000000000000000000000' ? 'mb-2' : ''}`}>Tenants:</p>
@@ -330,6 +339,22 @@ const Exclusive = () => {
                             </p>
                             <Blockies
                               seed={property.renterAddresses[2]}
+                            />
+                          </div>
+                          :
+                          <>
+                            <div className='flex items-center'>
+                              <p className='h-11'>0x</p>
+                            </div>
+                          </>
+                        }
+                        {ethers.utils.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
+                          <div className='flex items-center h-10 justify-between'>
+                            <p className={" break-words"}>
+                              {property.renterAddresses[3]}
+                            </p>
+                            <Blockies
+                              seed={property.renterAddresses[3]}
                             />
                           </div>
                           :
@@ -391,12 +416,12 @@ const Exclusive = () => {
                           <>
                             {txloadingState1[i] ? (
                               <p className='w-full flex justify-center bg-btn-gold text-xs italic px-12 mt-1 mb-3 py-1 rounded'>
-                              <SpinnerIcon />
-                            </p>
-                          ) : (
-                            <button onClick={() => buyProperty(property, i)} className="mb-3 w-full bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded cursor-pointer">
-                              Buy
-                            </button>
+                                <SpinnerIcon />
+                              </p>
+                            ) : (
+                              <button onClick={() => buyProperty(property, i)} className="mb-3 w-full hover:bg-yellow-200 bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded cursor-pointer">
+                                Buy
+                              </button>
                             )}
                           </>
                         ) : (
@@ -414,7 +439,11 @@ const Exclusive = () => {
                                 <SpinnerIcon />
                               </p>
                             ) : (
-                              <button onClick={() => rentProperty(property, i)} disabled={property.owner === "Unowned"} className={`w-full bg-matic-blue cursor-pointer text-white font-bold py-2 px-12 rounded ${property.owner === "Unowned" ? "bg-gray-600 text-gray-400" : ""} `}>
+                              <button
+                                onClick={() => rentProperty(property, i)}
+                                disabled={property.owner === "Unowned"}
+                                className={`w-full bg-matic-blue cursor-pointer text-white font-bold py-2 px-12 rounded ${property.owner !== "Unowned" ? "hover:bg-sky-700" : "cursor-text"} ${property.owner === "Unowned" ? "bg-gray-600 text-gray-400" : ""}`}
+                              >
                                 Rent Room
                               </button>
                             )}

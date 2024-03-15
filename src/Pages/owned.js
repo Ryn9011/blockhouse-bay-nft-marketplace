@@ -131,9 +131,9 @@ const Owned = () => {
       //console.log(currentPage)
       const data = await marketContract.fetchMyProperties(currentPage)
       const propertyCount = await marketContract.getUserProperties();
-
-      setTotalUserPropertyCount(23)
       console.log(propertyCount)
+      setTotalUserPropertyCount(propertyCount.length)
+      
       console.log(data)
       const propertyIds = [];
 
@@ -178,6 +178,15 @@ const Owned = () => {
         let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
         const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+        // console.log(renterAddresses)
+        // let test = await marketContract.getTenantsMapping("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
+        // console.log('5 ',test)
+        // let test2 = await marketContract.getTenantsMapping("0x70997970C51812dc3A010C7d01b50e0d17dc79C8")
+        // console.log('4 ',test2)
+        // let test3 = await marketContract.getTenantsMapping("0x2546BcD3c84621e976D8185a91A922aE77ECEc30")
+        // console.log('3 ',test3)
+        // let test4 = await marketContract.getTenantsMapping("0x36D886DfBeE479b04F953b0649988AE3ABAc4C8D")
+        // console.log('8 ',test4)
         // const tokensHex = await marketContract.getTokensEarned()
         // const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
         let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
@@ -213,6 +222,7 @@ const Owned = () => {
           roomOneRented: i.roomOneRented,
           roomTwoRented: i.roomTwoRented,
           roomThreeRented: i.roomThreeRented,
+          roomFourRented: i.roomFourRented,
           roomsToRent: 0,
           renterAddresses: renterAddresses,
           isForSale: i.isForSale,
@@ -228,10 +238,7 @@ const Owned = () => {
           totalIncomeGenerated: totalIncomeGenerated,
           ranking: 0
         }
-
-        //console.log('THIS ONE:', i)
-
-
+        
         if (item.roomOneRented === true) {
           item.roomsToRent++
         }
@@ -239,6 +246,9 @@ const Owned = () => {
           item.roomsToRent++
         }
         if (item.roomThreeRented === true) {
+          item.roomsToRent++
+        }
+        if (item.roomFourRented === true) {
           item.roomsToRent++
         }
         item.ranking = calculateRankingTotal(item)
@@ -570,7 +580,7 @@ const Owned = () => {
     if (e.target.checked) {
       document.getElementById('maticInput' + i).style.visibility = 'visible'
       document.getElementById("sellBtn" + i).disabled = true
-      document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue hover:bg-blue-500", "text-white")
+      document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue hover:bg-sky-700", "text-white")
       document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "text-gray-600")
     } else {
       document.getElementById('maticInput' + i).style.visibility = 'hidden'
@@ -578,7 +588,7 @@ const Owned = () => {
       if (document.getElementById("amountInput" + i).value.length > 0) {
         document.getElementById("sellBtn" + i).disabled = false
         document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "text-gray-600")
-        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue hover:bg-blue-500", "text-white")
+        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue hover:bg-sky-700", "text-white")
       }
     }
   }
@@ -631,7 +641,8 @@ const Owned = () => {
   const SetEvictButtonColour = (property) => {
     if (ethers.utils.formatEther(property.renterAddresses[0]).toString() === "0.0"
       && ethers.utils.formatEther(property.renterAddresses[1]).toString() === "0.0"
-      && ethers.utils.formatEther(property.renterAddresses[2]).toString() === "0.0") {
+      && ethers.utils.formatEther(property.renterAddresses[2]).toString() === "0.0"
+      && ethers.utils.formatEther(property.renterAddresses[3]).toString() === "0.0") {
       return "bg-gray-400 cursor-default text-gray-600"
     } else {
       return "bg-red-400"
@@ -641,7 +652,8 @@ const Owned = () => {
   const setEvictButtonStatus = (property) => {
     if (ethers.utils.formatEther(property.renterAddresses[0]).toString() === "0.0"
       && ethers.utils.formatEther(property.renterAddresses[1]).toString() === "0.0"
-      && ethers.utils.formatEther(property.renterAddresses[2]).toString() === "0.0") {
+      && ethers.utils.formatEther(property.renterAddresses[2]).toString() === "0.0"
+      && ethers.utils.formatEther(property.renterAddresses[3]).toString() === "0.0") {
       return true
     } else return false
   }
@@ -681,12 +693,26 @@ const Owned = () => {
             </>
           }
           {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
-            <div className='flex items-center justify-between'>
+            <div className='flex items-center justify-between mb-2'>
               <p className={" break-words " + getTenantToDeleteColour(property, 2)}>
                 {property.renterAddresses[2]}
               </p>
               <Blockies
                 seed={property.renterAddresses[2]}
+              />
+            </div>
+            : <>
+              {property.renterAddresses[0] === "0.0" &&
+                <p>0x</p>}
+            </>
+          }
+          {ethers.utils.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
+            <div className='flex items-center justify-between'>
+              <p className={" break-words " + getTenantToDeleteColour(property, 3)}>
+                {property.renterAddresses[3]}
+              </p>
+              <Blockies
+                seed={property.renterAddresses[3]}
               />
             </div>
             : <>
@@ -703,29 +729,29 @@ const Owned = () => {
     if (pid > 500) {
       if (document.getElementById("tokenInput" + i).value.length == 0) {
         document.getElementById("sellBtn" + i).disabled = true
-        document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
+        document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-sky-700")
         document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
       } else {
         document.getElementById("sellBtn" + i).disabled = false
         document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
+        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-sky-700")
       }
     } else {
       if (document.getElementById("matic" + i).checked == false) {
         if (e.target.value.length > 0) {
           document.getElementById("sellBtn" + i).disabled = false
           document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "cursor-default", "text-gray-600")
-          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
+          document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-sky-700")
         } else {
           document.getElementById("sellBtn" + i).disabled = true
-          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
+          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-sky-700")
           document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
         }
       } else {
         if (document.getElementById("amountInput" + i).value.length == 0
           || document.getElementById("tokenInput" + i).value.length == 0) {
           document.getElementById("sellBtn" + i).disabled = true
-          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-blue-500")
+          document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-sky-700")
           document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
         } else {
           document.getElementById("sellBtn" + i).disabled = false
@@ -770,7 +796,10 @@ const Owned = () => {
       setTenantToDelete({ address: property.renterAddresses[1] })
     } else if (e.target.id === "tenant3") {
       setTenantToDelete({ address: property.renterAddresses[2] })
+    } else if (e.target.id === "tenant4") {
+      setTenantToDelete({ address: property.renterAddresses[3] })
     }
+    
     return setAddresses(property, e, i)
   }
 
@@ -799,9 +828,9 @@ const Owned = () => {
       if (allTimestampsZero) {
         return true;
       }
-      console.log(tenantAddress)
+      // console.log(tenantAddress)
 
-      console.log(property)
+      // console.log(property)
       const currentObject = property.payments.filter(a => a.renter === tenantAddress); // Example timestamp from smart contract in seconds
       if (currentObject === undefined) {
         return false;
@@ -970,15 +999,15 @@ const Owned = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.rentPrice} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">14 Matic</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Total Income Generated:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">523 Matic</p>
                       </div>
                       <div className="flex flex-col mb-2">
                         <p>Rooms Rented:</p>
-                        <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/3</p>
+                        <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/4</p>
                       </div>
                       <div className='mb-2'>
                         Tenants:
@@ -1035,8 +1064,8 @@ const Owned = () => {
                               onChange={(e) => handleRentCheck(property, e)}
                               id="vacantRoomsRadio"
                               name="twitter"
-                              disabled={property.roomsToRent > 2 ? true : false}
-                              className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.roomsToRent > 2 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              disabled={property.roomsToRent > 3 ? true : false}
+                              className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.roomsToRent > 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
                             <label htmlFor="vacantRoomsRadio">
                               Vacant Rooms
@@ -1104,9 +1133,9 @@ const Owned = () => {
                           <div id="twitterRentSection" ref={twitterTextRef}>
                             <div id={`${property.propertyId}twitterRent`}>
                               <p>{`Check out my Blockhouse Bay Property - ${property.name}. `}</p>
-                              {property.roomsToRent != 3 &&
+                              {property.roomsToRent != 4 &&
                                 <p>
-                                  {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic. `}
+                                  {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic. `}
                                 </p>
                               }
                             </div>
@@ -1121,9 +1150,9 @@ const Owned = () => {
                             ) : (
                               <p>{` ${property.tokenPrice} BHB. `}</p>
                             )}
-                            {property.roomsToRent != 3 &&
+                            {property.roomsToRent != 4 &&
                               <p>
-                                {`${3 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic. `}
+                                {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic. `}
                               </p>
                             }
                             <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
@@ -1157,7 +1186,7 @@ const Owned = () => {
                                   <div className="pr-1">Cancel Sale</div>
                                   <div className="mb-1 relative">
                                     <div className="relative flex flex-col items-center group">
-                                      <Link to="/about?section=renting" target='new'>
+                                      <Link to="/how-to-play?section=renting" target='new'>
                                         <svg
                                           className="w-4 h-4 text-white"
                                           xmlns="http://www.w3.org/2000/svg"
@@ -1202,7 +1231,7 @@ const Owned = () => {
                               <div className="pr-1">Sell</div>
                               <div className="mb-1 relative">
                                 <div className="relative flex flex-col items-center group">
-                                  <Link to="/about?section=owning" target='new'>
+                                  <Link to="/how-to-play?section=owning" target='new'>
                                     <svg
                                       className="w-4 h-4 text-white"
                                       xmlns="http://www.w3.org/2000/svg"
@@ -1218,7 +1247,7 @@ const Owned = () => {
                                   </Link>
                                   <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                                     <span className="relative z-10 p-2 text-xs leading-none text-black whitespace-no-wrap bg-white shadow-lg">
-                                      Can't be lower than original sale price - Learn More
+                                      Learn More
                                     </span>
                                     <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
                                   </div>
@@ -1310,7 +1339,7 @@ const Owned = () => {
                             <p className="pr-1">Evict tenant</p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
-                                <Link to="/about?section=owning" target='new'>
+                                <Link to="/how-to-play?section=owning" target='new'>
                                   <svg
                                     className="w-4 h-4 text-white"
                                     xmlns="http://www.w3.org/2000/svg"
@@ -1373,10 +1402,25 @@ const Owned = () => {
                               disabled={SetTenantRadioStatus(property, 2)}
                             />
                             <label
-                              className="form-check-label inline-block mr-1 text-sm text-white"
+                              className="form-check-label inline-block mr-6 text-sm text-white"
                               htmlFor="flexRadioDefault1"
                             >
                               3
+                            </label>
+
+                            <input
+                              className="rounded-full h-3 w-3 border border-gray-300 bg-white checked:bg-blue-600 checked:border-blue-600 focus:outline-none transition duration-200 mt-1 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+                              type="radio"
+                              name="flexRadioDefault"
+                              id="tenant4"
+                              onChange={(e) => SetTenantToDelete1(e, i, property)}
+                              disabled={SetTenantRadioStatus(property, 3)}
+                            />
+                            <label
+                              className="form-check-label inline-block mr-1 text-sm text-white"
+                              htmlFor="flexRadioDefault1"
+                            >
+                              4
                             </label>
                           </div>
                         </div>
@@ -1402,7 +1446,7 @@ const Owned = () => {
                             <p className="pr-1">Change Rent Price</p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
-                                <Link to="/about?section=owning" target='new'>
+                                <Link to="/how-to-play?section=owning" target='new'>
                                   <svg
                                     className="w-4 h-4 text-white"
                                     xmlns="http://www.w3.org/2000/svg"
@@ -1461,7 +1505,7 @@ const Owned = () => {
                             <p className="pr-1">Change Required Deposit</p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
-                                <Link to="/about?section=owning" target='new'>
+                                <Link to="/how-to-play?section=owning" target='new'>
                                   <svg
                                     className="w-4 h-4 text-white"
                                     xmlns="http://www.w3.org/2000/svg"

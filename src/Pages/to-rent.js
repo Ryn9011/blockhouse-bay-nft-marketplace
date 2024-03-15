@@ -32,19 +32,20 @@ const ToRent = () => {
 
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
-  const [onlyRentable, setOnlyRentable] = useState(false);
+  // const [onlyRentable, setOnlyRentable] = useState(false);
 
   // Get current posts
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = soldProperties.slice(indexOfFirstPost, indexOfLastPost);
+  const [currentPosts, setCurrentPosts] = useState([]);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const [numForRent, setNumForRent] = useState();
+  const [showBottomNav, setShowBottomNav] = useState(false);    
 
   useEffect(() => {
     setLoadingState('not-loaded')
     loadProperties()
-  }, [currentPage, onlyRentable])
+  }, [currentPage])
 
   const loadProperties = async (prop, i) => {
     try {
@@ -56,11 +57,20 @@ const ToRent = () => {
       const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
       const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider) 
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-      const data = await marketContract.fetchPropertiesSold(currentPage) 
+      console.log('currentPage: ',currentPage)
+      const data = await marketContract.fetchPropertiesSold(currentPage ) 
       console.log('data: ',data)
 
+      const numForRent = await marketContract.getPropertiesSold();
+
+      const currentPageNumItems = numForRent - (20 * (currentPage - 1))
+      const showBottomNav = currentPageNumItems > 12 ? true : false
+      setShowBottomNav(showBottomNav);
+      setNumForRent(numForRent.toNumber());
+    
+
       const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
-        console.log(i.tokenId);
+        console.log(i.tokenId.toNumber());
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
         console.log('tokenUri: ',tokenUri)
         const nftTagHelper = new NftTagHelper()
@@ -114,10 +124,12 @@ const ToRent = () => {
           roomOneRented: i.roomOneRented,
           roomTwoRented: i.roomTwoRented,
           roomThreeRented: i.roomThreeRented,
+          roomFourRented: i.roomFourRented,
           rentPrice: rentPrice,
           depositRequired: deposit,   
           depositHex: depositHex,       
           available: false,
+          isForSale: i.isForSale,
           roomsRented: 0,
           renterAddresses: renterAddresses,
           saleHistory: saleHistory,
@@ -136,9 +148,13 @@ const ToRent = () => {
         if (item.roomThreeRented == true) {
           item.roomsRented++
         }
+        if (item.roomFourRented == true) {
+          item.roomsRented++
+        }
         return item
       }))
-      setSoldProperties(items)
+      setCurrentPosts(items.slice(0, 20))
+      //setSoldProperties(items)
       setTxLoadingState({ ...txloadingState, [i]: false });
       // setPropertyList(items)
       setLoadingState('loaded')
@@ -174,12 +190,14 @@ const ToRent = () => {
       
       let trans = await transaction.wait();
       console.log(trans)
-      loadProperties()
+      loadProperties(currentPage, i)
     } catch (error) {
       setTxLoadingState({ ...txloadingState, [i]: false });
-      console.log('Pay rent error:', error)
+      console.log('rent proprerty error:', error)
     }
   }
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (loadingState !== 'loaded') return (
     <div className="pt-10 pb-10">
@@ -187,7 +205,7 @@ const ToRent = () => {
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
           <div className="flex pl-6 lg:px-12">
             <p className="text-white text-3xl lg:text-5xl font-bold mb-2">Loading Properties</p>
-            <Link to="/about?section=renting" target='new'>
+            <Link to="/how-to-play?section=renting" target='new'>
               <svg role="status" className="mt-1 lg:mt-3 ml-3 inline w-8 h-8 mr-2 text-red-500 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
                 <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
@@ -241,13 +259,13 @@ const ToRent = () => {
           </div> */}
           <Pagination
             postsPerPage={postsPerPage}
-            totalPosts={soldProperties.length}
+            totalPosts={numForRent}
             paginate={paginate}
             currentPage={currentPage}
           />
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 text-white">
             {currentPosts.map((property, i) => {
-              if (property.roomsRented < 3) {
+              if (property.roomsRented < 4) {
                 return (
                   <div
                     key={i}
@@ -277,7 +295,7 @@ const ToRent = () => {
                         </div>
                         <div className="flex flex-col pb-2">
                           <p>Rooms Rented:</p>
-                          <p className="font-mono text-xs text-green-400">{property.roomsRented}/3</p>
+                          <p className="font-mono text-xs text-green-400">{property.roomsRented}/4</p>
                         </div>
                         <div className="flex flex-col pb-2">
                           <p>Rent Price:</p>
@@ -302,13 +320,13 @@ const ToRent = () => {
                             </>
                             :
                             <>
-                              <div className='flex items-center'>
-                                <p className='h-11'>0x</p>
+                              <div className='flex items-center mt-2'>
+                                <p className='h-9'>0x</p>
                               </div>
                             </>
                           }
                           {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
-                            <div className='flex items-center justify-between mb-4'>
+                            <div className='flex items-center justify-between mb-2'>
                               <p className={" break-words"}>
                                 {property.renterAddresses[1]}
                               </p>
@@ -319,7 +337,7 @@ const ToRent = () => {
                             :
                             <>
                               <div className='flex justify-between h-full items-center'>
-                                <p className='h-11'>0x</p>
+                                <p className='h-9'>0x</p>
                               </div>
                             </>
                           }
@@ -335,12 +353,28 @@ const ToRent = () => {
                             :
                             <>
                               <div className='flex items-center'>
-                                <p className='h-11'>0x</p>
+                                <p className='h-9'>0x</p>
+                              </div>
+                            </>
+                          }
+                          {ethers.utils.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
+                            <div className='flex items-center justify-between'>
+                              <p className={" break-words"}>
+                                {property.renterAddresses[3]}
+                              </p>
+                              <Blockies
+                                seed={property.renterAddresses[3]}
+                              />
+                            </div>
+                            :
+                            <>
+                              <div className='flex items-center'>
+                                <p className='h-9'>0x</p>
                               </div>
                             </>
                           }
                         </div>
-                        <SaleHistory property={property} />
+                        <SaleHistory property={property} />                      
                       </div>
                     </div>
 
@@ -350,7 +384,7 @@ const ToRent = () => {
                       <div className="flex divide-x divide-white justifty-start px-2">
                         <div className="flex pr-5 lg:pr-3">
                           <div className="text-lg font-bold">Rental Deposit</div>
-                          <Link to="/about?section=renting" target='new'>
+                          <Link to="/how-to-play?section=renting" target='new'>
                             <svg
                               className="w-4 h-4 text-white"
                               xmlns="http://www.w3.org/2000/svg"
@@ -387,7 +421,7 @@ const ToRent = () => {
                         ) : (
                           <button
                             onClick={() => rentProperty(property, i)}
-                            className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded"
+                            className="w-full hover:bg-sky-700 bg-matic-blue text-white font-bold py-2 px-12 rounded"
                           >
                             Rent
                           </button>
@@ -399,6 +433,16 @@ const ToRent = () => {
               }
             })}
           </section>
+          {showBottomNav &&
+            <div className='mt-6'>
+                  <Pagination
+                    postsPerPage={postsPerPage}
+                    totalPosts={numForRent}
+                    paginate={paginate}
+                    currentPage={currentPage}
+                  />
+            </div>
+          }
         </div>
       </div>
     </div>

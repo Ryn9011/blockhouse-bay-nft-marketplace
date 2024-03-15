@@ -42,7 +42,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {PropertyToken} from "./PropertyToken.sol";
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 
 interface GovtContract {
     function refundDeposit(uint256 propertyId, address) external;
@@ -105,13 +105,14 @@ contract PropertyMarket is ReentrancyGuard {
         bool roomOneRented;
         bool roomTwoRented;
         bool roomThreeRented;
+        bool roomFourRented;
         bool isExclusive;
         PropertyPayment[] payments;
     }
 
-    mapping(uint256 => address[3]) propertyToRenters;
+    mapping(uint256 => address[4]) propertyToRenters;
     mapping(uint256 => Property) private idToProperty;
-    mapping(address => uint256[3]) public tenants;    
+    mapping(address => uint256[4]) public tenants;    
     mapping(address => uint256) public renterTokens;    
     mapping(address => mapping(uint256 => uint256)) renterToPropertyPaymentTimestamps;    
     mapping(address => uint256[]) public userProperties; 
@@ -170,9 +171,9 @@ contract PropertyMarket is ReentrancyGuard {
         idToProperty[propertyId].totalIncomeGenerated += amount;
     }
 
-    function getTenantsMapping(address user) public view returns (uint256[3][] memory) {
-        uint256[3][] memory result = new uint256[3][](1);
-        uint256[3] memory data = tenants[user];
+    function getTenantsMapping(address user) public view returns (uint256[4][] memory) {
+        uint256[4][] memory result = new uint256[4][](1);
+        uint256[4] memory data = tenants[user];
         result[0] = data;
         return result;        
     }    
@@ -183,25 +184,26 @@ contract PropertyMarket is ReentrancyGuard {
 
     function getPropertyRenters(
         uint256 propertyId
-    ) public view returns (address[3] memory) {
-        address[3] memory renterAddresses = propertyToRenters[propertyId];
+    ) public view returns (address[4] memory) {
+        address[4] memory renterAddresses = propertyToRenters[propertyId];
         return renterAddresses;
     }
 
     function setPropertyRenters(
         uint256 propertyId,
-        address[3] memory renterAddresses,
+        address[4] memory renterAddresses,
         uint8 room
     ) public onlyGovtContract {
-        propertyToRenters[propertyId] = renterAddresses;
-        // room will be 0-2. 0 = roomOne, 1 = roomTwo, 2 = roomThree. set room on  idsToProperty  
+        propertyToRenters[propertyId] = renterAddresses;        
         if (room == 0) {
             idToProperty[propertyId].roomOneRented = true;
         } else if (room == 1) {
             idToProperty[propertyId].roomTwoRented = true;
         } else if (room == 2) {
             idToProperty[propertyId].roomThreeRented = true;
-        }
+        } else if (room == 3) {
+            idToProperty[propertyId].roomFourRented = true;
+        } 
     }
 
     function getTokenContractAddress() public view returns (address) {
@@ -286,10 +288,10 @@ contract PropertyMarket is ReentrancyGuard {
     
 
     function fetchMyRentals() public view returns (Property[] memory) {
-        uint256[3] memory rentedPropertyIds = getTenantProperties(msg.sender);
+        uint256[4] memory rentedPropertyIds = getTenantProperties(msg.sender);
 
         uint8 size;        
-        for (uint256 i = 0; i < 3; i++) {
+        for (uint256 i = 0; i < 4; i++) {
             if (rentedPropertyIds[i] != 0) {
                 size++;
             }
@@ -342,27 +344,40 @@ contract PropertyMarket is ReentrancyGuard {
     // }
 
     function fetchPropertiesSold(uint256 page) public view returns (Property[] memory) {
-        uint256 propertyCount = _propertyIds.current();
-        uint256 currentIndex = 0;
+        uint256 propertyCount = _propertyIds.current();        
         uint256 startIndex = 20 * (page - 1);
+        
         uint256 endIndex = startIndex + 20;
         uint256 totalSoldProperties = _relistCount.current() + _propertiesSold.current();
-        if (endIndex > totalSoldProperties) {
-            endIndex = totalSoldProperties;
+        if (endIndex > propertyCount) {
+            endIndex = propertyCount;
         }
+
         Property[] memory propertiesSold = new Property[](endIndex - startIndex);
-        for (uint256 i = 0; i < propertyCount && currentIndex < propertiesSold.length; i++) {
-            uint256[] memory id = new uint256[](1);
-            id[0] = i;
-            if (i <= 500) {
+        uint256 currentIndex = 0;
+            for (uint256 i = 0; i < propertyCount; i++) {
+            uint256 currentId = i + 1;
+            if (currentId <= _propertyIds.current()) {
+                uint256[] memory id = new uint256[](1);
+                id[0] = i;
                 Property[] memory currentItem = getPropertyDetails(id, false);
-                if (currentItem[0].owner != address(0) && (!currentItem[0].roomOneRented || !currentItem[0].roomTwoRented || !currentItem[0].roomThreeRented)) {
-                    if (currentIndex >= startIndex) {
+                if (currentItem[0].owner != address(0)
+                    && currentItem[0].propertyId < 501 
+                    && currentItem[0].propertyId > 0
+                    && (currentItem[0].roomOneRented == false 
+                    || currentItem[0].roomTwoRented == false 
+                    || currentItem[0].roomThreeRented == false 
+                    || currentItem[0].roomFourRented == false)               
+                    ) {
+                    if (currentIndex >= startIndex && currentIndex < endIndex) {
                         propertiesSold[currentIndex - startIndex] = currentItem[0];
                     }
                     currentIndex++;
                 }
-            }            
+                if (currentIndex >= endIndex || currentIndex == totalSoldProperties) {
+                    break;
+                }
+            }
         }
         return propertiesSold;
     }
@@ -377,7 +392,7 @@ contract PropertyMarket is ReentrancyGuard {
             properties[i] = idToProperty[propertyId];
 
             if (getPayments) {
-                address[3] storage renters = propertyToRenters[propertyId];
+                address[4] storage renters = propertyToRenters[propertyId];
                 properties[i].payments = getPropertyPayments(propertyId, renters);           
                 // console.log('does this hit?')    ; 
             }
@@ -385,11 +400,11 @@ contract PropertyMarket is ReentrancyGuard {
         return properties;
     }
 
-    function getPropertyPayments(uint256 propertyId, address[3] storage renters) internal view returns (PropertyPayment[] memory) {
-        PropertyPayment[] memory payments = new PropertyPayment[](3);
+    function getPropertyPayments(uint256 propertyId, address[4] storage renters) internal view returns (PropertyPayment[] memory) {
+        PropertyPayment[] memory payments = new PropertyPayment[](4);
         uint256 count = 0;
 
-        for (uint256 j = 0; j < 3; j++) {
+        for (uint256 j = 0; j < 4; j++) {
             uint256 timestamp = renterToPropertyPaymentTimestamps[renters[j]][propertyId];
                 
             if (timestamp != 0) {                
@@ -422,7 +437,7 @@ contract PropertyMarket is ReentrancyGuard {
 
     function getTenantProperties(
         address tenant
-    ) public view returns (uint256[3] memory) {
+    ) public view returns (uint256[4] memory) {
         
         return tenants[tenant];
     }
@@ -465,6 +480,8 @@ contract PropertyMarket is ReentrancyGuard {
             require(propertyId <= 500 && price >= INITIAL_SALE_PRICE, "");
             property.salePrice = price;
             property.tokenSalePrice = (tokenPrice != 0) ? tokenPrice * (1 ether) : 0;
+            _relistCount.increment();
+            _propertiesSold.decrement();
         }
 
         // Perform the transferFrom after all critical checks
@@ -473,9 +490,6 @@ contract PropertyMarket is ReentrancyGuard {
         // Common actions
         property.isForSale = true;
         property.seller = payable(msg.sender);
-
-        _relistCount.increment();
-        _propertiesSold.decrement();
     }
 
 
@@ -491,8 +505,10 @@ contract PropertyMarket is ReentrancyGuard {
         property.isForSale = false;
         property.salePrice = 0;
         property.tokenSalePrice = 0;
-        _propertiesSold.increment();
-        _relistCount.decrement();
+        if (propertyId < 501) {
+            _propertiesSold.increment();
+            decrementRelistCount();
+        }     
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
     }
 
@@ -545,10 +561,8 @@ contract PropertyMarket is ReentrancyGuard {
         require(temp.propertyId < 551, "");
         uint256 price = temp.salePrice;
         uint256 tokenId = temp.tokenId;
-        if (temp.owner != address(0)) {
-            decrementRelistCount();
-        }
-
+        
+     
         if (isPaymentTokensBool) {
             require(
                 propertyTokenContractAddress == address(tokenContract),
@@ -557,9 +571,9 @@ contract PropertyMarket is ReentrancyGuard {
             require(temp.isForSale == true && temp.tokenSalePrice != 0, "");
 
             IERC20 propertyToken = IERC20(propertyTokenContractAddress);
-            if (_relistCount.current() > 1) {
-                _relistCount.decrement();
-            }
+            // if (_relistCount.current() > 1) {
+            //     _relistCount.decrement();
+            // }
             // console.log('tokenSalePrice: ', tempProperty.tokenSalePrice);
             // console.log('propertyToken.allowance(msg.sender, address(this)): ', propertyToken.allowance(msg.sender, address(this)));
             require(
@@ -583,9 +597,9 @@ contract PropertyMarket is ReentrancyGuard {
                 Sale(temp.tokenSalePrice, 2)
             );                   
         } else {
-            if (itemId > 500) {
+            //if (itemId > 500) {
                 require(itemId < 500, "");
-            }
+            //}
             require(msg.value == price, "");
             temp.saleHistory.push(Sale(price, 1));      
         }
@@ -597,9 +611,9 @@ contract PropertyMarket is ReentrancyGuard {
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
         // GovtContract govtContract = GovtContract(i_govtContract);
         // govtContract.vacatePropertyAfterBuy(itemId, msg.sender);
-        vacateCommonTasks(itemId, msg.sender);
         
         if (temp.owner != address(0)) {
+            vacateCommonTasks(itemId, msg.sender);
             for (uint256 j = 0; j < userProperties[temp.owner].length; j++) {
                 if (userProperties[temp.owner][j] == itemId) {
                     userProperties[temp.owner][j] = userProperties[temp.owner][userProperties[temp.owner].length - 1];
@@ -608,11 +622,17 @@ contract PropertyMarket is ReentrancyGuard {
             }
         }
 
+        if (itemId < 501) {
+            if (temp.owner != address(0)) {
+                decrementRelistCount();
+            }
+            _propertiesSold.increment();
+        }
+
         temp.owner = payable(msg.sender);
         temp.isForSale = false;
         temp.seller = payable(address(0));
-        _propertiesSold.increment();
-        
+                
         userProperties[msg.sender].push(itemId);
     }
 
@@ -633,6 +653,9 @@ contract PropertyMarket is ReentrancyGuard {
         } else if (!property.roomThreeRented) {
             property.roomThreeRented = true;
             return true;
+        } else if (!property.roomFourRented) {
+            property.roomThreeRented = true;
+            return true;
         } 
         return false;        
     }
@@ -645,6 +668,8 @@ contract PropertyMarket is ReentrancyGuard {
             idToProperty[propertyId].roomTwoRented = false;
         } else if (temp.roomThreeRented == true) {
             idToProperty[propertyId].roomThreeRented = false;
+        } else if (temp.roomThreeRented == true) {
+            idToProperty[propertyId].roomFourRented = false;
         }
     }
 
@@ -661,7 +686,7 @@ contract PropertyMarket is ReentrancyGuard {
 
     // this function resets the propertyToRenters mapping to 0
     function resetPropertyToRenters(uint256 propertyId, address sender) internal {
-        for (uint256 i = 0; i < 3; i++) {
+        for (uint256 i = 0; i < 4; i++) {
             if (propertyToRenters[propertyId][i] == sender) {
                 propertyToRenters[propertyId][i] = address(0);
                 break;
@@ -677,23 +702,15 @@ contract PropertyMarket is ReentrancyGuard {
         for (uint256 i = 0; i < 3; i++) {
             if (tenants[sender][i] == propertyId) {                
                 tenants[sender][i] = 0;
-                //propertyToRenters[propertyId][i] = address(0);
-                // payable(sender).transfer(DEPOSIT_REQUIRED); //withdraw from contract
-                // totalDepositBal -= DEPOSIT_REQUIRED;
+
+                checkAndSetRoomStatus(propertyId);
+         
+                resetPropertyToRenters(propertyId, sender);
+
                 uint256 timestamp = renterToPropertyPaymentTimestamps[sender][propertyId];
                 if (timestamp > 0) {
                     renterToPropertyPaymentTimestamps[sender][propertyId] = 0;
                 }
-                checkAndSetRoomStatus(propertyId);
-                //remove property from userProperties mapping
-                // Property memory temp = idToProperty[propertyId];
-                // for (uint256 j = 0; j < userProperties[sender].length; j++) {
-                //     if (userProperties[temp.owner][j] == propertyId) {
-                //         userProperties[temp.owner][j] = userProperties[temp.owner][userProperties[temp.owner].length - 1];
-                //         userProperties[temp.owner].pop();
-                //     }
-                // }
-                resetPropertyToRenters(propertyId, sender);
                 GovtContract govtContract = GovtContract(i_govtContract);
                 govtContract.refundDeposit(propertyId, msg.sender);
             }

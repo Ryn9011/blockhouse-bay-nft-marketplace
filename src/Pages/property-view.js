@@ -32,6 +32,7 @@ const PropertyView = () => {
   const [property, setProperty] = useState();
   const [txloadingState, setTxLoadingState] = useState();
   const [txloadingState2, setTxLoadingState2] = useState();
+  const [retries, setRetries] = useState(5)
 
   useEffect(() => {
     setLoadingState('not-loaded')
@@ -183,6 +184,10 @@ const PropertyView = () => {
       // Handle the error when the user rejects the transaction in MetaMask
       console.error("Transaction rejected by the user or an error occurred:", error);
       setTxLoadingState(false);
+      if (retries > 0) {
+        setRetries(retries - 1);
+        loadProperties()
+      }   
     }
   }
 
@@ -265,7 +270,7 @@ const PropertyView = () => {
             </div> */}
           </div>
 
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-4 text-white">
+          <section className="grid grid-cols-1 max-w-md text-white">
             <div
               key={property.propertyId}
               className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
@@ -286,11 +291,13 @@ const PropertyView = () => {
                       <p>Owner:</p>
                       <p className="text-[10px] text-green-400 font-mono">{property.owner}</p>
                     </div>
-                    <div className='pt-1.5'>
-                      <Blockies
-                        seed={property.owner}
-                      />
-                    </div>
+                    {property.owner !== "Unowned" &&
+                      <div className='pt-1.5'>
+                        <Blockies
+                          seed={property.owner}
+                        />
+                      </div>
+                    }
                   </div>
                   <div className="flex flex-col pb-2">
                     <p>Rooms Rented:</p>
@@ -367,9 +374,9 @@ const PropertyView = () => {
                           //onChange={onCurrencyChange}
                           />
                         </div>
-                        <div className="mb-2 pr-2 pt-2 text-white">
+                        <label htmlFor={"maticRadio"} className="mb-2 pr-2 cursor-pointer pt-2 text-white">
                           <p className={`font-bold ${property.isForSale ? 'text-white' : 'text-gray-500'}`}>{property.price} MATIC</p>
-                        </div>
+                        </label>
                         <div>
                           <img
                             className="object-none lg:pt-1.5"
@@ -393,9 +400,9 @@ const PropertyView = () => {
                               />
                             </div>
                             <div className='flex'>
-                              <div className="mb-2 pt-2 text-white">
+                              <label htmlFor={"pogRadio"} className="mb-2 pt-2 cursor-pointer text-white">
                                 <p className="font-bold">{property.tokenSalePrice} BHB</p>
-                              </div>
+                              </label>
 
                               <div>
                                 <img

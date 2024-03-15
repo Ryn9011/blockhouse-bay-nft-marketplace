@@ -11,8 +11,7 @@ contract GovtFunctions is ReentrancyGuard {
     
     PropertyMarket public propertyMarketContract;  
     address internal immutable i_propertyMarketAddress;
-    uint256 constant WEI_TO_ETH = 1000000000000000000;  
-    //uint256 public constant DEPOSIT_REQUIRED = 0.001 ether; 
+    uint256 constant WEI_TO_ETH = 1000000000000000000;      
     uint256 public totalDepositBal = 0;
     mapping(address => uint256) public rentAccumulated;
     mapping(address => uint256) public renterDepositBalance;
@@ -287,33 +286,39 @@ contract GovtFunctions is ReentrancyGuard {
 
         require(msg.value == currentProperty[0].deposit, "deposit required");
         require(currentProperty[0].owner != msg.sender, "You can't rent your own property");
-        require(currentProperty[0].owner != address(0), "Property owner address should not be zero");
+        require(currentProperty[0].owner != address(0), "Property owner address should not be zero");        
 
-        address[3] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
+        uint256[4][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
+        
+        address[4] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
 
         bool isAlreadyRenter = false;  
-        for (uint i = 0; i < 3; i++) {
+        bool maxRentalsReached = true;
+
+        for (uint i = 0; i < 4; i++) {
             if (propertyRenters[i] == msg.sender) {
                 isAlreadyRenter = true;
                 break;
             }
+            if (tennants[0][i] == 0) {
+                maxRentalsReached = false;
+            }
         }
+        require(!maxRentalsReached, "max properties rented");
         require(!isAlreadyRenter, "already a renter");
 
         bool availableRoom = checkSetRoomAvailability(currentProperty[0]);
         require(availableRoom, "no vacancy");
 
-        for (uint8 i = 0; i < 3; i++) {
+        for (uint8 i = 0; i < 4; i++) {
             if (propertyRenters[i] == address(0)) {
                 propertyRenters[i] = msg.sender;
                 propertyMarketContract.setPropertyRenters(propertyId, propertyRenters, i);                
                 break;
             }
-        }
-
-        uint256[3][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
+        }        
         
-        for (uint8 i = 0; i < 3; i++) {            
+        for (uint8 i = 0; i < 4; i++) {            
             if (tennants[0][i] == 0) {
                 propertyMarketContract.incrementPropertiesRented();
                 propertyMarketContract.setTenantsMapping(msg.sender, propertyId, i);                
@@ -337,7 +342,10 @@ contract GovtFunctions is ReentrancyGuard {
         } else if (!property.roomThreeRented) {
             property.roomThreeRented = true;
             return true;
-        } 
+        } else if (!property.roomFourRented) {
+            property.roomFourRented = true;
+            return true;
+        }
         return false;        
     }
 
@@ -378,7 +386,7 @@ contract GovtFunctions is ReentrancyGuard {
             (block.timestamp - rentTime) > 600, "can't pay rent more than once in 24hrs" //change this!!!!
         );
 
-        uint256[3][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
+        uint256[4][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
    
         bool isRenter = false;
         uint256 tenantLength = tennants[0].length;

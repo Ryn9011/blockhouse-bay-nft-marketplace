@@ -120,7 +120,7 @@ export default function Nav() {
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
 						</svg>
 					</li>
-					<li><a className={splitLocation[1] === "about" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/about">How to Play</a></li>
+					<li><a className={splitLocation[1] === "about" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/how-to-play">How to Play</a></li>
 				</ul>
 				<div className='hidden lg:block'>
 					<ConnectWalletButton />
@@ -166,7 +166,7 @@ export default function Nav() {
 								<a className={splitLocation[1] === "exclusive" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/blockhouse-bay-gardens">Blockhouse Bay Gardens</a>
 							</li>
 							<li className="mb-1">
-								<a className={splitLocation[1] === "about" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/about">About</a>
+								<a className={splitLocation[1] === "about" ? "active block p-4  font-semibold hover:bg-blue-50 hover:text-blue-600 rounded" : "block p-4  font-semibold text-white hover:bg-blue-50 hover:text-blue-600 rounded"} href="/how-to-play">How to Play</a>
 							</li>
 						</ul>
 					</div>

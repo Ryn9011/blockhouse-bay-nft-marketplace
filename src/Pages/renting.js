@@ -448,7 +448,7 @@ const Renting = () => {
                           <SpinnerIcon />
                         </p>
                       ) : (
-                        <button onClick={() => { PayRent(property, i) }} className="w-full bg-matic-blue text-white font-bold py-2 px-12 rounded">
+                        <button onClick={() => { PayRent(property, i) }} className="w-full hover:bg-sky-700 bg-matic-blue text-white font-bold py-2 px-12 rounded">
                           Pay Rent
                         </button>
                       )}
@@ -459,7 +459,7 @@ const Renting = () => {
                           <SpinnerIcon />
                         </p>
                       ) : (
-                        <button onClick={() => { Vacate(property, i) }} className="w-full bg-red-400 text-white font-bold py-2 px-12 rounded">
+                        <button onClick={() => { Vacate(property, i) }} className="w-full hover:bg-red-500 bg-red-400 text-white font-bold py-2 px-12 rounded">
                           Vacate
                         </button>
                       )}
