@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useLocation } from "react-router-dom";
-import ConnectWalletButton from './ConnectWallet';
+import ConnectButton from './ConnectWallet';
 const { ethers } = require('ethers');
 
 export default function Nav() {
@@ -123,7 +123,7 @@ export default function Nav() {
 					<li><a className={splitLocation[1] === "about" ? "active text-xl hover:text-red-500" : "text-xl text-white hover:text-red-500"} href="/how-to-play">How to Play</a></li>
 				</ul>
 				<div className='hidden lg:block'>
-					<ConnectWalletButton />
+					<ConnectButton />
 				</div>				
 			</nav>
 			<div className="navbar-menu relative z-50 hidden">
@@ -172,7 +172,7 @@ export default function Nav() {
 					</div>
 					<div className="mt-auto">
 						<div className="pt-6 text-center">
-							<ConnectWalletButton />
+							<ConnectButton />
 						</div>
 						{/* <p className="mt-4 text-xs text-center text-white">
 							<span>Copyright © 2023</span>

@@ -1,12 +1,12 @@
 function getRpcUrl(network, projectId) {
   let rpcUrl;
 
-  if (network === 'mumbai') {
+  if (network === 'Mumbai') {
     rpcUrl = `https://polygon-mumbai.g.alchemy.com/v2/${projectId}`;
-  } else if (network === 'mainnet') {
+  } else if (network === 'Mainnet') {
     rpcUrl = `https://polygon-mainnet.g.alchemy.com/v2/${projectId}`;
   } else {
-    rpcUrl = 'http://localhost:8545';
+    rpcUrl = 'Mumbai';
   }
 
   return rpcUrl;

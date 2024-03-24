@@ -1,6 +1,8 @@
 import Ticker from 'react-ticker';
-import { ethers } from 'ethers'
+
 import { useLocation } from 'react-router-dom';
+
+const ethers = require("ethers")
 
 const SaleHistory = (props) => {
   const location = useLocation();
@@ -32,7 +34,7 @@ const SaleHistory = (props) => {
           </div>
         ) : (
           <div className='pl-0.5'>
-            <Ticker speed={2}>
+            <Ticker speed={4}>
               {({ index }) => (
                 <>
                   <div className="w-full pl-1 flex justify-center">

@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from 'react'
-import { ethers } from 'ethers'
+
 import axios from 'axios'
 import GetPropertyNames from '../getPropertyName'
 import Pagination from '../Pagination'
@@ -14,6 +14,8 @@ import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import SaleHistory from '../Components/sale-history'
+
+const ethers = require("ethers")
 
 window.ethereum.on('accountsChanged', function (accounts) {                 
   window.location.reload();

@@ -1,10 +1,13 @@
 import { React, useState } from 'react';
-import { ethers } from 'ethers'
-import Web3Modal from 'web3modal'
+
+// import Web3Modal from 'web3modal'
+// import { Web3Modal } from '@web3modal/react'
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 
-import { providers, utils } from "ethers"
+import { AlchemyProvider } from "ethers"
 import WebBundlr from '@bundlr-network/client';
 import { useRef } from "react";
 import BigNumber from 'bignumber.js'
@@ -15,6 +18,10 @@ import dataEx from '../exc-manifest.json';
 import {
   nftaddress, nftmarketaddress
 } from '../config'
+
+
+
+const ethers = require("ethers")
 
 const CreateItem = () => {
   const [formInput, updateFormInput] = useState({ price: '', name: '', description: '' })
@@ -38,7 +45,7 @@ const CreateItem = () => {
     
   const initialise = async () => {
     await window.ethereum.enable()
-    const provider = new providers.Web3Provider(window.ethereum)
+    const provider = new AlchemyProvider.Web3Provider(window.ethereum)
     await provider._ready()
 
     const bundlr = new WebBundlr("https://node1.bundlr.network", "matic", provider)
@@ -50,11 +57,12 @@ const CreateItem = () => {
 
   const fetchBalance = async () => {
     const bal = await bundlrRef.current.getLoadedBalance()
-    console.log('bal ', utils.formatEther(bal.toString()))
-    setBalance(utils.formatEther(bal.toString()))
+    console.log('bal ', ethers.utils.formatEther(bal.toString()))
+    setBalance(ethers.utils.formatEther(bal.toString()))
   }
 
-
+  const { address, chainId, isConnected } = useWeb3ModalAccount()
+  const { walletProvider } = useWeb3ModalProvider()
 
   // function onFileChange(e) {
   //   const file = e.target.files[0]
@@ -189,13 +197,14 @@ const CreateItem = () => {
 
 
   const createSale = async () => {   
+
     console.log(formInput)
     const urisn = Object.keys(data.paths).map(uri => "https://arweave.net/" + data.paths[uri].id);    
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
+    // const web3Modal = new Web3Modal()
+    // const connection = await web3Modal.connect()
+    const provider = new BrowserProvider(walletProvider)
     const signer = provider.getSigner()
-    console.log(connection)
+
 
     console.log(urisn)
 
@@ -236,10 +245,10 @@ const CreateItem = () => {
     console.log(formInput)
     const urisn = Object.keys(dataEx.paths).map(uri => "https://arweave.net/" + dataEx.paths[uri].id);
 
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
+    const provider = new BrowserProvider(walletProvider)
     const signer = provider.getSigner()
+    // const provider = new ethers.providers.Web3Provider(connection)
+    // const signer = provider.getSigner()
 
     console.log(urisn)
 

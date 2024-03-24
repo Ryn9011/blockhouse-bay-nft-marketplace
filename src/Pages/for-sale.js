@@ -1,7 +1,8 @@
 import { React, useEffect, useState } from 'react'
-import { ethers } from 'ethers'
+
 import axios from 'axios'
-import Web3Modal from 'web3modal'
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
 import { Link } from 'react-router-dom';
 import Blockies from 'react-blockies';
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
@@ -20,6 +21,8 @@ import SaleHistory from '../Components/sale-history'
 import GetPropertyNames from '../getPropertyName'
 import SpinnerIcon from '../Components/spinner';
 
+const ethers = require("ethers")
+
 window.ethereum.on('accountsChanged', function (accounts) {
   window.location.reload();
 });
@@ -32,6 +35,9 @@ const ForSale = () => {
   const [numForSale, setNumForSale] = useState();
   const [showBottomNav, setShowBottomNav] = useState(false);
   const [txloadingState, setTxLoadingState] = useState({});
+
+  const { address, chainId, isConnected } = useWeb3ModalAccount()
+  const { walletProvider } = useWeb3ModalProvider()
 
   useEffect(() => {
     setLoadingState('not-loaded')
@@ -161,10 +167,8 @@ const ForSale = () => {
       if (brb.checked === false && matic.checked === false) {
         return;
       }
-      const web3Modal = new Web3Modal();
-      const connection = await web3Modal.connect();
-      const provider = new ethers.providers.Web3Provider(connection);
-      const signer = provider.getSigner();
+      const provider = new BrowserProvider(walletProvider)
+      const signer = provider.getSigner()
 
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
       let price = ethers.utils.parseUnits(nft.price.toString(), 'ether');

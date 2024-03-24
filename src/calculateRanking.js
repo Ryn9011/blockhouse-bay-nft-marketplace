@@ -1,4 +1,4 @@
-import { ethers } from 'ethers'
+const ethers = require("ethers")
 
 const calculateRankingTotal = (property) => {
   let maxSale = property.saleHistory.reduce((accumulator, current) => {     

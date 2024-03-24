@@ -1,8 +1,9 @@
 import SaleHistory from '../Components/sale-history'
 import { React, useEffect, useState } from 'react'
-import { ethers } from 'ethers'
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
 import axios from 'axios'
-import Web3Modal from 'web3modal'
+
 import { Link } from 'react-router-dom';
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
@@ -19,6 +20,8 @@ import GetPropertyNames from '../getPropertyName'
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import SpinnerIcon from '../Components/spinner';
 
+const ethers = require("ethers")
+
 window.ethereum.on('accountsChanged', function (accounts) {
   window.location.reload();
 });
@@ -33,6 +36,8 @@ const PropertyView = () => {
   const [txloadingState, setTxLoadingState] = useState();
   const [txloadingState2, setTxLoadingState2] = useState();
   const [retries, setRetries] = useState(5)
+  const { address, chainId, isConnected } = useWeb3ModalAccount()
+  const { walletProvider } = useWeb3ModalProvider()
 
   useEffect(() => {
     setLoadingState('not-loaded')
@@ -41,21 +46,17 @@ const PropertyView = () => {
 
 
   const loadProperties = async () => {
-
-    const web3Modal = new Web3Modal()
-    const network = await detectNetwork()
-    const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-    const rpcUrl = getRpcUrl(network, projectId);
-
     const providerOptions = {
       rpc: {
         [network]: rpcUrl,
       },
     };
 
-    const connection = await web3Modal.connect(providerOptions);
-    const provider = new ethers.providers.Web3Provider(connection);
+    const provider = new BrowserProvider(walletProvider, providerOptions)
     const signer = provider.getSigner()
+    const network = await detectNetwork()
+    const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+    const rpcUrl = getRpcUrl(network, projectId);
 
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, signer)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
@@ -142,10 +143,8 @@ const PropertyView = () => {
       if (brb.checked === false && matic.checked === false) {
         return;
       }
-      const web3Modal = new Web3Modal();
-      const connection = await web3Modal.connect();
-      const provider = new ethers.providers.Web3Provider(connection);
-      const signer = provider.getSigner();
+      const provider = new BrowserProvider(walletProvider)
+      const signer = provider.getSigner()
 
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
       let price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
@@ -193,10 +192,7 @@ const PropertyView = () => {
 
   const rentProperty = async (property) => {
     try {
-      const web3Modal = new Web3Modal()
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-
+      const provider = new BrowserProvider(walletProvider)
       const signer = provider.getSigner()
 
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)

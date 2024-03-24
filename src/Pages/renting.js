@@ -1,7 +1,8 @@
 import { React, useEffect, useMemo, useState } from 'react'
-import { ethers } from 'ethers'
+
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
-import Web3Modal from 'web3modal'
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
 import axios from 'axios'
 import Blockies from 'react-blockies';
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
@@ -16,6 +17,8 @@ import {
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
 import SpinnerIcon from '../Components/spinner';
+
+const ethers = require("ethers")
 
 const copy = require('clipboard-copy')
 
@@ -38,6 +41,8 @@ const Renting = () => {
   const [txloadingState, setTxLoadingState] = useState({});
   const [txloadingState1, setTxLoadingState1] = useState({});
   const [txloadingState2, setTxLoadingState2] = useState({});
+  const { address, chainId, isConnected } = useWeb3ModalAccount()
+  const { walletProvider } = useWeb3ModalProvider()
 
   // Get current posts
   const indexOfLastPost = currentPage * postsPerPage;
@@ -100,10 +105,6 @@ const Renting = () => {
 
   const loadProperties = async (i) => {
     try {
-      const web3Modal = new Web3Modal()
-      const network = await detectNetwork()
-      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-      const rpcUrl = getRpcUrl(network, projectId);
 
       const providerOptions = {
         rpc: {
@@ -111,10 +112,12 @@ const Renting = () => {
         },
       };
 
-      const connection = await web3Modal.connect(providerOptions);
-      const provider = new ethers.providers.Web3Provider(connection)
-
+      const provider = new BrowserProvider(walletProvider, providerOptions)
       const signer = provider.getSigner()
+      const network = await detectNetwork()
+      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+      const rpcUrl = getRpcUrl(network, projectId);
+
       const address = await signer.getAddress();
       console.log(address)
       setConnectedAddress(address);
@@ -214,9 +217,7 @@ const Renting = () => {
 
   const PayRent = async (property, i) => {
     try {
-      const web3Modal = new Web3Modal()
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
+      const provider = new BrowserProvider(walletProvider)
       const signer = provider.getSigner()
 
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
@@ -238,9 +239,7 @@ const Renting = () => {
   }
 
   const CollectTokens = async () => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
+    const provider = new BrowserProvider(walletProvider)
     const signer = provider.getSigner()
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
 
@@ -252,9 +251,7 @@ const Renting = () => {
 
   //if same address has rented more than one room, this will vacate all of them
   const Vacate = async (property, i) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
+    const provider = new BrowserProvider(walletProvider)
     const signer = provider.getSigner()
 
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)

@@ -1,9 +1,12 @@
 import { React, useEffect, useState, useMemo } from 'react'
-import { ethers } from 'ethers'
+
 import axios from 'axios'
-import Web3Modal from 'web3modal'
+
 import Ticker from 'react-ticker';
 import Blockies from 'react-blockies';
+
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
@@ -19,6 +22,8 @@ import { calculateRankingTotal, calculateRankingPosition } from '../calculateRan
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import SpinnerIcon from '../Components/spinner';
 
+const ethers = require("ethers")
+
 window.ethereum.on('accountsChanged', function (accounts) {
   window.location.reload();
 });
@@ -32,6 +37,10 @@ const Exclusive = () => {
   const [numForSale, setNumForSale] = useState();
   const [txloadingState1, setTxLoadingState1] = useState({});
   const [txloadingState2, setTxLoadingState2] = useState({});
+
+
+  const { address, chainId, isConnected } = useWeb3ModalAccount()
+  const { walletProvider } = useWeb3ModalProvider()
 
   useEffect(() => {
     loadProperties(currentPage)
@@ -158,10 +167,7 @@ const Exclusive = () => {
 
 
   const buyProperty = async (nft, i) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-
+    const provider = new BrowserProvider(walletProvider)
     const signer = provider.getSigner()
 
     const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
@@ -191,10 +197,7 @@ const Exclusive = () => {
   }
 
   const rentProperty = async (property, i) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-
+    const provider = new BrowserProvider(walletProvider)
     const signer = provider.getSigner()
 
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)

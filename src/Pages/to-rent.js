@@ -1,7 +1,7 @@
 import { React, useEffect, useState } from 'react'
-import { ethers } from 'ethers'
+
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
-import Web3Modal from 'web3modal'
+
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import Blockies from 'react-blockies';
@@ -18,6 +18,10 @@ import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunction
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
 import SaleHistory from '../Components/sale-history'
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
+
+const ethers = require("ethers")
 
 window.ethereum.on('accountsChanged', function (accounts) {                 
   window.location.reload();
@@ -41,6 +45,9 @@ const ToRent = () => {
 
   const [numForRent, setNumForRent] = useState();
   const [showBottomNav, setShowBottomNav] = useState(false);    
+
+  const { address, chainId, isConnected } = useWeb3ModalAccount()
+  const { walletProvider } = useWeb3ModalProvider()
 
   useEffect(() => {
     setLoadingState('not-loaded')
@@ -166,10 +173,7 @@ const ToRent = () => {
 
   const rentProperty = async (property, i) => {
     try {
-      const web3Modal = new Web3Modal()
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-
+      const provider = new BrowserProvider(walletProvider)
       const signer = provider.getSigner()
 
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
@@ -342,7 +346,7 @@ const ToRent = () => {
                             </>
                           }
                           {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
-                            <div className='flex items-center justify-between'>
+                            <div className='flex items-center justify-between mb-2'>
                               <p className={" break-words"}>
                                 {property.renterAddresses[2]}
                               </p>

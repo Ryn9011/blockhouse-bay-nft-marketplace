@@ -12,31 +12,64 @@ import CreateItem from './Pages/create-item';
 import AllProperties from './Pages/all-properties';
 import Exclusive from './Pages/exclusive-properties';
 import PropertyView from './Pages/property-view';
-import { EthereumClient, w3mConnectors, w3mProvider } from '@web3modal/ethereum'
-import { Web3Modal } from '@web3modal/react'
-import { configureChains, createClient, WagmiConfig } from 'wagmi'
-import { polygon } from 'wagmi/chains'
+import { ThemeProvider, createMuiTheme, makeStyles } from '@material-ui/core/styles';
+
+
+import { createWeb3Modal, defaultConfig } from '@web3modal/ethers/react'
 
 const projectId = '0053ae8eae8522b1ebb313ede5106c9f'
-const chains = [polygon];
 
-console.log(projectId)
+// 2. Set chains
+const mainnet = {
+  chainId: 1,
+  name: 'Ethereum',
+  currency: 'ETH',
+  explorerUrl: 'https://etherscan.io',
+  rpcUrl: 'https://cloudflare-eth.com'
+}
 
-const { provider } = configureChains(chains, [w3mProvider({ projectId })])
+// 3. Create a metadata object
+const metadata = {
+  name: 'My Website',
+  description: 'My Website description',
+  url: 'https://mywebsite.com', // origin must match your domain & subdomain
+  icons: ['https://avatars.mywebsite.com/']
+}
+const theme = createMuiTheme();
+const useStyles = makeStyles((theme) => {
+  root: {
+    // some CSS that accesses the theme
+  }
+});
+// 4. Create Ethers config
+const ethersConfig = defaultConfig({
+  /*Required*/
+  metadata,
 
-const wagmiClient = createClient({
-  autoConnect: true,
-  connectors: w3mConnectors({ projectId, version: 1, chains }),
-  provider
+  /*Optional*/
+  enableEIP6963: true, // true by default
+  enableInjected: true, // true by default
+  enableCoinbase: true, // true by default
+  rpcUrl: '...', // used for the Coinbase SDK
+  defaultChainId: 1, // used for the Coinbase SDK
 })
-const ethereumClient = new EthereumClient(wagmiClient, chains)
+
+// 5. Create a Web3Modal instance
+createWeb3Modal({
+  ethersConfig,
+  chains: [mainnet],
+  projectId,
+  enableAnalytics: true // Optional - defaults to your Cloud configuration
+})
+
+
 
 function App() {
   const location = useLocation();
   return (
     <div className={` ${location.pathname !== "/" ? 'from-black via-black to-polygon-purple bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden`}>
       <div className="flex-1 overflow-y-auto overflow-x-hidden">
-        <WagmiConfig client={wagmiClient}>
+        
           <Header />
           <Routes>
             <Route path="/" element={<Cover />} />
@@ -49,13 +82,8 @@ function App() {
             <Route path="/how-to-play" element={<About />} />
             <Route path="/create-item" element={<CreateItem />} />
             <Route path="/property-view/:propertyId" element={<PropertyView />} />
-          </Routes>
-        </WagmiConfig>
-        <Web3Modal projectId={projectId} ethereumClient={ethereumClient} 
-          themeVariables={{
-            '--w3m-font-family': 'Roboto, sans-serif'
-          }}
-        />
+          </Routes>        
+ 
       </div>
       {/* {location.pathname === "/about" &&
         <Footer />

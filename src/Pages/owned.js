@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef, useLayoutEffect } from 'react'
-import { ethers } from 'ethers'
+
 import { NftTagHelper } from '../Components/Layout/nftTagHelper'
-import Web3Modal from 'web3modal'
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
+
 import axios from 'axios'
 import { Link, useLocation } from 'react-router-dom';
 // import { Share } from 'react-twitter-widgets'
@@ -22,6 +24,8 @@ import {
 } from '../config'
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
+
+const ethers = require("ethers")
 
 const useStyles = makeStyles({
   padding: {
@@ -57,7 +61,7 @@ const Owned = () => {
   const twitterTextRef = useRef(null);
   const [propertyIdTwitter, setPropertyIdTwitter] = useState();
   const location = useLocation()
-  const [isConnected, setIsConnected] = useState(false);
+  //const [isConnected, setIsConnected] = useState(false);
   const classes = useStyles();
   const iconColor = "#1DA1F2";
   const [txloadingState1, setTxLoadingState1] = useState({});
@@ -77,8 +81,10 @@ const Owned = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;  
+  const [retries, setRetries] = useState(5)
 
-  const web3Modal = new Web3Modal()
+  const { address, chainId, isConnected } = useWeb3ModalAccount()
+  const { walletProvider } = useWeb3ModalProvider()
   const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
   const rpcUrl = getRpcUrl(network, projectId);
 
@@ -87,14 +93,14 @@ const Owned = () => {
     try {
       setLoadingState2('not-loaded')
       const network = await detectNetwork();
+      
       const providerOptions = {
         rpc: {
           [network]: rpcUrl,
         },
       };
-      const connection = await web3Modal.connect(providerOptions);
-      const web3Provider = new ethers.providers.Web3Provider(connection);
-      const web3Signer = web3Provider.getSigner();
+      const web3Provider = new BrowserProvider(walletProvider, providerOptions);
+      const web3Signer = provider.getSigner()
       const market = new ethers.Contract(nftmarketaddress, Market.abi, web3Signer);
       const govt = new ethers.Contract(govtaddress, GovtFunctions.abi, web3Signer);
       const token = new ethers.Contract(nftaddress, NFT.abi, web3Provider);
@@ -117,10 +123,11 @@ const Owned = () => {
   }, []);
 
   useEffect(() => {
+   
     if (loadingState2 === 'loaded') {
       setLoadingState('not-loaded')
       loadProperties();
-      setIsConnected(true);
+      //setIsConnected(true);
     }
 
   }, [currentPage, loadingState2])
@@ -270,18 +277,26 @@ const Owned = () => {
         // Handle user rejection
         //console.log('Connection request rejected by the user.');
         // Display an error message to the user        
-        setIsConnected(false);
+        //setIsConnected(false);
         setTxLoadingState1({ ...txloadingState1, [551]: false });
         setTxLoadingState2({ ...txloadingState2, [i]: false });
         setTxLoadingState3({ ...txloadingState3, [i]: false });
         setTxLoadingState4({ ...txloadingState4, [i]: false });
+        if (retries > 0) {
+          setRetries(retries - 1);
+          loadProperties();
+        }
       } else {
         //console.log(ex)
-        setIsConnected(false)
+        //setIsConnected(false)
         setTxLoadingState1({ ...txloadingState1, [551]: false });
         setTxLoadingState2({ ...txloadingState2, [i]: false });
         setTxLoadingState3({ ...txloadingState3, [i]: false });
         setTxLoadingState4({ ...txloadingState4, [i]: false });
+        if (retries > 0) {
+          setRetries(retries - 1);
+          loadProperties()
+        }
       }
     }
   }
@@ -506,9 +521,7 @@ const Owned = () => {
   }
 
   const ChangeDeposit = async (property, i) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
+    const provider = new BrowserProvider(walletProvider)
     const signer = provider.getSigner()
 
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
@@ -527,9 +540,7 @@ const Owned = () => {
   }
 
   const ChangeRent = async (property, i) => {
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
+    const provider = new BrowserProvider(walletProvider)
     const signer = provider.getSigner()
 
     const contract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
@@ -896,8 +907,8 @@ const Owned = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   if (loadingState === 'loaded' && !isConnected) return (
-    <div className='text-sm text-white'>
-      wallet not connected to Polygon Mainnet
+    <div className='text-sm text-white flex justify-center mt-6'>
+      <p>Something has gone wrong. Try refreshing the page and check your wallet connection</p>    
     </div>
   )
 
@@ -999,11 +1010,11 @@ const Owned = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="text-xs text-green-400 font-mono">14 Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.rentPrice}</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Total Income Generated:</p>
-                        <p className="text-xs text-green-400 font-mono">523 Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated}</p>
                       </div>
                       <div className="flex flex-col mb-2">
                         <p>Rooms Rented:</p>
@@ -1324,7 +1335,9 @@ const Owned = () => {
                                 </p>
                               ) : (
                                 <button
-                                  onClick={() => SellProperty(property, i)} id={"sellBtn" + i} className="w-full bg-gray-400 cursor-default text-gray-600 font-bold py-2 rounded"
+                                  onClick={() => SellProperty(property, i)} id={"sellBtn" + i} 
+                                  name='sellBtn'
+                                  className="w-full bg-gray-400 cursor-default text-gray-600 font-bold py-2 rounded"
                                 >
                                   Sell
                                 </button>

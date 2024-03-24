@@ -186,7 +186,7 @@ const About = () => {
             </div>
           </div>
           <AccordionDetails className={classes.details}>
-            <div className="lg:grid justify-items-center mb-32 lg:mb-4 lg:grid-cols-2 lg:gap-16 xl3:gap-0 lg:text-xl text-lg xl:text-xl 2xl:text-2xl">
+            <div className="lg:grid justify-items-center mb-32 lg:mb-4 lg:grid-cols-2 lg:gap-16 xl3:gap-0 lg:text-xl text-lg xl:text-xl 2xl:text-xl xl3:text-2xl">
               {/* <img className="p-6 pt-0" src="about.jpeg" /> */}
               <div>
                 <ul className="divide-y divide-gray-200 lg:ml-0">
@@ -197,7 +197,7 @@ const About = () => {
                     </div>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Real Estate Simulation</p>
                     <p className="mt-2 text-gray-400">
-                      Blockhouse Bay is a simple but captivating real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! 
+                      Blockhouse Bay is a gamified real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate! 
                     </p>
                     <Modal
                       open={isOpen}
@@ -312,10 +312,10 @@ const About = () => {
                     </div>
 
                     <p className="mt-2 text-gray-400">
-                      Blockhouse Bay operates on the Polygon Layer 2 blockchain, allowing for minimal transaction fees. This means that you can engage in buying, selling, or renting activities without any worries about transaction costs.
+                      Blockhouse Bay operates on the Polygon blockchain, allowing for minimal transaction fees. This means that you can engage in buying, selling, or renting activities without any worries about transaction costs.
                     </p>
                     <p className="mt-2 text-gray-400">
-                      All property NFT images are stored on Arweave's decentralized permanent storage.
+                      All property NFT images are stored on Arweave's decentralized permanent storage, meaning they are truly persisted.
                     </p>
                     <p className="text-white text-base xl3:text-lg italic mr-2 pt-0.5 mt-3">About the Developer</p>
                     <p className="mt-2 text-gray-400">
@@ -326,8 +326,6 @@ const About = () => {
                   <li className="pt-3 pb-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Passive Income</h3>
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Earn MATIC and BHB Tokens</p>
-
-
                     <p className="mt-1 text-gray-400">
                       As a landlord, you'll enjoy the satisfaction of earning real money from your renters in the form of MATIC tokens. You'll also have the chance to receive exclusive Blockhouse Bay tokens (BHB) every time rent is paid. These tokens open up exciting possibilities and provide a cost-effective way to purchase properties.
                     </p>
