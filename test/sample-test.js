@@ -272,7 +272,7 @@ describe("PropertyMarket", function () {
 
 
     // const tokensHex = await propertyMarket.connect(renterAddress).getTokensEarned();
-    // const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
+    // const tokens = ethers.formatUnits(tokensHex.toString(), 'ether')
     // console.log("Reward amount: ", (tokens).toString()); 
     // //   if (i % 100 === 0) {
     // //     console.log("Balance of PropertyMarket:", (await propertyTokenContract.balanceOf(propertyMarket.address)).toString());
@@ -312,7 +312,7 @@ describe("PropertyMarket", function () {
     // for (let i = 0; i < 2; i++) {
     //   await propertyMarket.connect(buyer2Address).payRent(1, { value: ethers.utils.parseUnits('3', 'ether')})                    
     //   const tokensHex = await propertyMarket.connect(buyer2Address).getTokensEarned();
-    //   const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
+    //   const tokens = ethers.formatUnits(tokensHex.toString(), 'ether')
     //   if (i % 100 === 0) {
     //     console.log("Balance of PropertyMarket:", (await propertyTokenContract.balanceOf(propertyMarket.address)).toString());
     //     console.log("Reward amount2: ", (tokens).toString());    

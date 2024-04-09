@@ -15,6 +15,7 @@ module.exports = {
       accounts: [privateKey],
       gas: 2100000,
       gasPrice: 8000000000,
+      chainId: 80001
     },
     mainnet: {
       url: `https://polygon-mainnet.g.alchemy.com/v2/${projectId}`,

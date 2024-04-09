@@ -1,5 +1,10 @@
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { BrowserProvider, Contract, formatUnits } from 'ethers'
+
 const { ethers } = require('ethers');
 const { BigNumber } = require('ethers');
+
+
 
 //changed to be hardcoded because detection is unreliable on testnets
 function getNetworkName(chainId) {
@@ -14,9 +19,10 @@ function getNetworkName(chainId) {
   // }
 }
 
-async function detectNetwork() {
+async function detectNetwork(walletProvider) {
+  
   if (window.ethereum) {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const provider = new BrowserProvider(window.ethereum);
     //const provider = new ethers.providers.JsonRpcProvider();
     try {
       //const network = BigNumber.from(await provider.send('eth_chainId', [])).toString();
@@ -41,7 +47,7 @@ function getRpcUrl(network, projectId) {
   } else {
     rpcUrl = 'http://localhost:8545';
   }
-  return rpcUrl;
+  return 'Mumbai';
 }
 
 async function checkNetwork() {

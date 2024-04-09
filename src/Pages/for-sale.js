@@ -1,8 +1,7 @@
 import { React, useEffect, useState } from 'react'
-
+import { useModalContext } from '../App'
 import axios from 'axios'
-import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
-import { BrowserProvider, Contract, formatUnits } from 'ethers'
+import { Contract } from 'ethers'
 import { Link } from 'react-router-dom';
 import Blockies from 'react-blockies';
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
@@ -23,6 +22,8 @@ import SpinnerIcon from '../Components/spinner';
 
 const ethers = require("ethers")
 
+/* global BigInt */
+
 window.ethereum.on('accountsChanged', function (accounts) {
   window.location.reload();
 });
@@ -35,48 +36,46 @@ const ForSale = () => {
   const [numForSale, setNumForSale] = useState();
   const [showBottomNav, setShowBottomNav] = useState(false);
   const [txloadingState, setTxLoadingState] = useState({});
+  const [retries, setRetries] = useState(5)
+  const { modalEvent, provider, signer } = useModalContext(); 
 
-  const { address, chainId, isConnected } = useWeb3ModalAccount()
-  const { walletProvider } = useWeb3ModalProvider()
 
   useEffect(() => {
-    setLoadingState('not-loaded')
-    loadProperties(currentPage)
-  }, [currentPage])
+    console.log(provider);
+    console.log(signer);
+    if (signer == null) {      
+      
+      return;
+    }
+    if (provider != null) {
+      
+      loadProperties();
+    }
+  }, [currentPage, signer]);
 
-  const loadProperties = async (currentPaged, i) => {
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    try {
-      const network = await detectNetwork()
-      console.log(network)
-      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-      console.log(projectId)
-      const rpcUrl = getRpcUrl(network, projectId);
-      console.log(rpcUrl)
-      const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
-      console.log(provider)
+  
 
+  const loadProperties = async (currentPaged, i) => {        
+    try {         
+      const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)    
+      const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider);
+      const tokenContract = new Contract(nftaddress, NFT.abi, provider);
 
-      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
-      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
-      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-      console.log(currentPage)
       const data = await marketContract.fetchPropertiesForSale(currentPage)
       console.log(data)
-      const numForSale = await govtContract.getPropertiesForSale();
+      const numForSale = Number(await govtContract.getPropertiesForSale());    
 
       const currentPageNumItems = numForSale - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
       setShowBottomNav(showBottomNav);
-      setNumForSale(numForSale.toNumber());
+      setNumForSale(numForSale);
 
-      const items = await Promise.all(data.filter(a => a.tokenId.toNumber() !== 0).map(async i => {
+      const items = await Promise.all(data.filter(a => Number(a.tokenId) !== 0).map(async i => {
 
-        console.log(i.tokenId.toNumber())
+      
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
-        console.log(i.propertyId.toNumber())
+      
         const meta = await axios.get(tokenUri) //not used?  
 
         var nftName = GetPropertyNames(meta, i.propertyId);
@@ -96,15 +95,15 @@ const ForSale = () => {
           console.log('THIS ONE:', i)
         }
 
-        let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-        let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
+        let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
+        let tokenSalePriceFormatted = ethers.formatUnits(i.tokenSalePrice.toString(), 'ether')
         let saleHistory = [];
         if (i.saleHistory.length > 0) {
           i.saleHistory.forEach((item) => {
             const history = i.saleHistory.map((item) => {
               return {
-                price: ethers.utils.formatUnits(item[0]),
-                type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+                price: ethers.formatUnits(item[0]),
+                type: Number(item[1]) === 1 ? "Matic" : "BHB"
               }
             });
             saleHistory = history;
@@ -113,13 +112,13 @@ const ForSale = () => {
           saleHistory.push("Unsold")
         }
         let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
-        let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
-        let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+        let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
+        let totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
 
-        //let tokenSalePriceFormatted = ethers.utils.formatUnits(hexTokenPrice, 'ether')
+        //let tokenSalePriceFormatted = ethers.formatUnits(hexTokenPrice, 'ether')
         let item = {
           price,
-          propertyId: i.propertyId.toNumber(),
+          propertyId: Number(i.propertyId),
           seller: i.seller,
           owner: owner,
           image: tokenUri,
@@ -157,6 +156,15 @@ const ForSale = () => {
     } catch (error) {
       console.log(error)
       setTxLoadingState({ ...txloadingState, [i]: false });
+      if (retries > 0) {
+        return;
+      } else {
+        console.log('Retrying connection request...');
+        const newRetries = retries - 1;
+        setRetries(newRetries);
+
+        loadProperties();
+      }
     }
   }
 
@@ -167,11 +175,9 @@ const ForSale = () => {
       if (brb.checked === false && matic.checked === false) {
         return;
       }
-      const provider = new BrowserProvider(walletProvider)
-      const signer = provider.getSigner()
 
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
-      let price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
+      let price = ethers.parseUnits(nft.price.toString(), 'ether');
       let isTokenSale = false;
 
       let propertyTokenContract = undefined;
@@ -179,14 +185,13 @@ const ForSale = () => {
 
       if (brb != undefined) {
         if (brb.checked) {
-          price = ethers.utils.parseUnits("0", 'ether');
+          price = ethers.parseUnits("0", 'ether');
           isTokenSale = true;
           propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer);
-          amount = ethers.utils.parseUnits(nft.tokenSalePrice, 'ether');
+          amount = ethers.parseUnits(nft.tokenSalePrice, 'ether');
           await propertyTokenContract.allowSender(amount);
         }
       }
-
 
       const transaction = await contract2.createPropertySale(
         nftaddress,

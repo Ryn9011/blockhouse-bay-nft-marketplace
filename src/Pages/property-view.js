@@ -53,14 +53,14 @@ const PropertyView = () => {
     };
 
     const provider = new BrowserProvider(walletProvider, providerOptions)
-    const signer = provider.getSigner()
+    const signer = await provider.getSigner()
     const network = await detectNetwork()
     const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
     const rpcUrl = getRpcUrl(network, projectId);
 
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, signer)
-    const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
+    const tokenContract = new Contract(nftaddress, NFT.abi, signer)
+    const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    const govtContract = new Contract(govtaddress, GovtFunctions.abi, signer)
     const data = await govtContract.fetchSingleProperty(propertyId)
     const numForSale = await govtContract.getPropertiesForSale();
     console.log(data)
@@ -77,8 +77,8 @@ const PropertyView = () => {
     const targetId = parts.slice(3).join('/');
 
     var nftName = GetPropertyNames(meta, data.propertyId);
-    let price = ethers.utils.formatUnits(data.salePrice.toString(), 'ether')
-    let tokenSalePriceFormatted = ethers.utils.formatUnits(data.tokenSalePrice.toString(), 'ether')
+    let price = ethers.formatUnits(data.salePrice.toString(), 'ether')
+    let tokenSalePriceFormatted = ethers.formatUnits(data.tokenSalePrice.toString(), 'ether')
     const renterAddresses = await marketContract.getPropertyRenters(data.propertyId);
     console.log(renterAddresses)
     let saleHistory = [];
@@ -86,7 +86,7 @@ const PropertyView = () => {
       data.saleHistory.forEach((item) => {
         const history = data.saleHistory.map((item) => {
           return {
-            price: ethers.utils.formatUnits(item[0]),
+            price: ethers.formatUnits(item[0]),
             type: item[1].toNumber() === 1 ? "Matic" : "BHB"
           }
         });
@@ -96,10 +96,10 @@ const PropertyView = () => {
       saleHistory.push("Unsold")
     }
     let owner = data.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : data.owner
-    let rentPrice = await ethers.utils.formatUnits(data.rentPrice.toString(), 'ether')
-    let totalIncomeGenerated = ethers.utils.formatUnits(data.totalIncomeGenerated)
+    let rentPrice = await ethers.formatUnits(data.rentPrice.toString(), 'ether')
+    let totalIncomeGenerated = ethers.formatUnits(data.totalIncomeGenerated)
 
-    //let tokenSalePriceFormatted = ethers.utils.formatUnits(hexTokenPrice, 'ether')
+    //let tokenSalePriceFormatted = ethers.formatUnits(hexTokenPrice, 'ether')
     let item = {
       price,
       propertyId: data.propertyId.toNumber(),
@@ -144,7 +144,7 @@ const PropertyView = () => {
         return;
       }
       const provider = new BrowserProvider(walletProvider)
-      const signer = provider.getSigner()
+      const signer = await provider.getSigner()
 
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
       let price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
@@ -192,8 +192,8 @@ const PropertyView = () => {
 
   const rentProperty = async (property) => {
     try {
-      const provider = new BrowserProvider(walletProvider)
-      const signer = provider.getSigner()
+      const provider = BrowserProvider(walletProvider)
+      const signer = await provider.getSigner()
 
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 

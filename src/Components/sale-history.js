@@ -4,14 +4,19 @@ import { useLocation } from 'react-router-dom';
 
 const ethers = require("ethers")
 
+/* global BigInt */
+
 const SaleHistory = (props) => {
   const location = useLocation();
   const property = props.property;
   let dateSoldHistory = [];
   if (property.dateSoldHistory) {
-    dateSoldHistory = property.dateSoldHistory.map(a => {
-      const decimalValue = ethers.BigNumber.from(a).toNumber();
-      return new Date(decimalValue * 1000).toString().substring(4, 15);
+    dateSoldHistory = property.dateSoldHistory.map(a => {      
+    const bigIntValue = BigInt(a);      
+    const decimalValue = Number(ethers.formatUnits(bigIntValue, 0));      
+    const dateObject = new Date(decimalValue * 1000);  
+    const dateString = dateObject.toDateString();
+    return dateString.substring(4, 15);
     });
   }
 

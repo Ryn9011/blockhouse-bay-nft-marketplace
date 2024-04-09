@@ -1,12 +1,9 @@
 import { React, useEffect, useState } from 'react'
-
-import { NftTagHelper } from '../Components/Layout/nftTagHelper'
-
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import Blockies from 'react-blockies';
-import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import SpinnerIcon from '../Components/spinner';
+import { useModalContext } from '../App'
 
 import {
   nftaddress, nftmarketaddress, govtaddress
@@ -19,93 +16,83 @@ import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
 import SaleHistory from '../Components/sale-history'
 import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
-import { BrowserProvider, Contract, formatUnits } from 'ethers'
+import { Contract, formatUnits } from 'ethers'
+
 
 const ethers = require("ethers")
 
-window.ethereum.on('accountsChanged', function (accounts) {                 
-  window.location.reload();
-});
 
-const ToRent = () => {
 
-  const [soldProperties, setSoldProperties] = useState([])
+const ToRent = () => {  
   const [loadingState, setLoadingState] = useState('not-loaded')
   const [txloadingState, setTxLoadingState] = useState({});
-  // const [propertyList, setPropertyList] = useState([]);
-
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
-  // const [onlyRentable, setOnlyRentable] = useState(false);
-
-  // Get current posts
-  const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const [currentPosts, setCurrentPosts] = useState([]);
-
   const [numForRent, setNumForRent] = useState();
   const [showBottomNav, setShowBottomNav] = useState(false);    
-
   const { address, chainId, isConnected } = useWeb3ModalAccount()
-  const { walletProvider } = useWeb3ModalProvider()
+  const [retries, setRetries] = useState(3)
+  const { modalEvent, provider, signer } = useModalContext(); 
+
 
   useEffect(() => {
-    setLoadingState('not-loaded')
-    loadProperties()
-  }, [currentPage])
+    console.log(provider);
+    console.log(signer);
+    if (signer == null) {      
+      
+      return;
+    }
+    if (provider != null) {
+      
+      loadProperties();
+    }
+  }, [currentPage, signer]);
 
   const loadProperties = async (prop, i) => {
     try {
-      const network = await detectNetwork()
-      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-      const rpcUrl = getRpcUrl(network, projectId);
 
-      const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
-      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
-      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider) 
-      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-      console.log('currentPage: ',currentPage)
-      const data = await marketContract.fetchPropertiesSold(currentPage ) 
+     
+      const tokenContract = new Contract(nftaddress, NFT.abi, provider)
+      const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, provider) 
+      //const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
+      console.log(marketContract.address)
+      const data = await marketContract.fetchPropertiesSold(currentPage) 
       console.log('data: ',data)
 
-      const numForRent = await marketContract.getPropertiesSold();
+      const numForRent = Number(await marketContract.getPropertiesSold());
 
       const currentPageNumItems = numForRent - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
       setShowBottomNav(showBottomNav);
-      setNumForRent(numForRent.toNumber());
+      setNumForRent(numForRent);
     
 
-      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
-        console.log(i.tokenId.toNumber());
+      const items = await Promise.all(data.filter(i => Number(i.tokenId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
+        
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
-        console.log('tokenUri: ',tokenUri)
-        const nftTagHelper = new NftTagHelper()
-        const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
-
-        const tags = await nftTagHelper.getNftTags(arweaveId)
 
         const meta = await axios.get(tokenUri)
 
-        let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
+        let nftName = GetPropertyNames(meta, Number(i.propertyId))
 
-        let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-        let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
+        let price = formatUnits(i.salePrice.toString(), 'ether')
+        let rentPrice = formatUnits(i.rentPrice.toString(), 'ether')
         let depositHex = i.deposit//await govtContract.getDepositRequired();
-        let deposit = ethers.utils.formatUnits(depositHex, 'ether')
+        let deposit = formatUnits(depositHex, 'ether')
        
         console.log('deposit: ',deposit)
         const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
         console.log('renterAddresses: ',renterAddresses)
         let saleHistory = [];
-        console.log(i.propertyId.toNumber())
-        console.log(i.saleHistory)
+        console.log(Number(i.propertyId))
+        
         if (i.saleHistory.length > 0) {
           i.saleHistory.forEach((item) => {
             const history = i.saleHistory.map((item) => {
               return {
-                price: ethers.utils.formatUnits(item[0]),
-                type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+                price: formatUnits(item[0]),
+                type: Number(item[1]) === 1 ? "Matic" : "BHB"
               }
             });
             saleHistory = history;
@@ -117,12 +104,12 @@ const ToRent = () => {
         }
         let totalIncomeGenerated;
         if (i.totalIncomeGenerated != 0) {
-          totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+          totalIncomeGenerated = formatUnits(i.totalIncomeGenerated)
         } else totalIncomeGenerated = 0;
         console.log('totalIncomeGenerated: ',totalIncomeGenerated)
         let item = {
           price,
-          propertyId: i.propertyId.toNumber(),
+          propertyId: Number(i.propertyId),
           seller: i.seller,
           owner: i.owner,
           image: tokenUri,
@@ -168,15 +155,18 @@ const ToRent = () => {
     } catch (error) {
       setTxLoadingState({ ...txloadingState, [i]: false });
       console.log(error)
+      if (retries > 0) {
+        setRetries(retries - 1);
+        loadProperties();
+      }
     }
   }
 
   const rentProperty = async (property, i) => {
     try {
-      const provider = new BrowserProvider(walletProvider)
-      const signer = provider.getSigner()
 
-      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
+
+      const govtContract = new Contract(govtaddress, GovtFunctions.abi, signer)
       //const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider) 
 
       // const test = i.depositRequired//await govtContract.getDepositRequired();
@@ -311,7 +301,8 @@ const ToRent = () => {
                       </div> */}
                         <p>Tenants:</p>
                         <div className='text-[10px] mb-3 text-green-400 font-mono'>
-                          {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
+                          {console.log(property.renterAddresses[0])}
+                          {ethers.formatEther(property.renterAddresses[0]) !== "0.0" ?
                             <>
                               <div className='flex items-center justify-between mb-2'>
                                 <p className={" break-words"}>
@@ -329,7 +320,7 @@ const ToRent = () => {
                               </div>
                             </>
                           }
-                          {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+                          {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
                             <div className='flex items-center justify-between mb-2'>
                               <p className={" break-words"}>
                                 {property.renterAddresses[1]}
@@ -345,7 +336,7 @@ const ToRent = () => {
                               </div>
                             </>
                           }
-                          {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
+                          {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
                             <div className='flex items-center justify-between mb-2'>
                               <p className={" break-words"}>
                                 {property.renterAddresses[2]}
@@ -361,7 +352,7 @@ const ToRent = () => {
                               </div>
                             </>
                           }
-                          {ethers.utils.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
+                          {ethers.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
                             <div className='flex items-center justify-between'>
                               <p className={" break-words"}>
                                 {property.renterAddresses[3]}

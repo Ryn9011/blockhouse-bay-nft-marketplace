@@ -1,12 +1,10 @@
-import { React, useEffect, useState, useMemo } from 'react'
-
+import { React, useEffect, useState } from 'react'
+import { useModalContext } from '../App'
 import axios from 'axios'
 
-import Ticker from 'react-ticker';
 import Blockies from 'react-blockies';
 
-import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
-import { BrowserProvider, Contract, formatUnits } from 'ethers'
+import { Contract } from 'ethers'
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
@@ -19,83 +17,67 @@ import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunction
 import GetPropertyNames from '../getPropertyName'
 import SaleHistory from '../Components/sale-history'
 import { calculateRankingTotal, calculateRankingPosition } from '../calculateRanking'
-import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import SpinnerIcon from '../Components/spinner';
 
 const ethers = require("ethers")
 
-window.ethereum.on('accountsChanged', function (accounts) {
-  window.location.reload();
-});
+
 
 const Exclusive = () => {
-  const [properties, setProperties] = useState([]);
+  
   const [loadingState, setLoadingState] = useState('not-loaded')
-  const [currentPage, setCurrentPage] = useState(1);
-  const [postsPerPage] = useState(50);
+
   const [currentPosts, setCurrentPosts] = useState([]);
   const [numForSale, setNumForSale] = useState();
   const [txloadingState1, setTxLoadingState1] = useState({});
   const [txloadingState2, setTxLoadingState2] = useState({});
 
-
-  const { address, chainId, isConnected } = useWeb3ModalAccount()
-  const { walletProvider } = useWeb3ModalProvider()
+  const [retries, setRetries] = useState(3)
+  const { modalEvent, provider, signer } = useModalContext(); 
 
   useEffect(() => {
-    loadProperties(currentPage)
-  }, [])
+    console.log(provider);
+    console.log(signer);
+    if (signer == null) {      
+      
+      return;
+    }
+    if (provider != null) {
+      
+      loadProperties();
+    }
+  }, [signer]);
 
-  const loadNextPage = () => {
-    const indexOfLastPost = currentPage * postsPerPage;
-    const indexOfFirstPost = indexOfLastPost - postsPerPage;
-    var current = currentPosts.slice(indexOfFirstPost, indexOfLastPost);
-    setCurrentPosts(current)
-  }
-
-  useMemo(() => {
-    loadNextPage(currentPage)
-  }, [currentPage])
-
-  const paginate = (pageNumber) => {
-    setCurrentPage(pageNumber)
-  };
-
-  const loadProperties = async () => {
-    const network = await detectNetwork()
-
-    const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-    const rpcUrl = getRpcUrl(network, projectId);
-
-    const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
-    const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
-    const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
-    const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
+  const loadProperties = async () => {  
+   try {
+    const tokenContract = new Contract(nftaddress, NFT.abi, provider)
+    const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
     const data = await govtContract.fetchExclusiveProperties();
 
-    const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
+    const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
       const meta = await axios.get(tokenUri)
-      let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
+      let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
       let depositHex = i.deposit//await govtContract.getDepositRequired();
-      let deposit = ethers.utils.formatUnits(depositHex, 'ether')
+      let deposit = ethers.formatUnits(depositHex, 'ether')
 
-      let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
+      let tokenSalePriceFormatted = ethers.formatUnits(i.tokenSalePrice.toString(), 'ether')
       const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
       let nftName = GetPropertyNames(meta, i.propertyId)
 
       let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
-      let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
-      let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+      let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
+      let totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
 
       let saleHistory = [];
       if (i.saleHistory.length > 0) {
         i.saleHistory.forEach((item) => {
           const history = i.saleHistory.map((item) => {
             return {
-              price: ethers.utils.formatUnits(item[0]),
-              type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+              price: ethers.formatUnits(item[0]),
+              type: Number(item[1]) === 1 ? "Matic" : "BHB"
             }
           });
           saleHistory = history;
@@ -106,7 +88,7 @@ const Exclusive = () => {
 
       let item = {
         price,
-        propertyId: i.propertyId.toNumber(),
+        propertyId: Number(i.propertyId),
         seller: i.seller,
         owner: owner,
         image: tokenUri,
@@ -163,22 +145,32 @@ const Exclusive = () => {
     console.log(properties)
     setCurrentPosts(properties)
     setLoadingState('loaded')
+  } catch (ex) {
+    console.log(ex.message)
+    if (retries === 0) {
+      return;
+    } else {
+      console.log('Retrying connection request...');
+      const newRetries = retries - 1;
+      setRetries(newRetries);
+      loadProperties();
+    }
   }
+}
 
 
   const buyProperty = async (nft, i) => {
-    const provider = new BrowserProvider(walletProvider)
-    const signer = provider.getSigner()
 
+    try {
     const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    let price = ethers.utils.parseUnits(nft.price.toString(), 'ether')
+    let price = ethers.parseUnits(nft.price.toString(), 'ether')
     let isTokenSale = true
     const propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer)
-    const amount = ethers.utils.parseUnits(nft.tokenSalePrice, 'ether')
+    const amount = ethers.parseUnits(nft.tokenSalePrice, 'ether')
     await propertyTokenContract.allowSender(amount)
 
-    let relist = await contract2.getRelistCount();
-    console.log(relist)
+    // let relist = await contract2.getRelistCount();
+    // console.log(relist)
     const transaction = await contract2.createPropertySale(
       nftaddress,
       nft.propertyId,
@@ -187,7 +179,7 @@ const Exclusive = () => {
       // { value: price }
     )
     setTxLoadingState1({ ...txloadingState1, [i]: true });
-    try {
+    
       await transaction.wait()
       loadProperties()
     } catch (error) {
@@ -197,8 +189,7 @@ const Exclusive = () => {
   }
 
   const rentProperty = async (property, i) => {
-    const provider = new BrowserProvider(walletProvider)
-    const signer = provider.getSigner()
+   
 
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
@@ -300,7 +291,7 @@ const Exclusive = () => {
                       <p className={`text-indigo-100 ${property.renterAddresses[0] === '0x0000000000000000000000000000000000000000' ? 'mb-2' : ''}`}>Tenants:</p>
                       <div className='text-[10px] lg:text-xs mb-3 text-green-400 font-mono'>
 
-                        {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
+                        {ethers.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
                           <>
                             <div className='flex items-center h-11 justify-between mb-2'>
                               <p className={" break-words"}>
@@ -319,7 +310,7 @@ const Exclusive = () => {
                           </>
                         }
 
-                        {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+                        {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
                           <div className='flex items-center h-10 justify-between mb-4'>
                             <p className={" break-words"}>
                               {property.renterAddresses[1]}
@@ -335,7 +326,7 @@ const Exclusive = () => {
                             </div>
                           </>
                         }
-                        {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
+                        {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
                           <div className='flex items-center h-10 justify-between'>
                             <p className={" break-words"}>
                               {property.renterAddresses[2]}
@@ -351,7 +342,7 @@ const Exclusive = () => {
                             </div>
                           </>
                         }
-                        {ethers.utils.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
+                        {ethers.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
                           <div className='flex items-center h-10 justify-between'>
                             <p className={" break-words"}>
                               {property.renterAddresses[3]}

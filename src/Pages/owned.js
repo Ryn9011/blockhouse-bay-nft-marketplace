@@ -1,13 +1,10 @@
-import React, { useEffect, useState, useRef, useLayoutEffect } from 'react'
-
-import { NftTagHelper } from '../Components/Layout/nftTagHelper'
-import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
-import { BrowserProvider, Contract, formatUnits } from 'ethers'
+import React, { useEffect, useState, useRef } from 'react'
+import { useModalContext } from '../App'
+import { useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { Contract } from 'ethers'
 
 import axios from 'axios'
 import { Link, useLocation } from 'react-router-dom';
-// import { Share } from 'react-twitter-widgets'
-import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import { makeStyles } from '@material-ui/core/styles';
 
 import Blockies from 'react-blockies';
@@ -16,16 +13,16 @@ import Market from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.jso
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import SaleHistory from '../Components/sale-history'
-import { calculateRankingTotal, calculateRankingPosition } from '../calculateRanking'
+import { calculateRankingTotal } from '../calculateRanking'
 import SpinnerIcon from '../Components/spinner';
 
 import {
-  nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
+  nftaddress, nftmarketaddress, govtaddress
 } from '../config'
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
-
 const ethers = require("ethers")
+/* global BigInt */
 
 const useStyles = makeStyles({
   padding: {
@@ -34,10 +31,6 @@ const useStyles = makeStyles({
     lineHeight: '1rem !important',
     display: 'flex !important',
   }
-});
-
-window.ethereum.on('accountsChanged', function (accounts) {                 
-  window.location.reload();
 });
 
 const Owned = () => {
@@ -69,78 +62,66 @@ const Owned = () => {
   const [txloadingState3, setTxLoadingState3] = useState({});
   const [txloadingState4, setTxLoadingState4] = useState({});
   const [totalUserPropertyCount, setTotalUserPropertyCount] = useState(0);
+  const { address, chainId, isConnected } = useWeb3ModalAccount()
 
-  const [provider, setProvider] = useState(null);
-  const [signer, setSigner] = useState(null);
-  const [marketContract, setMarketContract] = useState(null);
-  const [govtContract, setGovtContract] = useState(null);
-  const [tokenContract, setTokenContract] = useState(null);
-  const [network, setNetwork] = useState(null);
+  const { modalEvent, provider, signer } = useModalContext(); 
 
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastPost = currentPage * postsPerPage;
-  const indexOfFirstPost = indexOfLastPost - postsPerPage;  
-  const [retries, setRetries] = useState(5)
-
-  const { address, chainId, isConnected } = useWeb3ModalAccount()
-  const { walletProvider } = useWeb3ModalProvider()
-  const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-  const rpcUrl = getRpcUrl(network, projectId);
-
-
-  async function initializeContracts() {
-    try {
-      setLoadingState2('not-loaded')
-      const network = await detectNetwork();
-      
-      const providerOptions = {
-        rpc: {
-          [network]: rpcUrl,
-        },
-      };
-      const web3Provider = new BrowserProvider(walletProvider, providerOptions);
-      const web3Signer = provider.getSigner()
-      const market = new ethers.Contract(nftmarketaddress, Market.abi, web3Signer);
-      const govt = new ethers.Contract(govtaddress, GovtFunctions.abi, web3Signer);
-      const token = new ethers.Contract(nftaddress, NFT.abi, web3Provider);
-
-      setNetwork(network);
-      setProvider(web3Provider);
-      setSigner(web3Signer);
-      setMarketContract(market);
-      setGovtContract(govt);
-      setTokenContract(token);
-
-    } catch (error) {
-      console.error('Error initializing contracts:', error);
-    }
-    setLoadingState2('loaded')
-  }
-
-  useLayoutEffect(() => {
-    initializeContracts();
-  }, []);
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const [retries, setRetries] = useState(3)
+  const [walletConnectionError, setWalletConnectionError] = useState(false);
+  let exceptionCount = 3
 
   useEffect(() => {
-   
-    if (loadingState2 === 'loaded') {
-      setLoadingState('not-loaded')
-      loadProperties();
-      //setIsConnected(true);
+    console.log(provider);
+    console.log(signer);
+    if (signer == null) {      
+      setWalletConnectionError(true);
+      return;
     }
+    if (provider != null) {
+      setWalletConnectionError(false);
+      loadProperties();
+    }
+  }, [currentPage, signer]);
 
-  }, [currentPage, loadingState2])
+  useEffect(() => { 
+    if (modalEvent === null) {
+      return;
+    }
+    console.log(modalEvent.data.event)
+    if (modalEvent.data.event === 'DISCONNECT_SUCCESS' || modalEvent.data.event === 'DISCONNECT_ERROR') {      
+      setWalletConnectionError(true);
+      window.location.reload();
+    } else {
+      setWalletConnectionError(false);
+    }
+  }, [modalEvent]);
 
   async function loadProperties(i) {
-
     try {
-      //console.log(currentPage)
-      const data = await marketContract.fetchMyProperties(currentPage)
-      const propertyCount = await marketContract.getUserProperties();
+      console.log('Retries: ', retries)
+      if (exceptionCount === 0) {
+        return;
+      }
+      if (!isConnected) {
+        exceptionCount--;
+        setTxLoadingState1({ ...txloadingState1, [i]: false });
+        setTxLoadingState2({ ...txloadingState2, [i]: false });
+        throw Error('User disconnected')
+      }
+
+      const market = new Contract(nftmarketaddress, Market.abi, signer);
+      const govt = new Contract(govtaddress, GovtFunctions.abi, provider);
+      const token = new Contract(nftaddress, NFT.abi, provider);
+
+      const data = await market.fetchMyProperties(currentPage)
+      const propertyCount = await market.getUserProperties();
       console.log(propertyCount)
       setTotalUserPropertyCount(propertyCount.length)
-      
+
       console.log(data)
       const propertyIds = [];
 
@@ -149,8 +130,8 @@ const Owned = () => {
         propertyIds.push(item.propertyId);
       }
 
-      propertyIds.forEach(a => {  })
-      const renters = await marketContract.getPropertyDetails(propertyIds, true);
+      propertyIds.forEach(a => { })
+      const renters = await market.getPropertyDetails(propertyIds, true);
       //console.log(renters)
       let idsToRenters = []
       renters.forEach(a => {
@@ -160,31 +141,30 @@ const Owned = () => {
       //console.log(signer)
       //console.log(provider)
 
-      let value = ethers.utils.formatUnits(await govtContract.getRentAccumulatedSender(), 'ether')
+      let value = ethers.formatUnits(await govt.getRentAccumulatedSender(), 'ether')
       setAmountAccumulated(value)
 
-      //console.log(data)
+      console.log(data)
 
-      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() !== 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
+      const items = await Promise.all(data.filter(i => Number(i.propertyId) !== 0 && (a => Number(a.tokenId !== 0))).map(async i => {
         console.log(i)
-        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        const tokenUri = await token.tokenURI(i.tokenId)
         //const meta = await axios.get(tokenUri)
 
-        const nftTagHelper = new NftTagHelper()
-        const arweaveId = nftTagHelper.getIdFromGraphUrl(tokenUri)
+
         const meta = await axios.get(tokenUri)
-        const tags = await nftTagHelper.getNftTags(arweaveId)
+
 
         // const nameTags = tags.data.transactions.edges[0].node.tags[0]
 
-        let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
+        let nftName = GetPropertyNames(meta, Number(i.propertyId))
 
-        const timestamps = renters.filter(a => a.propertyId == i.propertyId.toNumber())
+        const timestamps = renters.filter(a => a.propertyId == Number(i.propertyId))
         //console.log(timestamps)
 
-        let price = ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
-        let rentPrice = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
-        const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+        let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
+        let rentPrice = ethers.formatUnits(i.rentPrice.toString(), 'ether')
+        const renterAddresses = await market.getPropertyRenters(i.propertyId);
         // console.log(renterAddresses)
         // let test = await marketContract.getTenantsMapping("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
         // console.log('5 ',test)
@@ -195,16 +175,16 @@ const Owned = () => {
         // let test4 = await marketContract.getTenantsMapping("0x36D886DfBeE479b04F953b0649988AE3ABAc4C8D")
         // console.log('8 ',test4)
         // const tokensHex = await marketContract.getTokensEarned()
-        // const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
-        let tokenSalePriceFormatted = ethers.utils.formatUnits(i.tokenSalePrice.toString(), 'ether')
+        // const tokens = ethers.formatUnits(tokensHex.toString(), 'ether')
+        let tokenSalePriceFormatted = ethers.formatUnits(i.tokenSalePrice.toString(), 'ether')
         //console.log(tokenSalePriceFormatted)
         let saleHistory = [];
         if (i.saleHistory.length > 0) {
           i.saleHistory.forEach((item) => {
             const history = i.saleHistory.map((item) => {
               return {
-                price: ethers.utils.formatUnits(item[0]),
-                type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+                price: ethers.formatUnits(item[0]),
+                type: Number(item[1]) === 1 ? "Matic" : "BHB"
               }
             });
             saleHistory = history;
@@ -212,15 +192,16 @@ const Owned = () => {
         } else {
           saleHistory.push("Unsold")
         }
-        let totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+        let totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
 
-        const propertyId = ethers.BigNumber.from(i.propertyId).toNumber();
+        const propertyId = Number(ethers.formatUnits(BigInt(i.propertyId), 0));
+
         //console.log(propertyId)
 
         let item = {
           price,
           propertyId: propertyId,
-          tokenId: i.tokenId.toNumber(),
+          tokenId: Number(i.tokenId),
           seller: i.seller,
           owner: i.owner,
           image: tokenUri,
@@ -245,7 +226,7 @@ const Owned = () => {
           totalIncomeGenerated: totalIncomeGenerated,
           ranking: 0
         }
-        
+
         if (item.roomOneRented === true) {
           item.roomsToRent++
         }
@@ -261,7 +242,7 @@ const Owned = () => {
         item.ranking = calculateRankingTotal(item)
         return item
       }))
-      //console.log(items.length)
+      //console.log(items.length) 
 
       setCurrentPosts(items.slice(0, 20))
 
@@ -274,6 +255,7 @@ const Owned = () => {
     } catch (ex) {
       setLoadingState('loaded')
       if (ex.message === 'User Rejected') {
+        console.log(ex.message)
         // Handle user rejection
         //console.log('Connection request rejected by the user.');
         // Display an error message to the user        
@@ -283,19 +265,30 @@ const Owned = () => {
         setTxLoadingState3({ ...txloadingState3, [i]: false });
         setTxLoadingState4({ ...txloadingState4, [i]: false });
         if (retries > 0) {
-          setRetries(retries - 1);
+          return;
+        } else {
+          console.log('Retrying connection request...');
+          const newRetries = retries - 1;
+          setRetries(newRetries);
+       
           loadProperties();
         }
       } else {
         //console.log(ex)
+        console.log(ex.message)
         //setIsConnected(false)
         setTxLoadingState1({ ...txloadingState1, [551]: false });
         setTxLoadingState2({ ...txloadingState2, [i]: false });
         setTxLoadingState3({ ...txloadingState3, [i]: false });
         setTxLoadingState4({ ...txloadingState4, [i]: false });
-        if (retries > 0) {
-          setRetries(retries - 1);
-          loadProperties()
+        if (retries === 0) {
+          return;
+        } else {
+          console.log('Retrying connection request...');
+          const newRetries = retries - 1;
+          setRetries(newRetries);
+
+          loadProperties();
         }
       }
     }
@@ -305,16 +298,17 @@ const Owned = () => {
     // const web3Modal = new Web3Modal()
     // const connection = await web3Modal.connect()
     // const provider = new ethers.providers.Web3Provider(connection)
-    // const signer = provider.getSigner()
+    // const signer = await provider.getSigner()
+    console.log(signer)
     console.log(property)
     let tokenAmount = document.getElementById('tokenInput' + i).value
     tokenAmount = tokenAmount === "" ? 0 : tokenAmount
 
-    const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+    const contract = new Contract(nftmarketaddress, Market.abi, signer)
     const listingPrice = await contract.getListingPrice()
     //console.log('listing price:', listingPrice)
     console.log('TWO')
-    const nftContract = new ethers.Contract(nftaddress, NFT.abi, signer)
+    const nftContract = new Contract(nftaddress, NFT.abi, signer)
     await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction
     console.log('TWO POINT FIVE')
 
@@ -323,7 +317,7 @@ const Owned = () => {
 
     let maticAmount = !isExclusive ? document.getElementById('amountInput' + i).value : document.getElementById('tokenInput' + i).value
     console.log('2.5')
-    const priceFormatted = ethers.utils.parseUnits(maticAmount, 'ether')
+    const priceFormatted = ethers.parseUnits(maticAmount, 'ether')
     console.log('THREE')
     const transaction = await contract.sellProperty(
       nftaddress,
@@ -448,7 +442,7 @@ const Owned = () => {
   //   // const web3Modal = new Web3Modal()
   //   // const connection = await web3Modal.connect()
   //   // const provider = new ethers.providers.Web3Provider(connection)
-  //   // const signer = provider.getSigner()
+  //   // const signer = await provider.getSigner()
   //   const marketContract = new ethers.Contract(nftmarketaddress, Market.abi, provider)
   //   const marketAddress = marketContract.address
 
@@ -511,23 +505,26 @@ const Owned = () => {
     // const web3Modal = new Web3Modal()
     // const connection = await web3Modal.connect()
     // const provider = new ethers.providers.Web3Provider(connection)
-    // const signer = provider.getSigner()
+    // const signer = await provider.getSigner()
 
-    const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+    const contract = new Contract(nftmarketaddress, Market.abi, signer)
     const transaction = await contract.cancelSale(nftaddress, property.tokenId, property.propertyId)
     setTxLoadingState2({ ...txloadingState2, [i]: true });
+    try {
     await transaction.wait()
+    } catch (ex) {
+      console.log(ex);
+    }
     loadProperties()
   }
 
   const ChangeDeposit = async (property, i) => {
-    const provider = new BrowserProvider(walletProvider)
-    const signer = provider.getSigner()
+  
 
-    const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
+    const contract = new Contract(nftmarketaddress, Market.abi, signer)
     let rentVal = document.getElementById('depositInput' + i).value
     console.log(rentVal)
-    let newPrice = ethers.utils.parseUnits(rentVal, 'ether')
+    let newPrice = ethers.parseUnits(rentVal, 'ether')
     console.log(newPrice)
     const transaction = await contract.setDeposit(property.propertyId, newPrice)
     setTxLoadingState4({ ...txloadingState4, [i]: true });
@@ -535,18 +532,17 @@ const Owned = () => {
       await transaction.wait()
     } catch (ex) {
       console.log(ex)
-    }    
+    }
     loadProperties()
   }
 
   const ChangeRent = async (property, i) => {
-    const provider = new BrowserProvider(walletProvider)
-    const signer = provider.getSigner()
 
-    const contract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
+
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
     let rentVal = document.getElementById('rentInput' + i).value
     console.log()
-    let newPrice = ethers.utils.parseUnits(rentVal, 'ether')
+    let newPrice = ethers.parseUnits(rentVal, 'ether')
     console.log(newPrice)
 
     const transaction = await contract.setRentPrice(property.propertyId, newPrice)
@@ -560,8 +556,8 @@ const Owned = () => {
       // const web3Modal = new Web3Modal()
       // const connection = await web3Modal.connect()
       // const provider = new ethers.providers.Web3Provider(connection)
-      // const signer = provider.getSigner()
-      const contract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
+      // const signer = await provider.getSigner()
+      const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
 
       const transaction = await contract.collectRent()
       setTxLoadingState1({ ...txloadingState1, [551]: true });
@@ -576,7 +572,7 @@ const Owned = () => {
     // const web3Modal = new Web3Modal()
     // const connection = await web3Modal.connect()
     // const provider = new ethers.providers.Web3Provider(connection)
-    // const signer = provider.getSigner()
+    // const signer = await provider.getSigner()
 
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     const transaction = await contract.evictTennant(property.propertyId, tenantToDelete.address)
@@ -640,7 +636,7 @@ const Owned = () => {
   }
 
   const SetTenantRadioStatus = (property, i) => {
-    if (ethers.utils.formatEther(property.renterAddresses[i]).toString() !== "0.0") {
+    if (ethers.formatEther(property.renterAddresses[i]).toString() !== "0.0") {
       // setDisabledRadioCount(disabledRadioCount+1)
       // if (disabledRadioCount == 3) {
       //   setDisabledEvictButton(true)
@@ -650,10 +646,10 @@ const Owned = () => {
   }
 
   const SetEvictButtonColour = (property) => {
-    if (ethers.utils.formatEther(property.renterAddresses[0]).toString() === "0.0"
-      && ethers.utils.formatEther(property.renterAddresses[1]).toString() === "0.0"
-      && ethers.utils.formatEther(property.renterAddresses[2]).toString() === "0.0"
-      && ethers.utils.formatEther(property.renterAddresses[3]).toString() === "0.0") {
+    if (ethers.formatEther(property.renterAddresses[0]).toString() === "0.0"
+      && ethers.formatEther(property.renterAddresses[1]).toString() === "0.0"
+      && ethers.formatEther(property.renterAddresses[2]).toString() === "0.0"
+      && ethers.formatEther(property.renterAddresses[3]).toString() === "0.0") {
       return "bg-gray-400 cursor-default text-gray-600"
     } else {
       return "bg-red-400"
@@ -661,10 +657,10 @@ const Owned = () => {
   }
 
   const setEvictButtonStatus = (property) => {
-    if (ethers.utils.formatEther(property.renterAddresses[0]).toString() === "0.0"
-      && ethers.utils.formatEther(property.renterAddresses[1]).toString() === "0.0"
-      && ethers.utils.formatEther(property.renterAddresses[2]).toString() === "0.0"
-      && ethers.utils.formatEther(property.renterAddresses[3]).toString() === "0.0") {
+    if (ethers.formatEther(property.renterAddresses[0]).toString() === "0.0"
+      && ethers.formatEther(property.renterAddresses[1]).toString() === "0.0"
+      && ethers.formatEther(property.renterAddresses[2]).toString() === "0.0"
+      && ethers.formatEther(property.renterAddresses[3]).toString() === "0.0") {
       return true
     } else return false
   }
@@ -675,7 +671,7 @@ const Owned = () => {
       return (
         // <div className='text-xs mt-2 text-green-200'>
         <div className='text-[10px] font-mono text-green-400'>
-          {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
+          {ethers.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
             <>
               <div className='flex items-center justify-between mb-2'>
                 <p className={" break-words text-center " + getTenantToDeleteColour(property, 0)}>
@@ -688,7 +684,7 @@ const Owned = () => {
             </>
             : <p>0x</p>
           }
-          {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+          {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
             <div className='flex items-center justify-between mb-2'>
               <p className={" break-words text-center " + getTenantToDeleteColour(property, 1)}>
                 {property.renterAddresses[1]}
@@ -703,7 +699,7 @@ const Owned = () => {
                 <p>0x</p>}
             </>
           }
-          {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
+          {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
             <div className='flex items-center justify-between mb-2'>
               <p className={" break-words " + getTenantToDeleteColour(property, 2)}>
                 {property.renterAddresses[2]}
@@ -717,7 +713,7 @@ const Owned = () => {
                 <p>0x</p>}
             </>
           }
-          {ethers.utils.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
+          {ethers.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
             <div className='flex items-center justify-between'>
               <p className={" break-words " + getTenantToDeleteColour(property, 3)}>
                 {property.renterAddresses[3]}
@@ -810,7 +806,7 @@ const Owned = () => {
     } else if (e.target.id === "tenant4") {
       setTenantToDelete({ address: property.renterAddresses[3] })
     }
-    
+
     return setAddresses(property, e, i)
   }
 
@@ -827,13 +823,13 @@ const Owned = () => {
         return true;
       }
 
-      const allTimestampsZero = property.payments.every(payment => {        
+      const allTimestampsZero = property.payments.every(payment => {
         const timestamp = payment[2];
 
-        console.log('timestamp ', timestamp.toNumber())  
-        if (timestamp == 0 || timestamp === '0x00')  {
+        console.log('timestamp ', Number(timestamp))
+        if (timestamp == 0 || timestamp === '0x00') {
           return false;
-        }            
+        }
       });
 
       if (allTimestampsZero) {
@@ -850,14 +846,14 @@ const Owned = () => {
         return true;
       }
 
-      if (currentObject.timestamp == 0 || currentObject.timestamp === '0x00')  {
+      if (currentObject.timestamp == 0 || currentObject.timestamp === '0x00') {
         return false;
-      }  
+      }
       console.log(currentObject)
       const twentyFourHoursInMillis = 600; // 24 hours in milliseconds
       const currentTimeInMillis = Math.floor(Date.now() / 1000);
 
-      if (currentTimeInMillis - (currentObject[0].timestamp.toNumber()) > twentyFourHoursInMillis) {
+      if (currentTimeInMillis - (Number(currentObject[0].timestamp)) > twentyFourHoursInMillis) {
         console.log("true")
         return true
       } else {
@@ -906,9 +902,23 @@ const Owned = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+
+  // if (walletConnectionError) return (
+  //   <div className="pt-10 pb-10">
+  //     <div className="flex ">
+  //       <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
+  //         <div className="flex pl-6 lg:px-12">
+  //           <p className="text-white text-3xl lg:text-5xl font-bold mb-2">Error connecting wallet</p>
+
+  //         </div>          
+  //       </div>
+  //     </div>
+  //   </div>
+  // )
+
   if (loadingState === 'loaded' && !isConnected) return (
     <div className='text-sm text-white flex justify-center mt-6'>
-      <p>Something has gone wrong. Try refreshing the page and check your wallet connection</p>    
+      <p>Your wallet needs to be connected to view your properties. Connect your wallet connection and refresh the page</p>
     </div>
   )
 
@@ -1106,11 +1116,11 @@ const Owned = () => {
                         <div className={'mt-0.5 flex'} >
                           {/* <div className="btn-o w-[73px] mb-12" ><div  className="tweetBtn" id="b"><i></i><span className="label" id="l">Tweet</span></div></div> */}
                           {/* <Share url={url} options={text} disabled={true} /> */}
-                          <a class="twitter-share-button"
+                          <a className="twitter-share-button"
                             href={`https://twitter.com/intent/tweet?text=${text}`}
                             data-size="large"
                             target='new'
-                            >
+                          >
                             <div className='border border-1 rounded p-1 px-2 flex'>
                               <p>Post</p>
                               <img src='logo-white.png' className='w-6 h-6 ml-4 cursor-pointer' />
@@ -1335,7 +1345,7 @@ const Owned = () => {
                                 </p>
                               ) : (
                                 <button
-                                  onClick={() => SellProperty(property, i)} id={"sellBtn" + i} 
+                                  onClick={() => SellProperty(property, i)} id={"sellBtn" + i}
                                   name='sellBtn'
                                   className="w-full bg-gray-400 cursor-default text-gray-600 font-bold py-2 rounded"
                                 >

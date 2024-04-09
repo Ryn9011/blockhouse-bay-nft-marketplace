@@ -15,6 +15,9 @@ import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMa
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import SaleHistory from '../Components/sale-history'
 
+import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
+import { BrowserProvider, Contract, formatUnits, AlchemyProvider } from 'ethers'
+
 const ethers = require("ethers")
 
 window.ethereum.on('accountsChanged', function (accounts) {                 
@@ -42,35 +45,36 @@ const AllProperties = () => {
     const network = await detectNetwork()
 
     const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-    const rpcUrl = getRpcUrl(network, projectId);
+    // const rpcUrl = getRpcUrl(network, projectId);
+    const provider = new AlchemyProvider('maticmum', projectId)
+    console.log(provider)
 
-    const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
+
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
     const data = await govtContract.fetchAllProperties(currentPage)
 
-    const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
+    const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
       const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
       const meta = await axios.get(tokenUri)
       console.log(data)
       let nftName = GetPropertyNames(meta)
 
-      let price = await ethers.utils.formatUnits(i.salePrice.toString(), 'ether')
+      let price = await ethers.formatUnits(i.salePrice.toString(), 'ether')
       //let depositHex = await govtContract.getDepositRequired()
-      //et deposit = await ethers.utils.formatUnits(depositHex, 'ether')
+      //et deposit = await ethers.formatUnits(depositHex, 'ether')
 
-      const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
-      console.log(i.propertyId.toNumber())
+      const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);    
 
       let saleHistory = [];
       if (i.saleHistory.length > 0) {
         i.saleHistory.forEach((item) => {
           const history = i.saleHistory.map((item) => {
             return {
-              price: ethers.utils.formatUnits(item[0]),
-              type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+              price: ethers.formatUnits(item[0]),
+              type: Number(item[1]) === 1 ? "Matic" : "BHB"
             }
           });
           saleHistory = history;
@@ -80,14 +84,14 @@ const AllProperties = () => {
       }
       let totalIncomeGenerated;
       if (i.totalIncomeGenerated != 0) {
-        totalIncomeGenerated = ethers.utils.formatUnits(i.totalIncomeGenerated)
+        totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
       } else totalIncomeGenerated = 0;
-      let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
+      let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
       let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
 
       let item = {
         price,
-        propertyId: i.propertyId.toNumber(),
+        propertyId: Number(i.propertyId),
         seller: i.seller,
         owner: owner,
         image: tokenUri,
@@ -213,7 +217,7 @@ const AllProperties = () => {
                       </div>
                       <p>Tenants:</p>
                       <div className='text-[10px] mb-3 text-green-400 font-mono'>
-                        {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
+                        {ethers.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
                           <>
                             <div className='flex items-center justify-between mb-2'>
                               <p className={" break-words"}>
@@ -226,7 +230,7 @@ const AllProperties = () => {
                           </>
                           : <p>0x</p>
                         }
-                        {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+                        {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
                           <div className='flex items-center justify-between mb-2'>
                             <p className={" break-words"}>
                               {property.renterAddresses[1]}
@@ -241,7 +245,7 @@ const AllProperties = () => {
                               <p>0x</p>}
                           </>
                         }
-                        {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
+                        {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
                           <div className='flex items-center justify-between mb-2'>
                             <p className={" break-words"}>
                               {property.renterAddresses[2]}
@@ -255,7 +259,7 @@ const AllProperties = () => {
                               <p>0x</p>}
                           </>
                         }
-                        {ethers.utils.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
+                        {ethers.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
                           <div className='flex items-center justify-between'>
                             <p className={" break-words"}>
                               {property.renterAddresses[3]}

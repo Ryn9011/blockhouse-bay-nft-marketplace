@@ -1,11 +1,10 @@
-import { React, useEffect, useMemo, useState } from 'react'
+import { React, useEffect, useState } from 'react'
+import { useModalContext } from '../App'
 
-import { NftTagHelper } from '../Components/Layout/nftTagHelper'
 import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
-import { BrowserProvider, Contract, formatUnits } from 'ethers'
+import { BrowserProvider, Contract, } from 'ethers'
 import axios from 'axios'
 import Blockies from 'react-blockies';
-import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
@@ -22,10 +21,15 @@ const ethers = require("ethers")
 
 const copy = require('clipboard-copy')
 
+window.ethereum.on('accountsChanged', function (accounts) {              
+  window.location.reload();
+});
+
 const Renting = () => {
 
   const [rentedProperties, setRentedProperties] = useState([])
   const [loadingState, setLoadingState] = useState('not-loaded')
+  const [loadingState2, setLoadingState2] = useState('not-loaded')
   const [timestampLoadingState, setTimestampLoadingState] = useState('not-loaded')
   const [renterTokens, setRenterTokens] = useState(0)
   const [rentAmount, setRentAmount] = useState(0)
@@ -42,33 +46,58 @@ const Renting = () => {
   const [txloadingState1, setTxLoadingState1] = useState({});
   const [txloadingState2, setTxLoadingState2] = useState({});
   const { address, chainId, isConnected } = useWeb3ModalAccount()
-  const { walletProvider } = useWeb3ModalProvider()
+
+
+  // const [provider, setProvider] = useState();
+  // const [signer, setSigner] = useState();
+  const { modalEvent, provider, signer } = useModalContext(); 
+  
 
   // Get current posts
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  let exceptionCount = 3;
 
-  window.ethereum.on('accountsChanged', function (accounts) {                 
-    window.location.reload();
-  });
+
 
   useEffect(() => {
-    setLoadingState('not-loaded')
-    loadProperties()  
-  }, [currentPage])
+    console.log(provider);
+    console.log(signer);
+    if (signer == null) {      
+      
+      return;
+    }
+    if (provider != null) {
+      
+      loadProperties();
+    }
+  }, [currentPage, signer]);
+
+  // useEffect(() => { 
+  //   if (modalEvent === null) {
+  //     return;
+  //   }
+  //   console.log(modalEvent.data.event)
+  //   if (modalEvent.data.event === 'DISCONNECT_SUCCESS' || modalEvent.data.event === 'DISCONNECT_ERROR') {      
+  //     setWalletConnectionError(true);
+  //     window.location.reload();
+  //   } else {
+  //     setWalletConnectionError(false);
+  //   }
+  // }, [modalEvent]);
 
   const CheckTimestampExpired = (property, connectedAddress) => {
     console.log(property)
     console.log(connectedAddress)
     if (property.payments === undefined) {
-      console.log("UNDEFINED");
+    
       return true;
     }
 
     const allTimestampsZero = property.payments.every(payment => {        
         const timestamp = payment[2];
 
-        console.log('timestamp ', timestamp.toNumber())        
+        console.log('timestamp ', Number(timestamp))
         return timestamp == 0 || timestamp === '0x00';
     });
 
@@ -92,7 +121,7 @@ const Renting = () => {
     // console.log(currentTimeInMillis)
     // console.log(currentTimeInMillis - (currentObject.timestamp.toNumber()))
 
-    if ((currentTimeInMillis - (currentObject.timestamp.toNumber())) > twentyFourHoursInMillis) {
+    if ((currentTimeInMillis - (Number(currentObject.timestamp))) > twentyFourHoursInMillis) {
       console.log("true")
      // setRentText('Rent overdue')
       return true
@@ -105,26 +134,23 @@ const Renting = () => {
 
   const loadProperties = async (i) => {
     try {
-
-      const providerOptions = {
-        rpc: {
-          [network]: rpcUrl,
-        },
-      };
-
-      const provider = new BrowserProvider(walletProvider, providerOptions)
-      const signer = provider.getSigner()
-      const network = await detectNetwork()
-      const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-      const rpcUrl = getRpcUrl(network, projectId);
-
-      const address = await signer.getAddress();
+      console.log('Retries: ', retries)
+      if (exceptionCount === 0) {
+        return;
+      }
+      if (!isConnected) {
+        exceptionCount--;
+        setTxLoadingState({ ...txloadingState, [i]: false });
+        setTxLoadingState1({ ...txloadingState1, [i]: false });
+        setTxLoadingState2({ ...txloadingState2, [i]: false });
+        throw Error('User disconnected')
+      } 
+     
       console.log(address)
       setConnectedAddress(address);
 
-      const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
-      const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider);
+      const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)    
+      const tokenContract = new Contract(nftaddress, NFT.abi, provider);
       const tokenContractAddress = await tokenContract.address;
       setTokenAddress(tokenContractAddress);
 
@@ -132,11 +158,11 @@ const Renting = () => {
       console.log(data)    
 
       const tokensHex = await marketContract.getTokensEarned()
-      const tokens = ethers.utils.formatUnits(tokensHex.toString(), 'ether')
+      const tokens = ethers.formatUnits(tokensHex.toString(), 'ether')
       console.log(tokens)
-      setRenterTokens(tokens)
+      setRenterTokens(tokens);
 
-      let dataFiltered = data.filter(a => a.propertyId.toNumber() !== 0)
+      let dataFiltered = data.filter(a => Number(a.propertyId) !== 0)
       console.log(dataFiltered)
       const propertyIds = [];
 
@@ -149,23 +175,21 @@ const Renting = () => {
       // console.log(renters)
       // setRenterTimestamps(renters)      
       console.log(renterTimestamps)
-      const items = await Promise.all(data.filter(i => i.propertyId.toNumber() != 0 && (a => a.tokenId.toNumber() !== 0)).map(async i => {
-
-        console.log(i.tokenId.toNumber())
+      const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {    
 
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
         const meta = await axios.get(tokenUri)
 
-        let nftName = GetPropertyNames(meta, i.propertyId.toNumber())
+        let nftName = GetPropertyNames(meta, Number(i.propertyId))
 
         setRentAmount(i.rentPrice)
-        let price = ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
-        let rentPrice = await ethers.utils.formatUnits(i.rentPrice.toString(), 'ether')
+        let price = ethers.formatUnits(i.rentPrice.toString(), 'ether')
+        let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
 
         let item = {
           price,
-          propertyId: i.propertyId.toNumber(),
+          propertyId: Number(i.propertyId),
           seller: i.seller,
           owner: i.owner,
           image: tokenUri,
@@ -203,23 +227,23 @@ const Renting = () => {
       if (ex.message === 'User Rejected') {
         // Handle user rejection
         console.log('Connection request rejected by the user.');
-        // Display an error message to the user
-        
+        // Display an error message to the user        
         if (retries > 0) {
           setRetries(retries - 1);
           loadProperties()
         }        
       } else {
-        console.log(ex)        
+        console.log('Error loading properties:', ex);
+        alert('Unable to detect a wallet connection. Please connect to a wallet provider.');
+        setTxLoadingState({ ...txloadingState, [i]: false });
+        setTxLoadingState1({ ...txloadingState1, [i]: false });
+        setTxLoadingState2({ ...txloadingState2, [i]: false });
     }
   }}
 
 
   const PayRent = async (property, i) => {
     try {
-      const provider = new BrowserProvider(walletProvider)
-      const signer = provider.getSigner()
-
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
       // const contract = new ethers.Contract(govtaddress, govtContract.abi, signer)
       console.log(rentAmount)
@@ -227,7 +251,6 @@ const Renting = () => {
         property.propertyId,
         { value: rentAmount }
       )
-
       setTxLoadingState1({ ...txloadingState1, [i]: true });
       await transaction.wait();
       loadProperties()
@@ -239,21 +262,20 @@ const Renting = () => {
   }
 
   const CollectTokens = async () => {
-    const provider = new BrowserProvider(walletProvider)
-    const signer = provider.getSigner()
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-
+    try {
     const transaction = await contract.withdrawERC20(propertytokenaddress)
     setTxLoadingState({ ...txloadingState, [551]: true });
-    await transaction.wait()
+    
+      await transaction.wait()
+    } catch {
+      console.log('Transaction cancelled')
+    }    
     loadProperties()
   }
 
   //if same address has rented more than one room, this will vacate all of them
   const Vacate = async (property, i) => {
-    const provider = new BrowserProvider(walletProvider)
-    const signer = provider.getSigner()
-
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     const transaction = await contract.vacate(
       property.propertyId
@@ -270,6 +292,7 @@ const Renting = () => {
   };
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
 
   if (loadingState !== 'loaded') return (
     <div className="pt-10 pb-10">

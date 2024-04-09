@@ -3,10 +3,10 @@ import React from 'react';
 const SpinnerIcon = () => {
   return (
     <div className='flex justify-between items-center'>
-      <div className='text-lg mr-2 text-red-500'>Confirming Tx </div>
+      <div className='text-lg mr-2 text-gray-300'>Confirming Tx </div>
       <svg
         role="status"
-        className="inline w-6 h-6  text-red-500 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300"
+        className="inline w-6 h-6  text-gray-300 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

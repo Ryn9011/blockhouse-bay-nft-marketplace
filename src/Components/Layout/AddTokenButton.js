@@ -10,7 +10,7 @@ class AddTokenButton extends React.Component {
     }
 
     async handleAddToken() {
-        const tokenAddress = "0xCafac3dD18aC6c6e92c921884f9E4176737C052c";
+        const tokenAddress = "0xc0D47EAEB4fE7875EF6e8b39D5b93Cb65A63d54F";
         const tokenSymbol = "BHB";
         const tokenDecimals = 18;
         const tokenImage = "http://placekitten.com/200/300";

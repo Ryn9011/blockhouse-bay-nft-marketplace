@@ -7,7 +7,6 @@ import { BrowserProvider, Contract, formatUnits } from 'ethers'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 
-import { AlchemyProvider } from "ethers"
 import WebBundlr from '@bundlr-network/client';
 import { useRef } from "react";
 import BigNumber from 'bignumber.js'
@@ -45,7 +44,7 @@ const CreateItem = () => {
     
   const initialise = async () => {
     await window.ethereum.enable()
-    const provider = new AlchemyProvider.Web3Provider(window.ethereum)
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider._ready()
 
     const bundlr = new WebBundlr("https://node1.bundlr.network", "matic", provider)
@@ -57,8 +56,8 @@ const CreateItem = () => {
 
   const fetchBalance = async () => {
     const bal = await bundlrRef.current.getLoadedBalance()
-    console.log('bal ', ethers.utils.formatEther(bal.toString()))
-    setBalance(ethers.utils.formatEther(bal.toString()))
+    console.log('bal ', ethers.formatEther(bal.toString()))
+    setBalance(ethers.formatEther(bal.toString()))
   }
 
   const { address, chainId, isConnected } = useWeb3ModalAccount()
@@ -203,7 +202,7 @@ const CreateItem = () => {
     // const web3Modal = new Web3Modal()
     // const connection = await web3Modal.connect()
     const provider = new BrowserProvider(walletProvider)
-    const signer = provider.getSigner()
+    const signer = await provider.getSigner()
 
 
     console.log(urisn)
@@ -246,9 +245,9 @@ const CreateItem = () => {
     const urisn = Object.keys(dataEx.paths).map(uri => "https://arweave.net/" + dataEx.paths[uri].id);
 
     const provider = new BrowserProvider(walletProvider)
-    const signer = provider.getSigner()
+    const signer = await provider.getSigner()
     // const provider = new ethers.providers.Web3Provider(connection)
-    // const signer = provider.getSigner()
+    // const signer = await provider.getSigner()
 
     console.log(urisn)
 
