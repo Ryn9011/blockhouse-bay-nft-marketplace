@@ -188,6 +188,7 @@ const ToRent = () => {
     } catch (error) {
       setTxLoadingState({ ...txloadingState, [i]: false });
       console.log('rent proprerty error:', error)
+      alert('Transaction Failed')
     }
   }
 

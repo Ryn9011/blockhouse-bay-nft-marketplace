@@ -1,4 +1,5 @@
 import { React, useState } from 'react';
+import { useModalContext } from '../App'
 
 // import Web3Modal from 'web3modal'
 // import { Web3Modal } from '@web3modal/react'
@@ -34,6 +35,7 @@ const CreateItem = () => {
   const [image, setImage] = useState()
   const [uris, setUris] = useState()
   const [amount, setAmount] = useState()
+  const { modalEvent, provider, signer } = useModalContext(); 
 
   // const filesTest = [
   //   { name: "property1.jpeg", path: "/Users/ryanjennings/Desktop/final/" },   
@@ -201,13 +203,12 @@ const CreateItem = () => {
     const urisn = Object.keys(data.paths).map(uri => "https://arweave.net/" + data.paths[uri].id);    
     // const web3Modal = new Web3Modal()
     // const connection = await web3Modal.connect()
-    const provider = new BrowserProvider(walletProvider)
-    const signer = await provider.getSigner()
+
 
 
     console.log(urisn)
 
-    let contract = new ethers.Contract(nftaddress, NFT.abi, signer)
+    let contract = new Contract(nftaddress, NFT.abi, signer)
 
     const batchSize = 50;
     const numBatches = Math.ceil(urisn.length / batchSize);
@@ -215,12 +216,14 @@ const CreateItem = () => {
 
     for (let i = 0; i < numBatches && i * batchSize < urisn.length; i++) {
       const batch = urisn.slice(i * batchSize, (i + 1) * batchSize);
-      const gasLimit = await contract.estimateGas.createTokens(batch);
+      // const gasLimit = await contract.estimateGas.createTokens(batch);
       const transaction = await contract.createTokens(batch);
       const receipt = await transaction.wait();
-      for (let j = 0; j < receipt.events.length; j++) {
-        if (receipt.events[j].event === "Transfer") {
-          const tokenId = receipt.events[j].args[2].toNumber();
+      console.log(receipt.logs)
+      console.log(receipt.logs[1].fragment.name)
+      for (let j = 0; j < receipt.logs.length; j++) {
+        if (receipt.logs[j].fragment?.name === "Transfer") {
+          const tokenId = Number(receipt.logs[j].args[2]);
           tokenIds.push(tokenId);
         }
       }
@@ -230,7 +233,7 @@ const CreateItem = () => {
       gasLimit: 30000000
     }
  
-    contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    contract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
       
     const numOfBatches = 10;
     for (let i = 0; i < numOfBatches && i * batchSize < tokenIds.length; i++) {
@@ -244,8 +247,6 @@ const CreateItem = () => {
     console.log(formInput)
     const urisn = Object.keys(dataEx.paths).map(uri => "https://arweave.net/" + dataEx.paths[uri].id);
 
-    const provider = new BrowserProvider(walletProvider)
-    const signer = await provider.getSigner()
     // const provider = new ethers.providers.Web3Provider(connection)
     // const signer = await provider.getSigner()
 
@@ -255,10 +256,10 @@ const CreateItem = () => {
 
     const tokenIds = [];
       const transaction = await contract.createExclusiveTokens(urisn);
-      const receipt = await transaction.wait();
-      for (let j = 0; j < receipt.events.length; j++) {
-        if (receipt.events[j].event === "Transfer") {
-          const tokenId = receipt.events[j].args[2].toNumber();
+      const receipt = await transaction.wait(); 
+      for (let j = 0; j < receipt.logs.length; j++) {
+        if (receipt.logs[j].fragment?.name === "Transfer") {
+          const tokenId = Number(receipt.logs[j].args[2]);
           tokenIds.push(tokenId);
         }
       }

@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import ConnectButton from './Components/Layout/Header/ConnectWallet';
 import './App.css';
 import Header from './Components/Layout/Header';
 import Cover from './Components/Layout/Cover';
@@ -14,10 +13,8 @@ import CreateItem from './Pages/create-item';
 import AllProperties from './Pages/all-properties';
 import Exclusive from './Pages/exclusive-properties';
 import PropertyView from './Pages/property-view';
-import { ThemeProvider, createTheme, makeStyles } from '@material-ui/core/styles';
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers/react'
-import { useWeb3ModalProvider, useWeb3ModalAccount, useWeb3ModalState } from '@web3modal/ethers/react'
-import { use } from 'chai';
+import { useWeb3ModalProvider } from '@web3modal/ethers/react'
 const ethers = require("ethers");
 
 // Create a context for modal events
@@ -25,12 +22,28 @@ const ModalContext = createContext();
 
 const projectId = '0053ae8eae8522b1ebb313ede5106c9f'
 
-const mainnet = {
+const localhost = {
   chainId: 80001,
   name: 'Mumbai',
   currency: 'MATIC',
   explorerUrl: 'https://mumbai.polygonscan.com/',
-  rpcUrl: 'https://polygon-mumbai.g.alchemy.com/v2/xCHCSCf75J6c2TykwIO0yWgac0yJlgRL'
+  rpcUrl: 'https://polygon-mumbai.g.alchemy.com/v2/q0VzLCMyDnSw-0A2hC_AofLEmPEaQ6y-'
+}
+
+const amoy = {
+  chainId: 80002,
+  name: 'Amoy',
+  currency: 'MATIC',
+  explorerUrl: 'https://www.oklink.com/amoy',
+  rpcUrl: 'https://polygon-amoy.g.alchemy.com/v2/q0VzLCMyDnSw-0A2hC_AofLEmPEaQ6y-'
+}
+
+const mainnet = {
+  chainId: 137,
+  name: 'Mainnet',
+  currency: 'MATIC',
+  explorerUrl: 'https://polygonscan.com',
+  rpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/demo/q0VzLCMyDnSw-0A2hC_AofLEmPEaQ6y-'
 }
 
 const metadata = {
@@ -51,21 +64,16 @@ const ethersConfig = defaultConfig({
 
 const modal = createWeb3Modal({
   ethersConfig,
-  chains: [mainnet],
+  chains: [amoy],
   projectId,
   enableAnalytics: true,
   tokens: {
     80001: {
       address: '0xc0D47EAEB4fE7875EF6e8b39D5b93Cb65A63d54F',
-
     }
   },
 
 })
-
-window.ethereum.on('accountsChanged', function (accounts) {                 
-  window.location.reload();
-});
 
 
 function App() {
@@ -76,6 +84,10 @@ function App() {
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
 
+  // walletProvider.on("accountsChanged", (accounts) => {
+  //   console.log('ACCOUNTS CHANGED' + accounts[0]);
+  // });
+
   useEffect(() => {
     const setupProvider = async () => {
       if (walletProvider) {
@@ -83,6 +95,10 @@ function App() {
         const signer = await provider.getSigner();
         setProvider(provider);
         setSigner(signer);
+
+        walletProvider.on("accountsChanged", (accounts) => {
+          window.location.reload();
+        });
       }
     };
 
@@ -95,8 +111,8 @@ function App() {
       //   event.data.event === "DISCONNECT_SUCCESS" ||
       //   event.data.event === "DISCONNECT_ERROR" ||
       //   event.data.event === "SWITCH_NETWORK") {
-        if (event.data.properties.connected === false) {
-          setProvider(null);
+      if (event.data.properties.connected === false) {
+        setProvider(null);
       }
       console.log(event)
     });
@@ -111,7 +127,7 @@ function App() {
       <div className={` ${location.pathname !== "/" ? 'from-black via-black to-polygon-purple bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden`}>
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
           <Header />
-          {provider != null ? <div>  <Routes>
+          {(provider != null || location.pathname === "/" || location.pathname === '/how-to-play') ? <div>  <Routes>
             <Route path="/" element={<Cover />} />
             <Route path="/all-properties" element={<AllProperties />} />
             <Route path="/for-sale" element={<ForSale />} />

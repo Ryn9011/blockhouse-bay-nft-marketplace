@@ -285,34 +285,30 @@ contract PropertyMarket is ReentrancyGuard {
         return items;
     }
 
-    
-
     function fetchMyRentals() public view returns (Property[] memory) {
         uint256[4] memory rentedPropertyIds = getTenantProperties(msg.sender);
-
-        uint8 size;        
+        uint8 size;
+        // Determine the actual size of the rented properties array
         for (uint256 i = 0; i < 4; i++) {
             if (rentedPropertyIds[i] != 0) {
                 size++;
             }
         }
-
-        Property[]
-            memory rentals = new Property[](
-                size
-            );
-        for (uint256 i = 0; i != size; i++) {
+        Property[] memory rentals = new Property[](size);
+        uint8 index = 0; // Track index for rentals array
+        // Populate the rentals array with property details
+        for (uint256 i = 0; i < 4; i++) {
             uint256 propertyId = rentedPropertyIds[i];
             if (propertyId != 0) {
                 uint256[] memory propertyIds = new uint256[](1);
                 propertyIds[0] = propertyId;
                 Property[] memory property = getPropertyDetails(propertyIds, true);
-                rentals[i] = property[0];                
+                rentals[index] = property[0];
+                index++;
             }
-        }        
+        }
         return rentals;
     }
-
 
     function getTokensEarned() public view returns (uint256) {
         return renterTokens[msg.sender];

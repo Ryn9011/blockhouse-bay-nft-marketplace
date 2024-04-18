@@ -1,5 +1,6 @@
 import SaleHistory from '../Components/sale-history'
 import { React, useEffect, useState } from 'react'
+import { useModalContext } from '../App'
 import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
 import { BrowserProvider, Contract, formatUnits } from 'ethers'
 import axios from 'axios'
@@ -38,6 +39,7 @@ const PropertyView = () => {
   const [retries, setRetries] = useState(5)
   const { address, chainId, isConnected } = useWeb3ModalAccount()
   const { walletProvider } = useWeb3ModalProvider()
+  const { modalEvent, provider, signer } = useModalContext(); 
 
   useEffect(() => {
     setLoadingState('not-loaded')
@@ -46,28 +48,17 @@ const PropertyView = () => {
 
 
   const loadProperties = async () => {
-    const providerOptions = {
-      rpc: {
-        [network]: rpcUrl,
-      },
-    };
 
-    const provider = new BrowserProvider(walletProvider, providerOptions)
-    const signer = await provider.getSigner()
-    const network = await detectNetwork()
-    const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-    const rpcUrl = getRpcUrl(network, projectId);
-
-    const tokenContract = new Contract(nftaddress, NFT.abi, signer)
-    const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    const govtContract = new Contract(govtaddress, GovtFunctions.abi, signer)
+    const tokenContract = new Contract(nftaddress, NFT.abi, provider)
+    const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, provider)
+    const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
     const data = await govtContract.fetchSingleProperty(propertyId)
     const numForSale = await govtContract.getPropertiesForSale();
     console.log(data)
-    setNumForSale(numForSale.toNumber());
+    setNumForSale(Number(numForSale));
 
     const tokenUri = await tokenContract.tokenURI(data.tokenId)
-    console.log(data.propertyId.toNumber())
+    // console.log(data.propertyId.toNumber())
     const meta = await axios.get(tokenUri) //not used?  
 
     const url = meta.config.url
@@ -75,11 +66,12 @@ const PropertyView = () => {
     const parts = url.split('/');
 
     const targetId = parts.slice(3).join('/');
-
-    var nftName = GetPropertyNames(meta, data.propertyId);
+    
+    console.log(Number(data.propertyId))
+    var nftName = GetPropertyNames(meta, Number(data.propertyId));
     let price = ethers.formatUnits(data.salePrice.toString(), 'ether')
     let tokenSalePriceFormatted = ethers.formatUnits(data.tokenSalePrice.toString(), 'ether')
-    const renterAddresses = await marketContract.getPropertyRenters(data.propertyId);
+    const renterAddresses = await marketContract.getPropertyRenters(Number(data.propertyId));
     console.log(renterAddresses)
     let saleHistory = [];
     if (data.saleHistory.length > 0) {
@@ -87,7 +79,7 @@ const PropertyView = () => {
         const history = data.saleHistory.map((item) => {
           return {
             price: ethers.formatUnits(item[0]),
-            type: item[1].toNumber() === 1 ? "Matic" : "BHB"
+            type: Number(item[1]) === 1 ? "Matic" : "BHB"
           }
         });
         saleHistory = history;
@@ -102,7 +94,7 @@ const PropertyView = () => {
     //let tokenSalePriceFormatted = ethers.formatUnits(hexTokenPrice, 'ether')
     let item = {
       price,
-      propertyId: data.propertyId.toNumber(),
+      propertyId: Number(data.propertyId),
       seller: data.seller,
       owner: owner,
       image: tokenUri,
@@ -143,8 +135,6 @@ const PropertyView = () => {
       if (brb.checked === false && matic.checked === false) {
         return;
       }
-      const provider = new BrowserProvider(walletProvider)
-      const signer = await provider.getSigner()
 
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
       let price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
@@ -157,7 +147,7 @@ const PropertyView = () => {
         if (brb.checked) {
           price = ethers.utils.parseUnits("0", 'ether');
           isTokenSale = true;
-          propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer);
+          propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, provider);
           amount = ethers.utils.parseUnits(nft.tokenSalePrice, 'ether');
           await propertyTokenContract.allowSender(amount);
         }
@@ -182,6 +172,7 @@ const PropertyView = () => {
     } catch (error) {
       // Handle the error when the user rejects the transaction in MetaMask
       console.error("Transaction rejected by the user or an error occurred:", error);
+      alert('Transaction Failed')
       setTxLoadingState(false);
       if (retries > 0) {
         setRetries(retries - 1);
@@ -192,13 +183,11 @@ const PropertyView = () => {
 
   const rentProperty = async (property) => {
     try {
-      const provider = BrowserProvider(walletProvider)
-      const signer = await provider.getSigner()
 
-      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
+      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
 
       const test = property.deposit; //await await govtContract.getDepositRequired();
-      const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
+      const deposit = ethers.parseUnits(test.toString(), 'ether')
       // const num = ethers.utils.formatEther(deposit)
       // const rentals = await marketContract.getPropertiesRented()
       // ? ethers.utils.parseUnits(property.rentPrice.toString(), 'ether') 
@@ -216,6 +205,7 @@ const PropertyView = () => {
     } catch (error) {
       setTxLoadingState2(false);
       console.log('Pay rent error:', error)
+      alert('Transaction Failed')
     }
   }
 
@@ -305,7 +295,7 @@ const PropertyView = () => {
                   </div>
                   <p>Tenants:</p>
                   <div className='text-[10px] mb-3 text-green-400 font-mono'>
-                    {ethers.utils.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
+                    {ethers.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
                       <>
                         <div className='flex items-center justify-between mb-2'>
                           <p className={" break-words"}>
@@ -318,7 +308,7 @@ const PropertyView = () => {
                       </>
                       : <p>0x</p>
                     }
-                    {ethers.utils.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
+                    {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
                       <div className='flex items-center justify-between mb-2'>
                         <p className={" break-words"}>
                           {property.renterAddresses[1]}
@@ -333,7 +323,7 @@ const PropertyView = () => {
                           <p>0x</p>}
                       </>
                     }
-                    {ethers.utils.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
+                    {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
                       <div className='flex items-center justify-between'>
                         <p className={" break-words"}>
                           {property.renterAddresses[2]}

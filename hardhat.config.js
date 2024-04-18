@@ -1,8 +1,8 @@
-require("@nomiclabs/hardhat-waffle");
+require("@nomicfoundation/hardhat-chai-matchers");
 
 const fs = require("fs")
 const privateKey = fs.readFileSync(".secret").toString()
-const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
+const projectId = "q0VzLCMyDnSw-0A2hC_AofLEmPEaQ6y-"
 
 module.exports = {
   networks: {
@@ -10,12 +10,12 @@ module.exports = {
       name: 'localhost',
       chainId: 1337
     },
-    mumbai: {
-      url: `https://polygon-mumbai.g.alchemy.com/v2/${projectId}`,
+    amoy: {
+      url: `https://polygon-amoy.g.alchemy.com/v2/${projectId}`,
       accounts: [privateKey],
       gas: 2100000,
       gasPrice: 8000000000,
-      chainId: 80001
+      chainId: 80002
     },
     mainnet: {
       url: `https://polygon-mainnet.g.alchemy.com/v2/${projectId}`,

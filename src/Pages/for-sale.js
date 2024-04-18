@@ -212,6 +212,7 @@ const ForSale = () => {
     } catch (error) {
       // Handle the error when the user rejects the transaction in MetaMask
       console.error("Transaction rejected by the user or an error occurred:", error);
+      alert('Transaction Failed');
       setTxLoadingState({ ...txloadingState, [i]: false });
     }
   };

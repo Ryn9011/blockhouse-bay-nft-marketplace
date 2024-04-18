@@ -184,6 +184,7 @@ const Exclusive = () => {
       loadProperties()
     } catch (error) {
       console.log(error)
+      alert('Transaction Failed');
       setTxLoadingState1({ ...txloadingState1, [i]: false });
     }
   }
@@ -204,6 +205,7 @@ const Exclusive = () => {
       loadProperties()
     } catch (error) {
       console.log(error)
+      alert('Transaction Failed');
       setTxLoadingState2({ ...txloadingState2, [i]: false });
     }
   }
@@ -239,13 +241,11 @@ const Exclusive = () => {
 
           <h1 className="text-5xl text-center md:text-left xl3:text-6xl mb-5">Blockhouse Bay Gardens</h1>
 
-
           <div className="flex text-white pl-4 mb-6 lg:w-3/5">
             <p className='text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500'>Blockhouse Bay Gardens, an exclusive street of grand and stunning homes, is a paradise of luxurious living. From impressive architecture to immaculate gardens, each house is a masterpiece of sophistication, offering an unparalleled lifestyle in one of the bay's most beautiful settings.</p>
           </div>
           <h5 className='text-white text-center md:text-left mb-4'>These exlusive properties are limited to only 50 and can be purchased only with BHB tokens</h5>
-          <p className='text-white text-center md:text-left italic mb-12'>Tripple the amount of BHB tokens are paid out when renting on this street!</p>
-
+          <p className='text-white text-center md:text-left italic mb-12'>Tripple the amount of BHB tokens are paid out when renting on this street! - A minimum of 500 BHB tokens must be held in order to become a renter.</p>          
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-3 text-white">
             {currentPosts.map((property, i) => {

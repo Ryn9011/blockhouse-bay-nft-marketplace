@@ -284,6 +284,12 @@ contract GovtFunctions is ReentrancyGuard {
 
         console.log(currentProperty[0].deposit);
 
+        address tokenContractAddress = propertyMarketContract.getTokenContractAddress();
+        IERC20 propertyToken = IERC20(tokenContractAddress);
+
+        uint256 bal = propertyToken.balanceOf(msg.sender);
+        require(bal >= 500, "insufficient token balance");
+
         require(msg.value == currentProperty[0].deposit, "deposit required");
         require(currentProperty[0].owner != msg.sender, "You can't rent your own property");
         require(currentProperty[0].owner != address(0), "Property owner address should not be zero");        

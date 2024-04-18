@@ -11,7 +11,8 @@ import Pagination from '../Pagination'
 import "../style.scss";
 import Display from "../Components/display";
 import { propertytokenaddress } from '../config.js'
-import Footer from "../Components/Layout/Footer";
+import { Add } from "@material-ui/icons";
+import AddTokenButton from "../Components/AddTokenButton";
 const copy = require('clipboard-copy')
 
 
@@ -570,17 +571,7 @@ const About = () => {
                   </li>
 
                   <li className="py-4">
-                    <h3 className="text-2xl font-semibold text-yellow-200">Token Rewards</h3>
-                    <p className="text-white text-base xl3:text-lg  italic mt-4">BHB Token Address</p>
-                    <p className="mt-2 text-gray-400">
-                      In your wallet select import tokens and paste in the BHB token address -
-                    </p>
-                    <p>
-                      <span className="text-pink-400 text-xs">
-                        {propertytokenaddress}
-                      </span>
-                      <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>
-                    </p>
+                    <h3 className="text-2xl font-semibold text-yellow-200 mb-4">Token Rewards</h3>                  
                     <p className="text-white text-base xl3:text-lg italic mt-4">Earning BHB Tokens</p>
                     <p className="mt-2 text-gray-400">
                       Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in MATIC.
@@ -600,10 +591,22 @@ const About = () => {
                     </p>
                     <p className="text-white text-base xl3:text-lg italic mt-4">Blockhouse Bay Gardens</p>
                     <p className="mt-2 text-gray-400">
-                      You can also rent from the exclusive Blockhouse Bay Gardens properties. These properties are more expensive to rent but offer tripple token rewards.
+                      You can also rent from the exclusive Blockhouse Bay Gardens properties. These properties are more expensive to rent but offer tripple token rewards. Note, these properties require the user to holding a minimum of 500 BHB tokens to become a renter.
                     </p>
                     <p className="mt-2 text-gray-400">
                       If enough BHB tokens are accumulated, you will be able to purchase a property on Blockhouse Bay Gardens - availability permitting.
+                    </p>
+                    <p className="text-white text-base xl3:text-lg italic mb-4 mt-4">Add the BHB token to your wallet</p>
+                    <AddTokenButton />
+                    <p className="text-white text-base xl3:text-lg  italic mt-4">BHB Token Address</p>
+                    <p className="mt-2 text-gray-400">
+                      You can also manually add the BHB token to your wallet by selecting import tokens and paste in the BHB token address:
+                    </p>
+                    <p>
+                      <span className="text-pink-400 text-xs">
+                        {propertytokenaddress}
+                      </span>
+                      <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>
                     </p>
                   </li>
                 </ul>
@@ -674,6 +677,10 @@ const About = () => {
                 <li className="py-4">
                   <h3 className="text-lg italic font-semibold">Renting</h3>
                   <p className="mt-2 text-gray-400">Tripple BHB token rewards will be given to renters on this street</p>
+                </li>
+                <li className="py-4">
+                  <h3 className="text-lg italic font-semibold">Renting</h3>
+                  <p className="mt-2 text-gray-400">A user must be holding a minimum of 500 BHB tokens in order to become a renter on this street</p>
                 </li>
                 <li className="py-4">
                   <h3 className="text-lg italic font-semibold">Ranking</h3>

@@ -61,6 +61,7 @@ const Owned = () => {
   const [txloadingState2, setTxLoadingState2] = useState({});
   const [txloadingState3, setTxLoadingState3] = useState({});
   const [txloadingState4, setTxLoadingState4] = useState({});
+  const [txloadingState5, setTxLoadingState5] = useState({});
   const [totalUserPropertyCount, setTotalUserPropertyCount] = useState(0);
   const { address, chainId, isConnected } = useWeb3ModalAccount()
 
@@ -71,18 +72,16 @@ const Owned = () => {
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const [retries, setRetries] = useState(3)
-  const [walletConnectionError, setWalletConnectionError] = useState(false);
+  
   let exceptionCount = 3
 
   useEffect(() => {
     console.log(provider);
     console.log(signer);
-    if (signer == null) {      
-      setWalletConnectionError(true);
+    if (signer == null) {            
       return;
     }
-    if (provider != null) {
-      setWalletConnectionError(false);
+    if (provider != null) {      
       loadProperties();
     }
   }, [currentPage, signer]);
@@ -92,11 +91,9 @@ const Owned = () => {
       return;
     }
     console.log(modalEvent.data.event)
-    if (modalEvent.data.event === 'DISCONNECT_SUCCESS' || modalEvent.data.event === 'DISCONNECT_ERROR') {      
-      setWalletConnectionError(true);
+    if (modalEvent.data.event === 'DISCONNECT_SUCCESS' || modalEvent.data.event === 'DISCONNECT_ERROR') {            
       window.location.reload();
-    } else {
-      setWalletConnectionError(false);
+    } else {      
     }
   }, [modalEvent]);
 
@@ -164,6 +161,7 @@ const Owned = () => {
 
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = ethers.formatUnits(i.rentPrice.toString(), 'ether')
+        let deposit = ethers.formatUnits(i.deposit.toString(), 'ether') 
         const renterAddresses = await market.getPropertyRenters(i.propertyId);
         // console.log(renterAddresses)
         // let test = await marketContract.getTenantsMapping("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
@@ -224,7 +222,8 @@ const Owned = () => {
           forSaleChecked: false,
           rentChecked: false,
           totalIncomeGenerated: totalIncomeGenerated,
-          ranking: 0
+          ranking: 0,
+          deposit: deposit
         }
 
         if (item.roomOneRented === true) {
@@ -519,36 +518,40 @@ const Owned = () => {
   }
 
   const ChangeDeposit = async (property, i) => {
-  
-
-    const contract = new Contract(nftmarketaddress, Market.abi, signer)
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
     let rentVal = document.getElementById('depositInput' + i).value
     console.log(rentVal)
     let newPrice = ethers.parseUnits(rentVal, 'ether')
     console.log(newPrice)
-    const transaction = await contract.setDeposit(property.propertyId, newPrice)
-    setTxLoadingState4({ ...txloadingState4, [i]: true });
+    console.log(property.propertyId)
     try {
+    const transaction = await contract.setDeposit(property.propertyId, newPrice)
+    setTxLoadingState5({ ...txloadingState5, [i]: true });
+
       await transaction.wait()
+      loadProperties()
     } catch (ex) {
       console.log(ex)
     }
-    loadProperties()
+    
   }
 
   const ChangeRent = async (property, i) => {
-
-
     const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
     let rentVal = document.getElementById('rentInput' + i).value
     console.log()
     let newPrice = ethers.parseUnits(rentVal, 'ether')
     console.log(newPrice)
-
+    console.log(property.propertyId)
     const transaction = await contract.setRentPrice(property.propertyId, newPrice)
     setTxLoadingState4({ ...txloadingState4, [i]: true });
-    await transaction.wait()
-    loadProperties()
+    try {
+      await transaction.wait()
+      loadProperties()
+    } catch (ex) {
+      console.log(ex)
+    }
+  
   }
 
   const CollectRent = async (i) => {
@@ -577,7 +580,11 @@ const Owned = () => {
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     const transaction = await contract.evictTennant(property.propertyId, tenantToDelete.address)
     setTxLoadingState3({ ...txloadingState3, [i]: true });
-    await transaction.wait()
+    try {
+      await transaction.wait()
+    } catch (ex) {
+      console.log(ex);
+    }
     loadProperties()
   }
 
@@ -784,7 +791,7 @@ const Owned = () => {
   function setDepositButton(e, i) {
     if (document.getElementById("depositInput" + i).value.length == 0) {
       document.getElementById("depositButton" + i).disabled = true
-      document.getElementById("depositButton" + i).classList.remove("bg-green-400", "cursor-pointer", "text-white", "hover:bg-pink-500")
+      document.getElementById("depositButton" + i).classList.remove("bg-green-400", "cursor-pointer", "text-white", "hover:bg-green-500")
       document.getElementById("depositButton" + i).classList.add("bg-gray-400", "cursor-default", "text-gray-600")
     } else {
       document.getElementById("depositButton" + i).disabled = false
@@ -1020,11 +1027,15 @@ const Owned = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.rentPrice}</p>
+                        <p className="text-xs text-green-400 font-mono">{property.rentPrice} Matic</p>
+                      </div>
+                      <div className="flex flex-col pb-2">
+                        <p>Deposit Required</p>
+                        <p className="text-xs text-green-400 font-mono">{property.deposit} Matic</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Total Income Generated:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated}</p>
+                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} Matic</p>
                       </div>
                       <div className="flex flex-col mb-2">
                         <p>Rooms Rented:</p>
@@ -1566,7 +1577,7 @@ const Owned = () => {
                             <img className="h-8 w-9 ml-2" src="./polygonsmall.png" />
                           </div>
                         </div>
-                        {txloadingState4[i] ? (
+                        {txloadingState5[i] ? (
                           <p className='w-full flex justify-center bg-pink-400 text-xs italic px-12 py-1 rounded'>
                             <SpinnerIcon />
                           </p>

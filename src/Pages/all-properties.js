@@ -1,5 +1,5 @@
 import { React, useEffect, useState } from 'react'
-
+import { useModalContext } from '../App'
 import axios from 'axios'
 import GetPropertyNames from '../getPropertyName'
 import Pagination from '../Pagination'
@@ -15,8 +15,6 @@ import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMa
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import SaleHistory from '../Components/sale-history'
 
-import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
-import { BrowserProvider, Contract, formatUnits, AlchemyProvider } from 'ethers'
 
 const ethers = require("ethers")
 
@@ -33,8 +31,8 @@ const AllProperties = () => {
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = propertyList.slice(indexOfFirstPost, indexOfLastPost);  
-
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const { modalEvent, provider, signer } = useModalContext(); 
 
   useEffect(() => {
     setLoadingState("not-loaded");
@@ -42,13 +40,6 @@ const AllProperties = () => {
   }, [currentPage])
 
   const loadProperties = async () => {
-    const network = await detectNetwork()
-
-    const projectId = "xCHCSCf75J6c2TykwIO0yWgac0yJlgRL"
-    // const rpcUrl = getRpcUrl(network, projectId);
-    const provider = new AlchemyProvider('maticmum', projectId)
-    console.log(provider)
-
 
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)

@@ -1,5 +1,9 @@
 import React from 'react';
 
+import {
+    propertytokenaddress
+  } from '../config'
+
 class AddTokenButton extends React.Component {
     constructor(props) {
         super(props);
@@ -10,7 +14,7 @@ class AddTokenButton extends React.Component {
     }
 
     async handleAddToken() {
-        const tokenAddress = "0xc0D47EAEB4fE7875EF6e8b39D5b93Cb65A63d54F";
+        const tokenAddress = propertytokenaddress;
         const tokenSymbol = "BHB";
         const tokenDecimals = 18;
         const tokenImage = "http://placekitten.com/200/300";
@@ -38,11 +42,11 @@ class AddTokenButton extends React.Component {
     render() {
         return (
             <div>
-                <button onClick={this.handleAddToken}>Add Token</button>
+                <button className='text-pink-400 hover:bg-pink-900 text-base border border-pink-400 rounded py-1 px-2' onClick={this.handleAddToken}>Add BHB Token</button>
                 {this.state.tokenAdded ? (
-                    <p className='text-white'>Token added successfully!</p>
+                    <p className='text-white text-xs mt-2'>Token added successfully!</p>
                 ) : (
-                    <p>Failed to add token.</p>
+                    <p></p>
                 )}
             </div>
         );

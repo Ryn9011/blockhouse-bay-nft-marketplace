@@ -9,6 +9,7 @@ import Blockies from 'react-blockies';
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
+import AddTokenButton from "../Components/AddTokenButton";
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
@@ -47,7 +48,7 @@ const Renting = () => {
   const [txloadingState2, setTxLoadingState2] = useState({});
   const { address, chainId, isConnected } = useWeb3ModalAccount()
 
-
+  
   // const [provider, setProvider] = useState();
   // const [signer, setSigner] = useState();
   const { modalEvent, provider, signer } = useModalContext(); 
@@ -257,7 +258,7 @@ const Renting = () => {
     } catch (ex) {
       console.log(ex)
       setTxLoadingState1({ ...txloadingState1, [i]: false });
-      alert('transaction failed');
+      alert('Transaction Failed')
     }
   }
 
@@ -270,6 +271,7 @@ const Renting = () => {
       await transaction.wait()
     } catch {
       console.log('Transaction cancelled')
+      alert('Transaction Failed')
     }    
     loadProperties()
   }
@@ -282,7 +284,11 @@ const Renting = () => {
     )
 
     setTxLoadingState2({ ...txloadingState2, [i]: true });
-    await transaction.wait()
+    try {
+      await transaction.wait()
+    } catch (ex) {
+      alert('Transaction Failed')
+    }    
     console.log(rentedProperties.length)
     loadProperties()
   }
@@ -310,7 +316,7 @@ const Renting = () => {
       </div>
     </div>
   )
-
+//loadingState === 'loaded' && timestampLoadingState === 'loaded' && !rentedProperties.length
   if (loadingState === 'loaded' && timestampLoadingState === 'loaded' && !rentedProperties.length) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
@@ -318,7 +324,11 @@ const Renting = () => {
           <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Rented Properties</p>
           <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">You are not currently renting any properties.</p>
           <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent a property then check back here.</p>        
-          <p className='text-white text-xs mt-4 pl-6'>Add the BHB Token address to your wallet</p>               
+          <p className='text-white text-sm mt-4 pl-6'>Add the BHB Token address to your wallet</p>  
+          <div className='pl-6 pt-4'>
+            <AddTokenButton />
+          </div>  
+          <p className="text-white text-sm pl-6 mt-4">BHB Token Address</p>           
           <span className="text-pink-400 text-xs ml-6">
             {propertytokenaddress}
           </span>
@@ -347,12 +357,12 @@ const Renting = () => {
               {renterTokens > 0 &&
                 <div className=''>
                   {txloadingState[551] ? (
-                    <p className='w-full flex justify-center border border-pink-400 text-xs italic px-12 py-0 rounded'>
+                    <p className='w-full flex justify-center border border-green-400 text-xs italic px-12 py-0 rounded'>
                       <SpinnerIcon />
                     </p>
                   ) : (
                     <button
-                      className="text-pink-400 hover:bg-pink-900 text-base border border-pink-400 rounded py-1 px-2"
+                      className="text-green-400 hover:bg-green-900 text-base border border-green-400 rounded py-1 px-2"
                       onClick={() => CollectTokens()}>
                       Collect Tokens
                     </button>
@@ -362,8 +372,8 @@ const Renting = () => {
             </div>
 
             <div className='flex'>
-              <p className='text-white text-sm font-bold'>BHB Token Address</p>
-              <div className="relative flex flex-col items-center group ml-2">
+              {/* <p className='text-white text-sm font-bold'>BHB Token Address</p> */}
+              {/* <div className="relative flex flex-col items-center group ml-2">
                 <svg
                   className="w-4 h-4 mt-0.5 text-white"
                   xmlns="http://www.w3.org/2000/svg"
@@ -383,13 +393,21 @@ const Renting = () => {
                   </span>
                   <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
                 </div>
-              </div>
+              </div> */}
             </div>
             <p className='mb-6'>
-              <span className="text-pink-400 text-xs">
+              {/* <span className="text-pink-400 text-xs">
                 {propertytokenaddress}
-              </span>
-              <button className="border px-2 text-white py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>
+              </span> */}
+              <AddTokenButton />
+                <p className="text-white text-sm  mt-4">BHB Token Address</p>
+              
+                <p>
+                  <span className="text-pink-400 text-xs">
+                    {propertytokenaddress}  
+                  </span>
+                  <button className="border px-2 py-0.5 ml-2 border-1 text-xs text-white" onClick={handleCopy}>Copy</button>
+                </p>
             </p>
           </div>
           <Pagination
