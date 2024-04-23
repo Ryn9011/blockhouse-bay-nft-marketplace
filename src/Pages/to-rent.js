@@ -39,6 +39,7 @@ const ToRent = () => {
   useEffect(() => {
     console.log(provider);
     console.log(signer);
+    setLoadingState('not-loaded');
     if (signer == null) {      
       
       return;
@@ -50,9 +51,7 @@ const ToRent = () => {
   }, [currentPage, signer]);
 
   const loadProperties = async (prop, i) => {
-    try {
-
-     
+    try {     
       const tokenContract = new Contract(nftaddress, NFT.abi, provider)
       const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, provider) 
       //const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
@@ -207,11 +206,10 @@ const ToRent = () => {
               </svg>
             </Link>
           </div>
-          <img src="summer.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-3/5 lg:pl-12" />
-          {/* <div className="h-1/6 scale-75 flex justify-end">
-            <img src="logofull.png"  alt="blockhouse bay" />
-          </div> */}
-
+          <img src="summer.png" className="pl-6 pr-6 h-3/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12" />
+          <p className='text-white pl-6 pr-2 lg:pl-12 mt-4 font-extralight text-lg italic lg:w-3/5'>
+          Discover Blockhouse Bay's rental opportunities, where quality properties await. As a renter, earn BHB tokens to enhance your experience and unlock exclusive properties. Whether you seek a cozy home or a larger space, find your ideal rental in this desirable bay.
+          </p>
         </div>
       </div>
     </div>

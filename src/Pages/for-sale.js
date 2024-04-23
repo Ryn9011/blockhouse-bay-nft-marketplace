@@ -43,6 +43,7 @@ const ForSale = () => {
   useEffect(() => {
     console.log(provider);
     console.log(signer);
+    setLoadingState('not-loaded');
     if (signer == null) {      
       
       return;
@@ -235,7 +236,10 @@ const ForSale = () => {
               </svg>
             </Link>
           </div>
-          <img src="autumn.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-5/12 lg:pl-12" />
+          <img src="autumn.png" className="pl-6 pr-6 h-3/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12" />
+          <p className='text-white pl-6 pr-2 lg:pl-12 mt-4 font-extralight text-lg italic lg:w-3/5'>
+            Explore the offerings of Blockhouse Bay, where the latest properties await discerning first-time buyers and seasoned investors seeking to enhance their real estate holdings.
+          </p>
         </div>
       </div>
     </div>

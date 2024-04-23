@@ -108,13 +108,17 @@ function App() {
   useEffect(() => {
     const unsubscribe = modal.subscribeEvents(event => {
       // if (event.data.event === "CONNECT_SUCCESS" ||
-      //   event.data.event === "DISCONNECT_SUCCESS" ||
+      //   event.data.event === "DISCONNECT_SUCCESS" || 
       //   event.data.event === "DISCONNECT_ERROR" ||
       //   event.data.event === "SWITCH_NETWORK") {
-      if (event.data.properties.connected === false) {
-        setProvider(null);
+      try {
+        if (event.data.properties.connected === false) {
+          setProvider(null);
+        }
+        console.log(event)
+      } catch {
+        console.log('Error')
       }
-      console.log(event)
     });
 
     return () => {

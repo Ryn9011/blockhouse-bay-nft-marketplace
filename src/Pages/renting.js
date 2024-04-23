@@ -22,7 +22,7 @@ const ethers = require("ethers")
 
 const copy = require('clipboard-copy')
 
-window.ethereum.on('accountsChanged', function (accounts) {              
+window.ethereum.on('accountsChanged', function (accounts) {
   window.location.reload();
 });
 
@@ -48,11 +48,11 @@ const Renting = () => {
   const [txloadingState2, setTxLoadingState2] = useState({});
   const { address, chainId, isConnected } = useWeb3ModalAccount()
 
-  
+
   // const [provider, setProvider] = useState();
   // const [signer, setSigner] = useState();
-  const { modalEvent, provider, signer } = useModalContext(); 
-  
+  const { modalEvent, provider, signer } = useModalContext();
+
 
   // Get current posts
   const indexOfLastPost = currentPage * postsPerPage;
@@ -64,12 +64,12 @@ const Renting = () => {
   useEffect(() => {
     console.log(provider);
     console.log(signer);
-    if (signer == null) {      
-      
+    if (signer == null) {
+
       return;
     }
     if (provider != null) {
-      
+
       loadProperties();
     }
   }, [currentPage, signer]);
@@ -91,15 +91,15 @@ const Renting = () => {
     console.log(property)
     console.log(connectedAddress)
     if (property.payments === undefined) {
-    
+
       return true;
     }
 
-    const allTimestampsZero = property.payments.every(payment => {        
-        const timestamp = payment[2];
+    const allTimestampsZero = property.payments.every(payment => {
+      const timestamp = payment[2];
 
-        console.log('timestamp ', Number(timestamp))
-        return timestamp == 0 || timestamp === '0x00';
+      console.log('timestamp ', Number(timestamp))
+      return timestamp == 0 || timestamp === '0x00';
     });
 
     console.log('allTimestampsZero ', allTimestampsZero)
@@ -108,9 +108,25 @@ const Renting = () => {
       return true;
     }
     console.log(property.payments)
+    console.log(property.payments[0].propertyId)
 
-    const currentObject = property.payments.filter(a => a.propertyId == property.propertyId && a.renter == connectedAddress)[0] 
-    
+    // problem is it bypasses the first check as payments array exists but only for another renter
+    // const currentObject = property.payments.filter(a => Number(a.propertyId) == Number(property.propertyId) && a.renter == connectedAddress)[0] 
+    let currentObject;
+
+    if (!property.payments || property.payments.length === 0) {
+      return; // Exit the function if no payments present
+    }
+
+    currentObject = property.payments.find(a =>
+      Number(a.propertyId) === Number(property.propertyId) &&
+      a.renter === connectedAddress
+    );
+
+
+
+
+    console.log(currentObject)
     // console.log(ethers.BigNumber.from(currentObject.timestamp.toNumber())).toNumber()
     const twentyFourHoursInMillis = 700 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
     const currentTimeInMillis = Math.floor(Date.now() / 1000);
@@ -124,11 +140,11 @@ const Renting = () => {
 
     if ((currentTimeInMillis - (Number(currentObject.timestamp))) > twentyFourHoursInMillis) {
       console.log("true")
-     // setRentText('Rent overdue')
+      // setRentText('Rent overdue')
       return true
     } else {
       console.log("false")
-     // setRentText('Rent up to date')
+      // setRentText('Rent up to date')
       return false
     }
   }
@@ -145,18 +161,18 @@ const Renting = () => {
         setTxLoadingState1({ ...txloadingState1, [i]: false });
         setTxLoadingState2({ ...txloadingState2, [i]: false });
         throw Error('User disconnected')
-      } 
-     
+      }
+
       console.log(address)
       setConnectedAddress(address);
 
-      const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)    
+      const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
       const tokenContract = new Contract(nftaddress, NFT.abi, provider);
       const tokenContractAddress = await tokenContract.address;
       setTokenAddress(tokenContractAddress);
 
       const data = await marketContract.fetchMyRentals()
-      console.log(data)    
+      console.log(data)
 
       const tokensHex = await marketContract.getTokensEarned()
       const tokens = ethers.formatUnits(tokensHex.toString(), 'ether')
@@ -176,7 +192,7 @@ const Renting = () => {
       // console.log(renters)
       // setRenterTimestamps(renters)      
       console.log(renterTimestamps)
-      const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {    
+      const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
 
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
@@ -202,7 +218,7 @@ const Renting = () => {
           roomThreeRented: false,
           rentStatus: undefined,
           payments: i.payments
-        }      
+        }
 
         console.log(dataFiltered)
         item.rentStatus = CheckTimestampExpired(item, address)
@@ -232,15 +248,16 @@ const Renting = () => {
         if (retries > 0) {
           setRetries(retries - 1);
           loadProperties()
-        }        
+        }
       } else {
         console.log('Error loading properties:', ex);
         alert('Unable to detect a wallet connection. Please connect to a wallet provider.');
         setTxLoadingState({ ...txloadingState, [i]: false });
         setTxLoadingState1({ ...txloadingState1, [i]: false });
         setTxLoadingState2({ ...txloadingState2, [i]: false });
+      }
     }
-  }}
+  }
 
 
   const PayRent = async (property, i) => {
@@ -265,14 +282,14 @@ const Renting = () => {
   const CollectTokens = async () => {
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     try {
-    const transaction = await contract.withdrawERC20(propertytokenaddress)
-    setTxLoadingState({ ...txloadingState, [551]: true });
-    
+      const transaction = await contract.withdrawERC20(propertytokenaddress)
+      setTxLoadingState({ ...txloadingState, [551]: true });
+
       await transaction.wait()
     } catch {
       console.log('Transaction cancelled')
       alert('Transaction Failed')
-    }    
+    }
     loadProperties()
   }
 
@@ -288,7 +305,7 @@ const Renting = () => {
       await transaction.wait()
     } catch (ex) {
       alert('Transaction Failed')
-    }    
+    }
     console.log(rentedProperties.length)
     loadProperties()
   }
@@ -311,30 +328,49 @@ const Renting = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
-          <img src="winter.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-3/5 lg:pl-12" />
+          <img src="winter.png" className="pl-6 pr-6 h-3/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12" />
+          <p className='text-white pl-6 pr-2 lg:pl-12 mt-4 font-extralight text-lg italic lg:w-3/5'>
+            Renters can manage properties they have rented here. Renters can pay rent, vacate properties and collect tokens earned from renting properties.
+            Rent is due every 24hrs else and it will be at the property owner's discretion to keep a tenant on.
+          </p>
         </div>
       </div>
     </div>
   )
-//loadingState === 'loaded' && timestampLoadingState === 'loaded' && !rentedProperties.length
+  //loadingState === 'loaded' && timestampLoadingState === 'loaded' && !rentedProperties.length
   if (loadingState === 'loaded' && timestampLoadingState === 'loaded' && !rentedProperties.length) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
           <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Rented Properties</p>
+          {renterTokens > 0 &&
+            <div className='lg:px-4 lg:ml-0 flex items-center mb-2'>
+              <div className="flex pr-4 font-bold text-white mb-4 lg:mb-0 items-center">
+                <p>Tokens Accumulated: </p>
+                <p className="pl-1 text-matic-blue">{renterTokens} BHB</p>
+
+              </div>
+              <button
+                className="text-green-400 hover:bg-green-900 text-base border border-green-400 rounded py-1 px-2"
+                onClick={() => CollectTokens()}>
+                Collect Tokens
+              </button></div>}
           <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">You are not currently renting any properties.</p>
-          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent a property then check back here.</p>        
-          <p className='text-white text-sm mt-4 pl-6'>Add the BHB Token address to your wallet</p>  
+          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent a property then check back here.</p>
+          <p className='text-white text-sm mt-4 pl-6'>Add the BHB Token address to your wallet</p>
           <div className='pl-6 pt-4'>
             <AddTokenButton />
-          </div>  
-          <p className="text-white text-sm pl-6 mt-4">BHB Token Address</p>           
+          </div>
+          <p className="text-white text-sm pl-6 mt-4">BHB Token Address</p>
           <span className="text-pink-400 text-xs ml-6">
             {propertytokenaddress}
           </span>
           <button className="border px-2 text-white py-0.5 ml-2 border-1 text-xs cursor-pointer" onClick={handleCopy}>Copy</button>
+
         </div>
+
       </div>
+
     </div>
   )
 
@@ -400,14 +436,14 @@ const Renting = () => {
                 {propertytokenaddress}
               </span> */}
               <AddTokenButton />
-                <p className="text-white text-sm  mt-4">BHB Token Address</p>
-              
-                <p>
-                  <span className="text-pink-400 text-xs">
-                    {propertytokenaddress}  
-                  </span>
-                  <button className="border px-2 py-0.5 ml-2 border-1 text-xs text-white" onClick={handleCopy}>Copy</button>
-                </p>
+              <p className="text-white text-sm  mt-4">BHB Token Address</p>
+
+              <p>
+                <span className="text-pink-400 text-xs">
+                  {propertytokenaddress}
+                </span>
+                <button className="border px-2 py-0.5 ml-2 border-1 text-xs text-white" onClick={handleCopy}>Copy</button>
+              </p>
             </p>
           </div>
           <Pagination
@@ -453,8 +489,8 @@ const Renting = () => {
                     </div>
                     <div className="flex flex-col pb-2">
                       <p>Rent Status</p>
-                     
-                     
+
+
                       <p className={`font-mono text-xs text-green-400 ${property.rentStatus ? ' text-yellow-400' : ' text-green-400'}`}>{`${property.rentStatus ? 'Overdue' : 'Up-to-date'} `}</p>
                     </div>
                   </div>

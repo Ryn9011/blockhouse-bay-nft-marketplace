@@ -42,7 +42,7 @@ class AddTokenButton extends React.Component {
     render() {
         return (
             <div>
-                <button className='text-pink-400 hover:bg-pink-900 text-base border border-pink-400 rounded py-1 px-2' onClick={this.handleAddToken}>Add BHB Token</button>
+                <button className='text-pink-400 hover:bg-pink-900 text-base border border-pink-400 rounded py-1 px-2' onClick={this.handleAddToken}>Add BHB Token to Wallet</button>
                 {this.state.tokenAdded ? (
                     <p className='text-white text-xs mt-2'>Token added successfully!</p>
                 ) : (

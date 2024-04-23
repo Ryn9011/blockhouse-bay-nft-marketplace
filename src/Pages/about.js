@@ -458,8 +458,8 @@ const About = () => {
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Payment Options</p>
                     <p className="mt-2 text-gray-400">
-                      Properties can be sold for MATIC or BHB tokens as payment. Mixed payments are not available.
-                      Properties cannot be sold for less than their original price when being sold for MATIC tokens.
+                      Properties can be sold for MATIC or BHB tokens as payment. Mixed payments are not allowed. Note if you allow BHB tokens as a payment option, a Matic price is still required.
+                      {/* Properties cannot be sold for less than their original price when being sold for MATIC tokens. */}
                     </p>
 
                     <p className="text-white text-base xl3:text-lg  italic mt-4">Withdraw Sale</p>
@@ -474,13 +474,16 @@ const About = () => {
                   </li>
 
                   <li className="py-4">
-                    <h3 className="text-2xl font-semibold text-yellow-200 mt-4">Sharing Your Property</h3>
-                    <p className="text-white text-base xl3:text-lg  italic mt-4">Twitter</p>
+                    <div className="flex">
+                    <h3 className="text-2xl font-semibold text-yellow-200 mt-1.5 pr-2">Sharing Your Property on </h3>
+                    <img src="logo-white.png" className='w-6 h-6 mt-3' alt="X" />
+                    </div>                   
+                    
                     <p className="mt-2 text-gray-400">
-                      Whether you're looking for renters or buyers, you can share your property on Twitter with the click of a button.
+                      Whether you're looking for renters or buyers, you can share your property on X with the click of a button.
                     </p>
                     <p className="mt-2 text-gray-400">
-                      The tweet button will open a Twitter post for you to cutomize with a link to your individual property.
+                      The Post button will open X with a template for you to customize including a link to your property.
                     </p>
                     <p className="mt-2 text-gray-400 mb-12">
                       There are two checkboxes which if checked will add additional sale and rent information to the tweet.

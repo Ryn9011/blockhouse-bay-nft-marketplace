@@ -335,7 +335,7 @@ const Owned = () => {
       await transaction.wait()
     } catch (Ex) {
       setTxLoadingState2({ ...txloadingState2, [i]: false });
-      console.log('Transaction failed', Ex.message)
+      console.log('Transaction failed')
     }
 
     // } else {
@@ -370,6 +370,7 @@ const Owned = () => {
 
     setUrl(`http://localhost:3000/property-view/${propertyIdTwitter ? propertyIdTwitter : ''}`)
     setHasSetText(false)
+    twitterTextRef.current = document.getElementById("twitterDefault");
   }, [twitterSaleChecked, twitterRentChecked])
 
   const handleForSaleCheck = (propertyObj, e) => {
@@ -542,10 +543,10 @@ const Owned = () => {
     console.log()
     let newPrice = ethers.parseUnits(rentVal, 'ether')
     console.log(newPrice)
-    console.log(property.propertyId)
-    const transaction = await contract.setRentPrice(property.propertyId, newPrice)
-    setTxLoadingState4({ ...txloadingState4, [i]: true });
+    console.log(property.propertyId)  
     try {
+      const transaction = await contract.setRentPrice(property.propertyId, newPrice)
+      setTxLoadingState4({ ...txloadingState4, [i]: true });
       await transaction.wait()
       loadProperties()
     } catch (ex) {
@@ -577,35 +578,35 @@ const Owned = () => {
     // const provider = new ethers.providers.Web3Provider(connection)
     // const signer = await provider.getSigner()
 
-    const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
-    const transaction = await contract.evictTennant(property.propertyId, tenantToDelete.address)
-    setTxLoadingState3({ ...txloadingState3, [i]: true });
+    const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer) 
     try {
+      const transaction = await contract.evictTennant(property.propertyId, tenantToDelete.address)
+      setTxLoadingState3({ ...txloadingState3, [i]: true });
       await transaction.wait()
     } catch (ex) {
       console.log(ex);
     }
     loadProperties()
   }
-
   const onAcceptTokenChange = (e, i) => {
-    setTokenAmount(0)
-    document.getElementById(e.target.id).value = null
+    setTokenAmount(0);
+    document.getElementById(e.target.id).value = null;
     if (e.target.checked) {
-      document.getElementById('maticInput' + i).style.visibility = 'visible'
-      document.getElementById("sellBtn" + i).disabled = true
-      document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue hover:bg-sky-700", "text-white")
-      document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "text-gray-600")
+      document.getElementById('maticInput' + i).style.visibility = 'visible';
+      document.getElementById("sellBtn" + i).disabled = true;
+      document.getElementById("sellBtn" + i).classList.remove("bg-matic-blue", "hover:bg-sky-700", "text-white");
+      document.getElementById("sellBtn" + i).classList.add("bg-gray-400", "text-gray-600");
     } else {
-      document.getElementById('maticInput' + i).style.visibility = 'hidden'
-      document.getElementById('tokenInput' + i).value = null
+      document.getElementById('maticInput' + i).style.visibility = 'hidden';
+      document.getElementById('tokenInput' + i).value = null;
       if (document.getElementById("amountInput" + i).value.length > 0) {
-        document.getElementById("sellBtn" + i).disabled = false
-        document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "text-gray-600")
-        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue hover:bg-sky-700", "text-white")
+        document.getElementById("sellBtn" + i).disabled = false;
+        document.getElementById("sellBtn" + i).classList.remove("bg-gray-400", "text-gray-600");
+        document.getElementById("sellBtn" + i).classList.add("bg-matic-blue", "hover:bg-sky-700", "text-white");
       }
     }
   }
+  
 
   const SetSellAmount = (e) => {
     setSellAmount(e.target.value)
@@ -940,7 +941,10 @@ const Owned = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
-          <img src="spring.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 lg:w-3/5 lg:pl-12" />
+          <img src="spring.png" className="pl-6 pr-6 h-4/5 lg:h-4/5 lg:w-8/12 lg:pl-12" />
+          <p className='text-white pl-12 mt-4 font-extralight text-lg italic w-3/5'>
+            Manage your tenants and properties here. You can set rent prices, deposit amounts, evict tenants and even sell your properties.
+          </p>
         </div>
       </div>
     </div>
@@ -1117,7 +1121,7 @@ const Owned = () => {
                               </svg>
                               <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                                 <span className="relative flex w-48 z-10 p-2 text-xs leading-none text-white whitespace-no-wrap border border-1 border-white bg-black shadow-lg">
-                                  Select info to add to your tweet!
+                                  Select info to add to your X post!
                                 </span>
                                 <div className="w-3 h-3 mt-2 rotate-45 bg-white"></div>
                               </div>
@@ -1190,6 +1194,11 @@ const Owned = () => {
                             <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
                           </div>
                         )}
+                      
+                          <div id="twitterDefault" ref={twitterTextRef}>
+                            <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>                            
+                            <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
+                          </div>
                       </div>
 
                       {/* <div className='pl-4'>

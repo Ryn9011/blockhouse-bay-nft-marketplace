@@ -137,7 +137,7 @@ const PropertyView = () => {
       }
 
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
-      let price = ethers.utils.parseUnits(nft.price.toString(), 'ether');
+      let price = ethers.parseUnits(nft.price.toString(), 'ether');
       let isTokenSale = false;
 
       let propertyTokenContract = undefined;
@@ -145,10 +145,10 @@ const PropertyView = () => {
 
       if (brb != undefined) {
         if (brb.checked) {
-          price = ethers.utils.parseUnits("0", 'ether');
+          price = ethers.parseUnits("0", 'ether');
           isTokenSale = true;
-          propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, provider);
-          amount = ethers.utils.parseUnits(nft.tokenSalePrice, 'ether');
+          propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer);
+          amount = ethers.parseUnits(nft.tokenSalePrice, 'ether');
           await propertyTokenContract.allowSender(amount);
         }
       }
