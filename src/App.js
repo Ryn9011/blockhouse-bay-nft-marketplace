@@ -130,7 +130,10 @@ function App() {
     <ModalContext.Provider value={{ modalEvent, provider, signer }}>
       <div className={` ${location.pathname !== "/" ? 'from-black via-black to-polygon-purple bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden`}>
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          <Header />
+       {/* */}
+       {location.pathname !== "/" &&
+        <Header /> 
+       }
           {(provider != null || location.pathname === "/" || location.pathname === '/how-to-play') ? <div>  <Routes>
             <Route path="/" element={<Cover />} />
             <Route path="/all-properties" element={<AllProperties />} />

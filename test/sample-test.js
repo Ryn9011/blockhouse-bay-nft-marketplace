@@ -328,7 +328,7 @@ describe("PropertyMarket", function () {
     // // // //property owner lists property for resale
     // await propertyMarket.connect(buyerAddress).sellProperty(nft.address, 1, 1, initialSalePrice+5, defaultTokenPrice, false ,{ value: initialSalePrice })
     // console.log('before myProperties')
-    // // let myProperties = await propertyMarket.connect(buyerAddress).fetchMyProperties(1);
+    let myProperties = await propertyMarket.connect(buyerAddress).fetchMyProperties(1);
     // // console.log('after myProperties')
     // // let userProps = await propertyMarket.connect(buyerAddress).getUserProperties();
     // //  console.log('user properties', userProps)
