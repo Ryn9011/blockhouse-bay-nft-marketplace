@@ -10,11 +10,16 @@ import "hardhat/console.sol";
 contract GovtFunctions is ReentrancyGuard {
     
     PropertyMarket public propertyMarketContract;  
+  
     address internal immutable i_propertyMarketAddress;
-    uint256 constant WEI_TO_ETH = 1000000000000000000;      
+    address private _govtAddress;
+    bool private hasSetGovtAddress = false;
+    uint256 constant WEI_TO_ETH = 1000000000000000000;          
     uint256 public totalDepositBal = 0;
     mapping(address => uint256) public rentAccumulated;
     mapping(address => uint256) public renterDepositBalance;
+
+    receive() external payable {}
         
     event RentPaid(
         address indexed tenant,
@@ -33,28 +38,22 @@ contract GovtFunctions is ReentrancyGuard {
         _;
     }
 
+    modifier onlyGovt() {
+        require(_govtAddress == msg.sender, "only govt can call this function");
+        _;
+    }
+
     constructor(address propertyMarketAddress) {
         propertyMarketContract = PropertyMarket(payable(propertyMarketAddress));    
         propertyMarketContract.setGovtContractAddress(address(this));  
-        i_propertyMarketAddress = propertyMarketAddress;
+        i_propertyMarketAddress = propertyMarketAddress;       
     }
 
-    function giftProperties (
-        address nftContract,
-        uint256 propertyId,
-        address recipient
-    ) public onlyPropertyMarket {
-        PropertyMarket.Property memory currentItem = fetchSingleProperty(propertyId);
-
-        currentItem.owner = payable(recipient);
-        currentItem.isForSale = false;
-        currentItem.seller = payable(address(0));
-
-        uint256 propertiesSold = propertyMarketContract.getPropertiesSold();
-        require(propertiesSold <= 10, "");
-
-        propertyMarketContract.giftProperties(nftContract, propertyId, recipient);
-
+    function setGovtAddress(address govtAddress) public {
+        if (!hasSetGovtAddress) {
+            _govtAddress = govtAddress;
+            hasSetGovtAddress = true;
+        }
     }
 
     function getBalance() public view returns (uint256) {
@@ -201,7 +200,7 @@ contract GovtFunctions is ReentrancyGuard {
         propertyIds[0] = 1;
 
        
-        PropertyMarket.Property[] memory properties = propertyMarketContract.getPropertyDetails(propertyIds, false);
+        // PropertyMarket.Property[] memory properties = propertyMarketContract.getPropertyDetails(propertyIds, false);
             
 
         assembly {
@@ -280,16 +279,16 @@ contract GovtFunctions is ReentrancyGuard {
         uint256[] memory propertyIds = new uint256[](1);
         propertyIds[0] = propertyId;
 
-        PropertyMarket.Property[] memory currentProperty = propertyMarketContract.getPropertyDetails(propertyIds, false);
-
-        console.log(currentProperty[0].deposit);
+        PropertyMarket.Property[] memory currentProperty = propertyMarketContract.getPropertyDetails(propertyIds, false);        
 
         address tokenContractAddress = propertyMarketContract.getTokenContractAddress();
         IERC20 propertyToken = IERC20(tokenContractAddress);
 
-        uint256 bal = propertyToken.balanceOf(msg.sender);
-        require(bal >= 500, "insufficient token balance");
-
+        if (propertyId > 500) {
+            uint256 bal = propertyToken.balanceOf(msg.sender);
+            require(bal >= 500, "insufficient token balance to rent excl");
+        }
+        
         require(msg.value == currentProperty[0].deposit, "deposit required");
         require(currentProperty[0].owner != msg.sender, "You can't rent your own property");
         require(currentProperty[0].owner != address(0), "Property owner address should not be zero");        
@@ -370,12 +369,12 @@ contract GovtFunctions is ReentrancyGuard {
         //bool wasTenant = propertyMarketContract.vacateCommonTasks(propertyId, msg.sender); 
         // console.log('wasTenant: ', wasTenant);
 
-            //get sinlge property
-            PropertyMarket.Property memory currentItem = fetchSingleProperty(propertyId);
- 
-            setTotalDepositBalance(currentItem.deposit, false);
-            // propertyMarketContract.decrementRelistCount();
-            payable(msg.sender).transfer(currentItem.deposit);      
+        //get sinlge property
+        PropertyMarket.Property memory currentItem = fetchSingleProperty(propertyId);
+
+        setTotalDepositBalance(currentItem.deposit, false);
+        // propertyMarketContract.decrementRelistCount();
+        payable(renterAddress).transfer(currentItem.deposit);      
    
     }
 
@@ -460,7 +459,7 @@ contract GovtFunctions is ReentrancyGuard {
         payable(msg.sender).transfer(rentAccumulated[msg.sender] - rentToTransfer);
         rentAccumulated[msg.sender] = 0;
     }
-    function withdrawRentTax() public onlyPropertyMarket nonReentrant {
+    function withdrawRentTax() public onlyGovt nonReentrant {
         require(address(this).balance > 0, "no tax");
         uint256 bal = address(this).balance - totalDepositBal;
         payable(i_propertyMarketAddress).transfer(bal);        

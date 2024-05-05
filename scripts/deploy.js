@@ -17,6 +17,8 @@ async function main() {
   await propertyMarket.waitForDeployment();
   console.log("PropertyMarket deployed to:", propertyMarket.target);
 
+  
+
   // Send test Ether to the deployed contract
   const tx = await deployingSigner.sendTransaction({
     to: propertyMarket.target,
@@ -33,10 +35,13 @@ async function main() {
   await govtFunctions.waitForDeployment();
   console.log("GovtFunctions deployed to:", govtFunctions.target);
 
+  await govtFunctions.setGovtAddress(deployingAddress);
+
   const NFT = await ethers.getContractFactory("NFT");
   const nft = await NFT.deploy(propertyMarket.target);
   await nft.waitForDeployment();
   console.log("NFT deployed to:", nft.target);
+  await nft.setDeployingAddress(deployingAddress);
 
   const tx2 = await propertyMarket.deployTokenContract();
   console.log('whats this ', tx2)

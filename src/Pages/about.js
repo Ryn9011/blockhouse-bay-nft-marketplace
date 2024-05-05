@@ -109,7 +109,7 @@ const About = () => {
   useEffect(() => {
     console.log(section)
     if (section === "nft") {
-      setExpanded("owning")
+      setExpanded("default")
       setDefaultExpanded(true)
     } else {
       setExpanded(section)
@@ -178,17 +178,15 @@ const About = () => {
             </div>
           </AccordionSummary>
 
-
-
           <AccordionDetails className="border border-1 rounded-md" style={{ paddingRight: "0px" }}>
 
-            <div className="xl:grid grid-cols-2 gap-11 mr-8 xl:mr-0">
-              <div className="col-span-1">
+            <div className="xl:grid grid-cols-2 gap-11 ">
+              <div className="col-span-1 pr-[16px] lg:pr-0">
                 <ul className="divide-y divide-gray-200 lg:ml-0 text-lg">
                   <li className="py-4 pt-0 ">
                     <h3 className="text-2xl font-semibold text-yellow-200 lg:mt-0">What is Blockhouse Bay?</h3>
                     <div className="xl:hidden flex justify-center">
-                      <img src="small.gif" className="mt-4 " alt="buy/sell/rent" />
+                      <img src="livingroom1.png" className="mt-4" alt="buy/sell/rent" />
                     </div>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Real Estate Simulation</p>
                     <p className="mt-2 text-gray-400">
@@ -283,9 +281,9 @@ const About = () => {
                           <button className="border border-1 border-yellow-400 rounded py-1.5 px-4 mt-4" onClick={handleModalClose}>Close</button>
                         </div>
                         <div className="flex justify-center items-center mt-4 text-sm italic">
-                          <p className="mr-1">Blockhouse Bay was developed by</p>
+                          <p className="mr-1"></p>
                           <div className="flex items-center">
-                            <a href="mailto:blockhousebaydev.dev@gmail.com" className="text-yellow-100 underline">ScubaSteve</a>
+                            <a href="mailto:blockhousebaycrypto@gmail.com" className="text-yellow-100 underline">BlockHouse Bay</a>
                           </div>
                           {/* <img src={"favicon.ico"} className="h-10 w-10 ml-2" alt="React logo" /> */}
                         </div>
@@ -319,8 +317,8 @@ const About = () => {
                       Firstly, it was my excuse for me the developer, ScubaSteve (my gaming alter ego),
                       to dive into and better understand the mysteries of blockchain and NFTs. Secondly, to create something for others can have some fun with and even make some money along the way.
                       Thirdly,
-                      it is a desperate attempt to crowdfund a new laptop.
-                      As much as opening a notepade on my current one heats it up to the point I could probably roast marshmallows over it and the fans sound like bees trapped inside a blender!
+                      it is a desperate attempt to crowdfund a new laptop - 
+                      As much as opening a notepade on mine heats it up to the point I could probably roast marshmallows over it meanwhile the fans going off like bees trapped in a blender!
                     </p>
 
                   </li>
@@ -341,7 +339,7 @@ const About = () => {
                 </ul>
               </div>
 
-              <div className="col-span-1 mt-2 mr-4 bg-center bg-cover bg-no-repeat" style={{ backgroundImage: "url('inside.png')" }}></div>
+              <div className="col-span-1 mt-2 mr-4 bg-right bg-fit bg-no-repeat" style={{ backgroundImage: "url('insidereduced.png')" }}></div>
 
             </div>
           </AccordionDetails>
@@ -356,7 +354,7 @@ const About = () => {
             </div>
           </AccordionSummary>
           <AccordionDetails className="border border-1 rounded-md">
-            <div className="xl:grid grid-cols-2 gap-11 mr-8 xl:mr-0">
+            <div className="xl:grid grid-cols-2 gap-11 xl:mr-0">
               <div className="lg:col-span-1">
                 <ul className="divide-y divide-gray-200">
                   <li className="pb-4">
@@ -414,7 +412,7 @@ const About = () => {
                 </div>
 
                 <div className="flex flex-col">
-                  <img className="mt-2.5 brightness-110 transform " src="forsale.png" />
+                  <img className="mt-2.5 brightness-110 transform" src="forsale.png" />
                 </div>
               </div>
             </div>
@@ -431,12 +429,12 @@ const About = () => {
             </div>
           </AccordionSummary>
           <AccordionDetails className="border border-1 rounded-md">
-            <div className="xl:grid grid-cols-2 divide-x gap-5 mr-8 xl:mr-0">
+            <div className="lg:grid grid-cols-2 divide-x-0 lg:divide-x gap-5">
               <div className="lg:col-span-1">
                 <ul className="divide-y divide-gray-200">
                   <li className="pb-4">
                     <h3 className="text-2xl font-semibold text-yellow-200">Property Owner Actions</h3>
-                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Collect Rent</p>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">Collect Rent</p>
                     <p className="mt-2 text-gray-400">
                       Property owners can easily manage each of their properties and collect rent from the Property Management Panel.
                     </p>
@@ -452,7 +450,8 @@ const About = () => {
 
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Set Rent Price</p>
                     <p className="mt-2 text-gray-400">
-                      Property owners have complete control over their rental properties and can set the rent price to their desired amount.
+                      Property owners have control over their rental properties and can set the rent price up to the value of 500 Matic.
+                      The state of the market will determine the demand for properties and the rent price that can be set.
                     </p>
 
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Set Required Depsoit</p>
@@ -510,13 +509,13 @@ const About = () => {
                     </p>
                     <p className="mt-2 text-gray-400">
                       There are two checkboxes which if checked will add additional sale and rent information to the tweet.
-                    </p>                
+                    </p>
                   </li>
                 </ul>
-                
+
               </div>
-              <div className="lg:grid grid-cols-2 ">
-                <div className="flex flex-col mt-12 gap-4 pl-4">
+              <div className="lg:grid grid-cols-2">
+                <div className="flex flex-col mt-12 gap-4 pl-4 xl:pr-8">
                   <p className="text-xl italic text-white">Property Sale Panel</p>
                   <div className="">
                     <Pagination
@@ -590,23 +589,16 @@ const About = () => {
                     </div>
 
                   )}
-
                 </div>
                 <div>
-
-
-
                   <div className="flex justify-center lg:justify-start">
-                    <img className="mt-2" alt="owner panel" src={ownedImageSrc} />
+                    <img className="mt-2 " alt="owner panel" src={ownedImageSrc} />
                   </div>
                   {ownedImageSrc !== './twitter2.png' &&
                     <div>
-                     
                       <div className="flex justify-center lg:justify-start">
                         <img src="collectRent.png" className="md:w-3/5 lg:w-full border border-1 mt-6" />
                       </div>
-                 
-
                     </div>}
                 </div>
               </div>
@@ -622,114 +614,145 @@ const About = () => {
               </div>
             </div>
           </AccordionSummary>
-          <AccordionDetails className={classes.details}>
-            <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:mb-6">
-              <div className="lg:col-span-2 lg:pr-32 xl:text-lg ">
-                <ul className="divide-y divide-gray-200">
-                  <li className="pb-4">
-                    <h3 className="text-2xl font-semibold text-yellow-200">Renting a Room</h3>
-                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Rental Deposit</p>
-                    <p className="mt-2 text-gray-400">
-                      To rent a room in a property, a deposit of 10 Matic must be made. This is refunded when the renter decides to vacate the room.
-                    </p>
-                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Rent Payment Obligation</p>
-                    <p className="mt-2 text-gray-400">
-                      Rent must be paid daily. A renter will be flagged as a late payer to the owner if no payment is made on time. It's down to the property owner's discretion to evict a tenant if they fail to pay rent consistently.
-                    </p>
-                    <p className="mt-2 text-gray-400">
-                      If a renter is evicted, they will lose their rental deposit.
-                    </p>
-                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Restrictions</p>
-                    <p className=" text-gray-400 mt-2">
-                      Properties with at least one available spare room can be rented from the property owner.
-                    </p>
-                    <p className="mt-2 text-gray-400">
-                      A user can rent only one room on the same property.
-                    </p>
-                    <p className="mt-2 text-gray-400">
-                      A user cannot rent a room on a property they own.
-                    </p>
-                    <p className="mt-2 text-gray-400">
-                      A total of 4 deposits can be made at any one time for an inidival wallet address and so a maximum of 4 properties can be rented at any one time.
-                    </p>
-                  </li>
+          <AccordionDetails className="border border-1 rounded-md">
+            <div className="lg:grid lg:grid-cols-2 divide-x-0 lg:divide-x gap-5">
+              <div className="lg:col-span-1 xl:text-lg">
 
-                  <li className="pb-4">
-                    <h3 className="text-2xl font-semibold text-yellow-200 mb-4">Token Rewards</h3>
-                    <p className="text-white text-xl xl3:text-xl italic mt-4">Earning BHB Tokens</p>
-                    <p className="mt-2 text-gray-400">
-                      Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in MATIC.
-                    </p>
-                    <p className="mt-2 text-gray-400">
-                      The higher the rent price paid, the higher the token rewards will be for the tenant.
-                    </p>
-                    <p className="mt-2 text-gray-400">
 
-                    </p>
-                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Spending BHB Tokens</p>
-                    <p className="mt-2 text-gray-400">
-                      The initial token price of 2000 BHB works out to be cheaper than buying the property in MATIC. Renting is ideal for those who don't want to fork out up front the MATIC to buy a property and is a cheaper pathway to owning a property.
-                    </p>
-                    <p className="mt-2 text-gray-400">
+                <h3 className="text-2xl font-semibold text-yellow-200">Renting a Room</h3>
+                <p className="text-white text-xl xl3:text-xl italic mt-4">Rental Deposit</p>
+                <p className="mt-2 text-gray-400">
+                  To rent a room in a property, a deposit of 10 Matic must be made. This is refunded when the renter decides to vacate the room.
+                </p>
+                <p className="text-white text-xl xl3:text-xl  italic mt-4">Rent Payment Obligation</p>
+                <p className="mt-2 text-gray-400">
+                  Rent must be paid daily. A renter will be flagged as a late payer to the owner if no payment is made on time. It's down to the property owner's discretion to evict a tenant if they fail to pay rent consistently.
+                </p>
+                <p className="mt-2 text-gray-400">
+                  If a renter is evicted, they will lose their rental deposit.
+                </p>
+                <p className="text-white text-xl xl3:text-xl  italic mt-4">Restrictions</p>
+                <p className=" text-gray-400 mt-2">
+                  Properties with at least one available spare room can be rented from the property owner.
+                </p>
+                <p className="mt-2 text-gray-400">
+                  A user can rent only one room on the same property.
+                </p>
+                <p className="mt-2 text-gray-400">
+                  A user cannot rent a room on a property they own.
+                </p>
+                <p className="mt-2 text-gray-400">
+                  A total of 4 deposits can be made at any one time for an inidival wallet address and so a maximum of 4 properties can be rented at any one time.
+                </p>
 
-                    </p>
-                    <p className="text-white text-xl xl3:text-xl italic mt-4">Blockhouse Bay Gardens</p>
-                    <p className="mt-2 text-gray-400">
-                      You can also rent from the exclusive Blockhouse Bay Gardens properties. These properties are more expensive to rent but offer tripple token rewards. Note, these properties require the user to holding a minimum of 500 BHB tokens to become a renter.
-                    </p>
-                    <p className="mt-2 text-gray-400">
-                      If enough BHB tokens are accumulated, you will be able to purchase a property on Blockhouse Bay Gardens - availability permitting.
-                    </p>
-                    <p className="text-white text-xl xl3:text-xl italic mb-4 mt-4">Add the BHB token to your wallet</p>
-                    <AddTokenButton />
-                    <p className="text-white text-xl xl3:text-xl  italic mt-4">BHB Token Address</p>
-                    <p className="mt-2 text-gray-400">
-                      You can also manually add the BHB token to your wallet by selecting import tokens and paste in the BHB token address:
-                    </p>
-                    <p>
-                      <span className="text-pink-400 text-xs">
-                        {propertytokenaddress}
-                      </span>
-                      <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>
-                    </p>
-                  </li>
-                </ul>
+
+
+                <h3 className="text-2xl font-semibold text-yellow-200 my-4">Token Rewards</h3>
+                <p className="text-white text-xl xl3:text-xl italic mt-4">Earning BHB Tokens</p>
+                <p className="mt-2 text-gray-400">
+                  Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in MATIC.
+                </p>
+                <p className="mt-2 text-gray-400">
+                  The higher the rent price paid, the higher the token rewards will be for the tenant.
+                </p>
+                <p className="mt-2 text-gray-400">
+
+                </p>
+                <p className="text-white text-xl xl3:text-xl  italic mt-4">Spending BHB Tokens</p>
+                <p className="mt-2 text-gray-400">
+                  The initial token price of 2000 BHB works out to be cheaper than buying the property in MATIC. Renting is ideal for those who don't want to fork out up front the MATIC to buy a property and is a cheaper pathway to owning a property.
+                </p>
+                <p className="mt-2 text-gray-400">
+
+                </p>
+                <p className="text-white text-xl xl3:text-xl italic mt-4">Blockhouse Bay Gardens</p>
+                <p className="mt-2 text-gray-400">
+                  You can also rent from the exclusive Blockhouse Bay Gardens properties. These properties are more expensive to rent but offer tripple token rewards. Note, these properties require the user to holding a minimum of 500 BHB tokens to become a renter.
+                </p>
+                <p className="mt-2 text-gray-400">
+                  If enough BHB tokens are accumulated, you will be able to purchase a property on Blockhouse Bay Gardens - availability permitting.
+                </p>
+                <p className="text-white text-xl xl3:text-xl italic mb-4 mt-4">Add the BHB token to your wallet</p>
+                <AddTokenButton />
+                <p className="text-white text-xl xl3:text-xl  italic mt-4">BHB Token Address</p>
+                <p className="mt-2 text-gray-400">
+                  You can also manually add the BHB token to your wallet by selecting import tokens and paste in the BHB token address:
+                </p>
+                <p>
+                  <span className="text-pink-400 text-xs">
+                    {propertytokenaddress}
+                  </span>
+                  <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>
+                </p>
+
               </div>
 
-              {/* <div className="flex h-9 mb-3 justify-center lg:justify-between">
-                  <p className="italic">Property Owner Management Panel</p> */}
-              <div className="lg:pt-1  xl3:ml-0">
-                <div className="xl3:ml-14 lg:w-4/5 xl3:w-1/2">
-                  <div className="flex h-9 mb-3 justify-center lg:justify-between">
-                    <p className="italic">To-Rent / Renter Management Panel</p>
-                    <Pagination
-                      postsPerPage={1}
-                      totalPosts={2}
-                      paginate={paginate}
-                      currentPage={currentImageNum}
-                      isImages={true}
-                    />
-                  </div>
-                  <div className="flex justify-center lg:justify-start mb-4">
-                    <img className="md:w-3/5 lg:w-full" alt="owner panel" src={rentImageSrc} />
-                  </div>
-                  {(rentImageSrc !== "./renting.png") ? (
-                    <div className="flex justify-center lg:justify-start">
-                      <p className="text-white text-sm mt-2 mb-4">Property with two rooms already rented out and one room available to rent</p>
+
+              <div className="col-span-1 lg:grid lg:grid-cols-2">
+                <div className="col-span-1">
+                  <div className="flex flex-col mt-12 gap-4 pl-4 xl:pr-8">
+                    <p className="text-xl italic text-white">Renting Panels</p>
+                    <div className="">
+                      <Pagination
+                        postsPerPage={1}
+                        totalPosts={2}
+                        paginate={paginate}
+                        currentPage={currentImageNum}
+                        isImages={true}
+                      />
                     </div>
-                  ) : (
-                    <div className="flex justify-center lg:justify-start">
-                      <p className="text-white text-sm mt-2 mb-4">The Renters panel above is what a user will see once they have paid a rental deposit on a room</p>
-                    </div>
-                  )
-                  }
-                  <div className="flex justify-center lg:justify-start">
-                    <img src="collectTokens.png" className="mt-4 border border-1 md:w-3/5 lg:w-full" />
-                  </div>
-                  <div className="flex justify-center lg:justify-start pt-4">
-                    <p className="text-sm mt-2">The higher the rent price, the more Matic is received upon paying rent</p>
+                    {currentImageNum === 1 &&
+                      <p>The image shows an example of the panel of a property that is a available to rent</p>
+                    }
+                    {currentImageNum === 2 &&
+                      <p>The image shows an example of a panel that a renter will use</p>
+                    }
+                    {rentImageSrc === "./toRent.png" ? (
+                      <div>
+                        <p className=" text-white italic mb-2">Information Displayed</p>
+                        <ul className="list-disc list-inside xl:pr-6 space-y-4 ml-4">
+                          <li>
+                            The public address of the property owner
+                          </li>
+                          <li>
+                            The number of rooms rented is how many people are currently renting from this property
+                          </li>
+                          <li>
+                            The rent price that renters are expected to pay
+                          </li>
+                          <li>
+                            Tenants are the public addresses of users currently renting from the property
+                          </li>
+                          <li>
+                            Sale History lists the all purchase history of the property
+                          </li>
+                          <li>
+                            The deposit is the amount of MATIC required to rent a room
+                          </li>
+                        </ul>
+                      </div>) : (
+                      <div>
+                        <p className=" text-white italic mb-2">Information Displayed</p>
+                        <ul className="list-disc list-inside xl:pr-6 space-y-4 ml-4">
+                          <li>The rent status lets a renter know if they are up to date with their rent.</li>
+                          <li>Accumlated BHB token amount will show above the property panels and can be redeemed with the Collect-Tokens button</li>
+                        </ul>                        
+                      </div>
+                    )}
                   </div>
                 </div>
+                <div className="col-span-1 mt-2">
+
+                  <div className="flex justify-center lg:justify-start mb-4">
+                    <img className="max-w-96 lg:max-w-full" alt="owner panel" src={rentImageSrc} />
+                  </div>
+                  {rentImageSrc === "./renting.png" &&
+                    <div className="flex justify-center lg:justify-start">
+                      <img src="collectTokens.png" className="mt-4 border border-1 md:w-3/5 lg:w-full" />
+                    </div>
+                  }
+                </div>
+
               </div>
             </div>
           </AccordionDetails>
@@ -743,8 +766,8 @@ const About = () => {
               </div>
             </div>
           </AccordionSummary>
-          <AccordionDetails className={classes.details}>
-            <div className="lg:grid justify-items-center mb-32 lg:mb-20 lg:grid-cols-2 lg:mr-12 lg:gap-16 xl3:gap-32 lg:text-xl text-lg xl:text-lg xl3:text-2xl">
+          <AccordionDetails className="border border-1">
+            <div className="lg:grid justify-items-center mb-32 lg:mb-20 lg:grid-cols-2 lg:mr-12 lg:gap-16 xl3:gap-32n text-lg ">
               <ul className=" font-normal ">
                 <li className="pb-4">
                   <h3 className="text-2xl font-semibold text-green-300">Blockhouse Bay Gardens</h3>
@@ -755,23 +778,23 @@ const About = () => {
                     offering an unparalleled lifestyle in one of the bay's most beautiful settings. </p>
                 </li>
                 <li className="py-4">
-                  <h3 className="text-xl italic font-normal">Buying</h3>
+                  <h3 className="text-xl italic font-normal text-white">Buying</h3>
                   <p className="mt-2 text-gray-400">Properties on Blockhouse Bay Gardens can only be purchased and sold using BHB tokens</p>
                 </li>
                 <li className="py-4">
-                  <h3 className="text-xl italic font-normal">Renting</h3>
+                  <h3 className="text-xl italic font-normal text-white">Renting</h3>
                   <p className="mt-2 text-gray-400">Tripple BHB token rewards will be given to renters on this street</p>
                 </li>
                 <li className="py-4">
-                  <h3 className="text-xl italic font-normal">Renting</h3>
+                  <h3 className="text-xl italic font-normal text-white">Renting</h3>
                   <p className="mt-2 text-gray-400">A user must be holding a minimum of 500 BHB tokens in order to become a renter on this street</p>
                 </li>
                 <li className="py-4">
-                  <h3 className="text-xl italic font-normal">Ranking</h3>
+                  <h3 className="text-xl italic font-normal text-white">Ranking</h3>
                   <p className="mt-2 text-gray-400">Once a property on this street has been sold, they will be given a ranking and ordered accordingly based on total income generated from rent and sale history total.</p>
                 </li>
               </ul>
-              <div className="gallery h-fit pb-16 md:pb-40 lg:pb-0 lg:h-full cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
+              <div className="gallery h-fit pb-16 lg:mt-24 md:pb-40 lg:pb-0 lg:h-full cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
                 <a href="/blockhouse-bay-gardens" className="clipped-border">
                   <img src="gallery1.png" id="clipped" />
                 </a>
@@ -802,7 +825,7 @@ const About = () => {
               </div>
             </div>
           </AccordionSummary>
-          <AccordionDetails className={classes.details}>
+          <AccordionDetails className="border border-1">
             <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:mb-6">
               <div className="lg:col-span-2 lg:pr-32 xl:text-lg ">
                 <ul>
@@ -817,8 +840,8 @@ const About = () => {
                     When selling a property, an additional transaction will occur as the Blockhouse Bay platform requires your approval to sell your property on your behalf
                   </p>
                   <li className="pb-4">
-                    <h3 className="text-2xl font-semibold text-yellow-200">Fees</h3>
-                    <p className="text-white text-lg xl3:text-xl italic mt-4">Buying</p>
+                    <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Fees</h3>
+                    <p className="text-white text-lg xl3:text-xl italic mt-3">Buying</p>
                     <p className="mt-2 text-gray-400">A 5 Matic fee is required when buying a property with BHB tokens.</p>
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Selling</p>
                     <p className="mt-2 text-gray-400">
@@ -827,7 +850,12 @@ const About = () => {
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Renting</p>
                     <p className="mt-2 text-gray-400">
                       A 5% fee will be deducted from the rent amount collected.
-                    </p>
+                    </p>    
+                    <p className="text-white text-lg xl3:text-xl italic mt-4">Duration</p>
+                    <p className="mt-2 text-gray-400">
+                      Transactions are normally pretty quick but occasionally can take a little longer.
+                      If nothing happens straigt away just give it a little longer and it should go through and update the UI.
+                    </p>              
                   </li>
                 </ul>
               </div>

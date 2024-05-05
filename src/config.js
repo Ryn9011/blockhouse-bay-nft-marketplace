@@ -1,6 +1,6 @@
 
-    export const nftmarketaddress = "0x7289723935006021a9F416b869a11a8633439Eff";
-    export const govtaddress = "0xC0372531Bc6b928c41f56A7081502EF19b0a2387";
-    export const nftaddress = "0xe80EcA50a509E2C537696bE36243b6ce9be06E16";
-    export const propertytokenaddress = "0x425187a0ee65ABb2E22dE73681ee75AfF2A61cAf";
+    export const nftmarketaddress = "0x02cEc859dEE68eCbE72D832BFedE0df848aa7E59";
+    export const govtaddress = "0xFcC66e2cAe4c3433C22a0a158bb9cbD21e5ffb8C";
+    export const nftaddress = "0x4Fa15474A68df82707A59644C33B1c970E2f5734";
+    export const propertytokenaddress = "0xeD446F759Db429ad8E98aEe007140fB4c5F530c9";
   

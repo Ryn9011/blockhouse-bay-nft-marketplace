@@ -19,7 +19,7 @@ import {
   nftaddress, nftmarketaddress
 } from '../config'
 
-
+/* global BigInt */
 
 const ethers = require("ethers")
 
@@ -278,6 +278,18 @@ const CreateItem = () => {
     await transaction2.wait()
   }
 
+  const giftProperties = async () => {
+    
+    console.log(formInput)
+    console.log(formInput.address)
+    const contract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    let pid = BigInt(Number(formInput.pid))
+    console.log(pid)
+    console.log(BigInt(15))
+    const transaction = await contract.giftProperties(nftaddress, pid, formInput.address);
+    await transaction.wait();
+  }
+  
 
   return (
     <>
@@ -318,19 +330,19 @@ const CreateItem = () => {
       <div className="flex justify-center">
             <div className="w-1/2 flex flex-col pb-12">
                 <input
-                    placeholder="Asset Name"
+                    placeholder="address"
                     className="mt-8 border rounded p-4"
-                    onChange={e => updateFormInput({ ...formInput, name: e.target.value })}
+                    onChange={e => updateFormInput({ ...formInput, address: e.target.value })}
                 />
-                <textarea
+                {/* <textarea
                     placeholder="Asset Description"
                     className="mt-2 border rounded p-4"
                     onChange={e => updateFormInput({ ...formInput, description: e.target.value })}
-                />
+                /> */}
                 <input
-                    placeholder="Asset Price in Eth"
+                    placeholder="Pid"
                     className="mt-2 border rounded p-4"
-                    onChange={e => updateFormInput({ ...formInput, price: e.target.value })}
+                    onChange={e => updateFormInput({ ...formInput, pid: e.target.value })}
                 />               
                 {/* {
                     fileUrl && (
@@ -342,6 +354,9 @@ const CreateItem = () => {
                 </button>
                 <button onClick={createSaleEx} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
                     Create Exclusives
+                </button>
+                <button onClick={giftProperties} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Create Gift
                 </button>
             </div>
         </div>

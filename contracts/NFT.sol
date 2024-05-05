@@ -13,6 +13,8 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
     Counters.Counter private _tokenIds;
     Counters.Counter private _exclusiveIds;
     address contractAddress;
+    address deployingAddress;
+    bool deployingAddressSet = false;
 
     bytes4 constant private ERC721_RECEIVED = bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
 
@@ -20,7 +22,20 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
         contractAddress = marketplaceAddress;
     }
 
-    function createToken(string memory tokenURI) public returns (uint) {
+    function setDeployingAddress(address _deployingAddress) public {
+        if (deployingAddressSet) {
+            revert("Deploying address already set");
+        }
+        deployingAddress = _deployingAddress;
+        deployingAddressSet = true;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == deployingAddress, "Only the owner can call this function");
+        _;
+    }
+
+    function createToken(string memory tokenURI) public onlyOwner returns (uint) {
         _tokenIds.increment();
         uint256 newItemId = _tokenIds.current();
       
@@ -38,7 +53,7 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
     //     return tokenIds;
     // }
 
-    function createTokens(string[] memory tokenURIs) public returns (uint[] memory) {
+    function createTokens(string[] memory tokenURIs) public onlyOwner returns (uint[] memory) {
         uint[] memory tokenIds = new uint[](tokenURIs.length);
         uint256 newItemId;
         for (uint i = 0; i < tokenURIs.length; i++) {
@@ -53,7 +68,7 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
         return tokenIds;
     }
 
-    function createExclusiveTokens(string[] memory tokenURIs) public returns (uint[] memory) {
+    function createExclusiveTokens(string[] memory tokenURIs) public onlyOwner returns (uint[] memory) {
         uint[] memory tokenIds = new uint[](tokenURIs.length);
         uint256 newItemId = 500;     
         for (uint i = 0; i < tokenURIs.length; i++) {
@@ -68,7 +83,7 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
         return tokenIds;
     }
 
-    function transferTokens(uint tokenId) public {
+    function transferTokens(uint tokenId) public onlyOwner {
         safeTransferFrom(address(this), msg.sender, tokenId); // Transfer the tokens to the buyer        
     }
 
@@ -88,7 +103,7 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
         address from,
         uint256 tokenId,
         bytes calldata data
-    ) external override returns (bytes4) {
+    ) pure external override returns (bytes4) {
         // Handle the received token here
         return ERC721_RECEIVED;
     }

@@ -167,7 +167,7 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     //function to set totalincomegenerated
-    function setTotalIncomeGenerated(uint256 propertyId, uint256 amount) public onlyGovtContract {
+    function setTotalIncomeGenerated(uint256 propertyId, uint256 amount) public onlyGovtContract nonReentrant {
         idToProperty[propertyId].totalIncomeGenerated += amount;
     }
 
@@ -178,7 +178,7 @@ contract PropertyMarket is ReentrancyGuard {
         return result;        
     }    
 
-    function setTenantsMapping(address user, uint256 propertyId, uint8 index) public onlyGovtContract {
+    function setTenantsMapping(address user, uint256 propertyId, uint8 index) public onlyGovtContract nonReentrant {
         tenants[user][index] = propertyId;
     }
 
@@ -193,7 +193,7 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 propertyId,
         address[4] memory renterAddresses,
         uint8 room
-    ) public onlyGovtContract {
+    ) public onlyGovtContract nonReentrant {
         propertyToRenters[propertyId] = renterAddresses;        
         if (room == 0) {
             idToProperty[propertyId].roomOneRented = true;
@@ -496,7 +496,7 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 propertyId
     ) public nonReentrant {
         Property storage property = idToProperty[propertyId];
-        require(property.seller == msg.sender || property.isForSale, "");        
+        require(property.seller == msg.sender && property.isForSale, "");        
 
         property.isForSale = false;
         property.salePrice = 0;
@@ -551,13 +551,10 @@ contract PropertyMarket is ReentrancyGuard {
         address propertyTokenContractAddress,
         bool isPaymentTokensBool
     ) public payable nonReentrant {  
-        // console.log('msg.value createPropertySale: ', msg.value);    
-        // console.log('propertyTokenContractAddress: ', propertyTokenContractAddress);
         Property storage temp = idToProperty[itemId];
         require(temp.propertyId < 551, "");
         uint256 price = temp.salePrice;
         uint256 tokenId = temp.tokenId;
-        
      
         if (isPaymentTokensBool) {
             require(
@@ -567,19 +564,14 @@ contract PropertyMarket is ReentrancyGuard {
             require(temp.isForSale == true && temp.tokenSalePrice != 0, "");
 
             IERC20 propertyToken = IERC20(propertyTokenContractAddress);
-            // if (_relistCount.current() > 1) {
-            //     _relistCount.decrement();
-            // }
-            // console.log('tokenSalePrice: ', tempProperty.tokenSalePrice);
-            // console.log('propertyToken.allowance(msg.sender, address(this)): ', propertyToken.allowance(msg.sender, address(this)));
+            
             require(
                 propertyToken.allowance(msg.sender, address(this)) ==
                     temp.tokenSalePrice,
                 Strings.toString(
                     propertyToken.allowance(msg.sender, address(this))
                 )
-            );
-            //console.log('propertyToken.transferFrom(msg.sender, tempProperty.seller, tempProperty.tokenSalePrice): ', propertyToken.transferFrom(msg.sender, tempProperty.seller, tempProperty.tokenSalePrice));
+            );            
             require(
                 propertyToken.transferFrom(
                     msg.sender,
@@ -587,26 +579,21 @@ contract PropertyMarket is ReentrancyGuard {
                     temp.tokenSalePrice
                 ),
                 "!"
-            );
-            // console.log('salePrice: ', tempProperty.salePrice);
+            );            
             temp.saleHistory.push(
                 Sale(temp.tokenSalePrice, 2)
             );                   
-        } else {
-            //if (itemId > 500) {
-                require(itemId < 500, "");
-            //}
+        } else {            
+            require(itemId < 501, "");            
             require(msg.value == price, "");
             temp.saleHistory.push(Sale(price, 1));      
+            temp.seller.transfer(
+                msg.value - ((msg.value * 500) / 10000)//5% goes to i_govt
+            ); 
         }
         temp.dateSoldHistory.push(block.timestamp);
-        temp.seller.transfer(
-            msg.value - ((msg.value * 500) / 10000)
-        ); //5% goes to i_govt
 
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
-        // GovtContract govtContract = GovtContract(i_govtContract);
-        // govtContract.vacatePropertyAfterBuy(itemId, msg.sender);
         
         if (temp.owner != address(0)) {
             vacateCommonTasks(itemId, msg.sender);
@@ -627,8 +614,7 @@ contract PropertyMarket is ReentrancyGuard {
 
         temp.owner = payable(msg.sender);
         temp.isForSale = false;
-        temp.seller = payable(address(0));
-                
+        temp.seller = payable(address(0));                
         userProperties[msg.sender].push(itemId);
     }
 
@@ -748,20 +734,17 @@ contract PropertyMarket is ReentrancyGuard {
     function giftProperties(
         address nft,
         uint256 pId,
-        address recipient
+        address recipient    
     ) public onlyGovt nonReentrant{
-        GovtContract govt = GovtContract(i_govt);
-        govt.giftProperties(nft, pId, recipient);
-        // Property storage property = idToProperty[propertyId];
-        // require(property.owner == address(0), "already owned");
 
-        // property.owner = payable(recipient);
-        // property.isForSale = false;
-        // property.seller = payable(address(0));
-
+        require (idToProperty[pId].saleHistory.length == 0, "");
+        idToProperty[pId].owner = payable(recipient); 
+        idToProperty[pId].isForSale = false;
         _propertiesSold.increment();
-        // require(_propertiesSold.current() <= 10, "");
-
+        idToProperty[pId].saleHistory.push(Sale(LISTING_PRICE, 1));              
+        idToProperty[pId].dateSoldHistory.push(block.timestamp);
+        userProperties[recipient].push(pId);
+        
         IERC721(nft).transferFrom(
             address(this),
             address(uint160(recipient)),

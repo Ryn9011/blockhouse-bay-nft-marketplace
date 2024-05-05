@@ -115,6 +115,7 @@ const ForSale = () => {
         let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
         let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
         let totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
+        console.log(typeof(i.propertyId))
 
         //let tokenSalePriceFormatted = ethers.formatUnits(hexTokenPrice, 'ether')
         let item = {
