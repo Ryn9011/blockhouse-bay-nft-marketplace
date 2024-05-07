@@ -1,9 +1,9 @@
 import React from 'react';
 
-const SpinnerIcon = () => {
+const SpinnerIcon = ({ text }) => {
   return (
     <div className='flex justify-between items-center'>
-      <div className='text-lg mr-2 text-gray-300'>Confirming Tx </div>
+      <div className='text-lg mr-2 text-gray-300'>{text}</div>
       <svg
         role="status"
         className="inline w-6 h-6  text-gray-300 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300"

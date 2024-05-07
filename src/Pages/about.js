@@ -76,7 +76,7 @@ const About = () => {
   const section = searchParams.get('section') ? searchParams.get('section') : 'nft'
 
   const [currentImageNum, setCurrentImageNum] = useState(1);
-  const imgSrcs = ["./ownedSelling.png", "./ownedLate.png", "./toRent.png", "./renting.png", "./twitter2.png"];
+  const imgSrcs = ["./ownedSelling.png", "./ownedLate.png", "./toRent.png", "./renting.png", "./X.png"];
   const [ownedImageSrc, setOwnedImageSrc] = useState(imgSrcs[0])
   const [rentImageSrc, setRentImageSrc] = useState(imgSrcs[3])
 
@@ -277,6 +277,7 @@ const About = () => {
                           </p>
 
                         </Typography>
+                        
                         <div className="text-yellow-400 flex justify-center">
                           <button className="border border-1 border-yellow-400 rounded py-1.5 px-4 mt-4" onClick={handleModalClose}>Close</button>
                         </div>
@@ -293,6 +294,15 @@ const About = () => {
 
                       </div>
                     </Modal>
+                    <p className="text-white text-xl xl3:text-xl italic mr-2 pt-0.5 mt-3">Purpose</p>
+                    <p className="mt-2 text-gray-400">
+                      Blockhouse Bay has come into existence for three reasons:
+                      Firstly, it was my excuse for me the developer, ScubaSteve (my gaming alter ego),
+                      to dive into and better understand the mysteries of blockchain and NFTs. Secondly, to create something for others can have some fun with and even make some money along the way.
+                      Thirdly,
+                      it is a desperate attempt to crowdfund a new laptop - 
+                      As much as opening a notepade on mine heats it up to the point I could probably roast marshmallows over it meanwhile the fans going off like bees trapped in a blender!
+                    </p>
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Landlord, Tenant or Both!</p>
                     <p className="mt-2 mb-3.5 text-gray-400">
                       With Blockhouse Bay, you have the flexibility to choose your role: be a landlord, a tenant, or even both! Dive into the dynamic world of real estate and embrace the opportunities that come your way.
@@ -311,14 +321,9 @@ const About = () => {
                     <p className="mt-2 text-gray-400">
                       All property NFT images are stored on Arweave's decentralized permanent storage, meaning they are truly persisted.
                     </p>
-                    <p className="text-white text-xl xl3:text-xl italic mr-2 pt-0.5 mt-3">Purpose</p>
+                    <p className="text-white text-xl xl3:text-xl italic mr-2 pt-0.5 mt-3">WalletConnect</p>
                     <p className="mt-2 text-gray-400">
-                      Blockhouse Bay has come into existence for three reasons:
-                      Firstly, it was my excuse for me the developer, ScubaSteve (my gaming alter ego),
-                      to dive into and better understand the mysteries of blockchain and NFTs. Secondly, to create something for others can have some fun with and even make some money along the way.
-                      Thirdly,
-                      it is a desperate attempt to crowdfund a new laptop - 
-                      As much as opening a notepade on mine heats it up to the point I could probably roast marshmallows over it meanwhile the fans going off like bees trapped in a blender!
+                      Utilizing WalletConnect via Web3Modal, Blockhouse Bay ensures seamless and secure interaction between users' wallets and the blockchain. With this integration, users can easily connect their preferred wallets to access features, make transactions, and engage with the platform's decentralized services, all while maintaining full control and privacy over their digital assets.
                     </p>
 
                   </li>
@@ -339,7 +344,7 @@ const About = () => {
                 </ul>
               </div>
 
-              <div className="col-span-1 mt-2 mr-4 bg-right bg-fit bg-no-repeat" style={{ backgroundImage: "url('insidereduced.png')" }}></div>
+              <div className="col-span-1 mt-2 mr-4 bg-right-top bg-fit bg-no-repeat" style={{ backgroundImage: "url('insidereduced.png')" }}></div>
 
             </div>
           </AccordionDetails>
@@ -386,7 +391,7 @@ const About = () => {
               <div className="lg:grid grid-cols-2 content-center">
                 <div className="flex flex-col mt-12 gap-4">
                   <p className="text-xl italic text-white">Property Sale Panel</p>
-                  <p className="mr-4">The image shows an example of a property that is for sale</p>
+                  <p className="mr-4">The image shows an example of a property for sale</p>
                   <p className=" text-white italic">Information Displayed</p>
                   <ul className="list-disc list-inside xl:pr-6 space-y-4 mx-4">
                     <li>
@@ -538,7 +543,7 @@ const About = () => {
                       <p>A property for sale or to rent will of course require advertising and promoting as it would in the real world!</p>
                     </div>
                   }
-                  {ownedImageSrc !== "./twitter2.png" ? (
+                  {ownedImageSrc !== "./X.png" ? (
                     <div>
                       <p className=" text-white italic mb-2">Information Displayed</p>
                       <ul className="list-disc list-inside xl:pr-6 space-y-4 ml-4">
@@ -594,7 +599,7 @@ const About = () => {
                   <div className="flex justify-center lg:justify-start">
                     <img className="mt-2 " alt="owner panel" src={ownedImageSrc} />
                   </div>
-                  {ownedImageSrc !== './twitter2.png' &&
+                  {ownedImageSrc !== './X.png' &&
                     <div>
                       <div className="flex justify-center lg:justify-start">
                         <img src="collectRent.png" className="md:w-3/5 lg:w-full border border-1 mt-6" />
@@ -841,8 +846,8 @@ const About = () => {
                   </p>
                   <li className="pb-4">
                     <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Fees</h3>
-                    <p className="text-white text-lg xl3:text-xl italic mt-3">Buying</p>
-                    <p className="mt-2 text-gray-400">A 5 Matic fee is required when buying a property with BHB tokens.</p>
+                    {/* <p className="text-white text-lg xl3:text-xl italic mt-3">Buying</p>
+                    <p className="mt-2 text-gray-400">A 5 Matic fee is required when buying a property with BHB tokens.</p> */}
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Selling</p>
                     <p className="mt-2 text-gray-400">
                       Property owners have the option to sell their property to other interested buyers. A listing fee of 10 Matic will incur and 5% of the sale amount will be deducted when a sale is made.
@@ -854,14 +859,14 @@ const About = () => {
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Duration</p>
                     <p className="mt-2 text-gray-400">
                       Transactions are normally pretty quick but occasionally can take a little longer.
-                      If nothing happens straigt away just give it a little longer and it should go through and update the UI.
+                      If nothing happens straight away just give it a little longer and it should go through and update the UI.
                     </p>              
                   </li>
                 </ul>
               </div>
             </div>
           </AccordionDetails>
-        </Accordion>
+        </Accordion> 
       </div ></>
 
   )

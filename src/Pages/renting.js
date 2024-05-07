@@ -44,8 +44,11 @@ const Renting = () => {
   const [tokenAddress, setTokenAddress] = useState();
   const [renterTimestamps, setRenterTimestamps] = useState();
   const [txloadingState, setTxLoadingState] = useState({});
+  const [txloadingStateB, setTxLoadingStateB] = useState({});
   const [txloadingState1, setTxLoadingState1] = useState({});
+  const [txloadingState1B, setTxLoadingState1B] = useState({});
   const [txloadingState2, setTxLoadingState2] = useState({});
+  const [txloadingState2B, setTxLoadingState2B] = useState({});
   const { address, chainId, isConnected } = useWeb3ModalAccount()
 
 
@@ -158,8 +161,11 @@ const Renting = () => {
       if (!isConnected) {
         exceptionCount--;
         setTxLoadingState({ ...txloadingState, [i]: false });
+        setTxLoadingStateB({ ...txloadingStateB, [i]: false });
         setTxLoadingState1({ ...txloadingState1, [i]: false });
+        setTxLoadingState1B({ ...txloadingState1B, [i]: false });
         setTxLoadingState2({ ...txloadingState2, [i]: false });
+        setTxLoadingState2({ ...txloadingState2B, [i]: false });
         throw Error('User disconnected')
       }
 
@@ -235,12 +241,18 @@ const Renting = () => {
       setTimestampLoadingState('loaded');
       setLoadingState('loaded')
       setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingStateB({ ...txloadingStateB, [i]: false });
       setTxLoadingState1({ ...txloadingState1, [i]: false });
+      setTxLoadingState1B({ ...txloadingState1B, [i]: false });
       setTxLoadingState2({ ...txloadingState2, [i]: false });
+      setTxLoadingState2({ ...txloadingState2B, [i]: false });
     } catch (ex) {
       setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingStateB({ ...txloadingStateB, [i]: false });
       setTxLoadingState1({ ...txloadingState1, [i]: false });
+      setTxLoadingState1B({ ...txloadingState1B, [i]: false });
       setTxLoadingState2({ ...txloadingState2, [i]: false });
+      setTxLoadingState2({ ...txloadingState2B, [i]: false });
       if (ex.message === 'User Rejected') {
         // Handle user rejection
         console.log('Connection request rejected by the user.');
@@ -253,8 +265,11 @@ const Renting = () => {
         console.log('Error loading properties:', ex);
         alert('Unable to detect a wallet connection. Please connect to a wallet provider.');
         setTxLoadingState({ ...txloadingState, [i]: false });
+        setTxLoadingStateB({ ...txloadingStateB, [i]: false });
         setTxLoadingState1({ ...txloadingState1, [i]: false });
+        setTxLoadingState1B({ ...txloadingState1B, [i]: false });
         setTxLoadingState2({ ...txloadingState2, [i]: false });
+        setTxLoadingState2({ ...txloadingState2B, [i]: false });
       }
     }
   }
@@ -263,18 +278,19 @@ const Renting = () => {
   const PayRent = async (property, i) => {
     try {
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
-      // const contract = new ethers.Contract(govtaddress, govtContract.abi, signer)
-      console.log(rentAmount)
+      setTxLoadingState1({ ...txloadingState1, [i]: true });
       const transaction = await govtContract.payRent(
         property.propertyId,
         { value: rentAmount }
       )
-      setTxLoadingState1({ ...txloadingState1, [i]: true });
+      setTxLoadingState1({ ...txloadingState1, [i]: false });
+      setTxLoadingState1B({ ...txloadingState1B, [i]: true });
       await transaction.wait();
       loadProperties()
     } catch (ex) {
       console.log(ex)
       setTxLoadingState1({ ...txloadingState1, [i]: false });
+      setTxLoadingState1B({ ...txloadingState1B, [i]: false });
       alert('Transaction Failed')
     }
   }
@@ -282,9 +298,11 @@ const Renting = () => {
   const CollectTokens = async () => {
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     try {
-      const transaction = await contract.withdrawERC20(propertytokenaddress)
       setTxLoadingState({ ...txloadingState, [551]: true });
+      const transaction = await contract.withdrawERC20(propertytokenaddress)
+      setTxLoadingState({ ...txloadingState, [551]: false });
 
+      setTxLoadingStateB({ ...txloadingStateB, [551]: true });
       await transaction.wait()
     } catch {
       console.log('Transaction cancelled')
@@ -296,12 +314,14 @@ const Renting = () => {
   //if same address has rented more than one room, this will vacate all of them
   const Vacate = async (property, i) => {
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    const transaction = await contract.vacate(
-      property.propertyId
-    )
-
     setTxLoadingState2({ ...txloadingState2, [i]: true });
     try {
+      const transaction = await contract.vacate(
+        property.propertyId
+      )
+      setTxLoadingState2({ ...txloadingState2, [i]: false });
+
+      setTxLoadingState2B({ ...txloadingState2, [i]: true });
       await transaction.wait()
     } catch (ex) {
       alert('Transaction Failed')
@@ -392,9 +412,9 @@ const Renting = () => {
 
               {renterTokens > 0 &&
                 <div className=''>
-                  {txloadingState[551] ? (
+                  {txloadingState[551] || txloadingStateB[551] ? (
                     <p className='w-full flex justify-center border border-green-400 text-xs italic px-12 py-0 rounded'>
-                      <SpinnerIcon />
+                      <SpinnerIcon text={(txloadingState[551] && !txloadingStateB[551]) ? 'Creating Tx' : 'Confirming Tx'} />
                     </p>
                   ) : (
                     <button
@@ -517,9 +537,9 @@ const Renting = () => {
                     <div className="text-2xl pt-2 text-white"></div>
 
                     <div className="px-2 pt-3 pb-4">
-                      {txloadingState1[i] ? (
+                      {txloadingState1[i] || txloadingState1B[i] ? (
                         <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
-                          <SpinnerIcon />
+                          <SpinnerIcon text={(txloadingState1[i] && !txloadingState1B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                         </p>
                       ) : (
                         <button onClick={() => { PayRent(property, i) }} className="w-full hover:bg-sky-700 bg-matic-blue text-white font-bold py-2 px-12 rounded">
@@ -528,9 +548,9 @@ const Renting = () => {
                       )}
                     </div>
                     <div className="px-2">
-                      {txloadingState2[i] ? (
+                      {txloadingState2[i] || txloadingState2B[i] ? (
                         <p className='w-full flex justify-center bg-red-400 text-xs italic px-12 py-1 rounded'>
-                          <SpinnerIcon />
+                          <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                         </p>
                       ) : (
                         <button onClick={() => { Vacate(property, i) }} className="w-full hover:bg-red-500 bg-red-400 text-white font-bold py-2 px-12 rounded">

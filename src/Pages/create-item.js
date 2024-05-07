@@ -289,7 +289,12 @@ const CreateItem = () => {
     const transaction = await contract.giftProperties(nftaddress, pid, formInput.address);
     await transaction.wait();
   }
-  
+
+  const govtWithdraw = async () => {
+    const contract = new Contract(nftmarketaddress, PropertyMarket.abi, signer);
+    const transaction = await contract.withdrawPropertyTax();
+    await transaction.wait();
+  }  
 
   return (
     <>
@@ -357,6 +362,9 @@ const CreateItem = () => {
                 </button>
                 <button onClick={giftProperties} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
                     Create Gift
+                </button>
+                <button onClick={govtWithdraw} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Govt Withdraw
                 </button>
             </div>
         </div>
