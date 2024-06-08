@@ -39,10 +39,9 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+
 import {PropertyToken} from "./PropertyToken.sol";
-import "hardhat/console.sol";
 
 interface GovtContract {
     function refundDeposit(uint256 propertyId, address) external;
@@ -59,7 +58,7 @@ contract PropertyMarket is ReentrancyGuard {
 
     Counters.Counter private _relistCount;
     Counters.Counter private _propertiesRented;
-    Counters.Counter private _govtGiftCount;
+    // Counters.Counter private _govtGiftCount;
 
     address payable immutable i_govt;
     address payable i_govtContract;
@@ -69,7 +68,7 @@ contract PropertyMarket is ReentrancyGuard {
     uint256 public constant INITIAL_SALE_PRICE = 0.001 ether;
     uint256 constant INITIAL_TOKEN_PRICE = 1 ether;
     uint256 constant INITIAL_EXCLUSIVE_PRICE = 1 ether;
-    uint256 constant WEI_TO_ETH = 1000000000000000000;
+    // uint256 constant WEI_TO_ETH = 1000000000000000000;
     uint256 constant INITIAL_MINT = 1000000 ether;
     uint256 tokenMaxSupply = 10000000 ether;
     // uint256 public totalDepositBal = 0;
@@ -137,10 +136,6 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     receive() external payable {}
-
-    // function getContractBalance() public view onlyGovt returns (uint256) {
-    //     return address(this).balance; //test
-    // }
 
     function getListingPrice() public pure returns (uint256) {
         return LISTING_PRICE;
@@ -251,7 +246,7 @@ contract PropertyMarket is ReentrancyGuard {
 
 
     function fetchMyProperties(uint256 page) public view returns (Property[] memory) {
-        require(page > 0, "!");
+        require(page > 0, "");
 
         uint256[] memory userPropertyIds = userProperties[msg.sender];
         uint256 startIndex = 20 * (page - 1);
@@ -389,8 +384,7 @@ contract PropertyMarket is ReentrancyGuard {
 
             if (getPayments) {
                 address[4] storage renters = propertyToRenters[propertyId];
-                properties[i].payments = getPropertyPayments(propertyId, renters);           
-                // console.log('does this hit?')    ; 
+                properties[i].payments = getPropertyPayments(propertyId, renters);                           
             }
         }
         return properties;
@@ -409,12 +403,6 @@ contract PropertyMarket is ReentrancyGuard {
                 count++;
             }            
         }
-    
-        // PropertyPayment[] memory result = new PropertyPayment[](count);
-        // for (uint256 i = 0; i < count; i++) {
-        //     result[i] = payments[i];
-        // }
-
         return payments;        
     }
 
@@ -438,18 +426,14 @@ contract PropertyMarket is ReentrancyGuard {
         return tenants[tenant];
     }
 
-    // function checkGovtBalance() public view onlyGovt returns (uint256) {
-    //     return address(this).balance - totalDepositBal;
-    // }
-
     function deployTokenContract() public onlyGovt {
         PropertyToken propertyToken = new PropertyToken(
             INITIAL_MINT,
-            address(this)
+            address(this),
+            i_govt
         );
         tokenContract = propertyToken;
     }
-
 
     function sellProperty(
         address nftContract,
@@ -460,12 +444,8 @@ contract PropertyMarket is ReentrancyGuard {
         bool isExclusive
     ) external payable nonReentrant {
         Property storage property = idToProperty[propertyId];
-        // console.log('msg.value: ', msg.value);
-        // console.log('LISTING_PRICE: ', LISTING_PRICE);
-        // Common checks for both scenarios
         
-        require(property.owner == msg.sender, "");
-        // require(price >= INITIAL_SALE_PRICE, "too low");
+        require(property.owner == msg.sender, "");        
         require(msg.value == LISTING_PRICE, "");
         require(!property.isForSale, "");
         
@@ -479,8 +459,7 @@ contract PropertyMarket is ReentrancyGuard {
             _relistCount.increment();
             _propertiesSold.decrement();
         }
-
-        // Perform the transferFrom after all critical checks
+    
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
 
         // Common actions
@@ -552,16 +531,17 @@ contract PropertyMarket is ReentrancyGuard {
         bool isPaymentTokensBool
     ) public payable nonReentrant {  
         Property storage temp = idToProperty[itemId];
-        require(temp.propertyId < 551, "");
+        require(itemId < 551 && itemId > 0, "");
+        require(temp.isForSale == true);
         uint256 price = temp.salePrice;
         uint256 tokenId = temp.tokenId;
      
         if (isPaymentTokensBool) {
             require(
                 propertyTokenContractAddress == address(tokenContract),
-                "!"
+                ""
             );
-            require(temp.isForSale == true && temp.tokenSalePrice != 0, "");
+            require(temp.tokenSalePrice != 0, "");
 
             IERC20 propertyToken = IERC20(propertyTokenContractAddress);
             
@@ -578,7 +558,7 @@ contract PropertyMarket is ReentrancyGuard {
                     temp.seller,
                     temp.tokenSalePrice
                 ),
-                "!"
+                ""
             );            
             temp.saleHistory.push(
                 Sale(temp.tokenSalePrice, 2)
@@ -714,17 +694,17 @@ contract PropertyMarket is ReentrancyGuard {
         resetPropertyToRenters(propertyId, tennant);
     }
 
-    function withdrawERC20(IERC20 token) public nonReentrant {
+    function withdrawERC20() public nonReentrant {
         //console.log('tokens: ',renterTokens[msg.sender]);
-        require(renterTokens[msg.sender] > 0, "!");
-        token.transfer(msg.sender, renterTokens[msg.sender]);
+        require(renterTokens[msg.sender] > 0, "");
+        tokenContract.transfer(msg.sender, renterTokens[msg.sender]);
         renterTokens[msg.sender] = 0;
     }
 
     function withdrawPropertyTax() external onlyGovt nonReentrant {
-        require(address(this).balance > 0, "!");
+        //require(address(this).balance > 0, "");
         uint256 bal = address(this).balance;
-        GovtContract govt = GovtContract(i_govt);
+        GovtContract govt = GovtContract(i_govtContract);
         if (govt.getBalance() > 0) {
             govt.withdrawRentTax();
         }

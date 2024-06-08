@@ -8,7 +8,11 @@ module.exports = {
   networks: {
     hardhat: {
       name: 'localhost',
-      chainId: 1337
+      chainId: 1337,
+      accounts: {
+        count: 10, // Number of accounts to generate
+        accountsBalance: "1000000000000000000" // 10000 ETH in wei
+      }
     },
     amoy: {
       url: `https://polygon-amoy.g.alchemy.com/v2/${projectId}`,

@@ -26,6 +26,7 @@ const ethers = require("ethers")
 const ToRent = () => {  
   const [loadingState, setLoadingState] = useState('not-loaded')
   const [txloadingState, setTxLoadingState] = useState({});
+  const [txloadingStateB, setTxLoadingStateB] = useState({});
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPosts, setCurrentPosts] = useState([]);
@@ -149,10 +150,12 @@ const ToRent = () => {
       setCurrentPosts(items.slice(0, 20))
       //setSoldProperties(items)
       setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingStateB({ ...txloadingStateB, [i]: false });
       // setPropertyList(items)
       setLoadingState('loaded')
     } catch (error) {
       setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingStateB({ ...txloadingStateB, [i]: false });
       console.log(error)
       if (retries > 0) {
         setRetries(retries - 1);
@@ -163,26 +166,15 @@ const ToRent = () => {
 
   const rentProperty = async (property, i) => {
     try {
-
-
-      const govtContract = new Contract(govtaddress, GovtFunctions.abi, signer)
-      //const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider) 
-
-      // const test = i.depositRequired//await govtContract.getDepositRequired();
-      // console.log('test: ',test)
-      // const deposit = ethers.utils.parseUnits(test.toString(), 'ether')
-      // const num = ethers.utils.formatEther(deposit)
-      //const rentals = await marketContract.getPropertiesRented()
-      // ? ethers.utils.parseUnits(property.rentPrice.toString(), 'ether') 
-      // : ethers.utils.parseUnits(contract.defaultRentPrice.toString(), 'ether')
-      //STOP SAME ADDRESS RENTING MORE THAN ONE ROOM?            
+      const govtContract = new Contract(govtaddress, GovtFunctions.abi, signer)  
+      setTxLoadingState({ ...txloadingState, [i]: true });      
       const transaction = await govtContract.rentProperty(property.propertyId, {
         value: property.depositHex
       });
-      setTxLoadingState({ ...txloadingState, [i]: true });
       
-      let trans = await transaction.wait();
-      console.log(trans)
+      await transaction.wait();
+      setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingStateB({ ...txloadingStateB, [i]: true });
       loadProperties(currentPage, i)
     } catch (error) {
       setTxLoadingState({ ...txloadingState, [i]: false });
@@ -237,13 +229,13 @@ const ToRent = () => {
             <header className="flex items-center h-16">
               <div className="text-sm lg:text-xl font-bold">Rent a room from a home owner and earn BHB tokens</div>
             </header>
-            <div className=" hidden lg:block">
+            {/* <div className=" hidden lg:block">
               <img
                 className="lg:object-none brightness-150 h-8 w-10 lg:w-auto lg:h-auto lg:scale-75 lg:pt-0"
                 src="./tokenfrontsmall.png"
                 alt=""
               ></img>
-            </div>
+            </div> */}
           </div>
 
           {/* <div className='flex mb-3'>
@@ -408,9 +400,9 @@ const ToRent = () => {
                       <div className="text-2xl pt-2 text-white"></div>
 
                       <div className="px-2 flex justify-center">
-                        {txloadingState[i] ? (
+                        {txloadingState[i] || txloadingStateB[i] ? (
                           <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
-                            <SpinnerIcon />
+                            <SpinnerIcon text={(txloadingState[i] && !txloadingStateB[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (
                           <button

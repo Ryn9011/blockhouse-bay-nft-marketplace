@@ -14,7 +14,8 @@ contract GovtFunctions is ReentrancyGuard {
     address internal immutable i_propertyMarketAddress;
     address private _govtAddress;
     bool private hasSetGovtAddress = false;
-    uint256 constant WEI_TO_ETH = 1000000000000000000;          
+    uint256 constant WEI_TO_ETH = 1000000000000000000;   
+    uint256 internal constant MIN_DEPOSIT = 0.01 ether;       
     uint256 public totalDepositBal = 0;
     mapping(address => uint256) public rentAccumulated;
     mapping(address => uint256) public renterDepositBalance;
@@ -39,6 +40,7 @@ contract GovtFunctions is ReentrancyGuard {
     }
 
     modifier onlyGovt() {
+        console.log('govtAddressMsgSender: ', msg.sender);
         require(_govtAddress == msg.sender, "only govt can call this function");
         _;
     }
@@ -51,6 +53,7 @@ contract GovtFunctions is ReentrancyGuard {
 
     function setGovtAddress(address govtAddress) public {
         if (!hasSetGovtAddress) {
+            console.log('govtAddress: ', govtAddress);
             _govtAddress = govtAddress;
             hasSetGovtAddress = true;
         }
@@ -88,40 +91,38 @@ contract GovtFunctions is ReentrancyGuard {
         }        
     }
 
-    // function getDepositRequired() public pure returns (uint256) {
-    //     return DEPOSIT_REQUIRED;
-    // }
-
-
     function getPropertiesForSale() public view returns (uint256) {
         uint256 propertyCount = propertyMarketContract.getPropertyIds() - 50;
         return propertyCount - propertyMarketContract.getPropertiesSold();
     }
 
     function setRentPrice(uint256 propertyId, uint256 rentPrice) public nonReentrant {   
+        require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
         uint256[] memory propertyIds = new uint256[](1);
         propertyIds[0] = propertyId;     
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
-        
+        require(rentPrice > 1 ether, "rent can't be less than 1 matic");
         require(property[0].owner == msg.sender, "Not owner");
         require(rentPrice >= property[0].deposit && rentPrice <= 500 ether, "Invalid rent price range");
 
         propertyMarketContract.setRentPrice(propertyId, rentPrice);
     }
 
-    function setDeposit(uint256 propertyId, uint256 rentPrice) public nonReentrant {   
+    function setDeposit(uint256 propertyId, uint256 depositPrice) public nonReentrant {   
+        require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
         uint256[] memory propertyIds = new uint256[](1);
-        propertyIds[0] = propertyId;     
+        propertyIds[0] = propertyId;
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
         
+        require(depositPrice >= 5 ether, "deposit can't be less than 5 matic");
         require(property[0].owner == msg.sender, "Not owner");
-        require(rentPrice >= property[0].deposit && rentPrice <= 500 ether, "Invalid deposit price range");
+        require(depositPrice >= property[0].deposit && depositPrice <= 500 ether, "Invalid deposit price range");
 
-        propertyMarketContract.setDeposit(propertyId, rentPrice);
+        propertyMarketContract.setDeposit(propertyId, depositPrice);
     }
 
     function fetchSingleProperty(uint256 propertyId) public view returns (PropertyMarket.Property memory) {
-        require(propertyId < 551 && propertyId >= 1, "Invalid property ID");
+        require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
 
         uint256[] memory propertyIds = new uint256[](1);
         propertyIds[0] = propertyId;
@@ -199,83 +200,15 @@ contract GovtFunctions is ReentrancyGuard {
         uint256[] memory propertyIds = new uint256[](1);
         propertyIds[0] = 1;
 
-       
-        // PropertyMarket.Property[] memory properties = propertyMarketContract.getPropertyDetails(propertyIds, false);
-            
-
         assembly {
             mstore(propertiesSold, currentIndex)
         }
 
         return propertiesSold;
     }
-
-
-
-
-
-
-
-
-
-
-    // function fetchAdditionalPropertiesWithAvailableRooms(uint256 count, uint256 totalProperties, uint256 page) internal view returns (PropertyMarket.Property[] memory) {  
-    //     uint256 itemsPerPage = 20;
-    //     uint256 startIndex = itemsPerPage * (page);              
-        
-    //     uint256 remainingProperties = count;
-
-    //     // Determine the starting index for the next batch
-        
-
-    //     // Continue fetching properties until reaching the count or maximum available
-    //     PropertyMarket.Property[] memory additionalProperties = new PropertyMarket.Property[](count);
-    //     console.log('remainingProperties: ', remainingProperties);
-    //     console.log('startIndex: ', startIndex);
-    //     while (remainingProperties > 0) {
-            
-    //         uint256 currentIndex = 0;
-    //         uint256 size = 20;
-    //         uint256[] memory propertyIds = new uint256[](size);
-    //         for (uint256 i = startIndex; i < startIndex + size; i++) {            
-    //         propertyIds[currentIndex] = i+1;
-    //         //console.log('propertyIds[currentIndex] ',propertyIds[currentIndex]);
-    //         currentIndex++;
-    //         }    
-
-    //         PropertyMarket.Property[] memory propertiesBatch = propertyMarketContract.getPropertyDetails(propertyIds, false);
-
-    //         if (propertiesBatch.length > 0) {
-    //             PropertyMarket.Property memory currentItem = propertiesBatch[0];
-
-    //             // Check conditions for including the property in the result
-    //             if (currentItem.owner != address(0) &&
-    //                 currentItem.roomOneRented == false ||
-    //                 currentItem.roomTwoRented == false ||
-    //                 currentItem.roomThreeRented == false &&
-    //                 currentItem.propertyId <= 500) {
-
-    //                 additionalProperties[count - remainingProperties] = currentItem;
-    //                 remainingProperties--;
-    //                 console.log('additional propertie pID: ', currentItem.propertyId);
-
-    //                 // Increment the index for the next iteration
-    //                 size = size + 20;
-    //                 startIndex++;
-    //             } else {
-    //                 // Skip the current property and move to the next one
-    //                 startIndex++;
-    //                 size = size + 20;
-    //             }
-    //         } else {
-    //             // No property details returned, increment the index and try the next one
-    //             startIndex++;
-    //         }
-    //     }
-    //     return additionalProperties;
-    // }
     
-    function rentProperty(uint256 propertyId) external payable nonReentrant {        
+    function rentProperty(uint256 propertyId) external payable nonReentrant {     
+        require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
         uint256[] memory propertyIds = new uint256[](1);
         propertyIds[0] = propertyId;
 
@@ -286,7 +219,7 @@ contract GovtFunctions is ReentrancyGuard {
 
         if (propertyId > 500) {
             uint256 bal = propertyToken.balanceOf(msg.sender);
-            require(bal >= 500, "insufficient token balance to rent excl");
+            require(bal < 500 ether, "insufficient BHB token balance to rent excl");
         }
         
         require(msg.value == currentProperty[0].deposit, "deposit required");
@@ -354,31 +287,20 @@ contract GovtFunctions is ReentrancyGuard {
         return false;        
     }
 
-    // function vacateProperty(uint256 propertyId) public nonReentrant {
-    //     address sender = msg.sender;        
-    //     propertyMarketContract.vacateCommonTasks(propertyId, sender); 
-    //     // if (wasTenant) {
-    //     //     setTotalDepositBalance(DEPOSIT_REQUIRED, false);
-    //     //     payable(sender).transfer(DEPOSIT_REQUIRED);       
-    //     // }   
-    // }
-
 
      function refundDeposit(uint256 propertyId, address renterAddress) onlyPropertyMarket external {
-        // propertyMarketContract.vacateCommonTasks(propertyId, sender);
-        //bool wasTenant = propertyMarketContract.vacateCommonTasks(propertyId, msg.sender); 
-        // console.log('wasTenant: ', wasTenant);
+        require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
 
         //get sinlge property
         PropertyMarket.Property memory currentItem = fetchSingleProperty(propertyId);
 
         setTotalDepositBalance(currentItem.deposit, false);
-        // propertyMarketContract.decrementRelistCount();
         payable(renterAddress).transfer(currentItem.deposit);      
    
     }
 
     function payRent(uint256 propertyId) external payable nonReentrant {
+        require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
         PropertyMarket.Property memory currentItem = fetchSingleProperty(propertyId);
         require(
             msg.value == currentItem.rentPrice,
@@ -387,9 +309,9 @@ contract GovtFunctions is ReentrancyGuard {
 
         uint256 rentTime = propertyMarketContract.getRenterToPropertyTimestamp(propertyId, msg.sender);
 
-        require(
-            (block.timestamp - rentTime) > 600, "can't pay rent more than once in 24hrs" //change this!!!!
-        );
+        // require(
+        //     (block.timestamp - rentTime) > 600, "can't pay rent more than once in 24hrs" //change this!!!!
+        // );
 
         uint256[4][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
    
@@ -450,7 +372,6 @@ contract GovtFunctions is ReentrancyGuard {
         emit RentPaid(msg.sender, block.timestamp, propertyId);
     }
 
-
     function collectRent() public nonReentrant {
         // Ensure there is rent to withdraw
         require(rentAccumulated[msg.sender] > 0, "rent = 0");
@@ -459,9 +380,28 @@ contract GovtFunctions is ReentrancyGuard {
         payable(msg.sender).transfer(rentAccumulated[msg.sender] - rentToTransfer);
         rentAccumulated[msg.sender] = 0;
     }
-    function withdrawRentTax() public onlyGovt nonReentrant {
+
+    function withdrawRentTax() public onlyPropertyMarket nonReentrant {
         require(address(this).balance > 0, "no tax");
         uint256 bal = address(this).balance - totalDepositBal;
-        payable(i_propertyMarketAddress).transfer(bal);        
+        payable(_govtAddress).transfer(bal);        
     }
+
+    // function checkTotalDepositBalance() public view  returns (uint256) {
+    //     return totalDepositBal;
+    // }
+
+    // function checkGovtBalance() public view returns (uint256) {        
+    //     uint256 bal = address(this).balance - totalDepositBal;
+    //     uint256 marketBal = i_propertyMarketAddress.balance;
+    //     return bal + marketBal;
+    // }
+
+    // function amountToWithdraw() public view returns (uint256) {
+    //     return address(this).balance - totalDepositBal;
+    // }
+
+    // function getContractBal() public view returns (uint256) {
+    //     return address(this).balance;
+    // }
 }

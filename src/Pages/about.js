@@ -76,7 +76,7 @@ const About = () => {
   const section = searchParams.get('section') ? searchParams.get('section') : 'nft'
 
   const [currentImageNum, setCurrentImageNum] = useState(1);
-  const imgSrcs = ["./ownedSelling.png", "./ownedLate.png", "./toRent.png", "./renting.png", "./X.png"];
+  const imgSrcs = ["./ownedSelling.png", "./ownedLate.png", "./torent.png", "./renting.png", "./X.png"];
   const [ownedImageSrc, setOwnedImageSrc] = useState(imgSrcs[0])
   const [rentImageSrc, setRentImageSrc] = useState(imgSrcs[3])
 
@@ -321,10 +321,7 @@ const About = () => {
                     <p className="mt-2 text-gray-400">
                       All property NFT images are stored on Arweave's decentralized permanent storage, meaning they are truly persisted.
                     </p>
-                    <p className="text-white text-xl xl3:text-xl italic mr-2 pt-0.5 mt-3">WalletConnect</p>
-                    <p className="mt-2 text-gray-400">
-                      Utilizing WalletConnect via Web3Modal, Blockhouse Bay ensures seamless and secure interaction between users' wallets and the blockchain. With this integration, users can easily connect their preferred wallets to access features, make transactions, and engage with the platform's decentralized services, all while maintaining full control and privacy over their digital assets.
-                    </p>
+                   
 
                   </li>
                   <li className="pt-2 pb-4">
@@ -340,7 +337,7 @@ const About = () => {
                     <p className="mt-2 text-gray-400">
                       Discover a collection of stunning exclusive properties that can only be acquired with BHB tokens. Take a peek at the Blockhouse Bay Gardens properties and find your dream property that sets you apart from the rest.
                     </p>
-                  </li>
+                  </li>                 
                 </ul>
               </div>
 
@@ -383,6 +380,13 @@ const About = () => {
                     </p>
                     <p className="mt-2 text-gray-400">
                       Properties can be sold with existing tennants which will transfer over to the new property owner with the sale.
+                    </p>
+                  </li>
+                  <li className="pb-4 pt-2">
+                    <h3 className="text-2xl font-semibold text-yellow-200 ">BHB Tokens</h3>
+                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Trading</p>
+                    <p className="mt-2 text-gray-400">
+                      I would like the BHB token to 
                     </p>
                   </li>
                 </ul>
@@ -482,13 +486,13 @@ const About = () => {
                     <h3 className="text-2xl mt-3 font-semibold text-yellow-200 ">Selling a Property</h3>
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Listing Fee</p>
 
-
+    
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Payment Options</p>
                     <p className="mt-2 text-gray-400">
                       Properties can be sold for MATIC or BHB tokens as payment. Mixed payments are not allowed. Note if you allow BHB tokens as a payment option, a Matic price is still required.
                       {/* Properties cannot be sold for less than their original price when being sold for MATIC tokens. */}
                     </p>
-
+                    SELLING CANT BE LESS THAN ORIGINAL PRICE
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Withdraw Sale</p>
                     <p className="mt-2 text-gray-400">
                       A property for sale can be withdrawn from the market by the owner at any time. Listing fee not refunded.
@@ -842,7 +846,7 @@ const About = () => {
                   </p>
                   <p className="text-white text-lg xl3:text-xl italic mt-4">Selling</p>
                   <p className="mt-2 text-gray-400">
-                    When selling a property, an additional transaction will occur as the Blockhouse Bay platform requires your approval to sell your property on your behalf
+                    When selling a property, an additional transaction will occur as the Blockhouse Bay platform requires your approval to sell your property on your behalf.
                   </p>
                   <li className="pb-4">
                     <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Fees</h3>
@@ -860,7 +864,19 @@ const About = () => {
                     <p className="mt-2 text-gray-400">
                       Transactions are normally pretty quick but occasionally can take a little longer.
                       If nothing happens straight away just give it a little longer and it should go through and update the UI.
-                    </p>              
+                    </p>
+                    <p className="text-white text-lg xl3:text-xl italic mt-4">BHB Token Burn</p>
+                    <p className="mt-2 text-gray-400">
+                    A 1% fee is deducted from the total amount being transferred.
+                    <p className="mt-2 text-gray-400">50% of the fee is sent to the development fund.</p>
+                    <p className="mt-2 text-gray-400">50% of the fee is burned (destroyed), reducing the total supply of BHB.</p>                                     
+                    </p>            
+                  </li>
+                  <li>
+                  <h3 className="text-2xl mt-2 font-semibold text-yellow-200">WalletConnect</h3>
+                    <p className="mt-2 text-gray-400">
+                      Utilizing WalletConnect via Web3Modal, Blockhouse Bay ensures seamless and secure interaction between users' wallets and the blockchain. With this integration, users can easily connect their preferred wallets to access features, make transactions, and engage with the platform's decentralized services, all while maintaining full control and privacy over their digital assets.
+                    </p>
                   </li>
                 </ul>
               </div>

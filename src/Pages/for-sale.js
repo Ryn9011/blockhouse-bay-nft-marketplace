@@ -36,6 +36,7 @@ const ForSale = () => {
   const [numForSale, setNumForSale] = useState();
   const [showBottomNav, setShowBottomNav] = useState(false);
   const [txloadingState, setTxLoadingState] = useState({});
+  const [txloadingStateB, setTxLoadingStateB] = useState({});
   const [retries, setRetries] = useState(5)
   const { modalEvent, provider, signer } = useModalContext(); 
 
@@ -72,10 +73,8 @@ const ForSale = () => {
       setNumForSale(numForSale);
 
       const items = await Promise.all(data.filter(a => Number(a.tokenId) !== 0).map(async i => {
-
       
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
-
       
         const meta = await axios.get(tokenUri) //not used?  
 
@@ -155,9 +154,11 @@ const ForSale = () => {
       setCurrentPosts(items.slice(0, 20))
       setLoadingState('loaded')
       setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingStateB({ ...txloadingStateB, [i]: false });
     } catch (error) {
       console.log(error)
       setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingStateB({ ...txloadingStateB, [i]: false });
       if (retries > 0) {
         return;
       } else {
@@ -184,7 +185,7 @@ const ForSale = () => {
 
       let propertyTokenContract = undefined;
       let amount = undefined;
-
+      setTxLoadingState({ ...txloadingState, [i]: true });
       if (brb != undefined) {
         if (brb.checked) {
           price = ethers.parseUnits("0", 'ether');
@@ -193,8 +194,7 @@ const ForSale = () => {
           amount = ethers.parseUnits(nft.tokenSalePrice, 'ether');
           await propertyTokenContract.allowSender(amount);
         }
-      }
-
+      }      
       const transaction = await contract2.createPropertySale(
         nftaddress,
         nft.propertyId,
@@ -208,7 +208,8 @@ const ForSale = () => {
           await propertyTokenContract.allowSender(0);
         }
       }
-      setTxLoadingState({ ...txloadingState, [i]: true });
+      setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingStateB({ ...txloadingStateB, [i]: true });
       await transaction.wait();
       loadProperties(currentPage, i);
     } catch (error) {
@@ -216,6 +217,7 @@ const ForSale = () => {
       console.error("Transaction rejected by the user or an error occurred:", error);
       alert('Transaction Failed');
       setTxLoadingState({ ...txloadingState, [i]: false });
+      setTxLoadingStateB({ ...txloadingStateB, [i]: false });
     }
   };
 
@@ -406,9 +408,9 @@ const ForSale = () => {
                         </div>
                       </div>
                       <div className="px-2 flex justify-center">
-                        {txloadingState[i] ? (
+                        {txloadingState[i] || txloadingStateB[i] ? (
                           <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
-                            <SpinnerIcon />
+                            <SpinnerIcon text={(txloadingState[i] && !txloadingStateB[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (
                           <button

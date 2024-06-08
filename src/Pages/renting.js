@@ -299,13 +299,13 @@ const Renting = () => {
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     try {
       setTxLoadingState({ ...txloadingState, [551]: true });
-      const transaction = await contract.withdrawERC20(propertytokenaddress)
+      const transaction = await contract.withdrawERC20()
       setTxLoadingState({ ...txloadingState, [551]: false });
 
       setTxLoadingStateB({ ...txloadingStateB, [551]: true });
       await transaction.wait()
-    } catch {
-      console.log('Transaction cancelled')
+    } catch (e) {
+      console.log('Transaction cancelled ', e)
       alert('Transaction Failed')
     }
     loadProperties()
@@ -546,7 +546,7 @@ const Renting = () => {
                           Pay Rent
                         </button>
                       )}
-                    </div>
+                    </div>                    
                     <div className="px-2">
                       {txloadingState2[i] || txloadingState2B[i] ? (
                         <p className='w-full flex justify-center bg-red-400 text-xs italic px-12 py-1 rounded'>

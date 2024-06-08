@@ -27,189 +27,194 @@ window.ethereum.on('accountsChanged', function (accounts) {
 });
 
 const Exclusive = () => {
-  
+
   const [loadingState, setLoadingState] = useState('not-loaded')
 
   const [currentPosts, setCurrentPosts] = useState([]);
   const [numForSale, setNumForSale] = useState();
   const [txloadingState1, setTxLoadingState1] = useState({});
   const [txloadingState2, setTxLoadingState2] = useState({});
+  const [txloadingState1B, setTxLoadingState1B] = useState({});
+  const [txloadingState2B, setTxLoadingState2B] = useState({});
 
   const [retries, setRetries] = useState(3)
-  const { modalEvent, provider, signer } = useModalContext(); 
+  const { modalEvent, provider, signer } = useModalContext();
 
   useEffect(() => {
     console.log(provider);
     console.log(signer);
-    if (signer == null) {      
-      
+    if (signer == null) {
+
       return;
     }
     if (provider != null) {
-      
+
       loadProperties();
     }
   }, [signer]);
 
-  const loadProperties = async () => {  
-   try {
-    const tokenContract = new Contract(nftaddress, NFT.abi, provider)
-    const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
-    const data = await govtContract.fetchExclusiveProperties();
+  const loadProperties = async () => {
+    try {
+      const tokenContract = new Contract(nftaddress, NFT.abi, provider)
+      const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
+      const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
+      const data = await govtContract.fetchExclusiveProperties();
 
-    const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
-      const tokenUri = await tokenContract.tokenURI(i.tokenId)
+      const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
+        const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
-      const meta = await axios.get(tokenUri)
-      let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
-      let depositHex = i.deposit//await govtContract.getDepositRequired();
-      let deposit = ethers.formatUnits(depositHex, 'ether')
+        const meta = await axios.get(tokenUri)
+        let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
+        let depositHex = i.deposit//await govtContract.getDepositRequired();
+        let deposit = ethers.formatUnits(depositHex, 'ether')
 
-      let tokenSalePriceFormatted = ethers.formatUnits(i.tokenSalePrice.toString(), 'ether')
-      const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
-      let nftName = GetPropertyNames(meta, i.propertyId)
+        let tokenSalePriceFormatted = ethers.formatUnits(i.tokenSalePrice.toString(), 'ether')
+        const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+        let nftName = GetPropertyNames(meta, i.propertyId)
 
-      let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
-      let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
-      let totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
+        let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
+        let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
+        let totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
 
-      let saleHistory = [];
-      if (i.saleHistory.length > 0) {
-        i.saleHistory.forEach((item) => {
-          const history = i.saleHistory.map((item) => {
-            return {
-              price: ethers.formatUnits(item[0]),
-              type: Number(item[1]) === 1 ? "Matic" : "BHB"
-            }
-          });
-          saleHistory = history;
-        })
+        let saleHistory = [];
+        if (i.saleHistory.length > 0) {
+          i.saleHistory.forEach((item) => {
+            const history = i.saleHistory.map((item) => {
+              return {
+                price: ethers.formatUnits(item[0]),
+                type: Number(item[1]) === 1 ? "Matic" : "BHB"
+              }
+            });
+            saleHistory = history;
+          })
+        } else {
+          saleHistory.push("Unsold")
+        }
+
+        let item = {
+          price,
+          propertyId: Number(i.propertyId),
+          seller: i.seller,
+          owner: owner,
+          image: tokenUri,
+          name: nftName,
+          description: meta.data.description,
+          roomOneRented: i.roomOneRented,
+          roomTwoRented: i.roomTwoRented,
+          roomThreeRented: i.roomThreeRented,
+          roomFourRented: i.roomFourRented,
+          roomsToRent: 0,
+          tokenSalePrice: tokenSalePriceFormatted,
+          depositRequired: deposit,
+          depositHex: depositHex,
+          renterAddresses: renterAddresses,
+          isForSale: i.isForSale,
+          saleHistory: saleHistory,
+          dateSoldHistory: i.dateSoldHistory,
+          dateSoldHistoryBhb: i.dateSoldHistoryBhb,
+          rentPrice: rentPrice,
+          totalIncomeGenerated: totalIncomeGenerated
+        }
+        if (item.roomOneRented == true) {
+          console.log("hit1")
+          item.roomsToRent++
+        }
+        if (item.roomTwoRented == true) {
+          console.log("hit2")
+          item.roomsToRent++
+        }
+        if (item.roomThreeRented == true) {
+          console.log("hit3")
+          item.roomsToRent++
+        }
+        if (item.roomFourRented == true) {
+          console.log("hit4")
+          item.roomsToRent++
+        }
+        item.ranking = calculateRankingTotal(item)
+        setTxLoadingState1({ ...txloadingState1, [i]: false });
+        setTxLoadingState2({ ...txloadingState2, [i]: false });
+        setTxLoadingState1B({ ...txloadingState1B, [i]: false });
+        setTxLoadingState2B({ ...txloadingState2B, [i]: false });
+        return item
+      }))
+      console.log(items)
+      items.sort((a, b) => {
+        const regex = /^\d+/; // regular expression to match the beginning number
+        const aNumber = (a.name && a.name.match(regex)) ? parseInt(a.name.match(regex)[0]) : 0;
+        const bNumber = (b.name && b.name.match(regex)) ? parseInt(b.name.match(regex)[0]) : 0;
+        return aNumber - bNumber; // compare the numbers and return the result
+      });
+
+      console.log(items);
+
+      let properties = calculateRankingPosition(items);
+      console.log(properties)
+      setCurrentPosts(properties)
+      setLoadingState('loaded')
+    } catch (ex) {
+      console.log(ex.message)
+      if (retries === 0) {
+        return;
       } else {
-        saleHistory.push("Unsold")
+        console.log('Retrying connection request...');
+        const newRetries = retries - 1;
+        setRetries(newRetries);
+        loadProperties();
       }
-
-      let item = {
-        price,
-        propertyId: Number(i.propertyId),
-        seller: i.seller,
-        owner: owner,
-        image: tokenUri,
-        name: nftName,
-        description: meta.data.description,
-        roomOneRented: i.roomOneRented,
-        roomTwoRented: i.roomTwoRented,
-        roomThreeRented: i.roomThreeRented,
-        roomFourRented: i.roomFourRented,
-        roomsToRent: 0,
-        tokenSalePrice: tokenSalePriceFormatted,
-        depositRequired: deposit,   
-        depositHex: depositHex, 
-        renterAddresses: renterAddresses,
-        isForSale: i.isForSale,
-        saleHistory: saleHistory,
-        dateSoldHistory: i.dateSoldHistory,
-        dateSoldHistoryBhb: i.dateSoldHistoryBhb,
-        rentPrice: rentPrice,
-        totalIncomeGenerated: totalIncomeGenerated
-      }
-      if (item.roomOneRented == true) {
-        console.log("hit1")
-        item.roomsToRent++
-      }
-      if (item.roomTwoRented == true) {
-        console.log("hit2")
-        item.roomsToRent++
-      }
-      if (item.roomThreeRented == true) {
-        console.log("hit3")
-        item.roomsToRent++
-      }
-      if (item.roomFourRented == true) {
-        console.log("hit4")
-        item.roomsToRent++
-      }
-      item.ranking = calculateRankingTotal(item)
-      setTxLoadingState1({ ...txloadingState1, [i]: false });
-      setTxLoadingState2({ ...txloadingState2, [i]: false });
-      return item
-    }))
-    console.log(items)
-    items.sort((a, b) => {
-      const regex = /^\d+/; // regular expression to match the beginning number
-      const aNumber = (a.name && a.name.match(regex)) ? parseInt(a.name.match(regex)[0]) : 0;
-      const bNumber = (b.name && b.name.match(regex)) ? parseInt(b.name.match(regex)[0]) : 0;
-      return aNumber - bNumber; // compare the numbers and return the result
-    });
-
-    console.log(items);
-
-    let properties = calculateRankingPosition(items);
-    console.log(properties)
-    setCurrentPosts(properties)
-    setLoadingState('loaded')
-  } catch (ex) {
-    console.log(ex.message)
-    if (retries === 0) {
-      return;
-    } else {
-      console.log('Retrying connection request...');
-      const newRetries = retries - 1;
-      setRetries(newRetries);
-      loadProperties();
     }
   }
-}
 
 
   const buyProperty = async (nft, i) => {
 
     try {
-    const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    let price = ethers.parseUnits(nft.price.toString(), 'ether')
-    let isTokenSale = true
-    const propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer)
-    const amount = ethers.parseUnits(nft.tokenSalePrice, 'ether')
-    await propertyTokenContract.allowSender(amount)
+      const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)      
+      let isTokenSale = true
+      const propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer)
+      const amount = ethers.parseUnits(nft.tokenSalePrice, 'ether')
+      setTxLoadingState1({ ...txloadingState1, [i]: true });
+      await propertyTokenContract.allowSender(amount)
+      
+      const transaction = await contract2.createPropertySale(
+        nftaddress,
+        nft.propertyId,
+        propertytokenaddress,
+        isTokenSale,
+      )
+      setTxLoadingState1({ ...txloadingState1, [i]: false });
+      setTxLoadingState1B({ ...txloadingState1B, [i]: true });
 
-    // let relist = await contract2.getRelistCount();
-    // console.log(relist)
-    const transaction = await contract2.createPropertySale(
-      nftaddress,
-      nft.propertyId,
-      propertytokenaddress,
-      isTokenSale,
-      // { value: price }
-    )
-    setTxLoadingState1({ ...txloadingState1, [i]: true });
-    
       await transaction.wait()
       loadProperties()
     } catch (error) {
       console.log(error)
       alert('Transaction Failed');
       setTxLoadingState1({ ...txloadingState1, [i]: false });
+      setTxLoadingState1B({ ...txloadingState1B, [i]: false });
     }
   }
 
   const rentProperty = async (property, i) => {
-   
+
 
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
     const deposit = property.deposit; //await govtContract.getDepositRequired();
     try {
-    const transaction = await govtContract.rentProperty(property.propertyId, {
-      value: property.depositHex
-    });
-    setTxLoadingState2({ ...txloadingState2, [i]: true });
-    
+      setTxLoadingState2({ ...txloadingState2, [i]: true });
+      const transaction = await govtContract.rentProperty(property.propertyId, {
+        value: property.depositHex
+      });
+      setTxLoadingState2({ ...txloadingState2, [i]: false });
+      setTxLoadingState2B({ ...txloadingState2B, [i]: true });
       await transaction.wait()
       loadProperties()
     } catch (error) {
       console.log(error)
       alert(error.message);
       setTxLoadingState2({ ...txloadingState2, [i]: false });
+      setTxLoadingState2B({ ...txloadingState2B, [i]: true });
     }
   }
 
@@ -228,7 +233,7 @@ const Exclusive = () => {
           </div>
           <img src="gardens.png" className="pl-6 pr-6 h-3/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12" />
           <p className='text-white pl-6 lg:pl-12 pr-2 mt-4 font-extralight text-lg italic  lg:w-3/5'>
-          Entering the enchanting street Blockhouse Bay Gardens, where the whispers of wealth and opulence linger. Hidden behind ornate gates, this exclusive street unveils sumptuous properties steeped in secrets. Experience a world of privilege known only to the chosen few..."
+            Entering the enchanting street Blockhouse Bay Gardens, where the whispers of wealth and opulence linger. Hidden behind ornate gates, this exclusive street unveils sumptuous properties steeped in secrets. Experience a world of privilege known only to the chosen few..."
           </p>
         </div>
       </div>
@@ -239,7 +244,6 @@ const Exclusive = () => {
     <h1 className="px-20 py-10 text-3xl">No properties currently for sale</h1>
   )
 
-  //4293 Carriage Court
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
@@ -251,7 +255,7 @@ const Exclusive = () => {
             <p className='text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500'>Blockhouse Bay Gardens, an exclusive street of grand and stunning homes, is a paradise of luxurious living. From impressive architecture to immaculate gardens, each house is a masterpiece of sophistication, offering an unparalleled lifestyle in one of the bay's most beautiful settings.</p>
           </div>
           <h5 className='text-white text-center md:text-left mb-4'>These exlusive properties are limited to only 50 and can be purchased only with BHB tokens</h5>
-          <p className='text-white text-center md:text-left italic mb-12'>Tripple the amount of BHB tokens are paid out when renting on this street! - A minimum of 500 BHB tokens must be held in order to become a renter.</p>          
+          <p className='text-white text-center md:text-left italic mb-12'>Tripple the amount of BHB tokens are paid out when renting on this street! - A minimum of 500 BHB tokens must be held in order to become a renter.</p>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-3 text-white">
             {currentPosts.map((property, i) => {
@@ -364,8 +368,6 @@ const Exclusive = () => {
                             </div>
                           </>
                         }
-
-
                       </div>
                       <div className="flex flex-col mb-2">
                         <SaleHistory property={property} />
@@ -414,12 +416,12 @@ const Exclusive = () => {
                       <div className="px-2">
                         {(property.owner === 'Unowned' || property.isForSale) ? (
                           <>
-                            {txloadingState1[i] ? (
+                            {txloadingState1[i] || txloadingState1B[i] ? (
                               <p className='w-full flex justify-center bg-btn-gold text-xs italic px-12 mt-1 mb-3 py-1 rounded'>
-                                <SpinnerIcon />
+                                <SpinnerIcon text={(txloadingState1[i] && !txloadingState1B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (
-                              <button onClick={() => buyProperty(property, i)} className="mb-3 w-full hover:bg-yellow-200 bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded cursor-pointer">
+                              <button onClick={() => buyProperty(property, i)} className="mb-3 w-full hover:bg-yellow-600 bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded cursor-pointer">
                                 Buy
                               </button>
                             )}
@@ -434,9 +436,9 @@ const Exclusive = () => {
                         }
                         {property.roomsToRent !== 3 ? (
                           <>
-                            {txloadingState2[i] ? (
+                            {txloadingState2[i] || txloadingState2B[i] ? (
                               <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 mb-3 rounded'>
-                                <SpinnerIcon />
+                                <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (
                               <button
