@@ -6,6 +6,7 @@ const data = require('../src/final-manifest.json');
 const dataEx = require('../src/exc-manifest.json');
 
 const fs = require('fs');
+// const { govtaddress } = require("../src/config");
 
 describe("PropertyMarket", function () {
   this.timeout(120000);
@@ -147,6 +148,7 @@ describe("PropertyMarket", function () {
     var [_,_,_,_,_, renter2] = await ethers.getSigners()   
     var [_,_,_,_,_,_, renter3] = await ethers.getSigners()  
     var [_,_,_,_,_,_,_, renter4] = await ethers.getSigners()  
+    var [_,_,_,_,_,_,_,_, renter5] = await ethers.getSigners()  
 
     let allproperti2es = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(1)
  
@@ -260,11 +262,50 @@ describe("PropertyMarket", function () {
     await govtFunctions.connect(renterAddress).payRent(1, { value: ethers.parseUnits('0.001', 'ether')}) 
     await govtFunctions.connect(renterAddress).payRent(1, { value: ethers.parseUnits('0.001', 'ether')}) 
 
-
     //get the balance in eth of propertyMarket
 
     await govtFunctions.connect(renterAddress).rentProperty(2, { value: rentdeposit })
-    await govtFunctions.connect(renterAddress).rentProperty(333, { value: rentdeposit })
+    await govtFunctions.connect(renter2).rentProperty(1, { value: rentdeposit })
+    await govtFunctions.connect(renter3).rentProperty(1, { value: rentdeposit })
+    await govtFunctions.connect(renter4).rentProperty(1, { value: rentdeposit }) 
+    
+    await propertyMarket.connect(renterAddress).withdrawERC20()
+    let bal = await propertyTokenContract.balanceOf(renterAddress)
+    console.log('balance of renter after withdraw', bal.toString());
+
+    let relistPrice = ethers.parseUnits('0.05', 'ether')
+
+    await nft.connect(buyerAddress).giveResaleApproval(1);
+    await propertyMarket.connect(buyerAddress).sellProperty(nft.target, 1, 1, relistPrice, defaultTokenPrice, false ,{ value: listingPrice })
+    
+    // const allowed = ethers.parseUnits('1', 'ether')
+    // await propertyTokenContract.connect(renterAddress).allowSender(allowed)
+    //renter address buys property using tokens
+    let tenants = await propertyMarket.connect(renterAddress).getPropertiesRented()
+    console.log('tenants', tenants[0])
+    console.log('tenants', tenants[1])
+    console.log('tenants', tenants[2])
+    console.log('tenants', tenants[3])
+
+    let property3 = await govtFunctions.connect(renter4).fetchSingleProperty(1)
+    console.log('property before sale', property3)
+    const renters3 = await propertyMarket.connect(renter4).getPropertyRenters(1)
+    console.log('renters after rent: ', renters3)
+    
+    await propertyMarket.connect(renter2).createPropertySale(nft.target, 1, tokenContractAddress, false, { value: relistPrice}) 
+
+    let property4 = await govtFunctions.connect(renter4).fetchSingleProperty(1)
+    console.log('property after sale', property4)
+    
+    const renters = await propertyMarket.connect(renter4).getPropertyRenters(1)
+    console.log('renters after sale: ', renters)
+
+    await govtFunctions.connect(renter5).rentProperty(1, { value: rentdeposit }) 
+    const renters2 = await propertyMarket.connect(renter4).getPropertyRenters(1)
+    console.log('renters after rent: ', renters2)
+
+    let property = await govtFunctions.connect(renter4).fetchSingleProperty(1)
+    console.log('property after rerent', property)
 
 
     // let totalDepositBalance = await govtFunctions.connect(deployingSigner).checkTotalDepositBalance()
@@ -315,11 +356,9 @@ describe("PropertyMarket", function () {
     // //     console.log("Balance of PropertyMarket:", (await propertyTokenContract.balanceOf(propertyMarket.target)).toString());
     // //     console.log("Reward amount: ", (tokens).toString());    
     // //   }
-    await propertyMarket.connect(renterAddress).withdrawERC20()
-    let bal = await propertyTokenContract.balanceOf(renterAddress)
-    console.log('balance of renter after withdraw', bal.toString());
 
-    await govtFunctions.connect(renterAddress).rentProperty(4, { value: rentdeposit })
+
+    //await govtFunctions.connect(renterAddress).rentProperty(4, { value: rentdeposit })
     // const allowed = ethers.parseUnits('1', 'ether')
     // await propertyTokenContract.connect(renterAddress).allowSender(allowed)
     // //renter address buys property using tokens

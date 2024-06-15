@@ -130,7 +130,7 @@ const ToRent = () => {
           dateSoldHistory: i.dateSoldHistory,
           totalIncomeGenerated: totalIncomeGenerated
         }
-        if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
+        if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented || !item.roomFourRented) {
           item.available = true;
         }
         if (item.roomOneRented == true) {

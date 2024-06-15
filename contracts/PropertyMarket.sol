@@ -116,6 +116,11 @@ contract PropertyMarket is ReentrancyGuard {
     mapping(address => mapping(uint256 => uint256)) renterToPropertyPaymentTimestamps;    
     mapping(address => uint256[]) public userProperties; 
 
+    // modifier onlyOwner(uint256 propertyId) {
+    //     require(idToProperty[propertyId].owner == msg.sender, "");
+    //     _;
+    // }
+
     modifier onlyGovt() {
         require(i_govt == msg.sender, "");
         _;
@@ -180,23 +185,23 @@ contract PropertyMarket is ReentrancyGuard {
     function getPropertyRenters(
         uint256 propertyId
     ) public view returns (address[4] memory) {
-        address[4] memory renterAddresses = propertyToRenters[propertyId];
+        address[4] memory renterAddresses = propertyToRenters[propertyId];        
         return renterAddresses;
     }
 
     function setPropertyRenters(
         uint256 propertyId,
-        address[4] memory renterAddresses,
-        uint8 room
+        address[4] memory renterAddresses   
     ) public onlyGovtContract nonReentrant {
-        propertyToRenters[propertyId] = renterAddresses;        
-        if (room == 0) {
+        propertyToRenters[propertyId] = renterAddresses; 
+        Property storage property = idToProperty[propertyId];               
+        if (!property.roomOneRented) {
             idToProperty[propertyId].roomOneRented = true;
-        } else if (room == 1) {
+        } else if (!property.roomTwoRented) {
             idToProperty[propertyId].roomTwoRented = true;
-        } else if (room == 2) {
+        } else if (!property.roomThreeRented) {
             idToProperty[propertyId].roomThreeRented = true;
-        } else if (room == 3) {
+        } else if (!property.roomFourRented) {
             idToProperty[propertyId].roomFourRented = true;
         } 
     }
@@ -453,18 +458,17 @@ contract PropertyMarket is ReentrancyGuard {
             require(propertyId >= 500, "");
             property.tokenSalePrice = tokenPrice * (1 ether);
         } else {
-            require(propertyId <= 500 && price >= INITIAL_SALE_PRICE, "");
+            require(propertyId <= 500 && propertyId > 0 && price >= INITIAL_SALE_PRICE, "");
             property.salePrice = price;
             property.tokenSalePrice = (tokenPrice != 0) ? tokenPrice * (1 ether) : 0;
             _relistCount.increment();
             _propertiesSold.decrement();
         }
-    
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
-
         // Common actions
         property.isForSale = true;
         property.seller = payable(msg.sender);
+    
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
     }
 
 
@@ -602,38 +606,39 @@ contract PropertyMarket is ReentrancyGuard {
         return userProperties[msg.sender];
     }
 
-    function checkSetRoomAvailability(
-        uint256 propertyId
-    ) internal returns (bool) {
-        Property storage property = idToProperty[propertyId];
-        if (!property.roomOneRented) {
-            property.roomOneRented = true;
-            return true;
-        } else if (!property.roomTwoRented) {
-            property.roomTwoRented = true;
-            return true;
-        } else if (!property.roomThreeRented) {
-            property.roomThreeRented = true;
-            return true;
-        } else if (!property.roomFourRented) {
-            property.roomThreeRented = true;
-            return true;
-        } 
-        return false;        
-    }
+    // function checkSetRoomAvailability(
+    //     uint256 propertyId
+    // ) internal returns (bool) {
+    //     Property storage property = idToProperty[propertyId];
+    //     if (!property.roomOneRented) {
+    //         property.roomOneRented = true;
+    //         return true;
+    //     } else if (!property.roomTwoRented) {
+    //         property.roomTwoRented = true;
+    //         return true;
+    //     } else if (!property.roomThreeRented) {
+    //         property.roomThreeRented = true;
+    //         return true;
+    //     } else if (!property.roomFourRented) {
+    //         property.roomThreeRented = true;
+    //         return true;
+    //     } 
+    //     return false;        
+    // }
 
     function checkAndSetRoomStatus(uint256 propertyId) internal {
-        Property memory temp = idToProperty[propertyId];
-        if (temp.roomOneRented == true) {
-            idToProperty[propertyId].roomOneRented = false;
-        } else if (temp.roomTwoRented == true) {
-            idToProperty[propertyId].roomTwoRented = false;
-        } else if (temp.roomThreeRented == true) {
-            idToProperty[propertyId].roomThreeRented = false;
-        } else if (temp.roomThreeRented == true) {
-            idToProperty[propertyId].roomFourRented = false;
+        Property storage property = idToProperty[propertyId];        
+        if (property.roomOneRented) {
+            property.roomOneRented = false;
+        } else if (property.roomTwoRented) {
+            property.roomTwoRented = false;
+        } else if (property.roomThreeRented) {
+            property.roomThreeRented = false;
+        } else if (property.roomFourRented) {
+            property.roomFourRented = false;
         }
     }
+
 
 
     function setRentPrice(uint256 propertyId, uint256 rent) external onlyGovtContract nonReentrant {        
@@ -661,7 +666,7 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function vacateCommonTasks(uint256 propertyId, address sender) internal {
-        for (uint256 i = 0; i < 3; i++) {
+        for (uint256 i = 0; i < 4; i++) {
             if (tenants[sender][i] == propertyId) {                
                 tenants[sender][i] = 0;
 
@@ -675,6 +680,7 @@ contract PropertyMarket is ReentrancyGuard {
                 }
                 GovtContract govtContract = GovtContract(i_govtContract);
                 govtContract.refundDeposit(propertyId, msg.sender);
+                break;
             }
         }        
     }

@@ -18,7 +18,7 @@ import SaleHistory from '../Components/sale-history'
 
 const ethers = require("ethers")
 
-window.ethereum.on('accountsChanged', function (accounts) {                 
+window.ethereum.on('accountsChanged', function (accounts) {
   window.location.reload();
 });
 
@@ -30,9 +30,9 @@ const AllProperties = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = propertyList.slice(indexOfFirstPost, indexOfLastPost);  
+  const currentPosts = propertyList.slice(indexOfFirstPost, indexOfLastPost);
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
-  const { modalEvent, provider, signer } = useModalContext(); 
+  const { modalEvent, provider, signer } = useModalContext();
 
   useEffect(() => {
     setLoadingState("not-loaded");
@@ -47,76 +47,84 @@ const AllProperties = () => {
     const data = await govtContract.fetchAllProperties(currentPage)
 
     const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
-      const tokenUri = await tokenContract.tokenURI(i.tokenId)
+      try {
+        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        if (tokenUri === undefined) {
+          tokenUri = ''
+        }
 
-      const meta = await axios.get(tokenUri)
-      console.log(data)
-      let nftName = GetPropertyNames(meta)
+        const meta = await axios.get(tokenUri)
+        console.log(data)
+        let nftName = GetPropertyNames(meta)
 
-      let price = await ethers.formatUnits(i.salePrice.toString(), 'ether')
-      //let depositHex = await govtContract.getDepositRequired()
-      //et deposit = await ethers.formatUnits(depositHex, 'ether')
+        let price = await ethers.formatUnits(i.salePrice.toString(), 'ether')
+        //let depositHex = await govtContract.getDepositRequired()
+        //et deposit = await ethers.formatUnits(depositHex, 'ether')
 
-      const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);    
+        const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
 
-      let saleHistory = [];
-      if (i.saleHistory.length > 0) {
-        i.saleHistory.forEach((item) => {
-          const history = i.saleHistory.map((item) => {
-            return {
-              price: ethers.formatUnits(item[0]),
-              type: Number(item[1]) === 1 ? "Matic" : "BHB"
-            }
-          });
-          saleHistory = history;
-        })
-      } else {
-        saleHistory.push("Unsold")
-      }
-      let totalIncomeGenerated;
-      if (i.totalIncomeGenerated != 0) {
-        totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
-      } else totalIncomeGenerated = 0;
-      let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
-      let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
+        let saleHistory = [];
+        if (i.saleHistory.length > 0) {
+          i.saleHistory.forEach((item) => {
+            const history = i.saleHistory.map((item) => {
+              return {
+                price: ethers.formatUnits(item[0]),
+                type: Number(item[1]) === 1 ? "Matic" : "BHB"
+              }
+            });
+            saleHistory = history;
+          })
+        } else {
+          saleHistory.push("Unsold")
+        }
+        let totalIncomeGenerated;
+        if (i.totalIncomeGenerated != 0) {
+          totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
+        } else totalIncomeGenerated = 0;
+        let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
+        let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
 
-      let item = {
-        price,
-        propertyId: Number(i.propertyId),
-        seller: i.seller,
-        owner: owner,
-        image: tokenUri,
-        name: nftName,
-        description: meta.data.description,
-        roomOneRented: i.roomOneRented,
-        roomTwoRented: i.roomTwoRented,
-        roomThreeRented: i.roomThreeRented,
-        roomFourRented: i.roomFourRented,
-        rentPrice: rentPrice,
-        depositRequired: i.deposit,
-        available: false,
-        roomsRented: 0,
-        renterAddresses: renterAddresses,
-        saleHistory: saleHistory,
-        dateSoldHistory: i.dateSoldHistory,
-        totalIncomeGenerated: totalIncomeGenerated
+
+        let item = {
+          price,
+          propertyId: Number(i.propertyId),
+          seller: i.seller,
+          owner: owner,
+          image: tokenUri,
+          name: nftName,
+          description: meta.data.description,
+          roomOneRented: i.roomOneRented,
+          roomTwoRented: i.roomTwoRented,
+          roomThreeRented: i.roomThreeRented,
+          roomFourRented: i.roomFourRented,
+          rentPrice: rentPrice,
+          depositRequired: i.deposit,
+          available: false,
+          roomsRented: 0,
+          renterAddresses: renterAddresses,
+          saleHistory: saleHistory,
+          dateSoldHistory: i.dateSoldHistory,
+          totalIncomeGenerated: totalIncomeGenerated
+        }
+        if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
+          item.available = true;
+        }
+        if (item.roomOneRented == true) {
+          item.roomsRented++
+        }
+        if (item.roomTwoRented == true) {
+          item.roomsRented++
+        }
+        if (item.roomThreeRented == true) {
+          item.roomsRented++
+        }
+        if (item.roomFourRented == true) {
+          item.roomsRented++
+        }
+        return item
+      } catch (e) {
+        console.log(e)
       }
-      if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
-        item.available = true;
-      }
-      if (item.roomOneRented == true) {
-        item.roomsRented++
-      }
-      if (item.roomTwoRented == true) {
-        item.roomsRented++
-      }
-      if (item.roomThreeRented == true) {
-        item.roomsRented++
-      }
-      if (item.roomFourRented == true) {
-        item.roomsRented++
-      }
-      return item
     }))
     setPropertyList(items)
     setLoadingState('loaded')
@@ -133,7 +141,7 @@ const AllProperties = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
-          <img src="night.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12" />                      
+          <img src="night.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12" />
         </div>
       </div>
     </div>
@@ -171,7 +179,14 @@ const AllProperties = () => {
                   key={1}
                   className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
                 >
-                  <img className='w-fit h-fit' src={property.image} alt="" />
+                  {
+                    property.image ? (
+                      <img className='w-fit h-fit' src={property.image} alt="" />
+                    ) : (
+                      <div className='w-fit h-fit'>Image not available</div>
+                    )
+                  }
+
                   <div className="p-4 ">
                     <p
                       style={{ height: "50px" }}
@@ -273,16 +288,16 @@ const AllProperties = () => {
 
             })}
           </section>
-         
-            <div className='mt-6'>
-              <Pagination
-                postsPerPage={postsPerPage}
-                totalPosts={500}
-                paginate={paginate}
-                currentPage={currentPage}
-              />
-            </div>
-          
+
+          <div className='mt-6'>
+            <Pagination
+              postsPerPage={postsPerPage}
+              totalPosts={500}
+              paginate={paginate}
+              currentPage={currentPage}
+            />
+          </div>
+
         </div>
       </div>
     </div>

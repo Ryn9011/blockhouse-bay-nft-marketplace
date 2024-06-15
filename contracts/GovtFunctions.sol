@@ -246,18 +246,18 @@ contract GovtFunctions is ReentrancyGuard {
         require(!isAlreadyRenter, "already a renter");
 
         bool availableRoom = checkSetRoomAvailability(currentProperty[0]);
-        require(availableRoom, "no vacancy");
+        require(availableRoom, "no vacancy");        
 
         for (uint8 i = 0; i < 4; i++) {
             if (propertyRenters[i] == address(0)) {
-                propertyRenters[i] = msg.sender;
-                propertyMarketContract.setPropertyRenters(propertyId, propertyRenters, i);                
+                propertyRenters[i] = msg.sender;                
+                propertyMarketContract.setPropertyRenters(propertyId, propertyRenters);                
                 break;
             }
-        }        
+        }
         
         for (uint8 i = 0; i < 4; i++) {            
-            if (tennants[0][i] == 0) {
+            if (tennants[0][i] == 0) {                
                 propertyMarketContract.incrementPropertiesRented();
                 propertyMarketContract.setTenantsMapping(msg.sender, propertyId, i);                
                 setRenterDepositBalance(msg.sender, msg.value);
@@ -270,18 +270,18 @@ contract GovtFunctions is ReentrancyGuard {
 
     function checkSetRoomAvailability(
         PropertyMarket.Property memory property
-    ) internal pure returns (bool) {        
+    ) internal returns (bool) {        
         if (!property.roomOneRented) {
-            property.roomOneRented = true;
+            // property.roomOneRented = true;            
             return true;
         } else if (!property.roomTwoRented) {
-            property.roomTwoRented = true;
+            // property.roomTwoRented = true;            
             return true;
         } else if (!property.roomThreeRented) {
-            property.roomThreeRented = true;
+            // property.roomThreeRented = true;            
             return true;
         } else if (!property.roomFourRented) {
-            property.roomFourRented = true;
+            // property.roomFourRented = true;            
             return true;
         }
         return false;        

@@ -754,16 +754,18 @@ const Owned = () => {
     }
   }
 
-  function handleSellButton(e, i, pid) {
+  function handleSellButton(e, i, pid) {    
     const sellBtn = document.getElementById(`sellBtn${i}`);
     const tokenInput = document.getElementById(`tokenInput${i}`);
     const amountInput = document.getElementById(`amountInput${i}`);
     const maticCheckbox = document.getElementById(`matic${i}`);
 
-    const isInputInvalid = (input) => {
-      if (input.value.length === 0 || input.value.length > 10) {
-        return true;
-      }
+    const isInputInvalid = (input) => {      
+      if (input !== null) {
+        if (input.value.length === 0 || input.value.length > 10) {
+          return true;
+        }
+      }       
     }
 
     const disableButton = () => {
@@ -779,6 +781,7 @@ const Owned = () => {
     };
 
     if (pid > 500) {
+      console.log(tokenInput)
         if (isInputInvalid(tokenInput) || isInputInvalid(amountInput)) {
             disableButton();
         } else {
@@ -1084,7 +1087,7 @@ const Owned = () => {
                           <p>My Listing Price</p>
                           {property.isForSale ? (
                             <>
-                              <p className='text-xs text-blue-400 font-mono mb-4'>{property.price.substring(0, property.price.length - 2)} Matic | {property.tokenPrice.substring(0, property.tokenPrice.length - 2)} BHB</p>
+                              <p className='text-xs text-blue-400 font-mono mb-4'>{property.price.substring(0, property.price.length)} Matic | {property.tokenPrice.substring(0, property.tokenPrice.length)} BHB</p>
 
                             </>
                           ) : (
@@ -1374,7 +1377,7 @@ const Owned = () => {
                                 onChange={(e) => handleSellButton(e, i, property.propertyId)}
                                 id={"tokenInput" + i}
                               />
-                              <div>
+                              <div>                                                                
                                 <img
                                   className={`brightness-150 h-8 w-11 xl3:h-9 xl3:w-12 pl-2`}
                                   src="./tokenfrontsmall.png"
