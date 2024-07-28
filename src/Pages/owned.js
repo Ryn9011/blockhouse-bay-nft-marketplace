@@ -323,6 +323,7 @@ const Owned = () => {
     try {
       setTxLoadingState2({ ...txloadingState2, [i]: true });
       const listingPrice = await contract.getListingPrice()
+      console.log('Listing price: ', listingPrice.toString())
       const nftContract = new Contract(nftaddress, NFT.abi, signer)
       await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction      
 
@@ -331,6 +332,20 @@ const Owned = () => {
       let maticAmount = !isExclusive ? document.getElementById('amountInput' + i).value : document.getElementById('tokenInput' + i).value
       const priceFormatted = ethers.parseUnits(maticAmount, 'ether');
 
+      const gasLimit = await contract.sellProperty.estimateGas(
+        nftaddress,
+        property.tokenId,
+        property.propertyId,
+        priceFormatted,
+        tokenAmount,
+        isExclusive,
+        { value: listingPrice.toString() }
+      )
+
+      const feeData = await provider.getFeeData();
+      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei');
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei');
+
       const transaction = await contract.sellProperty(
         nftaddress,
         property.tokenId,
@@ -338,7 +353,12 @@ const Owned = () => {
         priceFormatted,
         tokenAmount,
         isExclusive,
-        { value: listingPrice }
+        { 
+          gasLimit: gasLimit,
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          maxFeePerGas: maxFeePerGas,
+          value: listingPrice.toString()
+        }
       )
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2B({ ...txloadingState2B, [i]: true });
@@ -514,6 +534,7 @@ const Owned = () => {
 
       await transaction.wait()
     } catch (ex) {
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2B({ ...txloadingState2B, [i]: false });
       console.log(ex);
@@ -536,6 +557,9 @@ const Owned = () => {
       await transaction.wait();
       loadProperties()
     } catch (ex) {
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
+      setTxLoadingState5({ ...txloadingState5, [i]: false });
+      setTxLoadingState5B({ ...txloadingState5B, [i]: false });
       console.log(ex)
     }
 
@@ -557,30 +581,31 @@ const Owned = () => {
       loadProperties()
     } catch (ex) {
       console.log(ex)
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
       setTxLoadingState4({ ...txloadingState4, [i]: false });
       setTxLoadingState4B({ ...txloadingState4B, [i]: false });
     }
 
   }
 
-  const CollectRent = async (i) => {
-    try {
-      // const web3Modal = new Web3Modal()
-      // const connection = await web3Modal.connect()
-      // const provider = new ethers.providers.Web3Provider(connection)
-      // const signer = await provider.getSigner()
-      const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
-      setTxLoadingState1({ ...txloadingState1, [551]: true });
-      const transaction = await contract.collectRent()
-      setTxLoadingState1({ ...txloadingState1, [551]: false });
-      setTxLoadingState1B({ ...txloadingState1B, [551]: true });
-      await transaction.wait()
-      loadProperties()
-    } catch (ex) {
-      setTxLoadingState1({ ...txloadingState1, [551]: false });
-      setTxLoadingState1B({ ...txloadingState1B, [551]: false });
-    }
-  }
+  // const CollectRent = async (i) => {
+  //   try {
+  //     // const web3Modal = new Web3Modal()
+  //     // const connection = await web3Modal.connect()
+  //     // const provider = new ethers.providers.Web3Provider(connection)
+  //     // const signer = await provider.getSigner()
+  //     const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
+  //     setTxLoadingState1({ ...txloadingState1, [551]: true });
+  //     const transaction = await contract.collectRent()
+  //     setTxLoadingState1({ ...txloadingState1, [551]: false });
+  //     setTxLoadingState1B({ ...txloadingState1B, [551]: true });
+  //     await transaction.wait()
+  //     loadProperties()
+  //   } catch (ex) {
+  //     setTxLoadingState1({ ...txloadingState1, [551]: false });
+  //     setTxLoadingState1B({ ...txloadingState1B, [551]: false });
+  //   }
+  // }
 
   const EvictTenant = async (property, i) => {
     // const web3Modal = new Web3Modal()
@@ -597,6 +622,7 @@ const Owned = () => {
       await transaction.wait()
     } catch (ex) {
       console.log(ex);
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
       setTxLoadingState3({ ...txloadingState3, [i]: false });
       setTxLoadingState3B({ ...txloadingState3B, [i]: false });
     }
@@ -864,7 +890,7 @@ const Owned = () => {
       const allTimestampsZero = property.payments.every(payment => {
         const timestamp = payment[2];
 
-        console.log('timestamp ', Number(timestamp))
+        //console.log('timestamp ', Number(timestamp))
         if (timestamp == 0 || timestamp === '0x00') {
           return false;
         }
@@ -887,7 +913,7 @@ const Owned = () => {
       if (currentObject.timestamp == 0 || currentObject.timestamp === '0x00') {
         return false;
       }
-      console.log(currentObject)
+      //console.log(currentObject)
       const twentyFourHoursInMillis = 600; // 24 hours in milliseconds
       const currentTimeInMillis = Math.floor(Date.now() / 1000);
 
@@ -1002,11 +1028,11 @@ const Owned = () => {
           </div>
           <div className="pt-3">
             <div className="text-sm mb-4 mt-1 lg:flex">
-              <div className="flex pr-4 mt-1.5 font-bold text-white mb-4 lg:mb-0">
+              {/* <div className="flex pr-4 mt-1.5 font-bold text-white mb-4 lg:mb-0">
                 <p>MATIC Accumlated from Renters: </p>
                 <p className="pl-1 text-matic-blue">{amountAccumulated} MATIC</p>
-              </div>
-              {amountAccumulated > 0 &&
+              </div> */}
+              {/* {amountAccumulated > 0 &&
                 <div className="px-2 flex justify-center">
                   {txloadingState1[551] || txloadingState1B[551] ? (
                     <p className='w-full flex justify-center py-1  rounded'>
@@ -1020,7 +1046,7 @@ const Owned = () => {
                     </button>
                   )}
                 </div>
-              }
+              } */}
             </div>
           </div>
           <Pagination

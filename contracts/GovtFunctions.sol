@@ -10,12 +10,14 @@ import "hardhat/console.sol";
 contract GovtFunctions is ReentrancyGuard {
     
     PropertyMarket public propertyMarketContract;  
+
+    uint256 constant INITIAL_MINT = 10000000 * (10 ** 18);
   
     address internal immutable i_propertyMarketAddress;
     address private _govtAddress;
     bool private hasSetGovtAddress = false;
     uint256 constant WEI_TO_ETH = 1000000000000000000;   
-    uint256 internal constant MIN_DEPOSIT = 0.01 ether;       
+    uint256 internal constant MIN_DEPOSIT = 3 ether;       
     uint256 public totalDepositBal = 0;
     mapping(address => uint256) public rentAccumulated;
     mapping(address => uint256) public renterDepositBalance;
@@ -101,9 +103,9 @@ contract GovtFunctions is ReentrancyGuard {
         uint256[] memory propertyIds = new uint256[](1);
         propertyIds[0] = propertyId;     
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
-        require(rentPrice > 1 ether, "rent can't be less than 1 matic");
+        require(rentPrice > 3 ether, "rent can't be less than 1 matic");
         require(property[0].owner == msg.sender, "Not owner");
-        require(rentPrice >= property[0].deposit && rentPrice <= 500 ether, "Invalid rent price range");
+        require(rentPrice >= property[0].deposit && rentPrice <= 500 ether, "Rent cannot exceed 500 matic");
 
         propertyMarketContract.setRentPrice(propertyId, rentPrice);
     }
@@ -114,7 +116,7 @@ contract GovtFunctions is ReentrancyGuard {
         propertyIds[0] = propertyId;
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
         
-        require(depositPrice >= 5 ether, "deposit can't be less than 5 matic");
+        require(depositPrice >= MIN_DEPOSIT, "deposit can't be less than 3 matic");
         require(property[0].owner == msg.sender, "Not owner");
         require(depositPrice >= property[0].deposit && depositPrice <= 500 ether, "Invalid deposit price range");
 
@@ -219,10 +221,10 @@ contract GovtFunctions is ReentrancyGuard {
 
         if (propertyId > 500) {
             uint256 bal = propertyToken.balanceOf(msg.sender);
-            require(bal < 500 ether, "insufficient BHB token balance to rent excl");
+            require(bal >= 2500 ether, "insufficient BHB token balance to rent excl");
         }
         
-        require(msg.value == currentProperty[0].deposit, "deposit required");
+        require(msg.value == currentProperty[0].deposit, "correct deposit required");
         require(currentProperty[0].owner != msg.sender, "You can't rent your own property");
         require(currentProperty[0].owner != address(0), "Property owner address should not be zero");        
 
@@ -288,7 +290,7 @@ contract GovtFunctions is ReentrancyGuard {
     }
 
 
-     function refundDeposit(uint256 propertyId, address renterAddress) onlyPropertyMarket external {
+    function refundDeposit(uint256 propertyId, address renterAddress) onlyPropertyMarket external {
         require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
 
         //get sinlge property
@@ -329,57 +331,66 @@ contract GovtFunctions is ReentrancyGuard {
 
         require(isRenter, "not tenant");
         uint256 accumulated = getRentAccumulated(currentItem.owner);
+        console.log('accumulated: ', accumulated);
         setRentAccumulated((msg.value + accumulated), currentItem.owner);
         propertyMarketContract.setTotalIncomeGenerated(propertyId, msg.value);
         propertyMarketContract.setRenterToPropertyTimestamp(propertyId, block.timestamp, msg.sender);
-
+    
         uint256 price;
         if (propertyId > 500) {
             price = currentItem.rentPrice * 3;
-        } else {
-           
+        } else {           
             price = currentItem.rentPrice; //* (count + 1) * 12 / 10;
         }
         uint256 maxSupply = propertyMarketContract.getMaxSupply();
         if (maxSupply > 0) {
-            uint256 baseTokenAmount = RewardCalculator.getTokenAmountToReceive(price / WEI_TO_ETH);     
+            uint256 tokensToReceive = RewardCalculator.getTokenAmountToReceive(price, maxSupply, INITIAL_MINT);     
 
-            address tokenContractAddress = propertyMarketContract.getTokenContractAddress();
-            uint256 diminishingSupplyFactor = 0;
+            // address tokenContractAddress = propertyMarketContract.getTokenContractAddress();
+            // uint256 diminishingSupplyFactor = 0;
 
-            if (tokenContractAddress != address(0)) {
-                diminishingSupplyFactor = (IERC20(tokenContractAddress)
-                    .balanceOf(address(this)) * 100) / maxSupply;
-            }
+            // if (tokenContractAddress != address(0)) {
+            //     diminishingSupplyFactor = (IERC20(tokenContractAddress)
+            //     // this needs to be the balance of the property market contract!!
+            //         .balanceOf(i_propertyMarketAddress) * 100) / maxSupply;
+            //         console.log('diminishingSupplyFactor at calc: ', diminishingSupplyFactor);
+            // }
+            // console.log('DIMINISHING SUPPLY FACTOR: ', diminishingSupplyFactor);
 
+            // if (diminishingSupplyFactor < 1) {
+            //     diminishingSupplyFactor = 1;
+            // }
+            // // console.log('diminishingSupplyFactor: ', diminishingSupplyFactor);
+            // uint256 tokensToReceive = baseTokenAmount * diminishingSupplyFactor; 
+            console.log('tokensToReceive: ', tokensToReceive);
+            // if (tokensToReceive > maxSupply) {
+            //     tokensToReceive = maxSupply;
+            // }
 
-            if (diminishingSupplyFactor < 1) {
-                diminishingSupplyFactor = 1;
-            }
-            // console.log('diminishingSupplyFactor: ', diminishingSupplyFactor);
-            uint256 tokensToReceive = baseTokenAmount * diminishingSupplyFactor; 
-            // console.log('tokensToReceive: ', tokensToReceive);
-            if (tokensToReceive > maxSupply) {
-                tokensToReceive = maxSupply;
-            }
+            // uint256 convertedAmount = tokensToReceive;
+            propertyMarketContract.setRenterTokens(tokensToReceive, msg.sender);
 
-            uint256 convertedAmount = tokensToReceive * (1 ether);
-            propertyMarketContract.setRenterTokens(convertedAmount, msg.sender);
-
+            console.log('maxSupply: ', maxSupply);
             uint256 newSupplyAmount = maxSupply - tokensToReceive;
             propertyMarketContract.setMaxSupply(newSupplyAmount);
+            
+            require(rentAccumulated[currentItem.owner] > 0, "rent = 0");
+        
+            uint256 fivePercent = (rentAccumulated[currentItem.owner] * 500) / 10000;
+            payable(msg.sender).transfer(rentAccumulated[currentItem.owner] - fivePercent);
+            rentAccumulated[currentItem.owner] = 0;
         }       
         emit RentPaid(msg.sender, block.timestamp, propertyId);
     }
 
-    function collectRent() public nonReentrant {
-        // Ensure there is rent to withdraw
-        require(rentAccumulated[msg.sender] > 0, "rent = 0");
-
-        uint256 rentToTransfer = (rentAccumulated[msg.sender] * 500) / 10000;
-        payable(msg.sender).transfer(rentAccumulated[msg.sender] - rentToTransfer);
-        rentAccumulated[msg.sender] = 0;
-    }
+    // function transferRentToPropertyOwner(address propertyOwner) internal nonReentrant {
+    //     // Ensure there is rent to withdraw
+    //     require(rentAccumulated[propertyOwner] > 0, "rent = 0");
+        
+    //     uint256 rentToTransfer = (rentAccumulated[propertyOwner] * 500) / 10000;
+    //     payable(msg.sender).transfer(rentAccumulated[propertyOwner] - rentToTransfer);
+    //     rentAccumulated[msg.sender] = 0;
+    // }
 
     function withdrawRentTax() public onlyPropertyMarket nonReentrant {
         require(address(this).balance > 0, "no tax");

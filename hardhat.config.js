@@ -11,7 +11,7 @@ module.exports = {
       chainId: 1337,
       accounts: {
         count: 10, // Number of accounts to generate
-        accountsBalance: "1000000000000000000" // 10000 ETH in wei
+        accountsBalance: "10000000000000000000000" // 10000 ETH in wei
       }
     },
     amoy: {

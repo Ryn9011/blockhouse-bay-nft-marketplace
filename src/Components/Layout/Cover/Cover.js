@@ -50,7 +50,7 @@ export default function Cover() {
     //Javascript split method to get the name of the path in array
     const splitLocation = pathname.split("/");
     return (
-        <div className="bg-cover bg-no-repeat" style={{ backgroundImage: "url('neonmain.png')" }}>
+        <div className="bg-cover bg-no-repeat" style={{ backgroundImage: "url('mainbg.jpg')" }}>
 
             <div style={{ backgroundImage: "url('about.png')" }} className="bg-right h-screen brightness-110 lg:hidden bg-cover bg-center">
                 <Header />
@@ -73,7 +73,6 @@ export default function Cover() {
                 className="hidden lg:block lg:h-screen bg-fit bg-no-repeat bg-center brightness-110" // Tailwind classes for height and background positioning
             // style={{ backgroundImage: "url('test48.png')" }} // Using inline style to set the background image
             >
-
                 <div className='flex justify-between relative p-4'>
 
                     <div className='p-4'><ConnectButton /></div>Ï

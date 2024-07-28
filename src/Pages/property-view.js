@@ -39,7 +39,7 @@ const PropertyView = () => {
   const [retries, setRetries] = useState(5)
   const { address, chainId, isConnected } = useWeb3ModalAccount()
   const { walletProvider } = useWeb3ModalProvider()
-  const { modalEvent, provider, signer } = useModalContext(); 
+  const { modalEvent, provider, signer } = useModalContext();
 
   useEffect(() => {
     setLoadingState('not-loaded')

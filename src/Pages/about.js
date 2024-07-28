@@ -277,7 +277,7 @@ const About = () => {
                           </p>
 
                         </Typography>
-                        
+
                         <div className="text-yellow-400 flex justify-center">
                           <button className="border border-1 border-yellow-400 rounded py-1.5 px-4 mt-4" onClick={handleModalClose}>Close</button>
                         </div>
@@ -300,7 +300,7 @@ const About = () => {
                       Firstly, it was my excuse for me the developer, ScubaSteve (my gaming alter ego),
                       to dive into and better understand the mysteries of blockchain and NFTs. Secondly, to create something for others can have some fun with and even make some money along the way.
                       Thirdly,
-                      it is a desperate attempt to crowdfund a new laptop - 
+                      it is a desperate attempt to crowdfund a new laptop -
                       As much as opening a notepade on mine heats it up to the point I could probably roast marshmallows over it meanwhile the fans going off like bees trapped in a blender!
                     </p>
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Landlord, Tenant or Both!</p>
@@ -321,7 +321,7 @@ const About = () => {
                     <p className="mt-2 text-gray-400">
                       All property NFT images are stored on Arweave's decentralized permanent storage, meaning they are truly persisted.
                     </p>
-                   
+
 
                   </li>
                   <li className="pt-2 pb-4">
@@ -337,7 +337,7 @@ const About = () => {
                     <p className="mt-2 text-gray-400">
                       Discover a collection of stunning exclusive properties that can only be acquired with BHB tokens. Take a peek at the Blockhouse Bay Gardens properties and find your dream property that sets you apart from the rest.
                     </p>
-                  </li>                 
+                  </li>
                 </ul>
               </div>
 
@@ -386,7 +386,7 @@ const About = () => {
                     <h3 className="text-2xl font-semibold text-yellow-200 ">BHB Tokens</h3>
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Trading</p>
                     <p className="mt-2 text-gray-400">
-                      I would like the BHB token to 
+                      I would like the BHB token to
                     </p>
                   </li>
                 </ul>
@@ -486,7 +486,7 @@ const About = () => {
                     <h3 className="text-2xl mt-3 font-semibold text-yellow-200 ">Selling a Property</h3>
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Listing Fee</p>
 
-    
+
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Payment Options</p>
                     <p className="mt-2 text-gray-400">
                       Properties can be sold for MATIC or BHB tokens as payment. Mixed payments are not allowed. Note if you allow BHB tokens as a payment option, a Matic price is still required.
@@ -745,7 +745,7 @@ const About = () => {
                         <ul className="list-disc list-inside xl:pr-6 space-y-4 ml-4">
                           <li>The rent status lets a renter know if they are up to date with their rent.</li>
                           <li>Accumlated BHB token amount will show above the property panels and can be redeemed with the Collect-Tokens button</li>
-                        </ul>                        
+                        </ul>
                       </div>
                     )}
                   </div>
@@ -854,12 +854,12 @@ const About = () => {
                     <p className="mt-2 text-gray-400">A 5 Matic fee is required when buying a property with BHB tokens.</p> */}
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Selling</p>
                     <p className="mt-2 text-gray-400">
-                      Property owners have the option to sell their property to other interested buyers. A listing fee of 10 Matic will incur and 5% of the sale amount will be deducted when a sale is made.
+                      Property owners have the option to sell their property to other interested buyers. A listing fee of 12 Matic will incur and 5% of the sale amount will be deducted when a sale is made.
                     </p>
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Renting</p>
                     <p className="mt-2 text-gray-400">
                       A 5% fee will be deducted from the rent amount collected.
-                    </p>    
+                    </p>
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Duration</p>
                     <p className="mt-2 text-gray-400">
                       Transactions are normally pretty quick but occasionally can take a little longer.
@@ -867,13 +867,23 @@ const About = () => {
                     </p>
                     <p className="text-white text-lg xl3:text-xl italic mt-4">BHB Token Burn</p>
                     <p className="mt-2 text-gray-400">
-                    A 1% fee is deducted from the total amount being transferred.
-                    <p className="mt-2 text-gray-400">50% of the fee is sent to the development fund.</p>
-                    <p className="mt-2 text-gray-400">50% of the fee is burned (destroyed), reducing the total supply of BHB.</p>                                     
-                    </p>            
+                      A 1% fee is deducted from the total of any BHB transaction
+                      <p className="mt-2 text-gray-400">50% of the fee is sent to the development fund.</p>
+                      <p className="mt-2 text-gray-400">50% of the fee is burned (destroyed), reducing the total supply of BHB.</p>
+                    </p>
+                  </li>
+                  <li className="pb-4">
+                    <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Decentralization</h3>
+                    <p className="mt-2 text-gray-400">
+                      The BHB platform itself and owner do NOT have the ability to interact with the platform in non-standard ways with the exception of withdrawaing fees from transactions.
+                      This is by design to ensure the platform remains decentralised and secure. 
+                      <p className="mt-2 text-gray-400">
+                        The platform owner can gift unsold properties to users, but once a property has been sold, the platform owner has no control over the property and full control remains with the current property owner.
+                    </p>
+                    </p>
                   </li>
                   <li>
-                  <h3 className="text-2xl mt-2 font-semibold text-yellow-200">WalletConnect</h3>
+                    <h3 className="text-2xl mt-2 font-semibold text-yellow-200">WalletConnect</h3>
                     <p className="mt-2 text-gray-400">
                       Utilizing WalletConnect via Web3Modal, Blockhouse Bay ensures seamless and secure interaction between users' wallets and the blockchain. With this integration, users can easily connect their preferred wallets to access features, make transactions, and engage with the platform's decentralized services, all while maintaining full control and privacy over their digital assets.
                     </p>
@@ -882,7 +892,7 @@ const About = () => {
               </div>
             </div>
           </AccordionDetails>
-        </Accordion> 
+        </Accordion>
       </div ></>
 
   )

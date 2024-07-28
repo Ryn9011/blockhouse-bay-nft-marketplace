@@ -34,7 +34,7 @@ const ToRent = () => {
   const [showBottomNav, setShowBottomNav] = useState(false);    
   const { address, chainId, isConnected } = useWeb3ModalAccount()
   const [retries, setRetries] = useState(3)
-  const { modalEvent, provider, signer } = useModalContext(); 
+  const { modalEvent, provider, signer } = useModalContext();
 
 
   useEffect(() => {
@@ -167,9 +167,19 @@ const ToRent = () => {
   const rentProperty = async (property, i) => {
     try {
       const govtContract = new Contract(govtaddress, GovtFunctions.abi, signer)  
-      setTxLoadingState({ ...txloadingState, [i]: true });      
-      const transaction = await govtContract.rentProperty(property.propertyId, {
-        value: property.depositHex
+      setTxLoadingState({ ...txloadingState, [i]: true }); 
+      console.log('property.depositHex: ', property.depositHex)  
+
+      const gasLimit2 = await govtContract.rentProperty.estimateGas(property.propertyId, {
+        value: Number(property.depositHex).toString()
+      });
+
+      const feeData2 = await provider.getFeeData();
+
+      const transaction = await govtContract.rentProperty(property.propertyId, {       
+        value: Number(property.depositHex).toString(),
+        gasLimit: gasLimit2,
+        gasPrice: feeData2.gasPrice,
       });
       
       await transaction.wait();
@@ -226,8 +236,9 @@ const ToRent = () => {
           <p className="xl3:ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold text-white">To Rent</p>
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
-            <header className="flex items-center h-16">
+            <header className="flex-col items-center h-16 mb-4 mt-4">
               <div className="text-sm lg:text-xl font-bold">Rent a room from a home owner and earn BHB tokens</div>
+              <p className='mt-3 text-green-100 italic'>An account can rent a one room in up to 4 properties</p>
             </header>
             {/* <div className=" hidden lg:block">
               <img
@@ -284,7 +295,7 @@ const ToRent = () => {
                         </div>
                         <div className="flex flex-col pb-2">
                           <p>Rent Price:</p>
-                          <p className="font-mono text-xs text-green-400">{property.rentPrice}</p>
+                          <p className="font-mono text-xs text-green-400">{property.rentPrice} MATIC</p>
                         </div>
                         {/* <div className="flex flex-col">
                         <p>Total Income Generated:</p>
@@ -388,7 +399,7 @@ const ToRent = () => {
                         <div className="flex text-xs pl-5 lg:pl-3">
                           <ul className="list-disc pl-3.5 list-outside">
                             <li className='mb-1'>
-                              A rental deposit of <span className='font-mono text-xs text-blue-400'>10 Matic</span> is required to rent this property
+                              A rental deposit of <span className='font-mono text-xs text-blue-400'>3 Matic</span> is required to rent this property
                             </li>
                             <li>
                               Rental deposits are refunded upon vacating a property (providing renter is not evicted from the property)

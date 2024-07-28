@@ -40,6 +40,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+// import "hardhat/console.sol";
 
 import {PropertyToken} from "./PropertyToken.sol";
 
@@ -57,21 +58,17 @@ contract PropertyMarket is ReentrancyGuard {
     Counters.Counter private _propertiesSold;
 
     Counters.Counter private _relistCount;
-    Counters.Counter private _propertiesRented;
-    // Counters.Counter private _govtGiftCount;
+    Counters.Counter private _propertiesRented;    
 
     address payable immutable i_govt;
     address payable i_govtContract;
-    bool public govtContractSet = false;
-    //uint256 public constant DEPOSIT_REQUIRED = 0.001 ether; //rent also
-    uint256 public constant LISTING_PRICE = 0.001 ether;
-    uint256 public constant INITIAL_SALE_PRICE = 0.001 ether;
-    uint256 constant INITIAL_TOKEN_PRICE = 1 ether;
-    uint256 constant INITIAL_EXCLUSIVE_PRICE = 1 ether;
-    // uint256 constant WEI_TO_ETH = 1000000000000000000;
-    uint256 constant INITIAL_MINT = 1000000 ether;
-    uint256 tokenMaxSupply = 10000000 ether;
-    // uint256 public totalDepositBal = 0;
+    bool public govtContractSet = false;    
+    uint256 public constant LISTING_PRICE = 12 ether;
+    uint256 public constant INITIAL_SALE_PRICE = 200 ether;
+    uint256 constant INITIAL_TOKEN_PRICE = 500 ether;
+    uint256 constant INITIAL_EXCLUSIVE_PRICE = 500 ether;    
+    uint256 constant INITIAL_MINT = 10000000 * (10 ** 18);
+    uint256 tokenMaxSupply = INITIAL_MINT;    
 
     PropertyToken public tokenContract;
  
@@ -506,8 +503,8 @@ contract PropertyMarket is ReentrancyGuard {
             listing.propertyId = tokenId;
             listing.nftContract = nftContract;
             listing.tokenId = tokenId;
-            listing.rentPrice = 0.001 ether;
-            listing.deposit = 0.001 ether;
+            listing.rentPrice = 3 ether;
+            listing.deposit = 3 ether;
             listing.seller = payable(msg.sender);
             listing.owner = payable(address(0));
             listing.isForSale = true;
@@ -555,7 +552,7 @@ contract PropertyMarket is ReentrancyGuard {
                 Strings.toString(
                     propertyToken.allowance(msg.sender, address(this))
                 )
-            );            
+            );
             require(
                 propertyToken.transferFrom(
                     msg.sender,
@@ -701,14 +698,13 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function withdrawERC20() public nonReentrant {
-        //console.log('tokens: ',renterTokens[msg.sender]);
+        // console.log('tokens: ',renterTokens[msg.sender] / (10 ** 18));
         require(renterTokens[msg.sender] > 0, "");
         tokenContract.transfer(msg.sender, renterTokens[msg.sender]);
         renterTokens[msg.sender] = 0;
     }
 
-    function withdrawPropertyTax() external onlyGovt nonReentrant {
-        //require(address(this).balance > 0, "");
+    function withdrawPropertyTax() external onlyGovt nonReentrant {        
         uint256 bal = address(this).balance;
         GovtContract govt = GovtContract(i_govtContract);
         if (govt.getBalance() > 0) {
@@ -723,11 +719,12 @@ contract PropertyMarket is ReentrancyGuard {
         address recipient    
     ) public onlyGovt nonReentrant{
 
+        // stops govt giving away properties that have been sold
         require (idToProperty[pId].saleHistory.length == 0, "");
         idToProperty[pId].owner = payable(recipient); 
         idToProperty[pId].isForSale = false;
         _propertiesSold.increment();
-        idToProperty[pId].saleHistory.push(Sale(LISTING_PRICE, 1));              
+        idToProperty[pId].saleHistory.push(Sale(INITIAL_SALE_PRICE, 1));              
         idToProperty[pId].dateSoldHistory.push(block.timestamp);
         userProperties[recipient].push(pId);
         

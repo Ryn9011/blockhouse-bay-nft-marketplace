@@ -71,8 +71,7 @@ const modal = createWeb3Modal({
     80001: {
       address: '0xc0D47EAEB4fE7875EF6e8b39D5b93Cb65A63d54F',
     }
-  },
-
+  }
 })
 
 

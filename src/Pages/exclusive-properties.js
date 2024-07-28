@@ -175,12 +175,24 @@ const Exclusive = () => {
       const amount = ethers.parseUnits(nft.tokenSalePrice, 'ether')
       setTxLoadingState1({ ...txloadingState1, [i]: true });
       await propertyTokenContract.allowSender(amount)
+
+      const gasLimit = await contract2.createPropertySale.estimateGas(nftaddress, nft.propertyId, propertytokenaddress, isTokenSale);
+
+      const feeData = await provider.getFeeData();
+
+      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
       
       const transaction = await contract2.createPropertySale(
         nftaddress,
         nft.propertyId,
         propertytokenaddress,
         isTokenSale,
+        {
+          maxFeePerGas: maxFeePerGas,
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          gasLimit: gasLimit,
+        }
       )
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: true });
@@ -214,7 +226,7 @@ const Exclusive = () => {
       console.log(error)
       alert(error.message);
       setTxLoadingState2({ ...txloadingState2, [i]: false });
-      setTxLoadingState2B({ ...txloadingState2B, [i]: true });
+      setTxLoadingState2B({ ...txloadingState2B, [i]: false });
     }
   }
 
@@ -255,7 +267,7 @@ const Exclusive = () => {
             <p className='text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500'>Blockhouse Bay Gardens, an exclusive street of grand and stunning homes, is a paradise of luxurious living. From impressive architecture to immaculate gardens, each house is a masterpiece of sophistication, offering an unparalleled lifestyle in one of the bay's most beautiful settings.</p>
           </div>
           <h5 className='text-white text-center md:text-left mb-4'>These exlusive properties are limited to only 50 and can be purchased only with BHB tokens</h5>
-          <p className='text-white text-center md:text-left italic mb-12'>Tripple the amount of BHB tokens are paid out when renting on this street! - A minimum of 500 BHB tokens must be held in order to become a renter.</p>
+          <p className='text-green-100 text-center md:text-left italic mb-12'>A minimum of 2500 BHB tokens must be held in order to become a renter but <span className='font-semibold'>TRIPPLE</span> the amount of BHB tokens are paid out when renting on this street!</p>
 
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-3 text-white">
             {currentPosts.map((property, i) => {
@@ -321,7 +333,7 @@ const Exclusive = () => {
                         }
 
                         {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
-                          <div className='flex items-center h-10 justify-between mb-4'>
+                          <div className='flex items-center h-10 justify-between mb-2'>
                             <p className={" break-words"}>
                               {property.renterAddresses[1]}
                             </p>
@@ -337,7 +349,7 @@ const Exclusive = () => {
                           </>
                         }
                         {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
-                          <div className='flex items-center h-10 justify-between'>
+                          <div className='flex items-center h-10 justify-between mb-2'>
                             <p className={" break-words"}>
                               {property.renterAddresses[2]}
                             </p>
@@ -434,7 +446,7 @@ const Exclusive = () => {
                           </div>
                         )
                         }
-                        {property.roomsToRent !== 3 ? (
+                        {property.roomsToRent !== 4 ? (
                           <>
                             {txloadingState2[i] || txloadingState2B[i] ? (
                               <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 mb-3 rounded'>

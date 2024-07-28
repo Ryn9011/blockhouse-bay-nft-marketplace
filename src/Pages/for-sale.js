@@ -20,6 +20,8 @@ import SaleHistory from '../Components/sale-history'
 import GetPropertyNames from '../getPropertyName'
 import SpinnerIcon from '../Components/spinner';
 
+/* global BigInt */
+
 const ethers = require("ethers")
 
 /* global BigInt */
@@ -38,7 +40,7 @@ const ForSale = () => {
   const [txloadingState, setTxLoadingState] = useState({});
   const [txloadingStateB, setTxLoadingStateB] = useState({});
   const [retries, setRetries] = useState(5)
-  const { modalEvent, provider, signer } = useModalContext(); 
+  const { modalEvent, provider, signer } = useModalContext();
 
 
   useEffect(() => {
@@ -180,11 +182,16 @@ const ForSale = () => {
       }
 
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
-      let price = ethers.parseUnits(nft.price.toString(), 'ether');
+      let price = ethers.parseUnits(nft.price.toString());
+
+      const bigIntValue = BigInt(price);   
+      console.log('bigIntValue:', Number(bigIntValue));
+      console.log('price:', Number(price));
       let isTokenSale = false;
 
       let propertyTokenContract = undefined;
       let amount = undefined;
+
       setTxLoadingState({ ...txloadingState, [i]: true });
       if (brb != undefined) {
         if (brb.checked) {
@@ -194,13 +201,40 @@ const ForSale = () => {
           amount = ethers.parseUnits(nft.tokenSalePrice, 'ether');
           await propertyTokenContract.allowSender(amount);
         }
-      }      
+      }           
+      
+      let gasLimit;
+      console.log('here price?:', price.toString());
+      try {
+          gasLimit = await contract2.createPropertySale.estimateGas(
+            nftaddress, 
+            nft.propertyId, 
+            propertytokenaddress, 
+            isTokenSale,
+            {
+              value: price.toString(),
+            }
+          );  
+      } catch (ex) {
+        console.log('Error:', ex);
+      }
+      
+      console.log('gasLimit:', gasLimit.toString());       
+      const feeData = await provider.getFeeData();      
+      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
+      console.log('price', typeof(price))
       const transaction = await contract2.createPropertySale(
         nftaddress,
         nft.propertyId,
         propertytokenaddress,
         isTokenSale,
-        { value: price }
+        { 
+          value: price.toString(),
+          gasLimit: gasLimit,
+          maxFeePerGas: maxFeePerGas.toString(),
+          maxPriorityFeePerGas: maxPriorityFeePerGas.toString()
+        }
       );
 
       if (document.getElementById("pogRadio" + i) != undefined) {
@@ -287,7 +321,7 @@ const ForSale = () => {
                   key={property.propertyId}
                   className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
                 >
-                  {console.log(property.propertyId + " hit")}
+                  {/* {console.log(property.propertyId + " hit")} */}
                   <img className='w-fit h-fit' src={property.image} alt="" />
                   <div className="p-4">
                     <p

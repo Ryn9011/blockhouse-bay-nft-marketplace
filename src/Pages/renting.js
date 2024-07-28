@@ -279,9 +279,24 @@ const Renting = () => {
     try {
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
       setTxLoadingState1({ ...txloadingState1, [i]: true });
+      const amount = rentAmount.toString();   
+      
+      const gasLimit = await govtContract.payRent.estimateGas(property.propertyId, {
+        value: amount
+      });
+
+      const feeData = await provider.getFeeData();
+
+      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
+      
       const transaction = await govtContract.payRent(
-        property.propertyId,
-        { value: rentAmount }
+        property.propertyId,  
+        { 
+          gasLimit,
+          maxFeePerGas,
+          value: amount 
+        }
       )
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: true });
@@ -298,6 +313,9 @@ const Renting = () => {
   const CollectTokens = async () => {
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     try {
+      console.log(signer)
+      let amount = await contract.getTokensEarned()
+      console.log('Amount: ', amount.toString())
       setTxLoadingState({ ...txloadingState, [551]: true });
       const transaction = await contract.withdrawERC20()
       setTxLoadingState({ ...txloadingState, [551]: false });
