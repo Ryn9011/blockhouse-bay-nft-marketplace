@@ -48,7 +48,8 @@ const AllProperties = () => {
 
     const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
       try {
-        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        const tokenUri = 'https://dummyimage.com/300x200/000/fff'
+        //await tokenContract.tokenURI(i.tokenId)
         if (tokenUri === undefined) {
           tokenUri = ''
         }
@@ -128,6 +129,10 @@ const AllProperties = () => {
     }))
     setPropertyList(items)
     setLoadingState('loaded')
+  }
+
+  if (propertyList[0] === undefined) {
+    return (<div>Unable to load images</div>)
   }
 
   if (loadingState !== 'loaded') return (

@@ -88,7 +88,7 @@ describe("PropertyMarket", function () {
       for (let j = 0; j < receipt.logs.length; j++) {
         if (receipt.logs[j].fragment?.name === "Transfer") {
           const tokenId = Number(receipt.logs[j].args[2]);
-          tokenIds.push(tokenId);
+          tokenIds.push(tokenId);                  
         }
       }
     }
@@ -117,10 +117,6 @@ describe("PropertyMarket", function () {
           tokenIds2.push(tokenId);
         }
       }
-
-    // for (let i = 0; i < numOfBatches && i * batchSize < tokenIds.length; i++) {
-        
-    // }
 
     let transaction2 = await propertyMarket.createPropertyListing(nft.target, tokenIds2, { value: listingPrice })    
     await transaction2.wait();

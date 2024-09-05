@@ -82,8 +82,8 @@ const Owned = () => {
   let exceptionCount = 3
 
   useEffect(() => {
-    console.log(provider);
-    console.log(signer);
+    //console.log(provider);
+    //console.log(signer);
     if (signer == null) {
       return;
     }
@@ -96,7 +96,7 @@ const Owned = () => {
     if (modalEvent === null) {
       return;
     }
-    console.log(modalEvent.data.event)
+    //console.log(modalEvent.data.event)
     if (modalEvent.data.event === 'DISCONNECT_SUCCESS' || modalEvent.data.event === 'DISCONNECT_ERROR') {
       window.location.reload();
     } else {
@@ -105,7 +105,7 @@ const Owned = () => {
 
   async function loadProperties(i) {
     try {
-      console.log('Retries: ', retries)
+      //console.log('Retries: ', retries)
       if (exceptionCount === 0) {
         return;
       }
@@ -122,10 +122,10 @@ const Owned = () => {
 
       const data = await market.fetchMyProperties(currentPage)
       const propertyCount = await market.getUserProperties();
-      console.log(propertyCount)
+      //console.log(propertyCount)
       setTotalUserPropertyCount(propertyCount.length)
 
-      console.log(data)
+      //console.log(data)
       const propertyIds = [];
 
       for (let i = 0; i < data.length; i++) {
@@ -135,24 +135,25 @@ const Owned = () => {
 
       propertyIds.forEach(a => { })
       const renters = await market.getPropertyDetails(propertyIds, true);
-      //console.log(renters)
+      ////console.log(renters)
       let idsToRenters = []
       renters.forEach(a => {
-        //console.log(a)
+        ////console.log(a)
       })
 
-      //console.log(signer)
-      //console.log(provider)
+      ////console.log(signer)
+      ////console.log(provider)
 
       let value = ethers.formatUnits(await govt.getRentAccumulatedSender(), 'ether')
       setAmountAccumulated(value)
 
-      console.log(data)
+      //console.log(data)
 
       const items = await Promise.all(data.filter(i => Number(i.propertyId) !== 0 && (a => Number(a.tokenId !== 0))).map(async i => {
-        console.log(i)
-        const tokenUri = await token.tokenURI(i.tokenId)
-        //const meta = await axios.get(tokenUri)
+        //console.log(i)
+        const tokenUri = 'https://dummyimage.com/300x200/000/fff'
+        //await token.tokenURI(i.tokenId)
+        
 
 
         const meta = await axios.get(tokenUri)
@@ -163,25 +164,25 @@ const Owned = () => {
         let nftName = GetPropertyNames(meta, Number(i.propertyId))
 
         const timestamps = renters.filter(a => a.propertyId == Number(i.propertyId))
-        //console.log(timestamps)
+        ////console.log(timestamps)
 
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = ethers.formatUnits(i.rentPrice.toString(), 'ether')
         let deposit = ethers.formatUnits(i.deposit.toString(), 'ether')
         const renterAddresses = await market.getPropertyRenters(i.propertyId);
-        // console.log(renterAddresses)
+        // //console.log(renterAddresses)
         // let test = await marketContract.getTenantsMapping("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
-        // console.log('5 ',test)
+        // //console.log('5 ',test)
         // let test2 = await marketContract.getTenantsMapping("0x70997970C51812dc3A010C7d01b50e0d17dc79C8")
-        // console.log('4 ',test2)
+        // //console.log('4 ',test2)
         // let test3 = await marketContract.getTenantsMapping("0x2546BcD3c84621e976D8185a91A922aE77ECEc30")
-        // console.log('3 ',test3)
+        // //console.log('3 ',test3)
         // let test4 = await marketContract.getTenantsMapping("0x36D886DfBeE479b04F953b0649988AE3ABAc4C8D")
-        // console.log('8 ',test4)
+        // //console.log('8 ',test4)
         // const tokensHex = await marketContract.getTokensEarned()
         // const tokens = ethers.formatUnits(tokensHex.toString(), 'ether')
         let tokenSalePriceFormatted = ethers.formatUnits(i.tokenSalePrice.toString(), 'ether')
-        //console.log(tokenSalePriceFormatted)
+        ////console.log(tokenSalePriceFormatted)
         let saleHistory = [];
         if (i.saleHistory.length > 0) {
           i.saleHistory.forEach((item) => {
@@ -200,7 +201,7 @@ const Owned = () => {
 
         const propertyId = Number(ethers.formatUnits(BigInt(i.propertyId), 0));
 
-        //console.log(propertyId)
+        ////console.log(propertyId)
 
         let item = {
           price,
@@ -264,9 +265,9 @@ const Owned = () => {
     } catch (ex) {
       setLoadingState('loaded')
       if (ex.message === 'User Rejected') {
-        console.log(ex.message)
+        //console.log(ex.message)
         // Handle user rejection
-        //console.log('Connection request rejected by the user.');
+        ////console.log('Connection request rejected by the user.');
         // Display an error message to the user        
         //setIsConnected(false);
         setTxLoadingState1({ ...txloadingState1, [551]: false });
@@ -282,15 +283,15 @@ const Owned = () => {
         if (retries > 0) {
           return;
         } else {
-          console.log('Retrying connection request...');
-          const newRetries = retries - 1;
+          //console.log('Retrying connection request...');
+          let newRetries = retries - 1;
           setRetries(newRetries);
 
           loadProperties();
         }
       } else {
-        //console.log(ex)
-        console.log(ex.message)
+        ////console.log(ex)
+        //console.log(ex.message)
         //setIsConnected(false)
         setTxLoadingState1({ ...txloadingState1, [551]: false });
         setTxLoadingState2({ ...txloadingState2, [i]: false });
@@ -304,8 +305,8 @@ const Owned = () => {
         if (retries === 0) {
           return;
         } else {
-          console.log('Retrying connection request...');
-          const newRetries = retries - 1;
+          //console.log('Retrying connection request...');
+          let newRetries = retries - 1;
           setRetries(newRetries);
 
           loadProperties();
@@ -323,7 +324,7 @@ const Owned = () => {
     try {
       setTxLoadingState2({ ...txloadingState2, [i]: true });
       const listingPrice = await contract.getListingPrice()
-      console.log('Listing price: ', listingPrice.toString())
+      //console.log('Listing price: ', listingPrice.toString())
       const nftContract = new Contract(nftaddress, NFT.abi, signer)
       await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction      
 
@@ -332,7 +333,9 @@ const Owned = () => {
       let maticAmount = !isExclusive ? document.getElementById('amountInput' + i).value : document.getElementById('tokenInput' + i).value
       const priceFormatted = ethers.parseUnits(maticAmount, 'ether');
 
-      const gasLimit = await contract.sellProperty.estimateGas(
+      //console.log('Price formatted: ', priceFormatted)
+
+      let gasLimit = await contract.sellProperty.estimateGas(
         nftaddress,
         property.tokenId,
         property.propertyId,
@@ -342,9 +345,12 @@ const Owned = () => {
         { value: listingPrice.toString() }
       )
 
+      gasLimit = gasLimit + 100000n;
+
       const feeData = await provider.getFeeData();
-      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei');
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei');
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
       const transaction = await contract.sellProperty(
         nftaddress,
@@ -366,25 +372,25 @@ const Owned = () => {
     } catch (Ex) {
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2B({ ...txloadingState2B, [i]: true });
-      console.log('Transaction failed')
+      //console.log('Transaction failed')
     }
     loadProperties()
   }
 
   useEffect(() => {
-    //console.log(propertyIdTwitter)
+    ////console.log(propertyIdTwitter)
     let tweetOptions
     //if (hasSetText) {
     let text = twitterTextRef.current ? twitterTextRef.current.innerText : ""
     let formattedTweet = text.replace(/(?<!\d)\.(?!\d)/g, '%0A');
 
-    //console.log(window.location.hostname)
+    ////console.log(window.location.hostname)
     let url = `http://localhost:3000/property-view/${propertyIdTwitter}%0A`
     let hashtags = 'BlockhouseBay'
     tweetOptions = text + '#BlockhouseBay';
     //}
     setText(formattedTweet)
-    //console.log(tweetOptions)
+    ////console.log(tweetOptions)
 
     setUrl(`http://localhost:3000/property-view/${propertyIdTwitter ? propertyIdTwitter : ''}`)
     setHasSetText(false)
@@ -392,7 +398,7 @@ const Owned = () => {
   }, [twitterSaleChecked, twitterRentChecked])
 
   const handleForSaleCheck = (propertyObj, e) => {
-    //console.log(propertyObj)
+    ////console.log(propertyObj)
     setPropertyIdTwitter(propertyObj.propertyId);
     setCurrentPosts((prevList) =>
       prevList.map((property) =>
@@ -404,7 +410,7 @@ const Owned = () => {
     setTwitterSaleChecked(e.target.checked);
     seTwitterRef(propertyObj);
 
-    //console.log(propertyObj)
+    ////console.log(propertyObj)
 
   };
 
@@ -420,7 +426,7 @@ const Owned = () => {
     let text = propertyObj.rentPrice
     setTwitterRentChecked(e.target.checked)
     seTwitterRef(propertyObj)
-    //console.log(propertyObj)
+    ////console.log(propertyObj)
   };
 
   const seTwitterRef = (property) => {
@@ -428,13 +434,13 @@ const Owned = () => {
       twitterTextRef.current = document.getElementById("twitterSaleSection");
     } else if (!twitterSaleChecked && twitterRentChecked) {
       twitterTextRef.current = document.getElementById("twitterRentSection");
-      //console.log(twitterTextRef.current)
+      ////console.log(twitterTextRef.current)
     } else if (twitterSaleChecked && twitterRentChecked) {
       twitterTextRef.current = document.getElementById("twitterSaleRentSection");
     }
     setHasSetText(true)
 
-    // //console.log(twitterTextRef.current.innerText)
+    // ////console.log(twitterTextRef.current.innerText)
   }
 
   // const getOptions = () => {
@@ -453,7 +459,7 @@ const Owned = () => {
 
 
   const logOutTwitter = () => {
-    //console.log(twitterTextRef.current.innerText)
+    ////console.log(twitterTextRef.current.innerText)
   }
 
   // const getLogData = async () => {
@@ -467,22 +473,22 @@ const Owned = () => {
   //   const iface = new ethers.utils.Interface(Market.abi);
 
   //   let propertyIds = nfts.map(item => item.propertyId)
-  //   //console.log(propertyIds)
+  //   ////console.log(propertyIds)
   //   let latestBlockNum = await provider.getBlockNumber() - 5 //change this to 150000 when live
-  //   //console.log(latestBlockNum)
+  //   ////console.log(latestBlockNum)
   //   let latestBlock = await provider.getBlock(latestBlockNum)
   //   let latestBlockTimestamp = latestBlock.timestamp
-  //   //console.log(latestBlockTimestamp)
+  //   ////console.log(latestBlockTimestamp)
 
   //   const logs = await provider.getLogs({
   //     fromBlock: latestBlockNum,
   //     toBlock: "latest",
   //     address: marketAddress
   //   })
-  //   //console.log(logs)
+  //   ////console.log(logs)
 
   //   const decodedEvents = logs.map(log => iface.parseLog(log));
-  //   //console.log(decodedEvents)
+  //   ////console.log(decodedEvents)
 
   //   let testArr = new Array()
   //   decodedEvents.map(event => {
@@ -501,8 +507,8 @@ const Owned = () => {
   //   filteredEvents.map((item) => {
   //     let timeSeconds = item[1].toNumber()
   //     let secondsDays = 258000
-  //     //console.log(timeSeconds + secondsDays)
-  //     //console.log(latestBlockTimestamp)
+  //     ////console.log(timeSeconds + secondsDays)
+  //     ////console.log(latestBlockTimestamp)
 
   //     //258000 seconds in 3 days
 
@@ -511,10 +517,10 @@ const Owned = () => {
   //       setAddressesOverdue(addressesOverdue => [...addressesOverdue, item[0]])
   //       //setAddressesOverdue("0x2546BcD3c84621e976D8185a91A922aE77ECEc30")
   //     }
-  //     //console.log(addressesOverdue)
+  //     ////console.log(addressesOverdue)
   //   })
-  //   //console.log(filteredEvents)
-  //   //console.log(addressesOverdue)
+  //   ////console.log(filteredEvents)
+  //   ////console.log(addressesOverdue)
 
 
   // }
@@ -537,19 +543,21 @@ const Owned = () => {
       alert(ex.message.substring(0, ex.message.indexOf('(')))
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2B({ ...txloadingState2B, [i]: false });
-      console.log(ex);
+      //console.log(ex);
     }
     loadProperties()
   }
 
   const ChangeDeposit = async (property, i) => {
     const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
-    let rentVal = document.getElementById('depositInput' + i).value
-    console.log(rentVal)
-    let newPrice = ethers.parseUnits(rentVal, 'ether')
-    console.log(newPrice)
-    console.log(property.propertyId)
-    try {
+    let depVal = document.getElementById('depositInput' + i).value
+    depVal = parseFloat(depVal).toFixed(4);
+    //console.log(depVal)
+    let newPrice = ethers.parseUnits(depVal, 'ether')
+    
+    //console.log(newPrice)
+    //console.log(property.propertyId)
+    try {      
       setTxLoadingState5({ ...txloadingState5, [i]: true });
       const transaction = await contract.setDeposit(property.propertyId, newPrice)
       setTxLoadingState5({ ...txloadingState5, [i]: false });
@@ -560,18 +568,18 @@ const Owned = () => {
       alert(ex.message.substring(0, ex.message.indexOf('(')))
       setTxLoadingState5({ ...txloadingState5, [i]: false });
       setTxLoadingState5B({ ...txloadingState5B, [i]: false });
-      console.log(ex)
+      //console.log(ex)
     }
-
   }
 
   const ChangeRent = async (property, i) => {
     const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
     let rentVal = document.getElementById('rentInput' + i).value
-    console.log()
+    rentVal = parseFloat(rentVal).toFixed(4);
+    //console.log()
     let newPrice = ethers.parseUnits(rentVal, 'ether')
-    console.log(newPrice)
-    console.log(property.propertyId)
+    //console.log(newPrice)
+    //console.log(property.propertyId)
     try {
       setTxLoadingState4({ ...txloadingState4, [i]: true });
       const transaction = await contract.setRentPrice(property.propertyId, newPrice)
@@ -580,7 +588,7 @@ const Owned = () => {
       await transaction.wait()
       loadProperties()
     } catch (ex) {
-      console.log(ex)
+      //console.log(ex)
       alert(ex.message.substring(0, ex.message.indexOf('(')))
       setTxLoadingState4({ ...txloadingState4, [i]: false });
       setTxLoadingState4B({ ...txloadingState4B, [i]: false });
@@ -621,7 +629,7 @@ const Owned = () => {
       setTxLoadingState3B({ ...txloadingState3B, [i]: true });
       await transaction.wait()
     } catch (ex) {
-      console.log(ex);
+      //console.log(ex);
       alert(ex.message.substring(0, ex.message.indexOf('(')))
       setTxLoadingState3({ ...txloadingState3, [i]: false });
       setTxLoadingState3B({ ...txloadingState3B, [i]: false });
@@ -715,7 +723,7 @@ const Owned = () => {
 
   const setAddresses = (property, e, i) => {
     if (property !== undefined) {
-      //console.log(i)
+      ////console.log(i)
       return (
         // <div className='text-xs mt-2 text-green-200'>
         <div className='text-[10px] font-mono text-green-400'>
@@ -807,7 +815,7 @@ const Owned = () => {
     };
 
     if (pid > 500) {
-      console.log(tokenInput)
+      //console.log(tokenInput)
         if (isInputInvalid(tokenInput) || isInputInvalid(amountInput)) {
             disableButton();
         } else {
@@ -815,7 +823,7 @@ const Owned = () => {
         }
     } else {
         if (!maticCheckbox.checked) {
-          console.log(amountInput.value.length)
+          //console.log(amountInput.value.length)
             if (e.target.value.length > 0 && e.target.value.length < 10) {
                 enableButton();
             } else {
@@ -875,22 +883,22 @@ const Owned = () => {
   }
 
   const handleChange = (panel) => (event, isExpanded) => {
-    //console.log(panel)
+    ////console.log(panel)
     setExpanded(isExpanded ? panel : null);
   };
 
   const CheckTimestampExpired = (property, tenantAddress) => {
     try {
-      console.log(property)
+      // //console.log(property)
       if (property.payments === undefined) {
-        console.log("UNDEFINED");
+        //console.log("UNDEFINED");
         return true;
       }
 
       const allTimestampsZero = property.payments.every(payment => {
         const timestamp = payment[2];
 
-        //console.log('timestamp ', Number(timestamp))
+        ////console.log('timestamp ', Number(timestamp))
         if (timestamp == 0 || timestamp === '0x00') {
           return false;
         }
@@ -899,9 +907,9 @@ const Owned = () => {
       if (allTimestampsZero) {
         return true;
       }
-      // console.log(tenantAddress)
+      // //console.log(tenantAddress)
 
-      // console.log(property)
+      // //console.log(property)
       const currentObject = property.payments.filter(a => a.renter === tenantAddress); // Example timestamp from smart contract in seconds
       if (currentObject === undefined) {
         return false;
@@ -913,26 +921,26 @@ const Owned = () => {
       if (currentObject.timestamp == 0 || currentObject.timestamp === '0x00') {
         return false;
       }
-      //console.log(currentObject)
+      ////console.log(currentObject)
       const twentyFourHoursInMillis = 600; // 24 hours in milliseconds
       const currentTimeInMillis = Math.floor(Date.now() / 1000);
 
       if (currentTimeInMillis - (Number(currentObject[0].timestamp)) > twentyFourHoursInMillis) {
-        console.log("true")
+        // //console.log("true")
         return true
       } else {
-        console.log("false")
+        // //console.log("false")
         return false
       }
     }
     catch (ex) {
-      console.log(ex)
+      //console.log(ex)
 
     }
   }
 
   const getTenantToDeleteColour = (tenant, i) => {
-    //console.log(i)
+    ////console.log(i)
     if (tenant.renterAddresses[i] === tenantToDelete.address && tenant.propertyId == tenantToDeleteProperty) {
       return "text-red-400"
     } else if (CheckTimestampExpired(tenant, tenant.renterAddresses[i])) {
@@ -961,7 +969,7 @@ const Owned = () => {
   };
 
   let test = calculatePageNumber(221, 498)
-  //console.log(test)
+  ////console.log(test)
 
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -1312,7 +1320,7 @@ const Owned = () => {
                           </div>
                           <div className="md:justify-self-start">
                             {txloadingState2[i] || txloadingState2B[i] ? (
-                              <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
+                              <p className='w-full flex justify-center bg-matic-blue text-xs italic px-6 py-1 rounded'>
                                 <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (
@@ -1525,7 +1533,7 @@ const Owned = () => {
                           </div>
                         </div>
                         {txloadingState3[i] || txloadingState3B[i] ? (
-                          <p className='w-full flex justify-center bg-red-400 text-xs italic px-12 py-1 rounded'>
+                          <p className='w-full flex justify-center bg-red-400 text-xs italic px-6 py-1 rounded'>
                             <SpinnerIcon text={(txloadingState3[i] && !txloadingState3B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (
@@ -1585,7 +1593,7 @@ const Owned = () => {
                           </div>
                         </div>
                         {txloadingState4[i] || txloadingState4B[i] ? (
-                          <p className='w-full flex justify-center bg-pink-400 text-xs italic px-12 py-1 rounded'>
+                          <p className='w-full flex justify-center bg-pink-400 text-xs italic px-6 py-1 rounded'>
                             <SpinnerIcon text={(txloadingState4[i] && !txloadingState4B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (
@@ -1644,7 +1652,7 @@ const Owned = () => {
                           </div>
                         </div>
                         {txloadingState5[i] || txloadingState5B[i] ? (
-                          <p className='w-full flex justify-center bg-green-500 text-xs italic px-12 py-1 rounded'>
+                          <p className='w-full flex justify-center bg-green-500 text-xs italic px-6 py-1 rounded'>
                             <SpinnerIcon text={(txloadingState5[i] && !txloadingState5B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (

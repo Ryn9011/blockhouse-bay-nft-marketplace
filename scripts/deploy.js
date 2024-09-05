@@ -2,7 +2,8 @@ const { ethers } = require("hardhat");
 const fs = require('fs');
 
 async function main() {
-  const deployingAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  // const deployingAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const deployingAddress = "0xa2Fe6EB40BE5768d929c0ef13dF6936522348067";
   const deployingSigner = (await ethers.getSigners())[0]; // Access the first signer
 
   console.log("Deploying signer:", deployingSigner);
@@ -22,7 +23,7 @@ async function main() {
     to: propertyMarket.target,
     value: ethers.parseEther("0.1"), // Replace with the desired amount of test Ether
   });
-  await tx.wait();
+  await tx.wait();  
 
   const GovtFunctions = await ethers.getContractFactory("GovtFunctions", {
     libraries: {

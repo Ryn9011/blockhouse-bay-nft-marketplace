@@ -75,8 +75,12 @@ const ForSale = () => {
       setNumForSale(numForSale);
 
       const items = await Promise.all(data.filter(a => Number(a.tokenId) !== 0).map(async i => {
-      
-        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+    
+        const tokenUri = 'https://dummyimage.com/300x200/000/fff'
+        
+        //await tokenContract.tokenURI(i.tokenId)
+
+
       
         const meta = await axios.get(tokenUri) //not used?  
 
@@ -219,10 +223,13 @@ const ForSale = () => {
         console.log('Error:', ex);
       }
       
-      console.log('gasLimit:', gasLimit.toString());       
+      gasLimit = gasLimit + 100000n;
+          
       const feeData = await provider.getFeeData();      
-      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
       console.log('price', typeof(price))
       const transaction = await contract2.createPropertySale(
         nftaddress,
@@ -302,7 +309,7 @@ const ForSale = () => {
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
             <header className="flex items-center h-16 mb-1 mr-3">
-              <p className="text-sm lg:text-xl font-bold">Buy a property and earn Matic tokens </p>
+              <p className="text-sm lg:text-xl font-bold">Buy a property and earn Matic tokens from your renters! </p>
             </header>
             <div className='mb-1'>
               <img className="h-8 w-9 mr-2 mt-4" src="./polygonsmall.png" />
@@ -441,9 +448,10 @@ const ForSale = () => {
                           )}
                         </div>
                       </div>
+                      
                       <div className="px-2 flex justify-center">
                         {txloadingState[i] || txloadingStateB[i] ? (
-                          <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
+                          <p className='w-full bg-matic-blue text-xs italic px-6 py-1 rounded'>
                             <SpinnerIcon text={(txloadingState[i] && !txloadingStateB[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (

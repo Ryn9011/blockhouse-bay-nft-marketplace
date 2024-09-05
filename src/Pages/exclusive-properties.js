@@ -61,7 +61,8 @@ const Exclusive = () => {
       const data = await govtContract.fetchExclusiveProperties();
 
       const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
-        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        const tokenUri = 'https://dummyimage.com/300x200/000/fff'
+        //await tokenContract.tokenURI(i.tokenId)
 
         const meta = await axios.get(tokenUri)
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
@@ -174,14 +175,41 @@ const Exclusive = () => {
       const propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer)
       const amount = ethers.parseUnits(nft.tokenSalePrice, 'ether')
       setTxLoadingState1({ ...txloadingState1, [i]: true });
-      await propertyTokenContract.allowSender(amount)
+      try {
+        let gasLimit = await propertyTokenContract.allowSender.estimateGas(amount);
 
-      const gasLimit = await contract2.createPropertySale.estimateGas(nftaddress, nft.propertyId, propertytokenaddress, isTokenSale);
+        gasLimit = gasLimit + 100000n;
+
+        const feeData = await provider.getFeeData();   
+        const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+        const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+        const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
+        await propertyTokenContract.allowSender(
+          amount,{
+          maxFeePerGas: maxFeePerGas,
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          gasLimit: gasLimit
+        })
+      } catch (error) {
+        console.log(error)
+        alert('Transaction aborted');
+        setTxLoadingState1({ ...txloadingState1, [i]: false });
+        setTxLoadingState1B({ ...txloadingState1B, [i]: false });
+        return;
+      }
+      
+
+      let gasLimit = await contract2.createPropertySale.estimateGas(nftaddress, nft.propertyId, propertytokenaddress, isTokenSale);
+
+      gasLimit = gasLimit + 100000n; 
 
       const feeData = await provider.getFeeData();
 
-      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
       
       const transaction = await contract2.createPropertySale(
         nftaddress,
@@ -429,7 +457,7 @@ const Exclusive = () => {
                         {(property.owner === 'Unowned' || property.isForSale) ? (
                           <>
                             {txloadingState1[i] || txloadingState1B[i] ? (
-                              <p className='w-full flex justify-center bg-btn-gold text-xs italic px-12 mt-1 mb-3 py-1 rounded'>
+                              <p className='w-full flex justify-center bg-btn-gold text-xs italic px-3 lg:px-12 mt-1 mb-3 py-1 rounded'>
                                 <SpinnerIcon text={(txloadingState1[i] && !txloadingState1B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (

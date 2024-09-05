@@ -103,7 +103,7 @@ contract GovtFunctions is ReentrancyGuard {
         uint256[] memory propertyIds = new uint256[](1);
         propertyIds[0] = propertyId;     
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
-        require(rentPrice > 3 ether, "rent can't be less than 1 matic");
+        require(rentPrice >= 3 ether, "rent can't be less than 3 matic");
         require(property[0].owner == msg.sender, "Not owner");
         require(rentPrice >= property[0].deposit && rentPrice <= 500 ether, "Rent cannot exceed 500 matic");
 
@@ -226,7 +226,7 @@ contract GovtFunctions is ReentrancyGuard {
         
         require(msg.value == currentProperty[0].deposit, "correct deposit required");
         require(currentProperty[0].owner != msg.sender, "You can't rent your own property");
-        require(currentProperty[0].owner != address(0), "Property owner address should not be zero");        
+        require(currentProperty[0].owner != address(0), "Property owner address should not be zero");
 
         uint256[4][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
         
@@ -395,24 +395,25 @@ contract GovtFunctions is ReentrancyGuard {
     function withdrawRentTax() public onlyPropertyMarket nonReentrant {
         require(address(this).balance > 0, "no tax");
         uint256 bal = address(this).balance - totalDepositBal;
+        require(bal > totalDepositBal, "insufficient tax");
         payable(_govtAddress).transfer(bal);        
     }
 
-    // function checkTotalDepositBalance() public view  returns (uint256) {
-    //     return totalDepositBal;
-    // }
+    function checkTotalDepositBalance() public view  onlyGovt returns (uint256) {
+        return totalDepositBal;
+    }
 
-    // function checkGovtBalance() public view returns (uint256) {        
-    //     uint256 bal = address(this).balance - totalDepositBal;
-    //     uint256 marketBal = i_propertyMarketAddress.balance;
-    //     return bal + marketBal;
-    // }
+    function checkGovtBalance() public view onlyGovt returns (uint256) {        
+        uint256 bal = address(this).balance - totalDepositBal;
+        uint256 marketBal = i_propertyMarketAddress.balance;
+        return bal + marketBal;
+    }
 
-    // function amountToWithdraw() public view returns (uint256) {
-    //     return address(this).balance - totalDepositBal;
-    // }
+    function amountToWithdraw() public view onlyGovt returns (uint256) {
+        return address(this).balance - totalDepositBal;
+    }
 
-    // function getContractBal() public view returns (uint256) {
-    //     return address(this).balance;
-    // }
+    function getContractBal() public view onlyGovt returns (uint256) {
+        return address(this).balance;
+    }
 }

@@ -88,8 +88,12 @@ const PropertyView = () => {
       saleHistory.push("Unsold")
     }
     let owner = data.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : data.owner
+    console.log('owner', owner)
     let rentPrice = await ethers.formatUnits(data.rentPrice.toString(), 'ether')
     let totalIncomeGenerated = ethers.formatUnits(data.totalIncomeGenerated)
+
+    let depositHex = data.deposit//await govtContract.getDepositRequired();
+        let deposit = formatUnits(depositHex, 'ether')
 
     //let tokenSalePriceFormatted = ethers.formatUnits(hexTokenPrice, 'ether')
     let item = {
@@ -99,6 +103,8 @@ const PropertyView = () => {
       owner: owner,
       image: tokenUri,
       name: nftName,
+      depositRequired: deposit,
+      depositHex: depositHex,
       description: meta.data.description,
       roomOneRented: data.roomOneRented,
       roomTwoRented: data.roomTwoRented,
@@ -120,6 +126,9 @@ const PropertyView = () => {
       item.roomsToRent++
     }
     if (item.roomThreeRented == true) {
+      item.roomsToRent++
+    }
+    if (item.roomThreeFour == true) {
       item.roomsToRent++
     }
     setTxLoadingState(false);
@@ -153,14 +162,39 @@ const PropertyView = () => {
         }
       }
 
+      let gasLimit = await contract2.createPropertySale.estimateGas(
+        nftaddress, 
+        nft.propertyId, 
+        propertytokenaddress, 
+        isTokenSale,
+        {
+          value: price,
+        }
+      );  
+
+      gasLimit = gasLimit + 100000n;
+
+      console.log('does get here?')
+
+      const feeData = await provider.getFeeData();   
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
+
       const transaction = await contract2.createPropertySale(
         nftaddress,
         nft.propertyId,
         propertytokenaddress,
         isTokenSale,
-        { value: price }
+        { 
+          value: price,
+          gasLimit: gasLimit,
+          maxFeePerGas: maxFeePerGas,
+          maxPriorityFeePerGas: maxPriorityFeePerGas
+         }
       );
-
+          
       if (document.getElementById("pogRadio") != undefined) {
         if (document.getElementById("pogRadio").checked) {
           await propertyTokenContract.allowSender(0);
@@ -183,18 +217,36 @@ const PropertyView = () => {
 
   const rentProperty = async (property) => {
     try {
+      console.log('id ', property.propertyId)
+      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
-      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-
-      const test = property.deposit; //await await govtContract.getDepositRequired();
-      const deposit = ethers.parseUnits(test.toString(), 'ether')
+      const deposit = Number(property.depositHex).toString() //await await govtContract.getDepositRequired();
+      // const deposit = ethers.parseUnits(test.toString(), 'ether')
       // const num = ethers.utils.formatEther(deposit)
       // const rentals = await marketContract.getPropertiesRented()
       // ? ethers.utils.parseUnits(property.rentPrice.toString(), 'ether') 
       // : ethers.utils.parseUnits(contract.defaultRentPrice.toString(), 'ether')
       //STOP SAME ADDRESS RENTING MORE THAN ONE ROOM?
+
+      const gasLimit2 = await govtContract.rentProperty.estimateGas(property.propertyId, {
+        value: deposit
+      });
+
+      gasLimit2 = gasLimit2 + 100000n;
+
+      const feeData = await provider.getFeeData();
+
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
+      console.log('before tx')
+
       const transaction = await govtContract.rentProperty(property.propertyId, {
-        value: test
+        value: deposit,
+        gasLimit: gasLimit2,        
+        maxFeePerGas: maxFeePerGas,
+        maxPriorityFeePerGas: maxPriorityFeePerGas
       });
       setTxLoadingState2(true);
 
@@ -287,7 +339,7 @@ const PropertyView = () => {
                   </div>
                   <div className="flex flex-col pb-2">
                     <p>Rooms Rented:</p>
-                    <p className="font-mono text-xs text-green-400">{property.roomsToRent}/3</p>
+                    <p className="font-mono text-xs text-green-400">{property.roomsToRent}/4</p>
                   </div>
                   <div className="flex flex-col pb-2">
                     <p>Rent Price:</p>
@@ -446,7 +498,7 @@ const PropertyView = () => {
                         )}
                       </div>
                     }
-                    {property.roomsToRent < 3 &&
+                    {property.roomsToRent < 3 && property.owner !== 'Unowned' &&
                       <div className="p-2 pb-0 pt-1.2 bg-black">
                         <div className="flex divide-x divide-white justifty-start px-2">
                           <div className="flex pr-5">
@@ -469,7 +521,7 @@ const PropertyView = () => {
                           <div className="flex text-xs pl-5 lg:pl-3">
                             <ul className="list-disc pl-3.5 list-outside">
                               <li className='mb-1'>
-                                A rental deposit of <span className='font-mono text-xs text-blue-400'>5 Matic</span> is required to rent this property
+                                A rental deposit of <span className='font-mono text-xs text-blue-400'>{property.depositRequired}</span> is required to rent this property
                               </li>
                               <li>
                                 Your deposit is refunded upon vacating a property (deposit is not refunded if evicted from the property)
@@ -479,7 +531,7 @@ const PropertyView = () => {
                         </div>
 
                         <div className="text-2xl pt-2 text-white"></div>
-
+                        
                         <div className="px-0 flex justify-center">
                           {txloadingState2 ? (
                             <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
@@ -494,6 +546,7 @@ const PropertyView = () => {
                             </button>
                           )}
                         </div>
+                        
                       </div>
                     }
                   </div>

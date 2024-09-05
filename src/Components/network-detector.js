@@ -47,7 +47,7 @@ function getRpcUrl(network, projectId) {
   } else {
     rpcUrl = 'http://localhost:8545';
   }
-  return 'Mumbai';
+  return 'Amoy';
 }
 
 async function checkNetwork() {

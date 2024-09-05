@@ -2,11 +2,11 @@ import React from 'react';
 
 const SpinnerIcon = ({ text }) => {
   return (
-    <div className='flex justify-between items-center'>
-      <div className='text-lg mr-2 text-gray-300'>{text}</div>
+    <div className='grid grid-cols-4 items-center border border-1 border-white px-4'>
+      <div className='col-span-2 text-lg text-indigo-50 pr-2'>{text}</div>
       <svg
         role="status"
-        className="inline w-6 h-6  text-gray-300 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300"
+        className="inline w-5 h-5 text-gray-300 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300"
         viewBox="0 0 100 101"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
@@ -20,6 +20,7 @@ const SpinnerIcon = ({ text }) => {
           fill="currentFill"
         />
       </svg>
+      <div className='w-24 place-self-end pl-1 text-white'>Tx can take several minutes</div>
     </div>
 
   );

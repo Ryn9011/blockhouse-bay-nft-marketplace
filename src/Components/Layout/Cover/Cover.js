@@ -62,7 +62,7 @@ export default function Cover() {
                         </div>
                     </div>
                     <div className="flex justify-center mb-6 xl3:mb-12 ">
-                        <a href="/how-to-play" className="text-white bg-green-900  hover:text-green-400 hover:bg-opacity-50 text-base font-semibold hover:no-underline border border-green-700 hover:border-green-400 rounded py-3 px-6">Get Started</a>
+                        <a href="/how-to-play" className="text-white bg-green-900  hover:text-green-400 hover:bg-opacity-50 text-sm md:text-base font-semibold hover:no-underline border border-green-700 hover:border-green-400 rounded py-2.5 px-4 md:py-3 md:px-6">Get Started</a>
                     </div>
                     {/* <div className="flex justify-center relative px-4 lg:px-0 lg:pb-12 xl3:pb-0">
                         <img src="test48.png" className=" lg:w-2/5" alt="" />

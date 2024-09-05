@@ -182,7 +182,7 @@ const About = () => {
 
             <div className="xl:grid grid-cols-2 gap-11 ">
               <div className="col-span-1 pr-[16px] lg:pr-0">
-                <ul className="divide-y divide-gray-200 lg:ml-0 text-lg">
+                <ul className="divide-y divide-gray-200 lg:ml-0  text-lg">
                   <li className="py-4 pt-0 ">
                     <h3 className="text-2xl font-semibold text-yellow-200 lg:mt-0">What is Blockhouse Bay?</h3>
                     <div className="xl:hidden flex justify-center">
@@ -192,7 +192,7 @@ const About = () => {
                     <p className="mt-2 text-gray-400">
                       Blockhouse Bay is a gamified real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate!
                     </p>
-                    <button className="text-indigo-400 underline mt-2" onClick={handleModalOpen}>TLDR</button>
+                    <button className="text-indigo-400 text-sm italic underline mt-2" onClick={handleModalOpen}>White Paper</button>
                     <Modal
                       open={isOpen}
                       onClose={handleModalClose}
@@ -200,83 +200,106 @@ const About = () => {
                       aria-describedby="modal-description"
                     >
                       <div className={classes.paper}>
-                        <img src="logoplain.png" className=" mb-12" alt="blockhouse bay" />
-                        <Typography variant="body1" id="modal-description" gutterBottom>
-                          Blockhouse Bay is a decentralized application (dapp) built on the
-                          Polygon blockchain that allows users to participate in a virtual real
-                          estate market. Using unique erc721 tokens, users can buy, sell, and
-                          rent properties within the platform's ecosystem.
-                        </Typography>
-                        <Typography variant="body1" id="modal-description" gutterBottom>
-                          All property NFTs are pre-minted and stored on Arweave. A total of 500 standard properties and 50 exclusive properties are available for purchase.
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          Each property on the platform is represented by an erc721 token, which
-                          is a non-fungible token (NFT). This means that each token is unique and
-                          represents a specific asset, just like real-world properties. The use
-                          of NFTs ensures that each property in Blockhouse Bay is fully owned and
-                          controlled by the user who holds the corresponding token.
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          The prices of properties on Blockhouse Bay are fixed, with the current
-                          owner setting the price for the property. This makes it easy and
-                          straightforward for users to purchase or sell properties on the
-                          platform without the need for offers or negotiations.
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          When a property is listed for sale, the NFT is transferred to the Blockhouse Bay market
-                          smart contract. If the sale is cancelled, the NFT is returned to the owner.
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          Renters can also participate in the platform by renting properties
-                          from other users. Rent is paid in Matic, the native cryptocurrency of
-                          the Polygon network, and renters are rewarded with BHB tokens for
-                          paying their rent. BHB tokens can be used to buy and sell properties on
-                          the platform or to purchase exclusive properties that are only
-                          available for purchase with BHB tokens. The higher the rent price, the higher the token reward.
-                          A diminishing supply factor is in place and so as supply runs lower, the amount of tokens paid out will decrease.
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          10000000 BHB tokens were minted at the start of the project.
-                          100% of the BHB tokens are available to players as none are retained by Blockhouse Bay.
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          One of the key benefits of using the Polygon blockchain for Blockhouse
-                          Bay is that it is a very cost-effective blockchain to operate on. The
-                          Polygon network is designed to be scalable and efficient, with low
-                          transaction fees and fast confirmation times. This means that users
-                          can participate in the virtual real estate market without incurring
-                          high transaction fees, making it an attractive option for those
-                          looking to invest in the virtual real estate market.
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          In summary, Blockhouse Bay provides a fun and exciting way for users
-                          to participate in the real estate market without the need for
-                          significant capital investment. By leveraging the power of the Polygon
-                          blockchain and NFT technology, Blockhouse Bay creates a decentralized
-                          and secure real estate market that is accessible to everyone.
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          The smart contracts behind the platform have been audited by an industry expert but risks can still potentially exist. See disclaimer below.
-                        </Typography>
-                        <Typography variant="body1" gutterBottom>
-                          <p className="text-yellow-200 font-semibold  mt-4">DISCLAIMER</p>
-                          <p className="italic">Blockhouse Bay is a virtual real estate platform built on the Polygon blockchain that offers users the opportunity to buy, sell, and rent digital properties using non-fungible tokens (NFTs). The project operates within the decentralized application (dapp) ecosystem and allows participants to engage in simulated virtual real estate market.
+                        {/* <img src="logoplain.png" className=" mb-12" alt="blockhouse bay" /> */}
 
-                            It's important to note that engaging in virtual real estate markets involves inherent risks. The purchase, sale, or rental of properties within Blockhouse Bay may be subject to market volatility and fluctuations in cryptocurrency prices, particularly Matic (the native cryptocurrency of the Polygon network) and BHB tokens used within the platform.
 
-                            Users should exercise caution and conduct thorough research before participating in any transactions within the Blockhouse Bay ecosystem. The use of NFTs and cryptocurrencies carries risks, including but not limited to regulatory, financial, and technological risks.
+                        <div className="bg-gray-300 text-black p-8">
+                          <div className="bg-white p-6 rounded-lg shadow-lg">
+                            <div className="bg-gray-900 rounded-lg p-2 pb-0 shadow-lg">
+                              <img src="logoplain.png" className="mb-12" alt="Blockhouse Bay" />
+                            </div>
+                           
+                            {/* <h1 className="text-3xl font-bold mb-6">White Paper</h1> */}
 
-                            Additionally, Blockhouse Bay does not guarantee the value, authenticity, or future marketability of the digital properties or tokens traded on its platform. Users should be aware that the virtual properties held within the platform may not have real-world value and are solely for entertainment or speculative purposes.
+                            <section className="mb-8">
+                              <h2 className="text-2xl font-semibold mb-4">Introduction</h2>
+                              <p>
+                                Blockhouse Bay is a decentralized application (dApp) built on the Polygon blockchain, offering users an immersive virtual real estate market experience. Leveraging unique ERC721 tokens, users can buy, sell, and rent properties within the Blockhouse Bay ecosystem. This white paper outlines the platform's core features, tokenomics, and future goals.
+                              </p>
+                            </section>
 
-                            Moreover, the project's features, functionalities, and token economics are subject to change, and users should stay updated with the platform's terms of service, policies, and any updates announced by the development team.
+                            <section className="mb-8">
+                              <h2 className="text-2xl font-semibold mb-4">Project Overview</h2>
+                              <p>
+                                Blockhouse Bay is a virtual real estate platform where each property is represented by an ERC721 token, ensuring each asset is unique and non-fungible. These NFTs grant users full ownership and control over their digital properties.
+                              </p>
+                              <p>
+                                The platform features a total of 550 properties: 500 standard properties and 50 exclusive properties, all pre-minted and securely stored on Arweave, a blockchain-based data storage solution.
+                              </p>
+                            </section>
 
-                            Blockhouse Bay is not providing financial advice, and users should seek independent financial advice if needed before making any investment decisions within the platform.
+                            <section className="mb-8">
+                              <h2 className="text-2xl font-semibold mb-4">Property Transactions</h2>
+                              <p>
+                                Property transactions on Blockhouse Bay are designed to be transparent and straightforward. Property prices are set by the current owner, eliminating the need for negotiations:
+                              </p>
+                              <ul className="list-disc ml-8">
+                                <li>When a property is listed for sale, the corresponding NFT is transferred to the Blockhouse Bay market smart contract.</li>
+                                <li>If the sale is canceled, the NFT is returned to the owner.</li>
+                              </ul>
+                            </section>
 
-                            By using Blockhouse Bay, users acknowledge and accept the associated risks and understand that their participation in the platform's activities is at their own discretion and risk.
-                          </p>
+                            <section className="mb-8">
+                              <h2 className="text-2xl font-semibold mb-4">Rental System and Rewards</h2>
+                              <p>
+                                The platform also supports property rentals, with rent payments made in Matic, the native cryptocurrency of the Polygon network. Renters are rewarded with BHB tokens for paying their rent, which can be used within the platform to buy, sell, or rent properties. Additionally, BHB tokens can be used to purchase exclusive properties available only through these tokens. The platform features a diminishing supply model, where the amount of tokens rewarded decreases as the token supply diminishes.
+                              </p>
+                            </section>
 
-                        </Typography>
+                            <section className="mb-8">
+                              <h2 className="text-2xl font-semibold mb-4">Tokenomics</h2>
+                              <ul className="list-disc ml-8">
+                                <li><strong>Total Supply:</strong> 10,000,000 BHB tokens were minted at the project's inception.</li>
+                                <li><strong>Distribution:</strong> 100% of the BHB tokens are available to users; none are retained by Blockhouse Bay.</li>
+                              </ul>
+                            </section>
+
+                            <section className="mb-8">
+                              <h2 className="text-2xl font-semibold mb-4">Platform Advantages</h2>
+                              <p>
+                                Blockhouse Bay benefits from the Polygon blockchain's scalability, efficiency, and low transaction fees, making it an attractive option for users interested in virtual real estate without high costs.
+                              </p>
+                            </section>
+
+                            <section className="mb-8">
+                              <h2 className="text-2xl font-semibold mb-4">Future Goals for BHB Token</h2>
+                              <ul className="list-disc ml-8">
+                                <li><strong>Integration with Decentralized Finance (DeFi) Protocols:</strong> It is a goal to integrate BHB tokens with various DeFi protocols, such as lending platforms, yield farming, or liquidity pools. This integration will offer users additional use cases for their BHB holdings, potentially providing returns and adding liquidity to the ecosystem.</li>
+                                <li><strong>Cross-Platform Integration:</strong> Explore partnerships with other virtual worlds, gaming platforms, or NFT marketplaces to extend the use of BHB tokens beyond Blockhouse Bay.</li>                                
+                              </ul>
+                            </section>
+
+                            <section className="mb-8">
+                              <h2 className="text-2xl font-semibold mb-4">Security and Transparency</h2>
+                              <p>
+                                Blockhouse Bay's smart contracts have been audited by industry experts, ensuring a secure and reliable platform. However, users should be aware of the inherent risks associated with blockchain technology and virtual real estate markets.
+                              </p>
+                            </section>
+
+                            <section className="mb-8">
+                              <h2 className="text-2xl font-semibold mb-4">Disclaimer</h2>
+                              <p>
+                                Blockhouse Bay offers a virtual real estate platform on the Polygon blockchain, allowing users to buy, sell, and rent digital properties using NFTs. Participation involves risks, including market volatility and fluctuations in cryptocurrency prices, especially Matic and BHB tokens.
+                              </p>
+                              <p>
+                                Users are advised to conduct thorough research and exercise caution before engaging in transactions. The platform does not guarantee the value, authenticity, or future marketability of the digital properties or tokens. Features and tokenomics may change, and users should stay informed about the platform's updates.
+                              </p>
+                              <p>
+                                Blockhouse Bay does not provide financial advice. Users should seek independent financial guidance as needed. Participation in the platform's activities is at the user's own risk.
+                              </p>
+                            </section>
+
+                            <section>
+                              <h2 className="text-2xl font-semibold mb-4">Conclusion</h2>
+                              <p>
+                                Blockhouse Bay offers an accessible and innovative entry into the virtual real estate market, leveraging Polygon's blockchain technology and NFT capabilities. With a secure and transparent platform, users can explore the potential of digital real estate in a decentralized environment.
+                              </p>
+                              <p>
+                                For more information and updates, please visit the Blockhouse Bay website and follow our official communication channels.
+                              </p>
+                            </section>
+                          </div>
+                        </div>
 
                         <div className="text-yellow-400 flex justify-center">
                           <button className="border border-1 border-yellow-400 rounded py-1.5 px-4 mt-4" onClick={handleModalClose}>Close</button>
@@ -300,7 +323,7 @@ const About = () => {
                       Firstly, it was my excuse for me the developer, ScubaSteve (my gaming alter ego),
                       to dive into and better understand the mysteries of blockchain and NFTs. Secondly, to create something for others can have some fun with and even make some money along the way.
                       Thirdly,
-                      it is a desperate attempt to crowdfund a new laptop -
+                      it is a rather desperate attempt to crowdfund a new laptop -
                       As much as opening a notepade on mine heats it up to the point I could probably roast marshmallows over it meanwhile the fans going off like bees trapped in a blender!
                     </p>
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Landlord, Tenant or Both!</p>
@@ -331,17 +354,14 @@ const About = () => {
                       As a landlord, you'll enjoy the satisfaction of earning real money from your renters in the form of MATIC tokens. You'll also have the chance to receive exclusive Blockhouse Bay tokens (BHB) every time rent is paid. These tokens open up exciting possibilities and provide a cost-effective way to purchase properties.
                     </p>
                   </li>
-                  <li className="pb-4 pt-2">
-                    <h3 className="text-2xl font-semibold text-yellow-200 ">Exclusive Properties</h3>
-                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Spend BHB Tokens</p>
-                    <p className="mt-2 text-gray-400">
-                      Discover a collection of stunning exclusive properties that can only be acquired with BHB tokens. Take a peek at the Blockhouse Bay Gardens properties and find your dream property that sets you apart from the rest.
-                    </p>
-                  </li>
                 </ul>
               </div>
 
-              <div className="col-span-1 mt-2 mr-4 bg-right-top bg-fit bg-no-repeat" style={{ backgroundImage: "url('insidereduced.png')" }}></div>
+              <div className="col-span-1 xl3:hidden mt-2 mr-4 bg-right-top bg-contain bg-no-repeat" style={{ backgroundImage: "url('insidereduced.png')", height: "400px%" }}
+              ></div>
+
+              <div className="col-span-1 hidden xl3:block mt-2 mr-4 bg-right-top bg-cover bg-no-repeat" style={{ backgroundImage: "url('livingroom1.png')", height: "400px%" }}
+              ></div>
 
             </div>
           </AccordionDetails>
@@ -478,7 +498,7 @@ const About = () => {
 
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Evict Tenants</p>
                     <p className="mt-2 text-gray-400">
-                      Owners can evict a tenant if the tenant consistently fails to pay rent. It is ultimately down to the owner's discretion to decide whether to evict a tenant or not.
+                      Owners can evict a tenant if the tenant consistently fails to pay rent. It is ultimately down to the owner's discretion to decide whether to evict a tenant or not; they may feel generous and let the tenant stay a while longer, even if they're behind on rent.
                     </p>
                   </li>
 
@@ -543,8 +563,8 @@ const About = () => {
                   }
                   {currentImageNum === 3 &&
                     <div>
-                      <p className="mb-2">The image shows an example of a X post</p>
-                      <p>A property for sale or to rent will of course require advertising and promoting as it would in the real world!</p>
+                      <p className="mb-2">The image illustrates an example of an X post.</p>
+                      <p>A property listed for sale or rent naturally requires advertising and marketing, just as it would in the physical world.</p>
                     </div>
                   }
                   {ownedImageSrc !== "./X.png" ? (
@@ -585,7 +605,7 @@ const About = () => {
                           Property name
                         </li>
                         <li>
-                          The selling/renting amount if those options are checked in the panel (bottom image). If these are not selected, only the link to your property will be inlcuded in the post.
+                          Price (if the "Selling" or "Vacant Rooms" checkbox options are selected. If not selected, only the link to your property will be included in the post.)
                         </li>
                         <li>
                           The number of rooms vacant on your property
@@ -594,7 +614,7 @@ const About = () => {
                           Link to your property
                         </li>
                       </ul>
-                      <p className="mt-4">You can of course customise your post in any way you want. This just provides a convenient way to get the necessary inforation into your post.</p>
+                      <p className="mt-4">You can, of course, customize your post however you like. This template simply provides a convenient way to include essential information in your post.</p>
                     </div>
 
                   )}
@@ -781,6 +801,9 @@ const About = () => {
                 <li className="pb-4">
                   <h3 className="text-2xl font-semibold text-green-300">Blockhouse Bay Gardens</h3>
                   <p className="mt-2 text-gray-400">
+                    Discover a collection of stunning exclusive properties that can only be acquired with BHB tokens.
+                  </p>
+                  <p className="mt-2 text-gray-400">
                     Blockhouse Bay Gardens, a long exclusive street of grand and stunning homes,
                     is a paradise of luxurious living. From impressive architecture to immaculate gardens,
                     each house is a masterpiece of sophistication,
@@ -862,8 +885,10 @@ const About = () => {
                     </p>
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Duration</p>
                     <p className="mt-2 text-gray-400">
-                      Transactions are normally pretty quick but occasionally can take a little longer.
-                      If nothing happens straight away just give it a little longer and it should go through and update the UI.
+                      Transactions can take a few minutes to complete. If a transaction is taking longer than expected, it may be due to network congestion.
+                    </p>
+                    <p className="mt-2 text-gray-400">
+                      You can navigate away from the page with the pending transaction and track its status from your wallet.
                     </p>
                     <p className="text-white text-lg xl3:text-xl italic mt-4">BHB Token Burn</p>
                     <p className="mt-2 text-gray-400">
@@ -873,13 +898,16 @@ const About = () => {
                     </p>
                   </li>
                   <li className="pb-4">
-                    <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Decentralization</h3>
+                    <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Decentralization / Security</h3>
                     <p className="mt-2 text-gray-400">
                       The BHB platform itself and owner do NOT have the ability to interact with the platform in non-standard ways with the exception of withdrawaing fees from transactions.
-                      This is by design to ensure the platform remains decentralised and secure. 
+                      This is by design to ensure the platform remains decentralised and secure.
                       <p className="mt-2 text-gray-400">
                         The platform owner can gift unsold properties to users, but once a property has been sold, the platform owner has no control over the property and full control remains with the current property owner.
-                    </p>
+                      </p>
+                      <p className="mt-2 text-gray-400">
+                        The smart contracts that govern the platform have been audited by a third party to help ensure they are secure and free from vulnerabilities.
+                      </p>
                     </p>
                   </li>
                   <li>

@@ -70,7 +70,8 @@ const ToRent = () => {
 
       const items = await Promise.all(data.filter(i => Number(i.tokenId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
         
-        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        const tokenUri = 'https://dummyimage.com/300x200/000/fff'
+        //await tokenContract.tokenURI(i.tokenId)
 
         const meta = await axios.get(tokenUri)
 
@@ -166,20 +167,27 @@ const ToRent = () => {
 
   const rentProperty = async (property, i) => {
     try {
+      console.log('propertyId: ', property.propertyId)
       const govtContract = new Contract(govtaddress, GovtFunctions.abi, signer)  
       setTxLoadingState({ ...txloadingState, [i]: true }); 
       console.log('property.depositHex: ', property.depositHex)  
 
-      const gasLimit2 = await govtContract.rentProperty.estimateGas(property.propertyId, {
+      let gasLimit = await govtContract.rentProperty.estimateGas(property.propertyId, {
         value: Number(property.depositHex).toString()
       });
 
-      const feeData2 = await provider.getFeeData();
+      gasLimit = gasLimit+100000n;
+
+      const feeData = await provider.getFeeData();
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
       const transaction = await govtContract.rentProperty(property.propertyId, {       
         value: Number(property.depositHex).toString(),
-        gasLimit: gasLimit2,
-        gasPrice: feeData2.gasPrice,
+        gasLimit: gasLimit,
+        maxFeePerGas: maxFeePerGas,
+        maxPriorityFeePerGas: maxPriorityFeePerGas
       });
       
       await transaction.wait();
@@ -238,7 +246,7 @@ const ToRent = () => {
             {/* <h5>Rent a property and earn</h5> */}
             <header className="flex-col items-center h-16 mb-4 mt-4">
               <div className="text-sm lg:text-xl font-bold">Rent a room from a home owner and earn BHB tokens</div>
-              <p className='mt-3 text-green-100 italic'>An account can rent a one room in up to 4 properties</p>
+              <p className='mt-3 text-green-100 italic'>An account can rent 1 room in up to 4 properties</p>
             </header>
             {/* <div className=" hidden lg:block">
               <img
@@ -399,7 +407,7 @@ const ToRent = () => {
                         <div className="flex text-xs pl-5 lg:pl-3">
                           <ul className="list-disc pl-3.5 list-outside">
                             <li className='mb-1'>
-                              A rental deposit of <span className='font-mono text-xs text-blue-400'>3 Matic</span> is required to rent this property
+                              A rental deposit of <span className='font-mono text-xs text-blue-400'>{property.depositRequired} Matic</span> is required to rent this property
                             </li>
                             <li>
                               Rental deposits are refunded upon vacating a property (providing renter is not evicted from the property)
@@ -408,11 +416,10 @@ const ToRent = () => {
                         </div>
                       </div>
 
-                      <div className="text-2xl pt-2 text-white"></div>
-
+                      <div className="text-2xl pt-2 text-white"></div>                      
                       <div className="px-2 flex justify-center">
                         {txloadingState[i] || txloadingStateB[i] ? (
-                          <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
+                          <p className='w-full flex justify-center bg-matic-blue text-xs italic px-6 py-1 rounded'>
                             <SpinnerIcon text={(txloadingState[i] && !txloadingStateB[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (

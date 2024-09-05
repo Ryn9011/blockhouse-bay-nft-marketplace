@@ -7,6 +7,7 @@ import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/rea
 import { BrowserProvider, Contract, formatUnits } from 'ethers'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
+import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 
 import WebBundlr from '@bundlr-network/client';
 import { useRef } from "react";
@@ -16,6 +17,7 @@ import data from '../final-manifest.json';
 import dataEx from '../exc-manifest.json';
 
 import {
+  govtaddress,
   nftaddress, nftmarketaddress
 } from '../config'
 
@@ -36,6 +38,11 @@ const CreateItem = () => {
   const [uris, setUris] = useState()
   const [amount, setAmount] = useState()
   const { modalEvent, provider, signer } = useModalContext();
+
+  const [totalDepositBal, setTotalDepositBal] = useState()
+  const [govtBal, setGovtBal] = useState()
+  const [amountToWithdrawBal, setAmountToWithdrawBal] = useState()
+  const [contractBal, setContractBal] = useState()
 
   // const filesTest = [
   //   { name: "property1.jpeg", path: "/Users/ryanjennings/Desktop/final/" },   
@@ -196,6 +203,54 @@ const CreateItem = () => {
     }
   }
 
+  //create getters for the below
+
+//   function checkTotalDepositBalance() public view  onlyGovt returns (uint256) {
+//     return totalDepositBal;
+// }
+
+// function checkGovtBalance() public view onlyGovt returns (uint256) {        
+//     uint256 bal = address(this).balance - totalDepositBal;
+//     uint256 marketBal = i_propertyMarketAddress.balance;
+//     return bal + marketBal;
+// }
+
+// function amountToWithdraw() public view onlyGovt returns (uint256) {
+//     return address(this).balance - totalDepositBal;
+// }
+
+// function getContractBal() public view onlyGovt returns (uint256) {
+//     return address(this).balance;
+// }
+
+  const checkTotalDepositBalance = async () => {
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
+    const totalDepositBal = await contract.checkTotalDepositBalance()
+    console.log('totalDepositBal: ', totalDepositBal)
+    setTotalDepositBal(totalDepositBal)
+  }
+
+  const checkGovtBalance = async () => {
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
+    const govtBal = await contract.checkGovtBalance()
+    console.log('govtBal: ', govtBal)
+    setGovtBal(govtBal)
+  }
+
+  const amountToWithdraw = async () => {
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
+    const amount = await contract.amountToWithdraw()
+    console.log('amount: ', amount)
+    setAmountToWithdrawBal(amount)
+  }
+
+  const getContractBal = async () => {
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
+    const bal = await contract.getContractBal()
+    console.log('bal: ', bal)
+    setContractBal(bal)
+  }
+
 
   const createSale = async () => {   
 
@@ -246,16 +301,16 @@ const CreateItem = () => {
     for (let i = 0; i < numOfBatches && i * batchSize < tokenIds.length; i++) {
       const idsBatch = tokenIds.slice(i * batchSize, (i + 1) * batchSize);
 
-      const gasLimit = await contract.createPropertyListing.estimateGas(nftaddress, idsBatch);
-      console.log('Estimated Gas Limit:', gasLimit.toString());
+      let gasLimit = await contract.createPropertyListing.estimateGas(nftaddress, idsBatch);
+      gasLimit = gasLimit + 100000n;
 
       // // Fetch the current gas fee data
       const feeData = await provider.getFeeData();
       console.log("Current Fee Data:", feeData);
 
-      // // Set the maxFeePerGas and maxPriorityFeePerGas with a buffer
-      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
 
       // add gas limits here as well
@@ -274,16 +329,17 @@ const CreateItem = () => {
 
      let contract = new ethers.Contract(nftaddress, NFT.abi, signer)
     // // Estimate the gas required for the transaction
-     const gasLimit = await contract.createExclusiveTokens.estimateGas(urisn);
-    // console.log('Estimated Gas Limit:', gasLimit.toString());
+     let gasLimit = await contract.createExclusiveTokens.estimateGas(urisn);
+    gasLimit = gasLimit + 100000n;
 
     // // // Fetch the current gas fee data
     const feeData = await provider.getFeeData();
     console.log("Current Fee Data:", feeData);
 
     // // // Set the maxFeePerGas and maxPriorityFeePerGas with a buffer
-    const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
-    const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
+    const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+    const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+    const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
     console.log(urisn)
 
@@ -322,8 +378,7 @@ const CreateItem = () => {
 
     // // Set the maxFeePerGas and maxPriorityFeePerGas with a buffer
     const maxPriorityFeePerGas2 = feeData2.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
-    const maxFeePerGas2 = maxPriorityFeePerGas2 + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
-             
+    const maxFeePerGas2 = maxPriorityFeePerGas2 + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater      
 
     let transaction2 = await contract2.createPropertyListing(
       nftaddress, 
@@ -332,11 +387,10 @@ const CreateItem = () => {
         value: listingPrice, 
         gasLimit: gasLimit2,
         maxPriorityFeePerGas: maxPriorityFeePerGas2,
-        maxFeePerGas: maxFeePerGas2
+        maxFeePerGas: maxFeePerGas2      
       }
     );
-    await transaction2.wait();
-    
+    await transaction2.wait();    
   }
 
   const giftProperties = async () => {
@@ -395,9 +449,12 @@ const CreateItem = () => {
       }
       <div className="flex justify-center">
             <div className="w-1/2 flex flex-col pb-12">
+            <button onClick={giftProperties} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Create Gift
+                </button>
                 <input
                     placeholder="address"
-                    className="mt-8 border rounded p-4"
+                    className="mt-2 border rounded p-4"
                     onChange={e => updateFormInput({ ...formInput, address: e.target.value })}
                 />
                 {/* <textarea
@@ -407,7 +464,7 @@ const CreateItem = () => {
                 /> */}
                 <input
                     placeholder="Pid"
-                    className="mt-2 border rounded p-4"
+                    className="mt-2 border rounded p-4 mb-12"
                     onChange={e => updateFormInput({ ...formInput, pid: e.target.value })}
                 />               
                 {/* {
@@ -421,12 +478,36 @@ const CreateItem = () => {
                 <button onClick={createSaleEx} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
                     Create Exclusives
                 </button>
-                <button onClick={giftProperties} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
-                    Create Gift
-                </button>
+         
                 <button onClick={govtWithdraw} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
                     Govt Withdraw
                 </button>
+
+                
+                <button onClick={checkTotalDepositBalance} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Check Total Deposit Balance
+                </button>
+                <div>
+                  {<p className='text-white'>{totalDepositBal}</p>}
+                </div>
+                <button onClick={checkGovtBalance} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Check Govt Balance
+                </button>
+                <div>
+                  {govtBal && <p className='text-white'>{govtBal}</p>}
+                </div>
+                <button onClick={amountToWithdraw} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Amount to Withdraw
+                </button>
+                <div>
+                  {amountToWithdrawBal && <p className='text-white'>{amountToWithdrawBal}</p>}
+                </div>
+                <button onClick={getContractBal} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Get Contract Balance
+                </button>
+                <div>
+                  {contractBal && <p className='text-white'>{contractBal}</p>}
+                </div>
             </div>
         </div>
     </>
