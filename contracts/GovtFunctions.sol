@@ -20,7 +20,8 @@ contract GovtFunctions is ReentrancyGuard {
     uint256 internal constant MIN_DEPOSIT = 3 ether;       
     uint256 public totalDepositBal = 0;
     mapping(address => uint256) public rentAccumulated;
-    mapping(address => uint256) public renterDepositBalance;
+    // address => propertyId => deposit
+    mapping(address => mapping(uint256 => uint256)) public renterDepositBalance;
 
     receive() external payable {}
         
@@ -77,21 +78,34 @@ contract GovtFunctions is ReentrancyGuard {
         rentAccumulated[caller] = amount;
     }
 
-    function setRenterDepositBalance(address renter, uint256 value) internal {
-        renterDepositBalance[renter] = value;        
+    function setRenterDepositBalance(address renter, uint256 value, uint256 propertyId) internal {
+        renterDepositBalance[renter][propertyId] = value;              
+    }
+
+    function getRenterDepositBalance(uint256 propertyId) public view returns (uint256) {
+        address renter = msg.sender;
+        return renterDepositBalance[renter][propertyId];
     }
 
     function getTotalDepositBalance() public view returns (uint256) {
         return totalDepositBal;
     }
 
-    function setTotalDepositBalance(uint256 amount, bool isAddition) internal {
-        if (isAddition) {
-            totalDepositBal += amount;
-        } else {
-            totalDepositBal -= amount;
-        }        
+    function decrementTotalDepositBalance(uint256 amount) internal onlyPropertyMarket {
+        totalDepositBal -= amount;
     }
+
+    function incrementTotalDepositBalance(uint256 amount) internal onlyPropertyMarket {
+        totalDepositBal += amount;
+    }
+
+    // function setTotalDepositBalance(uint256 amount, bool isAddition) internal {
+    //     if (isAddition) {
+    //         totalDepositBal += amount;
+    //     } else {
+    //         totalDepositBal -= amount;
+    //     }        
+    // }
 
     function getPropertiesForSale() public view returns (uint256) {
         uint256 propertyCount = propertyMarketContract.getPropertyIds() - 50;
@@ -262,11 +276,13 @@ contract GovtFunctions is ReentrancyGuard {
             if (tennants[0][i] == 0) {                
                 propertyMarketContract.incrementPropertiesRented();
                 propertyMarketContract.setTenantsMapping(msg.sender, propertyId, i);                
-                setRenterDepositBalance(msg.sender, msg.value);
-                setTotalDepositBalance(msg.value, true);
+
+                // setTotalDepositBalance(msg.value, true);
                 break;
             }
         }
+        setRenterDepositBalance(msg.sender, msg.value, propertyId);                                
+        incrementTotalDepositBalance(msg.value);
         //propertyMarketContract.setRenterToPropertyTimestamp(propertyId, block.timestamp, msg.sender);
     }
 
@@ -289,16 +305,15 @@ contract GovtFunctions is ReentrancyGuard {
         return false;        
     }
 
-
-    function refundDeposit(uint256 propertyId, address renterAddress) onlyPropertyMarket external {
+    function refundDeposit(uint256 propertyId, address renterAddress, bool evicted) onlyPropertyMarket external {
         require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
-
-        //get sinlge property
-        PropertyMarket.Property memory currentItem = fetchSingleProperty(propertyId);
-
-        setTotalDepositBalance(currentItem.deposit, false);
-        payable(renterAddress).transfer(currentItem.deposit);      
-   
+        uint256 depositPaid = renterDepositBalance[renterAddress][propertyId];
+        require(depositPaid > 0, "no deposit to refund");   
+        if (!evicted) {
+            payable(renterAddress).transfer(depositPaid);    
+        }                       
+        setRenterDepositBalance(msg.sender, 0, propertyId); 
+        decrementTotalDepositBalance(depositPaid);    
     }
 
     function payRent(uint256 propertyId) external payable nonReentrant {

@@ -151,8 +151,7 @@ const Owned = () => {
 
       const items = await Promise.all(data.filter(i => Number(i.propertyId) !== 0 && (a => Number(a.tokenId !== 0))).map(async i => {
         //console.log(i)
-        const tokenUri = 'https://dummyimage.com/300x200/000/fff'
-        //await token.tokenURI(i.tokenId)
+        const tokenUri = await token.tokenURI(i.tokenId)
         
 
 
@@ -168,7 +167,7 @@ const Owned = () => {
 
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = ethers.formatUnits(i.rentPrice.toString(), 'ether')
-        let deposit = ethers.formatUnits(i.deposit.toString(), 'ether')
+        //let deposit = ethers.formatUnits(i.deposit.toString(), 'ether')
         const renterAddresses = await market.getPropertyRenters(i.propertyId);
         // //console.log(renterAddresses)
         // let test = await marketContract.getTenantsMapping("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
@@ -200,6 +199,9 @@ const Owned = () => {
         let totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
 
         const propertyId = Number(ethers.formatUnits(BigInt(i.propertyId), 0));
+
+        // call getRenterDepositBalance on govt contract
+        let deposit = ethers.formatUnits(await govt.getRenterDepositBalance(propertyId), 'ether');
 
         ////console.log(propertyId)
 
@@ -333,19 +335,23 @@ const Owned = () => {
       let maticAmount = !isExclusive ? document.getElementById('amountInput' + i).value : document.getElementById('tokenInput' + i).value
       const priceFormatted = ethers.parseUnits(maticAmount, 'ether');
 
-      //console.log('Price formatted: ', priceFormatted)
+      let gasLimit;
+      try {
+        gasLimit = await contract.sellProperty.estimateGas(
+          nftaddress,
+          property.tokenId,
+          property.propertyId,
+          priceFormatted,
+          tokenAmount,
+          isExclusive,
+          { value: listingPrice.toString() }
+        )
+      } catch (ex) {
+        alert('Transaction failed. (Make sure price is not lower than original price of 150 Matic)')
+      }
+      
 
-      let gasLimit = await contract.sellProperty.estimateGas(
-        nftaddress,
-        property.tokenId,
-        property.propertyId,
-        priceFormatted,
-        tokenAmount,
-        isExclusive,
-        { value: listingPrice.toString() }
-      )
-
-      gasLimit = gasLimit + 100000n;
+      gasLimit = gasLimit + 300000n;
 
       const feeData = await provider.getFeeData();
       const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
@@ -534,7 +540,21 @@ const Owned = () => {
     const contract = new Contract(nftmarketaddress, Market.abi, signer)
     setTxLoadingState2({ ...txloadingState2, [i]: true });
     try {
-      const transaction = await contract.cancelSale(nftaddress, property.tokenId, property.propertyId)
+
+      // let gasLimit = await contract.cancelSale.estimateGas(nftaddress, property.tokenId, property.propertyId)
+      // gasLimit = gasLimit + 300000n;
+
+      // const feeData = await provider.getFeeData();
+      // const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      // const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      // const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
+
+      const transaction = await contract.cancelSale(nftaddress, property.tokenId, property.propertyId, {
+        // gasLimit: gasLimit,
+        // maxPriorityFeePerGas: maxPriorityFeePerGas,
+        // maxFeePerGas: maxFeePerGas
+      })
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2({ ...txloadingState2B, [i]: true });
 
@@ -558,8 +578,21 @@ const Owned = () => {
     //console.log(newPrice)
     //console.log(property.propertyId)
     try {      
+      let gasLimit = await contract.setDeposit.estimateGas(property.propertyId, newPrice)
+      gasLimit = gasLimit + 100000n;
+
+      const feeData = await provider.getFeeData();
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
       setTxLoadingState5({ ...txloadingState5, [i]: true });
-      const transaction = await contract.setDeposit(property.propertyId, newPrice)
+
+      const transaction = await contract.setDeposit(property.propertyId, newPrice, {
+        gasLimit: gasLimit,
+        maxPriorityFeePerGas: maxPriorityFeePerGas,
+        maxFeePerGas: maxFeePerGas
+      })
       setTxLoadingState5({ ...txloadingState5, [i]: false });
       setTxLoadingState5B({ ...txloadingState5B, [i]: true });
       await transaction.wait();
@@ -582,7 +615,20 @@ const Owned = () => {
     //console.log(property.propertyId)
     try {
       setTxLoadingState4({ ...txloadingState4, [i]: true });
-      const transaction = await contract.setRentPrice(property.propertyId, newPrice)
+
+      let gasLimit = await contract.setRentPrice.estimateGas(property.propertyId, newPrice)
+      gasLimit = gasLimit + 100000n;
+
+      const feeData = await provider.getFeeData();
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
+      const transaction = await contract.setRentPrice(property.propertyId, newPrice, {
+        gasLimit: gasLimit,
+        maxPriorityFeePerGas: maxPriorityFeePerGas,
+        maxFeePerGas: maxFeePerGas
+      })
       setTxLoadingState4({ ...txloadingState4, [i]: false });
       setTxLoadingState4B({ ...txloadingState4B, [i]: true });
       await transaction.wait()
@@ -624,7 +670,20 @@ const Owned = () => {
     const contract = new ethers.Contract(nftmarketaddress, Market.abi, signer)
     try {
       setTxLoadingState3({ ...txloadingState3, [i]: true });
-      const transaction = await contract.evictTennant(property.propertyId, tenantToDelete.address)
+
+      let gasLimit = await contract.evictTennant.estimateGas(property.propertyId, tenantToDelete.address)
+      gasLimit = gasLimit + 100000n;
+
+      const feeData = await provider.getFeeData();
+      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
+      const transaction = await contract.evictTennant(property.propertyId, tenantToDelete.address, {
+        gasLimit: gasLimit,
+        maxPriorityFeePerGas: maxPriorityFeePerGas,
+        maxFeePerGas: maxFeePerGas
+      })
       setTxLoadingState3({ ...txloadingState3, [i]: false });
       setTxLoadingState3B({ ...txloadingState3B, [i]: true });
       await transaction.wait()
@@ -1005,8 +1064,8 @@ const Owned = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
-          <img src="spring.png" className="pl-6 pr-6 h-4/5 lg:h-4/5 lg:w-8/12 lg:pl-12" />
-          <p className='text-white pl-12 mt-4 font-extralight text-lg italic w-3/5'>
+          <img src="spring.png" className="pl-6 pr-6 h-4/6 lg:h-4/5 md:w-full md:h-full lg:w-8/12 lg:pl-12 brightness-110" />
+          <p className='text-white pl-6 lg:pl-12 mt-4 font-extralight text-lg italic pr-6 md:full lg:w-3/5'>
             Manage your tenants and properties here. You can set rent prices, deposit amounts, evict tenants and even sell your properties.
           </p>
         </div>
@@ -1320,7 +1379,7 @@ const Owned = () => {
                           </div>
                           <div className="md:justify-self-start">
                             {txloadingState2[i] || txloadingState2B[i] ? (
-                              <p className='w-full flex justify-center bg-matic-blue text-xs italic px-6 py-1 rounded'>
+                              <p className='w-full bg-matic-blue text-xs italic px-3   py-1 rounded'>
                                 <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (
@@ -1425,7 +1484,7 @@ const Owned = () => {
                           <div className="md:justify-self-start">
                             <div className=" flex justify-center">
                               {txloadingState2[i] || txloadingState2B[i] ? (
-                                <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 rounded'>
+                                <p className='w-full bg-matic-blue text-xs italic px-3 py-1 rounded'>
                                   <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                                 </p>
                               ) : (
@@ -1533,7 +1592,7 @@ const Owned = () => {
                           </div>
                         </div>
                         {txloadingState3[i] || txloadingState3B[i] ? (
-                          <p className='w-full flex justify-center bg-red-400 text-xs italic px-6 py-1 rounded'>
+                          <p className='w-full flex justify-center bg-red-400 text-xs italic px-3 py-1 mb-4 rounded'>
                             <SpinnerIcon text={(txloadingState3[i] && !txloadingState3B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (
@@ -1593,7 +1652,7 @@ const Owned = () => {
                           </div>
                         </div>
                         {txloadingState4[i] || txloadingState4B[i] ? (
-                          <p className='w-full flex justify-center bg-pink-400 text-xs italic px-6 py-1 rounded'>
+                          <p className='w-full bg-pink-400 text-xs italic mb-4 px-1 py-1 rounded'>
                             <SpinnerIcon text={(txloadingState4[i] && !txloadingState4B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (
@@ -1652,7 +1711,7 @@ const Owned = () => {
                           </div>
                         </div>
                         {txloadingState5[i] || txloadingState5B[i] ? (
-                          <p className='w-full flex justify-center bg-green-500 text-xs italic px-6 py-1 rounded'>
+                          <p className='w-full bg-green-500 text-xs italic px-1 py-1 rounded'>
                             <SpinnerIcon text={(txloadingState5[i] && !txloadingState5B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (

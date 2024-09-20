@@ -13,6 +13,7 @@ import Display from "../Components/display";
 import { propertytokenaddress } from '../config.js'
 import { Add } from "@material-ui/icons";
 import AddTokenButton from "../Components/AddTokenButton";
+import ArticleIcon from '@mui/icons-material/Article';
 const copy = require('clipboard-copy')
 
 
@@ -192,7 +193,12 @@ const About = () => {
                     <p className="mt-2 text-gray-400">
                       Blockhouse Bay is a gamified real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate!
                     </p>
-                    <button className="text-indigo-400 text-sm italic underline mt-2" onClick={handleModalOpen}>White Paper</button>
+                    <div>
+                      <button className="text-indigo-400 text-sm italic underline mt-2" onClick={handleModalOpen}>White Paper</button>
+                      <ArticleIcon />
+
+
+                    </div>                    
                     <Modal
                       open={isOpen}
                       onClose={handleModalClose}
@@ -585,7 +591,7 @@ const About = () => {
                           The number of rooms rented is how many people are currently renting from this property
                         </li>
                         <li>
-                          Tenants are the public addresses of users currently renting from the property (Tenants shown in in yellow are late with their rent payments)
+                          Tenants are the public addresses of users currently renting from the property (Tenants shown in in <span className="text-yellow-500">yellow</span> are late with their rent payments)
                         </li>
                         <li>
                           Sale History lists the all purchase history of the property

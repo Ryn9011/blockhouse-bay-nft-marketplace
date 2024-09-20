@@ -6,7 +6,7 @@ function getRpcUrl(network, projectId) {
   } else if (network === 'Mainnet') {
     rpcUrl = `https://polygon-mainnet.g.alchemy.com/v2/${projectId}`;
   } else {
-    rpcUrl = 'Mumbai';
+    rpcUrl = 'Amoy';
   }
 
   return rpcUrl;

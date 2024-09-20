@@ -9,7 +9,7 @@ const { BigNumber } = require('ethers');
 //changed to be hardcoded because detection is unreliable on testnets
 function getNetworkName(chainId) {
   console.log(chainId)
-  return 'Amoy'
+  return 'localhost'
   // if (chainId === 137) {
   //   return 'Mainnet';
   // } else if (chainId === 80001) {
@@ -47,7 +47,7 @@ function getRpcUrl(network, projectId) {
   } else {
     rpcUrl = 'http://localhost:8545';
   }
-  return 'Amoy';
+  return 'Localhost';
 }
 
 async function checkNetwork() {

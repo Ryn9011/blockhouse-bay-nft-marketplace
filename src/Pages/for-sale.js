@@ -47,27 +47,27 @@ const ForSale = () => {
     console.log(provider);
     console.log(signer);
     setLoadingState('not-loaded');
-    if (signer == null) {      
-      
+    if (signer == null) {
+
       return;
     }
     if (provider != null) {
-      
+
       loadProperties();
     }
   }, [currentPage, signer]);
 
-  
 
-  const loadProperties = async (currentPaged, i) => {        
-    try {         
-      const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)    
+
+  const loadProperties = async (currentPaged, i) => {
+    try {
+      const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
       const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider);
       const tokenContract = new Contract(nftaddress, NFT.abi, provider);
 
       const data = await marketContract.fetchPropertiesForSale(currentPage)
       console.log(data)
-      const numForSale = Number(await govtContract.getPropertiesForSale());    
+      const numForSale = Number(await govtContract.getPropertiesForSale());
 
       const currentPageNumItems = numForSale - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
@@ -75,13 +75,10 @@ const ForSale = () => {
       setNumForSale(numForSale);
 
       const items = await Promise.all(data.filter(a => Number(a.tokenId) !== 0).map(async i => {
-    
-        const tokenUri = 'https://dummyimage.com/300x200/000/fff'
-        
-        //await tokenContract.tokenURI(i.tokenId)
 
+        const tokenUri = await tokenContract.tokenURI(i.tokenId)
+        // const tokenUri = 'https://dummyimage.com/300x200/000/fff'
 
-      
         const meta = await axios.get(tokenUri) //not used?  
 
         var nftName = GetPropertyNames(meta, i.propertyId);
@@ -120,7 +117,7 @@ const ForSale = () => {
         let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
         let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
         let totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
-        console.log(typeof(i.propertyId))
+        console.log(typeof (i.propertyId))
 
         //let tokenSalePriceFormatted = ethers.formatUnits(hexTokenPrice, 'ether')
         let item = {
@@ -188,7 +185,7 @@ const ForSale = () => {
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
       let price = ethers.parseUnits(nft.price.toString());
 
-      const bigIntValue = BigInt(price);   
+      const bigIntValue = BigInt(price);
       console.log('bigIntValue:', Number(bigIntValue));
       console.log('price:', Number(price));
       let isTokenSale = false;
@@ -205,38 +202,38 @@ const ForSale = () => {
           amount = ethers.parseUnits(nft.tokenSalePrice, 'ether');
           await propertyTokenContract.allowSender(amount);
         }
-      }           
-      
+      }
+
       let gasLimit;
       console.log('here price?:', price.toString());
       try {
-          gasLimit = await contract2.createPropertySale.estimateGas(
-            nftaddress, 
-            nft.propertyId, 
-            propertytokenaddress, 
-            isTokenSale,
-            {
-              value: price.toString(),
-            }
-          );  
+        gasLimit = await contract2.createPropertySale.estimateGas(
+          nftaddress,
+          nft.propertyId,
+          propertytokenaddress,
+          isTokenSale,
+          {
+            value: price.toString(),
+          }
+        );
       } catch (ex) {
         console.log('Error:', ex);
       }
-      
+
       gasLimit = gasLimit + 100000n;
-          
-      const feeData = await provider.getFeeData();      
+
+      const feeData = await provider.getFeeData();
       const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
       const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
       const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
-      console.log('price', typeof(price))
+      console.log('price', typeof (price))
       const transaction = await contract2.createPropertySale(
         nftaddress,
-        nft.propertyId,
+          nft.propertyId,
         propertytokenaddress,
         isTokenSale,
-        { 
+        {
           value: price.toString(),
           gasLimit: gasLimit,
           maxFeePerGas: maxFeePerGas.toString(),
@@ -280,7 +277,7 @@ const ForSale = () => {
               </svg>
             </Link>
           </div>
-          <img src="autumn.png" className="pl-6 pr-6 h-3/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12" />
+          <img src="autumn.png" className="pl-6 pr-6 h-3/6 md:w-full md:h-5/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12 brightness-110" />
           <p className='text-white pl-6 pr-2 lg:pl-12 mt-4 font-extralight text-lg italic lg:w-3/5'>
             Explore the offerings of Blockhouse Bay, where the latest properties await discerning first-time buyers and seasoned investors seeking to enhance their real estate holdings.
           </p>
@@ -309,7 +306,7 @@ const ForSale = () => {
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
             <header className="flex items-center h-16 mb-1 mr-3">
-              <p className="text-sm lg:text-xl font-bold">Buy a property and earn Matic tokens from your renters! </p>
+              <p className="text-sm md:text-xl font-bold">Buy a property and earn Matic tokens from your renters! </p>
             </header>
             <div className='mb-1'>
               <img className="h-8 w-9 mr-2 mt-4" src="./polygonsmall.png" />
@@ -368,90 +365,96 @@ const ForSale = () => {
                     </div>
                   </div>
 
-                  <div className="p-2 pb-1 pt-2 pb-2 bg-black">
+                  <div className="p-2 pt-2 pb-2 bg-black">
                     <div className="pb-2">
-                      <div className="flex divide-x divide-white mb-2 text-xl lg:text-base">
-                        <div className="flex justify-between px-2">
-                          <div className='pt-1.5'>
-                            <input
-                              className="rounded-full flex-shrink-0 h-3 w-3 border border-pink-400 bg-white checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 mt-2.5 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
-                              type="radio"
-                              name="flexRadioDefault"
-                              id={"maticRadio" + i}
-                            //onChange={onCurrencyChange}
-                            />
+                      <div className='grid grid-rows-1'>
+
+                        <div className="grid grid-cols-2 divide-x divide-white h-6">
+                          <div className="flex justify-start pl-2">
+                            <p className='font-semibold pr-3'>MATIC</p>
+                            <img className="h-6.5  w-7" src="./polygonsmall.png" />
                           </div>
-                          <label htmlFor={"maticRadio" + i}  className="cursor-pointer mb-2 mr-12 pt-2 text-white">
-                            <p className="font-bold whitespace-break-spaces">{property.price} </p>
-                            <p className='font-bold'>MATIC</p>
-                          </label>
-                          <div>
-                            <img className="h-9 w-10 mr-2 mt-3.5" src="./polygonsmall.png" />
+                          <div className="flex justify-start pl-2">
+                            <p className='font-semibold pl-1 pr-3'>BHB</p>
+                            <img className="h-[28px] w-7 brightness-150" src="./tokenfrontsmall.png" alt="" />
                           </div>
                         </div>
 
-                        <div className="pl-3">
-                          {property.tokenSalePrice > 0 && (
-                            <>
-                              <div className=''>
-                                <input
-                                  className="mt-4 mr-3 rounded-full flex-shrink-0 h-3 w-3 border border-pink-400 bg-white checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
-                                  type="radio"
-                                  name="flexRadioDefault"
-                                  id={"pogRadio" + i}
-                                  value="./pogtoken.png"
-                                //onChange={onCurrencyChange}
-                                />
-                              </div>
-                              <div className='flex'>
-                              <label htmlFor={"pogRadio" + i} className="mb-2 cursor-pointer pt-2 text-white">
-                                  <p className="font-bold">{property.tokenSalePrice} BHB</p>
-                                </label>
+                        <div className="grid grid-cols-2 justify-between divide-x divide-white mb-2 text-xl lg:text-base">
+                          <div className="flex px-2">
+                            <div className='pt-1.5'>
+                              <input
+                                className="rounded-full flex-shrink-0 h-3 w-3 border border-pink-400 bg-white checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 mt-2.5 align-top bg-no-repeat bg-center bg-contain float-left mr-2 cursor-pointer"
+                                type="radio"
+                                name="flexRadioDefault"
+                                id={"maticRadio" + i}
+                              //onChange={onCurrencyChange}
+                              />
+                            </div>
+                            <label htmlFor={"maticRadio" + i} className="cursor-pointer mb-2 mr:6 md:mr-12 pt-3.5 xl3:pt-3 text-white text-xs xl3:text-sm">
+                              <p className="font-bold whitespace-br`eak-spaces">{property.price} </p>
+                              {/* <p className='font-bold'>MATIC</p> */}
+                            </label>
+                            <div>
+                              {/* <img className="h-9 w-10 mr-2 mt-3.5" src="./polygonsmall.png" /> */}
+                            </div>
+                          </div>
 
-                                <div>
-                                  <img
-                                    className="scale-75 h-[55px] w-[55px]lg:h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
-                                    src="./tokenfrontsmall.png"
-                                    alt=""
-                                  ></img>
+                          <div className="pl-3">
+                            {property.tokenSalePrice > 0 && (
+                              <>
+                                <div className=''>
+                                  <input
+                                    className="mt-4 mr-2 rounded-full flex-shrink-0 h-3 w-3 border border-pink-400 bg-white checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
+                                    type="radio"
+                                    name="flexRadioDefault"
+                                    id={"pogRadio" + i}
+                                    value="./pogtoken.png"
+                                  //onChange={onCurrencyChange}
+                                  />
                                 </div>
-                              </div>
-                            </>
-                          )}
-                          {property.tokenSalePrice === "0.0" && (
-                            <>
-                              <div className=''>
-                                <input
-                                  className="mt-4 mr-3 rounded-full flex-shrink-0 h-3 w-3 border border-gray-500 bg-gray-600 checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
-                                  type="radio"
-                                  name="flexRadioDefault"
-                                  id={"pogRadio" + i}
-                                  value="./pogtoken.png"
-                                  disabled={true}
-                                //onChange={onCurrencyChange}
-                                />
-                              </div>
-                              <div className='flex'>
-                                <label htmlFor={"pogRadio" + i} className="cursor-pointer mb-2 mr-8 pt-2 text-gray-500">
-                                  <p className="font-bold">{property.tokenSalePrice} BHB</p>
-                                </label>
+                                <div className='flex items-center'>
+                                  <label htmlFor={"pogRadio" + i} className="mb-2 cursor-pointer pt-3.5 xl3:pt-3 text-xs xl3:text-sm text-white">
+                                    <p className="font-bold">{property.tokenSalePrice}</p>
+                                  </label>                                 
+                                </div>
+                              </>
+                            )}
+                            {property.tokenSalePrice === "0.0" && (
+                              <>
+                                <div className=''>
+                                  <input
+                                    className="mt-4 mr-3 rounded-full flex-shrink-0 h-3 w-3 border border-gray-500 bg-gray-600 checked:bg-pink-600 checked:border-pink-600 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer"
+                                    type="radio"
+                                    name="flexRadioDefault"
+                                    id={"pogRadio" + i}
+                                    value="./pogtoken.png"
+                                    disabled={true}
+                                  //onChange={onCurrencyChange}
+                                  />
+                                </div>
+                                <div className='flex'>
+                                  <label htmlFor={"pogRadio" + i} className="cursor-pointer mb-2 mr-8 pt-2 text-gray-500">
+                                    <p className="font-bold">{property.tokenSalePrice} BHB</p>
+                                  </label>
 
-                                <div>
-                                  <img
-                                    className="scale-75 h-[55px] w-[55px]lg:h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
-                                    src="./tokenfrontsmall.png"
-                                    alt=""
-                                  ></img>
+                                  <div>
+                                    <img
+                                      className="scale-75 h-[55px] w-[55px]lg:h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
+                                      src="./tokenfrontsmall.png"
+                                      alt=""
+                                    ></img>
+                                  </div>
                                 </div>
-                              </div>
-                            </>
-                          )}
+                              </>
+                            )}
+                          </div>
                         </div>
                       </div>
-                      
+
                       <div className="px-2 flex justify-center">
                         {txloadingState[i] || txloadingStateB[i] ? (
-                          <p className='w-full bg-matic-blue text-xs italic px-6 py-1 rounded'>
+                          <p className='w-full bg-matic-blue text-xs italic px-3 py-1 rounded'>
                             <SpinnerIcon text={(txloadingState[i] && !txloadingStateB[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (

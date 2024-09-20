@@ -45,7 +45,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {PropertyToken} from "./PropertyToken.sol";
 
 interface GovtContract {
-    function refundDeposit(uint256 propertyId, address) external;
+    function refundDeposit(uint256, address, bool) external;
     function withdrawRentTax() external;
     function getBalance() external view returns (uint256);
     function giftProperties(address nftContract, uint256 propertyId, address recipient) external;
@@ -63,10 +63,10 @@ contract PropertyMarket is ReentrancyGuard {
     address payable immutable i_govt;
     address payable i_govtContract;
     bool public govtContractSet = false;    
-    uint256 public constant LISTING_PRICE = 0.001 ether;
-    uint256 public constant INITIAL_SALE_PRICE = 0.001 ether;
-    uint256 constant INITIAL_TOKEN_PRICE = 1 ether;
-    uint256 constant INITIAL_EXCLUSIVE_PRICE = 1 ether;    
+    uint256 public constant LISTING_PRICE = 12 ether;
+    uint256 public constant INITIAL_SALE_PRICE = 200 ether;
+    uint256 constant INITIAL_TOKEN_PRICE = 500 ether;
+    uint256 constant INITIAL_EXCLUSIVE_PRICE = 500 ether;    
     uint256 constant INITIAL_MINT = 10000000 * (10 ** 18);
     uint256 tokenMaxSupply = INITIAL_MINT;    
 
@@ -89,7 +89,7 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 tokenId;
         address payable seller;
         address payable owner;
-        uint256 deposit;
+        uint256 deposit;        
         uint256 salePrice;
         uint256 tokenSalePrice;
         uint256 rentPrice;
@@ -503,8 +503,8 @@ contract PropertyMarket is ReentrancyGuard {
             listing.propertyId = tokenId;
             listing.nftContract = nftContract;
             listing.tokenId = tokenId;
-            listing.rentPrice = 0.001 ether;
-            listing.deposit = 0.001 ether;
+            listing.rentPrice = 3 ether;
+            listing.deposit = 3 ether;
             listing.seller = payable(msg.sender);
             listing.owner = payable(address(0));
             listing.isForSale = true;
@@ -676,7 +676,7 @@ contract PropertyMarket is ReentrancyGuard {
                     renterToPropertyPaymentTimestamps[sender][propertyId] = 0;
                 }
                 GovtContract govtContract = GovtContract(i_govtContract);
-                govtContract.refundDeposit(propertyId, msg.sender);
+                govtContract.refundDeposit(propertyId, msg.sender, false);
                 break;
             }
         }        
@@ -695,6 +695,8 @@ contract PropertyMarket is ReentrancyGuard {
             }
         }        
         resetPropertyToRenters(propertyId, tennant);
+        GovtContract govtContract = GovtContract(i_govtContract);
+        govtContract.refundDeposit(propertyId, msg.sender, true);
     }
 
     function withdrawERC20() public nonReentrant {

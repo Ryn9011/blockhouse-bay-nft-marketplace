@@ -61,8 +61,7 @@ const Exclusive = () => {
       const data = await govtContract.fetchExclusiveProperties();
 
       const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
-        const tokenUri = 'https://dummyimage.com/300x200/000/fff'
-        //await tokenContract.tokenURI(i.tokenId)
+        const tokenUri = await tokenContract.tokenURI(i.tokenId)
 
         const meta = await axios.get(tokenUri)
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
@@ -170,7 +169,7 @@ const Exclusive = () => {
   const buyProperty = async (nft, i) => {
 
     try {
-      const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)      
+      const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
       let isTokenSale = true
       const propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer)
       const amount = ethers.parseUnits(nft.tokenSalePrice, 'ether')
@@ -180,13 +179,13 @@ const Exclusive = () => {
 
         gasLimit = gasLimit + 100000n;
 
-        const feeData = await provider.getFeeData();   
+        const feeData = await provider.getFeeData();
         const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
         const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
         const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
         await propertyTokenContract.allowSender(
-          amount,{
+          amount, {
           maxFeePerGas: maxFeePerGas,
           maxPriorityFeePerGas: maxPriorityFeePerGas,
           gasLimit: gasLimit
@@ -198,11 +197,11 @@ const Exclusive = () => {
         setTxLoadingState1B({ ...txloadingState1B, [i]: false });
         return;
       }
-      
+
 
       let gasLimit = await contract2.createPropertySale.estimateGas(nftaddress, nft.propertyId, propertytokenaddress, isTokenSale);
 
-      gasLimit = gasLimit + 100000n; 
+      gasLimit = gasLimit + 100000n;
 
       const feeData = await provider.getFeeData();
 
@@ -210,7 +209,7 @@ const Exclusive = () => {
       const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
       const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
-      
+
       const transaction = await contract2.createPropertySale(
         nftaddress,
         nft.propertyId,
@@ -271,7 +270,7 @@ const Exclusive = () => {
               <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
             </svg>
           </div>
-          <img src="gardens.png" className="pl-6 pr-6 h-3/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12" />
+          <img src="gardens.png" className="pl-6 pr-6 h-3/6 md:w-full md:h-5/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12 brightness-105" />
           <p className='text-white pl-6 lg:pl-12 pr-2 mt-4 font-extralight text-lg italic  lg:w-3/5'>
             Entering the enchanting street Blockhouse Bay Gardens, where the whispers of wealth and opulence linger. Hidden behind ornate gates, this exclusive street unveils sumptuous properties steeped in secrets. Experience a world of privilege known only to the chosen few..."
           </p>
@@ -419,28 +418,30 @@ const Exclusive = () => {
 
                     <div className="pb-2">
                       <div className="mb-2 text-2xl lg:text-base">
-                        <div className="pl-3">
-
-
+                        <div className="">
                           {(property.isForSale) ? (
-                            <div className='flex divide-x-2'>
-                              <div className='flex h-16 mr-8'>
-                                <header className="items-center flex pt-3 md:pt-6 lg:pt-3.5 text-indigo-100">
-                                  <p className="font-bold text-lg 2xl:text-2xl">{property.tokenSalePrice} BHB</p>
+                            <div className='grid grid-cols-2 pt-1 divide-x-2 pl-3'>
+                              <div className='pt-1 mr-8'>
+                                <div className="flex justify-start">
+                                  <p className='font-semibold md:text-xl 2xl:text-2xl pr-3'>BHB</p>
+                                  <img className="h-[28px] w-7 brightness-150" src="./tokenfrontsmall.png" alt="" />
+                                </div>
+                                <header className="items-center flex text-indigo-100">
+                                  <p className="font-bold text-lg 2xl:text-xl">{property.tokenSalePrice}</p>
                                 </header>
-                                <div className='mt-1 h-[65px] lg:h-17 w-16 md:h-16'>
+                                {/* <div className='ml-2 mt-1 w-12 h-14 lg:h-17 md:w-14 lg:w-16 md:h-16'>
                                   <img
                                     className="lg:object-none brightness-150 scale-75 md:scale-75 lg:scale-50 pt-2.5 lg:pt-0"
                                     src="./tokenfrontsmall.png"
                                     alt=""
                                   ></img>
-                                </div>
+                                </div> */}
                               </div>
 
-                              <div className="bg-black py-0.5 mt-2 w-1/2 pl-3 2xl:mt-1.5 flex flex-col justify-between">
+                              <div className="bg-black w-1/2 pl-3 pt-1 flex flex-col justify-between">
                                 <div className='text-lg md:text-xl 2xl:text-2xl flex flex-col  justify-center font-semibold text-center'>
-                                  <p className=''>Ranking:</p>
-                                  <span className={property.ranking == 'unranked' ? 'text-white text-lg' : 'italic brightness-125 text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-400 to-purple-500'}>{`${property.ranking === "unranked" ? '' : '#'} ${property.ranking}`}</span>
+                                  <p className=''>Ranking</p>
+                                  <span className={property.ranking == 'unranked' ? 'text-white text-lg' : 'italic brightness-125 text-3xl text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-400 to-purple-500'}>{`${property.ranking === "unranked" ? '' : '#'} ${property.ranking}`}</span>
                                 </div>
                               </div>
                             </div>
@@ -477,7 +478,7 @@ const Exclusive = () => {
                         {property.roomsToRent !== 4 ? (
                           <>
                             {txloadingState2[i] || txloadingState2B[i] ? (
-                              <p className='w-full flex justify-center bg-matic-blue text-xs italic px-12 py-1 mb-3 rounded'>
+                              <p className='w-full flex justify-center bg-matic-blue text-xs italic px-3 lg:px-12 py-1 mb-3 rounded'>
                                 <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (

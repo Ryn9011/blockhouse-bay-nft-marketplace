@@ -8,6 +8,7 @@ import { BrowserProvider, Contract, formatUnits } from 'ethers'
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
+import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToken.json'
 
 import WebBundlr from '@bundlr-network/client';
 import { useRef } from "react";
@@ -18,7 +19,7 @@ import dataEx from '../exc-manifest.json';
 
 import {
   govtaddress,
-  nftaddress, nftmarketaddress
+  nftaddress, nftmarketaddress, propertytokenaddress
 } from '../config'
 
 /* global BigInt */
@@ -142,7 +143,7 @@ const CreateItem = () => {
       // fetch("/upload", {
       //   method: "POST",
       //   body: formData,
-      // })
+      // }
       //   .then((response) => response.json())
       //   .then((data) => console.log(data))
       //   .catch((error) => console.error(error));
@@ -155,6 +156,18 @@ const CreateItem = () => {
     //   ];
     //   return bundlrInstance.createTransaction([file], { tags });
     // });
+  };
+
+
+  const getBhbForMarket = async () => {
+    const provider = new ethers.JsonRpcProvider("http://localhost:8545");  
+
+    const propertyTokenContract = new ethers.Contract('0xCafac3dD18aC6c6e92c921884f9E4176737C052c', PropertyToken.abi, provider);
+
+    // Query the balance
+    const balance = await propertyTokenContract.balanceOf('0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512');
+  
+    console.log(`Balance of :`, ethers.formatUnits(balance, 18));
   };
   
 
@@ -508,6 +521,9 @@ const CreateItem = () => {
                 <div>
                   {contractBal && <p className='text-white'>{contractBal}</p>}
                 </div>
+                <button onClick={getBhbForMarket} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Get BHB for PropertyMarket
+                </button>
             </div>
         </div>
     </>
