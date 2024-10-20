@@ -1,5 +1,6 @@
 import { React, useEffect, useState } from 'react'
 import { useModalContext } from '../App'
+import { Link } from 'react-router-dom';
 
 import { useWeb3ModalProvider, useWeb3ModalAccount } from '@web3modal/ethers/react'
 import { BrowserProvider, Contract, } from 'ethers'
@@ -176,6 +177,7 @@ const Renting = () => {
       const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
       const tokenContract = new Contract(nftaddress, NFT.abi, provider);
       const tokenContractAddress = await tokenContract.address;
+      const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
       setTokenAddress(tokenContractAddress);
 
       const data = await marketContract.fetchMyRentals()
@@ -204,6 +206,8 @@ const Renting = () => {
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
         // const tokenUri = 'https://dummyimage.com/300x200/000/fff'
 
+        let deposit = ethers.formatUnits(await govtContract.getRenterDepositBalance(i.propertyId), 'ether');
+
         const meta = await axios.get(tokenUri)
 
         let nftName = GetPropertyNames(meta, Number(i.propertyId))
@@ -219,13 +223,14 @@ const Renting = () => {
           owner: i.owner,
           image: tokenUri,
           name: nftName,
-          rentPrice: rentPrice,
+          rentPrice: i.rentPrice,
           description: "",
           roomOneRented: false,
           roomTwoRented: false,
           roomThreeRented: false,
           rentStatus: undefined,
-          payments: i.payments
+          payments: i.payments,
+          deposit: deposit,
         }
 
         console.log(dataFiltered)
@@ -281,7 +286,9 @@ const Renting = () => {
     try {
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
       setTxLoadingState1({ ...txloadingState1, [i]: true });
-      const amount = rentAmount.toString();
+      const amount = property.rentPrice.toString();
+
+      console.log('Amount: ', amount)
 
       let gasLimit = await govtContract.payRent.estimateGas(property.propertyId, {
         value: amount
@@ -299,8 +306,8 @@ const Renting = () => {
         property.propertyId,
         {
           gasLimit,
-          // maxFeePerGas,
-          // maxPriorityFeePerGas,
+          maxFeePerGas,
+          maxPriorityFeePerGas,
           value: amount
         }
       )
@@ -377,7 +384,7 @@ const Renting = () => {
   if (loadingState !== 'loaded') return (
     <div className="pt-10 pb-10">
       <div className="flex ">
-        <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
+        <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
           <div className="flex pl-6 lg:px-12">
             <p className="text-white text-3xl lg:text-5xl font-bold mb-2">Loading Properties</p>
             <svg role="status" className="mt-1 lg:mt-3 ml-3 inline w-8 h-8 mr-2 text-red-500 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -398,36 +405,75 @@ const Renting = () => {
   if (loadingState === 'loaded' && timestampLoadingState === 'loaded' && !rentedProperties.length) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
-        <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
+        <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
           <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Rented Properties</p>
+          <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-44 lg:pt-4 pl-7 lg:pl-12'>Looking to rent a place? Discover available properties, secure your next rental, and check back here to manage your leases and stay on top of your rentals.</p>
+          <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:lg:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/how-to-play?section=owning" target='new'>Learn more about owning your first property</Link></p>
           {renterTokens > 0 &&
-            <div className='lg:px-4 lg:ml-0 flex items-center mb-2'>
-              <div className="flex pr-4 font-bold text-white mb-4 lg:mb-0 items-center">
-                <p>Tokens Accumulated: </p>
-                <p className="pl-1 text-matic-blue">{renterTokens} BHB</p>
+            <div className='md:pl-0 md:ml-12 mt-10 flex items-center mb-3 lg:mb-6'>
+              <div className="flex pr-4 font-semibold text-white ml-2 lg:ml-0 mb-4 lg:mb-0 items-center">
 
+                <div className='md:hidden pl-8 mt-2'>
+                  <p className='text-sm mb-1'>Tokens Accumulated: </p>
+                  <div className='flex items-center'>
+
+                    <p className="pl-1 md:mt-1.5 font-mono text-xs md:text-sm text-gray-400 mr-2">{renterTokens}</p>
+                    <img className="h-[28px] w-7 brightness-200" title='BHB' src="./tokenfrontsmall.png" alt="BHB" />
+                  </div>
+                  <button
+                    className="text-green-400 text-xs mt-2 lg:text-base hover:bg-green-900 border border-green-400 rounded py-1 px-2 xl:mt-1.5"
+                    onClick={() => CollectTokens()}>
+                    Collect Tokens
+                  </button>
+                </div>
+
+                <div className='hidden md:block pl-8 md:pl-0 md:mt-10'>
+                  <div className='flex items-center'>
+                    <p className='text-sm'>Tokens Accumulated: </p>
+                    <p className="pl-1 font-mono text-xs md:text-sm text-gray-400 mr-2">{renterTokens}</p>
+                    <img className="h-[28px] w-7 brightness-200 mr-4" title='BHB' src="./tokenfrontsmall.png" alt="BHB" />
+                    <button
+                      className="text-green-400 hover:bg-green-900 text-base border border-green-400 rounded py-1 px-2"
+                      onClick={() => CollectTokens()}>
+                      Collect Tokens
+                    </button>
+                  </div>
+                </div>
               </div>
-              <button
-                className="text-green-400 hover:bg-green-900 text-base border border-green-400 rounded py-1 px-2"
-                onClick={() => CollectTokens()}>
-                Collect Tokens
-              </button></div>}
-          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">You are not currently renting any properties.</p>
-          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent a property then check back here.</p>
-          <p className='text-white text-sm mt-4 pl-6'>Add the BHB Token address to your wallet</p>
-          <div className='pl-6 pt-4'>
-            <AddTokenButton />
+            </div>}
+
+          {/* <p className='text-white text-base italic font-extralight pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent a property then check back here.</p> */}
+          {/* <p className='text-white text-sm mt-12 pl-6'>Add the BHB Token address to your wallet</p> */}
+          <div className='ml-4 lg:ml-6 md:mt-4 hidden md:block'>
+            <div className='pl-6 lg:pt-2'>
+              <AddTokenButton />
+            </div>
+            <p className="text-white text-sm pl-6 mt-2 lg:mt-4">BHB Token Address:</p>
+            <div className="flex text-gray-400 pl-6 text-xs">
+              {propertytokenaddress}
+              <img src={copyImg} className="w-5 h-5 ml-2 invert cursor-pointer" onClick={handleCopy} />
+            </div>
           </div>
-          <p className="text-white text-sm pl-6 mt-4">BHB Token Address</p>
-          <span className="text-pink-400 text-xs ml-6">
-            {propertytokenaddress}
-          </span>
-          <button className="border px-2 text-white py-0.5 ml-2 border-1 text-xs cursor-pointer" onClick={handleCopy}>Copy</button>
-
         </div>
-
+        <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          <img src="col.png" className=" rotate-away  shadow-2xl shadow-amber-100" />
+          {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+        </div>
       </div>
-
+      <div className="image-container lg:hidden md:ml-24 lg:ml-0 drop-shadow-lg mt-8 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
+        <img src="col.png" className="rotate-away2  brightness-110 shadow-2xl shadow-amber-100" />
+        {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+      </div>
+      <div className='ml-4 lg:ml-0 md:hidden'>
+        <div className='pl-6 lg:pt-2'>
+          <AddTokenButton />
+        </div>
+        <p className="text-white text-sm pl-6 mt-2 lg:mt-4">BHB Token Address:</p>
+        <div className="flex text-gray-400 pl-6 text-xs">
+          {propertytokenaddress}
+          <img src={copyImg} className="w-5 h-5 ml-2 invert cursor-pointer" onClick={handleCopy} />
+        </div>
+      </div>
     </div>
   )
 
@@ -437,51 +483,63 @@ const Renting = () => {
         <div className="px-6 md:px-9" style={{ maxWidth: "1600px" }}>
           <h1 className="text-white mb-5">My Rented Properties</h1>
           <div className="flex">
-            <h5 className="text-white text-base md:text-xl ml-4 mr-1 mb-2">Manage Rented Properties</h5>
+            <h5 className="text-white text-lg md:text-xl ml-4 mr-1 mb-2">Manage Rented Properties</h5>
           </div>
           <div className="pt-1 mb-6">
-            <div className="text-sm mb-4 lg:flex">
-              <div className="flex pr-4 mt-1.5 font-semibold items-center text-white mb-2 lg:mb-0 text-xs md:text-base">
-                <p>Tokens Accumulated: </p>
-                <p className="pl-1 md:mt-1 font-mono text-xs md:text-sm text-matic-blue">{renterTokens} <span className='text-white font-semibold'>BHB</span></p>
+            <div className="text-sm mb-4">
+              <div className="h-px bg-gray-600 border-0 mb-2 mt-2 md:w-[340px]" />
+              <div className="flex pr-0 mt-1.5 font-semibold items-center text-white mb-1 lg:mb-0 text-xs md:text-base">
+                <div className='mt-2'>
+
+                  <p className='text-sm'>Tokens Accumulated: </p>
+                  <div className='flex items-center'>
+                    <p className="pl-2 md:mt-1 font-medium font-mono text-xs text-gray-400 mr-2">{renterTokens}</p>
+                    <img className="h-[28px] w-7 brightness-200" title='BHB' src="./tokenfrontsmall.png" alt="BHB" />
+                  </div>
+
+                </div>
+
               </div>
 
               {renterTokens > 0 &&
-                <div className='md:w-2/5 lg:w-1/3 xl:w-1/4'>
+                <div className='md:w-2/5 lg:w-1/3 xl:w-1/4 pl-2'>
                   {txloadingState[551] || txloadingStateB[551] ? (
                     <p className='w-full flex lg:justify-center opacity-80 text-xs italic lg:px-6'>
                       <SpinnerIcon text={(txloadingState[551] && !txloadingStateB[551]) ? 'Creating Tx' : 'Confirming Tx'} />
                     </p>
                   ) : (
                     <button
-                      className="text-green-400 text-xs lg:text-base hover:bg-green-900 border border-green-400 rounded py-1 px-2"
+                      className="text-green-400 text-xs lg:text-base hover:bg-green-900 border border-green-400 rounded py-1 px-2 md:mt-2"
                       onClick={() => CollectTokens()}>
                       Collect Tokens
                     </button>
-                  )}  
+                  )}
                 </div>
               }
             </div>
 
             <div className='flex'>
+            </div>
+
+            <p className='mb-2'>
+              <div className='flex'>
+                <p className="text-white font-semibold text-sm mt-2">BHB Token Address:</p>
+                <img src={copyImg} className="w-5 h-5 mt-2 ml-2 invert cursor-pointer md:hidden" onClick={handleCopy} />
+              </div>
+
+              <div className="flex text-gray-400 mt-2 text-xs font-mono pl-2">
+                {propertytokenaddress}
+                <img src={copyImg} className="w-5 h-5 ml-2 invert cursor-pointer hidden md:block" onClick={handleCopy} />
+              </div>
+
+            </p>
+            <div className='pl-2'>
+              <AddTokenButton />
 
             </div>
-            <p className='mb-2'>
-              {/* <span className="text-pink-400 text-xs">
-                {propertytokenaddress}
-              </span> */}
-         
-              <p className="text-white font-semibold text-xs md:text-base mt-2">BHB Token Address:</p>
 
-              <p>
-                <div className="flex text-pink-400 text-xs">
-                  {propertytokenaddress}
-                  <img src={copyImg} className="w-5 h-5 ml-2 invert cursor-pointer" onClick={handleCopy} />
-                </div>                               
-              </p>
-            </p>
-            <AddTokenButton />
           </div>
+          <div className="h-px bg-gray-600 border-0 mb-2 md:w-[340px]" />
           <Pagination
             postsPerPage={postsPerPage}
             totalPosts={rentedProperties.length}
@@ -517,11 +575,11 @@ const Renting = () => {
                     </div>
                     <div className="flex flex-col pb-2">
                       <p>Rent Price:</p>
-                      <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
+                      <p className="font-mono text-xs text-green-400">{ethers.formatUnits(property.rentPrice).toString()} Matic</p>
                     </div>
                     <div className="flex flex-col pb-2">
                       <p>Deposit Paid:</p>
-                      <p className="font-mono text-xs text-green-400">{property.dep} Matic</p>
+                      <p className="font-mono text-xs text-green-400">{property.deposit} Matic</p>
                     </div>
                     <div className="flex flex-col pb-2">
                       <p>Rent Status</p>
@@ -552,7 +610,7 @@ const Renting = () => {
                     </div>
                     <div className="text-2xl pt-2 text-white"></div>
 
-                    <div className="pt-3 pb-3">
+                    <div className="pt-3 pb-3 px-2">
                       {txloadingState1[i] || txloadingState1B[i] ? (
                         <p className='w-full bg-matic-blue text-xs italic px-1 md:px-3 py-1 rounded'>
                           <SpinnerIcon text={(txloadingState1[i] && !txloadingState1B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
@@ -563,7 +621,7 @@ const Renting = () => {
                         </button>
                       )}
                     </div>
-                    <div className="">
+                    <div className="px-2">
                       {txloadingState2[i] || txloadingState2B[i] ? (
                         <p className='w-full flex justify-center bg-red-400 text-xs italic px-12 py-1 rounded'>
                           <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />

@@ -167,7 +167,7 @@ const Owned = () => {
 
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
         let rentPrice = ethers.formatUnits(i.rentPrice.toString(), 'ether')
-        //let deposit = ethers.formatUnits(i.deposit.toString(), 'ether')
+        let deposit = ethers.formatUnits(i.deposit.toString(), 'ether')
         const renterAddresses = await market.getPropertyRenters(i.propertyId);
         // //console.log(renterAddresses)
         // let test = await marketContract.getTenantsMapping("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
@@ -201,7 +201,7 @@ const Owned = () => {
         const propertyId = Number(ethers.formatUnits(BigInt(i.propertyId), 0));
 
         // call getRenterDepositBalance on govt contract
-        let deposit = ethers.formatUnits(await govt.getRenterDepositBalance(propertyId), 'ether');
+        
 
         ////console.log(propertyId)
 
@@ -797,8 +797,8 @@ const Owned = () => {
                 />
               </div>
             </>
-            : <p>0x</p>
-          }
+            : <p className='mt-2 mb-[20.6px]'>0x</p>
+          }          
           {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
             <div className='flex items-center justify-between mb-2'>
               <p className={" break-words text-center " + getTenantToDeleteColour(property, 1)}>
@@ -810,8 +810,8 @@ const Owned = () => {
             </div>
             :
             <>
-              {property.renterAddresses[0] === "0.0" &&
-                <p>0x</p>}
+              
+                <p className='mt-2 mb-[20.6px]'>0x</p>
             </>
           }
           {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
@@ -824,8 +824,8 @@ const Owned = () => {
               />
             </div>
             : <>
-              {property.renterAddresses[0] === "0.0" &&
-                <p>0x</p>}
+              
+                <p className='mt-2 mb-[20.6px]'>0x</p>
             </>
           }
           {ethers.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
@@ -838,8 +838,8 @@ const Owned = () => {
               />
             </div>
             : <>
-              {property.renterAddresses[0] === "0.0" &&
-                <p>0x</p>}
+              
+                <p className='mt-2 mb-[20.6px]'>0x</p>
             </>
           }
         </div>
@@ -1055,9 +1055,9 @@ const Owned = () => {
 
   if (loadingState !== 'loaded') return (
     <div className="pt-10 pb-10">
-      <div className="flex ">
-        <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
-          <div className="flex pl-6 lg:px-12">
+      <div className="flex">
+        <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
+          <div className="flex pl-6 md:px-12">
             <p className="text-white text-3xl lg:text-5xl font-bold mb-2">Loading Properties</p>
             <svg role="status" className="mt-1 lg:mt-3 ml-3 inline w-8 h-8 mr-2 text-red-500 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
@@ -1076,11 +1076,19 @@ const Owned = () => {
   if (loadingState === 'loaded' && !currentPosts.length && isConnected) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
-        <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Properties</p>
-          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently owned</p>
-          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Buy a property and check back here</p>
+        <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
+          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-10 text-white xl3:mt-4">My Properties</p>          
+          <p className='text-white text-base md:text-left md:text-3xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>Start building your real estate portfolio today! Explore available properties, make a purchase, and come back here to manage your growing assets.</p>
+          <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/how-to-play?section=owning" target='new'>Learn more about owning your first property</Link></p>
         </div>
+        <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full xl3:w-5/6 lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          <img src="col.png" className=" rotate-away  shadow-2xl shadow-amber-100" />
+          {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+        </div>
+      </div>
+      <div className="image-container lg:hidden md:ml-24 lg:ml-0 drop-shadow-lg mt-16 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
+        <img src="col.png" className="rotate-away2  brightness-110 shadow-2xl shadow-amber-100" />
+        {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
       </div>
     </div>
   )
@@ -1095,11 +1103,11 @@ const Owned = () => {
           </div>
           <div className="pt-3">
             <div className="text-sm mb-4 mt-1 lg:flex">
-              {/* <div className="flex pr-4 mt-1.5 font-bold text-white mb-4 lg:mb-0">
+              <div className="flex pr-4 mt-1.5 font-bold text-white mb-4 lg:mb-0">
                 <p>MATIC Accumlated from Renters: </p>
                 <p className="pl-1 text-matic-blue">{amountAccumulated} MATIC</p>
-              </div> */}
-              {/* {amountAccumulated > 0 &&
+              </div>
+              {amountAccumulated > 0 &&
                 <div className="px-2 flex justify-center">
                   {txloadingState1[551] || txloadingState1B[551] ? (
                     <p className='w-full flex justify-center py-1  rounded'>
@@ -1108,12 +1116,13 @@ const Owned = () => {
                   ) : (
                     <button
                       className="text-pink-400 hover:bg-pink-900 border py-1 border-pink-400 text-base rounded px-2"
-                      onClick={() => CollectRent()}>
+                      // onClick={() => CollectRent()}
+                      >
                       Collect Rent
                     </button>
                   )}
                 </div>
-              } */}
+              }
             </div>
           </div>
           <Pagination
@@ -1192,7 +1201,7 @@ const Owned = () => {
                         </div>
                         {property.isForSale &&
                           <div className='flex justify-end'>
-                            <img className={`h-16 w-20 mt-4 ${property.propertyId > 500 ? 'hue-rotate-90' : ''}`} src="./for-sale.png" alt="for sale" />
+                            <img className={`h-16 w-20 mt-4 m-2 mb-[3px] ${property.propertyId > 500 ? 'hue-rotate-90' : ''}`} src="./for-sale.png" alt="for sale" />
                           </div>
                         }
                       </div>
@@ -1255,7 +1264,7 @@ const Owned = () => {
                           {/* <div className="btn-o w-[73px] mb-12" ><div  className="tweetBtn" id="b"><i></i><span className="label" id="l">Tweet</span></div></div> */}
                           {/* <Share url={url} options={text} disabled={true} /> */}
                           <a className="twitter-share-button"
-                            href={`https://twitter.com/intent/tweet?text=${text}`}
+                            href={`https://x.com/intent/tweet?text=${text}`}
                             data-size="large"
                             target='new'
                           >
@@ -1379,7 +1388,7 @@ const Owned = () => {
                           </div>
                           <div className="md:justify-self-start">
                             {txloadingState2[i] || txloadingState2B[i] ? (
-                              <p className='w-full bg-matic-blue text-xs italic px-3   py-1 rounded'>
+                              <p className='w-full bg-yellow-600 text-xs italic px-3 py-1 rounded'>
                                 <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (
@@ -1456,7 +1465,7 @@ const Owned = () => {
                                   onChange={(e) => handleSellButton(e, i)}
                                   id={"amountInput" + i}
                                 />
-                                <img className="h-8 w-9 ml-2" src="./polygonsmall.png" />
+                                <img className="h-[25px] w-[27px] ml-2" src="./polygonsmall.png" />
                               </div>}
 
                             <div className={`items-center ${property.propertyId < 501 ? 'flex invisible' : 'flex mt-4'}`} id={'maticInput' + i}>
@@ -1648,7 +1657,7 @@ const Owned = () => {
                               onChange={(e) => setRentButton(e, i)}
                               id={"rentInput" + i}
                             />
-                            <img className="h-8 w-9 ml-2" src="./polygonsmall.png" />
+                            <img className="h-[25px] w-[27px] ml-2" src="./polygonsmall.png" />
                           </div>
                         </div>
                         {txloadingState4[i] || txloadingState4B[i] ? (
@@ -1707,7 +1716,7 @@ const Owned = () => {
                               onChange={(e) => setDepositButton(e, i)}
                               id={"depositInput" + i}
                             />
-                            <img className="h-8 w-9 ml-2" src="./polygonsmall.png" />
+                            <img className="h-[25px] w-[27px] ml-2" src="./polygonsmall.png" />
                           </div>
                         </div>
                         {txloadingState5[i] || txloadingState5B[i] ? (

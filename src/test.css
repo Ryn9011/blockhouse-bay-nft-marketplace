@@ -1,0 +1,67 @@
+:root {
+  --transparent: oklch(0 0 0 / 0%);
+  --orange-100: oklch(0.86 0.08 280);
+  --orange-200: oklch(0.82 0.06 280);
+  --orange-300: oklch(0.71 0.12 280);
+  --orange-400: oklch(0.61 0.18 280);
+  --orange-500: oklch(0.5 0.21 280);
+  --orange-600: oklch(0.42 0.18 280);
+  --orange-800: oklch(0.25 0.15 280);
+  --orange-900: oklch(0.13 0.06 280);
+  --orange-900: oklch(0.13 0.06 280);
+}
+
+html,
+body {
+  height: 100%;
+  background-color: #05031e;
+  font-size: 20px;
+}
+
+.center {
+  display: grid;
+  height: inherit;
+  place-items: center;
+}
+
+.button {
+  position: relative;
+  z-index: 1;
+  background: var(--orange-900);
+  border: 3px solid;
+  border-color: var(--orange-400);
+  border-radius: 0.75rem;
+  color: var(--orange-300);
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  transition: 250ms ease-in-out;
+  transition-property: all;
+}
+
+.button:hover,
+.button:focus {
+  color: var(--orange-200);
+  background-color: var(--orange-800);
+  transform: scale(1.1);
+}
+
+.text {
+  filter: drop-shadow(0 0 1px currentcolor);
+}
+
+.button:after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  opacity: 0.6;
+  border-radius: inherit;
+  box-shadow: 0 0 1em 0.5em var(--orange-300);
+  transition: 250ms ease-in-out;
+  transition-property: opacity;
+}
+
+.button:hover::after,
+.button:focus::after {
+  opacity: 0.6;
+}
