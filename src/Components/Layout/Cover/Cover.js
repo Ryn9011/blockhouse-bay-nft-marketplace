@@ -52,7 +52,7 @@ export default function Cover() {
     return (
         <div className="bg-cover bg-no-repeat" style={{ backgroundImage: "url('mainbg.jpg')" }}>
 
-            <div style={{ backgroundImage: "url('aboutreduced.png')" }} className="bg-right h-screen brightness-110 lg:hidden bg-cover bg-center">
+            <div style={{ backgroundImage: "url('about.png')" }} className="bg-right h-screen brightness-110 lg:hidden bg-cover bg-center">
                 <Header />
                 <section className="text-white justify-center">
 
@@ -62,9 +62,7 @@ export default function Cover() {
                         </div>
                     </div>
                     <div className="flex justify-center mb-6 xl3:mb-12 ">
-                        <a href="/how-to-play" className="text-white bg-pink-900 border-pink-300 hover:text-white opacity-85 hover:bg-opacity-60 border-4 shadow-lg text-sm md:text-base 
-                         font-semibold hover:no-underline
-                           rounded py-2.5 px-4 md:py-3 md:px-6">Get Started</a>
+                        <a href="/how-to-play" className="text-white bg-green-900  hover:text-green-400 hover:bg-opacity-50 text-sm md:text-base font-semibold hover:no-underline border border-green-700 hover:border-green-400 rounded py-2.5 px-4 md:py-3 md:px-6">Get Started</a>
                     </div>
                     {/* <div className="flex justify-center relative px-4 lg:px-0 lg:pb-12 xl3:pb-0">
                         <img src="test48.png" className=" lg:w-2/5" alt="" />
@@ -147,7 +145,7 @@ export default function Cover() {
                         </div>
                     </div>
                     <div className="flex justify-center mb-6 xl3:mb-12 ">
-                        <a href="/how-to-play" className="text-white bg-red-500 border-red-300 hover:text-white opacity-85 hover:bg-opacity-60 text-base font-semibold hover:no-underline border-4 shadow-lg rounded py-3 px-6">Get Started</a>
+                        <a href="/how-to-play" className="text-white bg-green-900  hover:text-green-400 hover:bg-opacity-50 text-base font-semibold hover:no-underline border border-green-700 hover:border-green-400 rounded py-3 px-6">Get Started</a>
                     </div>
                     {/* <div className="flex justify-center relative px-4 lg:px-0 lg:pb-12 xl3:pb-0">
                 <img src="test48.png" className=" lg:w-3/5" alt="" />

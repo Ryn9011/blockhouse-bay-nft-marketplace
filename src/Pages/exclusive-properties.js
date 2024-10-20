@@ -236,9 +236,10 @@ const Exclusive = () => {
 
   const rentProperty = async (property, i) => {
 
+
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
-    // const deposit = property.deposit; //await govtContract.getDepositRequired();
+    const deposit = property.deposit; //await govtContract.getDepositRequired();
     try {
       setTxLoadingState2({ ...txloadingState2, [i]: true });
       const transaction = await govtContract.rentProperty(property.propertyId, {
@@ -249,14 +250,8 @@ const Exclusive = () => {
       await transaction.wait()
       loadProperties()
     } catch (error) {
-      if (error.message.includes('insufficient BHB token balance to rent excl')) {
-        alert('Insufficient BHB token balance to rent exclusive property');
-      } else if (error.message.includes('You can\'t rent your own property')) {
-        alert('You can\'t rent your own property');
-      } else {
-        alert('Transaction Failed');
-      }
-     
+      console.log(error)
+      alert(error.message);
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2B({ ...txloadingState2B, [i]: false });
     }
@@ -299,14 +294,14 @@ const Exclusive = () => {
             <p className='text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500'>Blockhouse Bay Gardens, an exclusive street of grand and stunning homes, is a paradise of luxurious living. From impressive architecture to immaculate gardens, each house is a masterpiece of sophistication, offering an unparalleled lifestyle in one of the bay's most beautiful settings.</p>
           </div>
           <h5 className='text-white text-center md:text-left mb-4'>These exlusive properties are limited to only 50 and can be purchased only with BHB tokens</h5>
-          <p className='text-green-100 text-center md:text-left italic mb-12'>A minimum of <span className="font-semibold">2500 BHB</span> tokens must be held in order to become a renter but <span className='font-semibold'>TRIPPLE</span> the amount of BHB tokens are paid out when renting on this street!</p>
+          <p className='text-green-100 text-center md:text-left italic mb-12'>A minimum of 2500 BHB tokens must be held in order to become a renter but <span className='font-semibold'>TRIPPLE</span> the amount of BHB tokens are paid out when renting on this street!</p>
 
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 xl:grid-cols-3 text-white">
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 xl:grid-cols-3 text-white">
             {currentPosts.map((property, i) => {
               return (
                 <div
                   key={property.propertyId}
-                  className="border-2 border-double border-yellow-500 shadow-lg shadow-yellow-700 rounded-md overflow-hidden bg-gradient-120 from-black via-black to-green-900 mb-5 lg:mb-0"
+                  className="border-2 border-double border-yellow-500 shadow-lg shadow-yellow-400 rounded-md overflow-hidden bg-gradient-120 from-black via-black to-green-900 mb-5 lg:mb-0"
                 >
                   <img className='w-fit h-fit' src={property.image} alt="" />
                   <div className="p-4">
@@ -316,9 +311,9 @@ const Exclusive = () => {
                       {property.name}
                     </h2>
                     <div style={{ overflow: "hidden" }}>
-                      <div className='flex justify-between mb-2 mt-4 '>
+                      <div className='flex justify-between mb-2 mt-4'>
                         <div>
-                          <p className='text-indigo-100'>Owner:</p>
+                          <p>Owner:</p>
                           <p className="text-[10px] xl:text-xs text-green-400 font-mono">{property.owner}</p>
                         </div>
                         <div className='pt-1.5'>
@@ -347,7 +342,7 @@ const Exclusive = () => {
 
                         {ethers.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
                           <>
-                            <div className='flex items-center h-10 justify-between mb-2'>
+                            <div className='flex items-center h-11 justify-between mb-2'>
                               <p className={" break-words"}>
                                 {property.renterAddresses[0]}
                               </p>
@@ -425,14 +420,14 @@ const Exclusive = () => {
                       <div className="mb-2 text-2xl lg:text-base">
                         <div className="">
                           {(property.isForSale) ? (
-                            <div className='grid grid-cols-2 pt-1 divide-x-2 px-3'>
+                            <div className='grid grid-cols-2 pt-1 divide-x-2 pl-3'>
                               <div className='pt-1 mr-8'>
                                 <div className="flex justify-start">
-                                  <p className='font-semibold text-lg md:text-xl 2xl:text-2xl pr-3 mb-[2px]'>BHB</p>
-                                  <img className="h-[28px] w-7 brightness-200" src="./tokenfrontsmall.png" alt="" />
+                                  <p className='font-semibold md:text-xl 2xl:text-2xl pr-3'>BHB</p>
+                                  <img className="h-[28px] w-7 brightness-150" src="./tokenfrontsmall.png" alt="" />
                                 </div>
                                 <header className="items-center flex text-indigo-100">
-                                  <p className="font-mono text-sm md:text-base pl-1.5">{property.tokenSalePrice}</p>
+                                  <p className="font-bold text-lg 2xl:text-xl">{property.tokenSalePrice}</p>
                                 </header>
                                 {/* <div className='ml-2 mt-1 w-12 h-14 lg:h-17 md:w-14 lg:w-16 md:h-16'>
                                   <img
@@ -443,17 +438,17 @@ const Exclusive = () => {
                                 </div> */}
                               </div>
 
-                              <div className="bg-black  pl-3 pt-1 flex ">
-                                <div className='text-lg md:text-xl 2xl:text-2xl flex flex-col justify-left font-semibold'>
-                                  <p>Ranking</p>
-                                  <p className='text-transparent bg-clip-text text-lg brightness-125 bg-gradient-to-r from-rose-300 via-rose-500 to-rose-600  pl-2'><span className={property.ranking == 'unranked' ? 'text-indigo-100 font-extralight' : 'font-mono'}>{property.ranking !== 'unranked' &&<span>#</span>}{`${property.ranking}`}</span></p>
+                              <div className="bg-black w-1/2 pl-3 pt-1 flex flex-col justify-between">
+                                <div className='text-lg md:text-xl 2xl:text-2xl flex flex-col  justify-center font-semibold text-center'>
+                                  <p className=''>Ranking</p>
+                                  <span className={property.ranking == 'unranked' ? 'text-white text-lg' : 'italic brightness-125 text-3xl text-transparent bg-clip-text bg-gradient-to-r from-white via-purple-400 to-purple-500'}>{`${property.ranking === "unranked" ? '' : '#'} ${property.ranking}`}</span>
                                 </div>
                               </div>
                             </div>
                           ) : (
                             <div className="bg-black py-[10.5px] pr-1.5 mt-2  flex flex-col gap-2 justify-between">
                               <div className='text-2xl lg:pt-1.5 flex justify-center font-semibold'>
-                                <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white via-white to-rose-500'>Ranking<span className={property.ranking == 'unranked' ? 'text-white' : 'italic font-extralight font-mono pl-1.5'}>{`#${property.ranking}`}</span></p>
+                                <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white via-white to-purple-500 italic'>Ranking:<span className={property.ranking == 'unranked' ? 'text-white' : ''}>{` #${property.ranking}`}</span></p>
                               </div>
                             </div>
                           )}
@@ -463,18 +458,18 @@ const Exclusive = () => {
                         {(property.owner === 'Unowned' || property.isForSale) ? (
                           <>
                             {txloadingState1[i] || txloadingState1B[i] ? (
-                              <p className='w-full bg-btn-gold text-xs italic px-3 lg:px-6 mt-1 mb-3 py-1 rounded'>
+                              <p className='w-full flex justify-center bg-btn-gold text-xs italic px-3 lg:px-12 mt-1 mb-3 py-1 rounded'>
                                 <SpinnerIcon text={(txloadingState1[i] && !txloadingState1B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (
-                              <button onClick={() => buyProperty(property, i)} className="mb-3.5 w-full hover:bg-yellow-600 bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded cursor-pointer">
+                              <button onClick={() => buyProperty(property, i)} className="mb-3 w-full hover:bg-yellow-600 bg-btn-gold text-white font-bold py-2 mt-1 px-12 rounded cursor-pointer">
                                 Buy
                               </button>
                             )}
                           </>
                         ) : (
                           <div className='flex justify-center'>
-                            <button disabled={true} className="mb-5 lg:mb-[15px] w-full  text-white font-bold py-2 mt-1 px-12 rounded">
+                            <button disabled={true} className="md:mb-5 lg:mb-4 w-full  text-white font-bold py-2 mt-1 px-12 rounded">
                               Not Currently for Sale
                             </button>
                           </div>
@@ -483,27 +478,22 @@ const Exclusive = () => {
                         {property.roomsToRent !== 4 ? (
                           <>
                             {txloadingState2[i] || txloadingState2B[i] ? (
-                              <p className='w-full bg-matic-blue text-xs italic px-3 lg:px-6 py-1 mb-3 rounded'>
+                              <p className='w-full flex justify-center bg-matic-blue text-xs italic px-3 lg:px-12 py-1 mb-3 rounded'>
                                 <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (
                               <button
                                 onClick={() => rentProperty(property, i)}
                                 disabled={property.owner === "Unowned"}
-                                className={`w-full   font-bold py-2 px-12 rounded ${property.owner !== "Unowned" ? "hover:bg-sky-700 bg-matic-blue cursor-pointer  text-white" : "cursor-not-allowed bg-gray-400"} ${property.owner === "Unowned" ? "cursor-not-allowed bg-gray-700 text-gray-500" : ""}`}
+                                className={`w-full  cursor-pointer  font-bold py-2 px-12 rounded ${property.owner !== "Unowned" ? "hover:bg-sky-700 bg-matic-blue text-white" : "cursor-text bg-gray-400"} ${property.owner === "Unowned" ? "bg-gray-600 text-gray-400" : ""}`}
                               >
                                 Rent Room
                               </button>
                             )}
                           </>
                         ) : (
-                          // <button disabled='true' className="w-full bg-black text-red-400 font-bold pb-2 pt-1 px-12 rounded">
-                          //   No Vacancy
-                          // </button>
-                          <button                                                      
-                            className={`w-full font-bold py-2 px-12 rounded bg-gray-700 text-gray-500 cursor-not-allowed`}
-                          >
-                            Rent Room
+                          <button disabled='true' className="w-full bg-black text-red-400 font-bold py-2 px-12 rounded">
+                            No Vacancy
                           </button>
                         )
                         }

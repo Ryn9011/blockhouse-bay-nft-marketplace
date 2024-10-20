@@ -366,7 +366,7 @@ const ForSale = () => {
                   </div>
 
                   <div className="p-2 pt-2 pb-2 bg-black">
-                    <div className="pb-1">
+                    <div className="pb-2">
                       <div className='grid grid-rows-1'>
 
                         <div className="grid grid-cols-2 divide-x divide-white h-6">
@@ -376,7 +376,7 @@ const ForSale = () => {
                           </div>
                           <div className="flex justify-start pl-2">
                             <p className='font-semibold pl-1 pr-3'>BHB</p>
-                            <img className="h-[28px] w-7 brightness-200" src="./tokenfrontsmall.png" alt="" />
+                            <img className="h-[28px] w-7 brightness-150" src="./tokenfrontsmall.png" alt="" />
                           </div>
                         </div>
 
@@ -433,18 +433,18 @@ const ForSale = () => {
                                   //onChange={onCurrencyChange}
                                   />
                                 </div>
-                                <div className='flex items-center'>
-                                  <label htmlFor={"pogRadio" + i} className="cursor-pointer mb-2 mr-8 pt-3.5 text-xs xl3:text-sm text-gray-500">
+                                <div className='flex'>
+                                  <label htmlFor={"pogRadio" + i} className="cursor-pointer mb-2 mr-8 pt-2 text-gray-500">
                                     <p className="font-bold">{property.tokenSalePrice} BHB</p>
                                   </label>
 
-                                  {/* <div>
+                                  <div>
                                     <img
                                       className="scale-75 h-[55px] w-[55px]lg:h-4/6 sm:h-5/6 mt-3 sm:mt-1.5 lg:pt-0 brightness-150"
                                       src="./tokenfrontsmall.png"
                                       alt=""
                                     ></img>
-                                  </div> */}
+                                  </div>
                                 </div>
                               </>
                             )}

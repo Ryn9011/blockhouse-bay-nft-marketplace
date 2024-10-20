@@ -40,15 +40,15 @@
 
 .rotate-away {
   /* transform-style: preserve-3d; */
-  transform: rotateY(-45deg) translateZ(-30px);
+  transform: rotateY(-60deg) translateZ(-30px);
 }
 
 .rotate-away2 {
   transform-style: preserve-3d;
-  transform: rotateY(45deg) translateZ(15px);
+  transform: rotateY(-60deg) translateZ(-15px);
 }
 
-/* .gradient-overlay {
+.gradient-overlay {
   position: absolute;
   margin-top: 24%;
   top: 0;
@@ -59,22 +59,21 @@
   background: linear-gradient(to left, transparent, white);
   transform: rotateY(-50deg) translateZ(-50px);
   mix-blend-mode: difference;
-} */
+}
 
 .gradient-overlay2 {
   position: absolute;
   margin-top: 1%;
-  margin-bottom: 80%;
-  margin-right: 100px;
-  top: 0.5;
-  left: 2;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   opacity: 20%;
   background: linear-gradient(to left, transparent, white);
-  transform: rotateY(-59deg) translateZ(-190px) rotateX(-60deg) ;
+  transform: rotateY(-60deg) translateZ(-43px);
   mix-blend-mode: difference;
 }
+
 
 .shadow2 {
   position: absolute;

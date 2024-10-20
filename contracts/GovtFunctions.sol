@@ -91,11 +91,11 @@ contract GovtFunctions is ReentrancyGuard {
         return totalDepositBal;
     }
 
-    function decrementTotalDepositBalance(uint256 amount) internal {
+    function decrementTotalDepositBalance(uint256 amount) internal onlyPropertyMarket {
         totalDepositBal -= amount;
     }
 
-    function incrementTotalDepositBalance(uint256 amount) internal {
+    function incrementTotalDepositBalance(uint256 amount) internal onlyPropertyMarket {
         totalDepositBal += amount;
     }
 
@@ -112,24 +112,17 @@ contract GovtFunctions is ReentrancyGuard {
         return propertyCount - propertyMarketContract.getPropertiesSold();
     }
 
-
     function setRentPrice(uint256 propertyId, uint256 rentPrice) public nonReentrant {   
         require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
         uint256[] memory propertyIds = new uint256[](1);
         propertyIds[0] = propertyId;     
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
-        
+        require(rentPrice >= 3 ether, "rent can't be less than 3 matic");
         require(property[0].owner == msg.sender, "Not owner");
-        require(rentPrice >= 3 ether, "Rent can't be less than 3 matic");
-        require(rentPrice >= property[0].deposit && rentPrice <= 50 ether, "Rent cannot exceed 50 matic");
-                
-        uint256 lastSaleIndex = property[0].dateSoldHistory.length - 1;
-        uint256 lastSaleTime = property[0].dateSoldHistory[lastSaleIndex];
-        // require(block.timestamp >= lastSaleTime + 30 days, "Rent cannot be set within 30 days of the last sale");
+        require(rentPrice >= property[0].deposit && rentPrice <= 500 ether, "Rent cannot exceed 500 matic");
 
         propertyMarketContract.setRentPrice(propertyId, rentPrice);
     }
-
 
     function setDeposit(uint256 propertyId, uint256 depositPrice) public nonReentrant {   
         require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
@@ -247,7 +240,7 @@ contract GovtFunctions is ReentrancyGuard {
         
         require(msg.value == currentProperty[0].deposit, "correct deposit required");
         require(currentProperty[0].owner != msg.sender, "You can't rent your own property");
-        require(currentProperty[0].owner != _govtAddress, "Property not yet owned");
+        require(currentProperty[0].owner != address(0), "Property owner address should not be zero");
 
         uint256[4][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
         
@@ -368,39 +361,42 @@ contract GovtFunctions is ReentrancyGuard {
         if (maxSupply > 0) {
             uint256 tokensToReceive = RewardCalculator.getTokenAmountToReceive(price, maxSupply, INITIAL_MINT);     
 
+            // address tokenContractAddress = propertyMarketContract.getTokenContractAddress();
+            // uint256 diminishingSupplyFactor = 0;
+
+            // if (tokenContractAddress != address(0)) {
+            //     diminishingSupplyFactor = (IERC20(tokenContractAddress)
+            //     // this needs to be the balance of the property market contract!!
+            //         .balanceOf(i_propertyMarketAddress) * 100) / maxSupply;
+            //         console.log('diminishingSupplyFactor at calc: ', diminishingSupplyFactor);
+            // }
+            // console.log('DIMINISHING SUPPLY FACTOR: ', diminishingSupplyFactor);
+
+            // if (diminishingSupplyFactor < 1) {
+            //     diminishingSupplyFactor = 1;
+            // }
+            // // console.log('diminishingSupplyFactor: ', diminishingSupplyFactor);
+            // uint256 tokensToReceive = baseTokenAmount * diminishingSupplyFactor; 
             console.log('tokensToReceive: ', tokensToReceive);
-      
+            // if (tokensToReceive > maxSupply) {
+            //     tokensToReceive = maxSupply;
+            // }
+
+            // uint256 convertedAmount = tokensToReceive;
             propertyMarketContract.setRenterTokens(tokensToReceive, msg.sender);
 
             console.log('maxSupply: ', maxSupply);
             uint256 newSupplyAmount = maxSupply - tokensToReceive;
             propertyMarketContract.setMaxSupply(newSupplyAmount);
             
-            require(rentAccumulated[currentItem.owner] > 0, "rent = 0");                                
-
-            uint256 taxAmount = calculateTax(currentItem.rentPrice, rentAccumulated[currentItem.owner]);
-       
-            payable(msg.sender).transfer(rentAccumulated[currentItem.owner] - taxAmount);
-
+            require(rentAccumulated[currentItem.owner] > 0, "rent = 0");
+        
+            uint256 fivePercent = (rentAccumulated[currentItem.owner] * 500) / 10000;
+            payable(msg.sender).transfer(rentAccumulated[currentItem.owner] - fivePercent);
             rentAccumulated[currentItem.owner] = 0;
         }       
         emit RentPaid(msg.sender, block.timestamp, propertyId);
     }
-
-    function calculateTax(uint256 rentPrice, uint256 accumulated) internal pure returns (uint256) {
-        uint256 baseTax = 500; // 5%
-
-        // Convert rentPrice from wei to ether
-        uint256 rentInEther = rentPrice / 1 ether; // rentPrice in ether units
-
-        // Subtract 3 from rentInEther, not rentPrice in wei
-        uint256 additionalTax = (rentInEther - 3) * 100; // 1% for each 1 ether above 3
-
-        uint256 totalTaxPercentage = baseTax + additionalTax;
-
-        return (accumulated * totalTaxPercentage) / 10000;
-    }
-
 
     // function transferRentToPropertyOwner(address propertyOwner) internal nonReentrant {
     //     // Ensure there is rent to withdraw
@@ -425,7 +421,7 @@ contract GovtFunctions is ReentrancyGuard {
     function checkGovtBalance() public view onlyGovt returns (uint256) {        
         uint256 bal = address(this).balance - totalDepositBal;
         uint256 marketBal = i_propertyMarketAddress.balance;
-        return bal + marketBal; 
+        return bal + marketBal;
     }
 
     function amountToWithdraw() public view onlyGovt returns (uint256) {
@@ -434,9 +430,5 @@ contract GovtFunctions is ReentrancyGuard {
 
     function getContractBal() public view onlyGovt returns (uint256) {
         return address(this).balance;
-    }
-
-    function getMarketBal() public view onlyGovt returns (uint256) {
-        return i_propertyMarketAddress.balance;
     }
 }
