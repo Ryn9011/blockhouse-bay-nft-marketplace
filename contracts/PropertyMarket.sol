@@ -67,7 +67,7 @@ contract PropertyMarket is ReentrancyGuard {
     uint256 public constant INITIAL_SALE_PRICE = 200 ether;
     uint256 constant INITIAL_TOKEN_PRICE = 500 ether;
     uint256 constant INITIAL_EXCLUSIVE_PRICE = 500 ether;    
-    uint256 constant INITIAL_MINT = 10000000 * (10 ** 18);
+    uint256 constant INITIAL_MINT = 100000000 * (10 ** 18);
     uint256 tokenMaxSupply = INITIAL_MINT;    
 
     PropertyToken public tokenContract;
@@ -354,7 +354,7 @@ contract PropertyMarket is ReentrancyGuard {
                 uint256[] memory id = new uint256[](1);
                 id[0] = i;
                 Property[] memory currentItem = getPropertyDetails(id, false);
-                if (currentItem[0].owner != address(0)
+                if (currentItem[0].owner != i_govt
                     && currentItem[0].propertyId < 501 
                     && currentItem[0].propertyId > 0
                     && (currentItem[0].roomOneRented == false 
@@ -506,13 +506,12 @@ contract PropertyMarket is ReentrancyGuard {
             listing.rentPrice = 3 ether;
             listing.deposit = 3 ether;
             listing.seller = payable(msg.sender);
-            listing.owner = payable(address(0));
+            listing.owner = payable(i_govt);
             listing.isForSale = true;
             listing.tokenSalePrice = INITIAL_TOKEN_PRICE;
             idToProperty[tokenIds[i]] = listing;
             if (tokenId > 500) {
-                listing.isExclusive = true;
-                //listing.salePrice = INITIAL_EXCLUSIVE_PRICE;
+                listing.isExclusive = true;               
             } else {
                 listing.salePrice = INITIAL_SALE_PRICE;
             }
@@ -576,7 +575,7 @@ contract PropertyMarket is ReentrancyGuard {
 
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
         
-        if (temp.owner != address(0)) {
+        if (temp.owner != i_govt) {
             vacateCommonTasks(itemId, msg.sender);
             for (uint256 j = 0; j < userProperties[temp.owner].length; j++) {
                 if (userProperties[temp.owner][j] == itemId) {
@@ -587,7 +586,7 @@ contract PropertyMarket is ReentrancyGuard {
         }
 
         if (itemId < 501) {
-            if (temp.owner != address(0)) {
+            if (temp.owner != i_govt) {
                 decrementRelistCount();
             }
             _propertiesSold.increment();
@@ -595,7 +594,8 @@ contract PropertyMarket is ReentrancyGuard {
 
         temp.owner = payable(msg.sender);
         temp.isForSale = false;
-        temp.seller = payable(address(0));                
+        temp.seller = payable(address(0)); 
+        temp.rentPrice = 3 ether;               
         userProperties[msg.sender].push(itemId);
     }
 

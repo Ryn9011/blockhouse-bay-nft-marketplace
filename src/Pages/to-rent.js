@@ -329,8 +329,8 @@ const ToRent = () => {
                             </>
                             :
                             <>
-                              <div className='flex items-center mt-2'>
-                                <p className='h-9'>0x</p>
+                              <div className='flex items-center'>
+                                <p className='mt-2 mb-[17px]'>0x</p>
                               </div>
                             </>
                           }
@@ -346,7 +346,7 @@ const ToRent = () => {
                             :
                             <>
                               <div className='flex justify-between h-full items-center'>
-                                <p className='h-9'>0x</p>
+                                <p className='mt-2 mb-[17px]'>0x</p>
                               </div>
                             </>
                           }
@@ -362,7 +362,7 @@ const ToRent = () => {
                             :
                             <>
                               <div className='flex items-center'>
-                                <p className='h-9'>0x</p>
+                                <p className='mt-2 mb-[17px]'>0x</p>
                               </div>
                             </>
                           }
@@ -378,7 +378,7 @@ const ToRent = () => {
                             :
                             <>
                               <div className='flex items-center'>
-                                <p className='h-9'>0x</p>
+                                <p className='mt-2 mb-[17px]'>0x</p>
                               </div>
                             </>
                           }
@@ -389,7 +389,7 @@ const ToRent = () => {
 
 
 
-                    <div className="p-2 pt-1.2 pb-4 xl:pb-2 bg-black">
+                    <div className="p-2 pt-1.2 pb-4 xl:pb-3 bg-black">
                       <div className="flex divide-x divide-white justifty-start px-2">
                         <div className="flex pr-5 lg:pr-3">
                           <div className="text-lg font-bold">Rental Deposit</div>
@@ -411,10 +411,10 @@ const ToRent = () => {
                         <div className="flex text-xs pl-5 lg:pl-3">
                           <ul className="list-disc pl-3.5 list-outside">
                             <li className='mb-1'>
-                              A rental deposit of <span className='font-mono text-xs text-blue-400'>{property.depositRequired} Matic</span> is required to rent this property
+                              A rental deposit of <span className='font-mono text-xs text-blue-400'>{property.depositRequired} Matic</span> is required to rent this property.
                             </li>
                             <li>
-                              Rental deposits are refunded upon vacating a property (providing renter is not evicted from the property)
+                              Rental deposits are refunded upon vacating a property, providing the renter is not evicted.
                             </li>
                           </ul>
                         </div>
