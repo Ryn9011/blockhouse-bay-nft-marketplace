@@ -144,8 +144,8 @@ const Owned = () => {
       ////console.log(signer)
       ////console.log(provider)
 
-      let value = ethers.formatUnits(await govt.getRentAccumulatedSender(), 'ether')
-      setAmountAccumulated(value)
+      // let value = ethers.formatUnits(await govt.getRentAccumulatedSender(), 'ether')
+      // setAmountAccumulated(value)
 
       //console.log(data)
 
@@ -153,7 +153,7 @@ const Owned = () => {
         //console.log(i)
         const tokenUri = await token.tokenURI(i.tokenId)
         
-
+        console.log('owner: ', i.owner)
 
         const meta = await axios.get(tokenUri)
 
@@ -1101,7 +1101,7 @@ const Owned = () => {
           <div className="flex">
             <p className="text-sm lg:text-xl pl-4 font-bold mr-1 mb-2">Manage Owned Properties</p>
           </div>
-          <div className="pt-3">
+          {/* <div className="pt-3">
             <div className="text-sm mb-4 mt-1 lg:flex">
               <div className="flex pr-4 mt-1.5 font-bold text-white mb-4 lg:mb-0">
                 <p>MATIC Accumlated from Renters: </p>
@@ -1124,7 +1124,7 @@ const Owned = () => {
                 </div>
               }
             </div>
-          </div>
+          </div> */}
           <Pagination
             postsPerPage={postsPerPage}
             totalPosts={totalUserPropertyCount}
@@ -1601,7 +1601,7 @@ const Owned = () => {
                           </div>
                         </div>
                         {txloadingState3[i] || txloadingState3B[i] ? (
-                          <p className='w-full flex justify-center bg-red-400 text-xs italic px-3 py-1 mb-4 rounded'>
+                          <p className='w-full bg-red-400 text-xs italic px-3 py-1 mb-4 rounded'>
                             <SpinnerIcon text={(txloadingState3[i] && !txloadingState3B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                           </p>
                         ) : (

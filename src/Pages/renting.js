@@ -365,7 +365,7 @@ const Renting = () => {
       )
       setTxLoadingState2({ ...txloadingState2, [i]: false });
 
-      setTxLoadingState2B({ ...txloadingState2, [i]: true });
+      setTxLoadingState2B({ ...txloadingState2B, [i]: true });
       await transaction.wait()
     } catch (ex) {
       alert('Transaction Failed')
@@ -504,7 +504,7 @@ const Renting = () => {
               {renterTokens > 0 &&
                 <div className='md:w-2/5 lg:w-1/3 xl:w-1/4 pl-2'>
                   {txloadingState[551] || txloadingStateB[551] ? (
-                    <p className='w-full flex lg:justify-center opacity-80 text-xs italic lg:px-6'>
+                    <p className='w-full flex opacity-80 text-xs italic lg:pt-2 '>
                       <SpinnerIcon text={(txloadingState[551] && !txloadingStateB[551]) ? 'Creating Tx' : 'Confirming Tx'} />
                     </p>
                   ) : (
@@ -623,7 +623,7 @@ const Renting = () => {
                     </div>
                     <div className="px-2">
                       {txloadingState2[i] || txloadingState2B[i] ? (
-                        <p className='w-full flex justify-center bg-red-400 text-xs italic px-12 py-1 rounded'>
+                        <p className='w-full bg-red-400 text-xs italic px-3 py-1 rounded'>
                           <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                         </p>
                       ) : (

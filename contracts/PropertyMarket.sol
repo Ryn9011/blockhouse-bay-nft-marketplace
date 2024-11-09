@@ -696,7 +696,7 @@ contract PropertyMarket is ReentrancyGuard {
         }        
         resetPropertyToRenters(propertyId, tennant);
         GovtContract govtContract = GovtContract(i_govtContract);
-        govtContract.refundDeposit(propertyId, msg.sender, true);
+        govtContract.refundDeposit(propertyId, tennant, true);
     }
 
     function withdrawERC20() public nonReentrant {

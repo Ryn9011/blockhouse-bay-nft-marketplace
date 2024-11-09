@@ -192,24 +192,25 @@ const About = () => {
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Real Estate Simulation</p>
                     <p className="mt-2 text-gray-400 pl-2">
                       Blockhouse Bay is a gamified real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate!
+                      <span onClick={handleModalOpen}>
+                        <button className="text-indigo-400 text-sm ml-2 italic underline mt-2 mr-1" > White Paper</button>
+                        <ArticleIcon className="brightness-150 hover:cursor-pointer" />
+                      </span>
                     </p>
-                    <div onClick={handleModalOpen}>
-                      <button className="text-indigo-400 text-sm italic underline mt-2 mr-1" >White Paper</button>
-                      <ArticleIcon className="brightness-150 hover:cursor-pointer" />
-                    </div>
+
                     <Modal
                       open={isOpen}
                       onClose={handleModalClose}
                       aria-labelledby="modal-title"
                       aria-describedby="modal-description"
                     >
-                      <div className={classes.paper}>
+                      <div className={`${classes.paper} rounded-lg`}>
                         {/* <img src="logoplain.png" className=" mb-12" alt="blockhouse bay" /> */}
 
 
-                        <div className="bg-gray-300 text-black p-8">
+                        <div className="bg-indigo-950 text-black p-8">
                           <div className="bg-white p-6 rounded-lg shadow-lg">
-                            <div className="bg-gray-900 rounded-lg p-2 pb-0 shadow-lg">
+                            <div className="from-black via-indigo-900 to-polygon-purple bg-gradient-120 rounded-lg p-2 pb-0 shadow-lg">
                               <img src="logoplain.png" className="mb-12" alt="Blockhouse Bay" />
                             </div>
 
@@ -254,7 +255,7 @@ const About = () => {
                               <h2 className="text-2xl font-semibold mb-4">Tokenomics</h2>
                               <ul className="list-disc ml-8">
                                 <li><strong>Total Supply:</strong> 10,000,000 BHB tokens were minted at the project's inception.</li>
-                                <li><strong>Distribution:</strong> 100% of the BHB tokens are available to users; none are retained by Blockhouse Bay.</li>
+                                <li><strong>Distribution:</strong> 100% of the BHB tokens are available to users; none are reserved by Blockhouse Bay.</li>
                               </ul>
                             </section>
 
@@ -343,25 +344,74 @@ const About = () => {
                     </div>
 
                     <p className="mt-2 text-gray-400 pl-2">
-                      Blockhouse Bay operates on the Polygon blockchain, allowing for minimal transaction fees. This means that you can engage in buying, selling, or renting activities without any worries about transaction costs.
+                      Blockhouse Bay operates on the Polygon blockchain, allowing for minimal transaction fees.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2">
                       All property NFT images are stored on Arweave's decentralized permanent storage, meaning they are truly persisted.
                     </p>
-
-
                   </li>
                   <li className="pt-2 pb-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 ">Passive Income</h3>
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Earn MATIC and BHB Tokens</p>
                     <p className="mt-1 text-gray-400 pl-2">
-                      As a landlord, you'll enjoy the satisfaction of earning real money from your renters in the form of MATIC tokens. You'll also have the chance to receive exclusive Blockhouse Bay tokens (BHB) every time rent is paid. These tokens open up exciting possibilities and provide a cost-effective way to purchase properties.
+                      As a landlord, you'll enjoy the satisfaction of earning real money from your renters in the form of MATIC tokens. As a renter, You'll have the chance to receive exclusive Blockhouse Bay tokens (BHB) every time rent is paid. These tokens open up exciting possibilities and provide a cost-effective way to purchase properties.
                     </p>
                   </li>
                 </ul>
               </div>
 
               <div className="col-span-1 xl3:hidden mt-2 mr-4 bg-right-top bg-contain brightness-110 bg-no-repeat" style={{ backgroundImage: "url('insidereduced.png')", height: "400px%" }}
+              ></div>
+
+              <div className="col-span-1 hidden xl3:block mt-2 mr-4 bg-right-top bg-cover bg-no-repeat" style={{ backgroundImage: "url('livingroom1.png')", height: "400px%" }}
+              ></div>
+
+            </div>
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion className={classes.root} expanded={expanded === 'roadmap'} onChange={handleChange('roadmap')}>
+
+          <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'default' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
+            <div>
+              <p className={(defaultExpanded ? "mr-4 ml-6 items-start font-semibold text-2xl md:text-3xl lg:text-4xl border border-2 p-2 md:p-4" : "text-3xl lg:text-4xl xl:ml-8 font-semibold text-left")}>Roadmap</p>
+            </div>
+          </AccordionSummary>
+
+          <AccordionDetails className="border border-1 rounded-md" style={{ paddingRight: "0px" }}>
+
+            <div className="xl:grid grid-cols-2 gap-11 ">
+              <div className="col-span-1 pr-[16px] lg:pr-0">
+                <ul className="divide-y divide-gray-200 lg:ml-0  text-lg">
+                  <li className="py-4 pt-0 ">
+                    <h3 className="text-2xl font-semibold text-yellow-200 lg:mt-0">Roadmap Goals</h3>
+                    <div className="xl:hidden flex justify-center">
+                      <img src="exc2.png" className="mt-4" alt="buy/sell/rent" />
+                    </div>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">Platform Launch <span className="not-italic">✅</span></p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      Launch the Blockhouse Bay platform and introduce users to the world of Web3 real estate. The platform will be fully functional, allowing users to buy, sell, and rent properties using MATIC and BHB tokens.
+                    </p>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">Community Building</p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      Building a thriving community is at the heart of our mission. We're dedicated to creating an engaged, collaborative space where users shape the future of our platform together. Through events, forums, and social channels, we’ll grow a network that empowers and rewards active participation in the Blockhouse Bay platform.
+                    </p>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">PreSale & Marketing Campaign</p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      This is the part where Blockhouse Bay differs from the rest.
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      Instead of just asking you to buy our tokens, we're giving you the opportunity to earn them and make some money along the way through playing the 
+                      Blockhouse Bay Web3 real estate simulation.
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      Early adopters will be rewarded with a free 
+                    </p>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="col-span-1 xl3:hidden mt-2 mr-4 bg-right-top bg-contain brightness-110 bg-no-repeat" style={{ backgroundImage: "url('exc2.png')", height: "400px%" }}
               ></div>
 
               <div className="col-span-1 hidden xl3:block mt-2 mr-4 bg-right-top bg-cover bg-no-repeat" style={{ backgroundImage: "url('livingroom1.png')", height: "400px%" }}
@@ -398,9 +448,12 @@ const About = () => {
                     <p className="mt-2 text-gray-400 pl-2">
                       Becoming a property owner can earn income in two ways: Passivly when tenants pay rent and by selling the property for a profit. As more properties are sold, inflation will come into play and properties will become more valable
                     </p>
-                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Property Resale</p>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">Property Resale</p>
                     <p className="mt-2 text-gray-400 pl-2">
                       Property owners have the option to resell their property for either MATIC or BHB tokens.
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      If you are buying a property you a currently renting, your deposit will be refunded to you.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2">
                       Properties can be sold with existing tennants which will transfer over to the new property owner with the sale.
@@ -469,18 +522,8 @@ const About = () => {
                     <h3 className="text-2xl font-semibold text-yellow-200">Property Owner Actions</h3>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Collect Rent</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Property owners can easily manage each of their properties and collect rent from the Property Management Panel.
+                      Rent will be automatically paid into your wallet when a tenant makes a payment in the form of MATIC tokens.
                     </p>
-                    <p className="mt-2 text-gray-400 pl-2">
-                      Any uncollected rent will accumulate and can be withdrawn at the owner's convenience. Rent is paid in MATIC tokens.
-                    </p>
-                    <p className="mt-2 text-gray-400 pl-2">
-                      Owned properties are automatically listed as available to rent for potential tenants.
-                    </p>
-                    <p className="mt-2 text-gray-400 pl-2">
-                      Each property has three rooms available for tenants to rent.
-                    </p>
-
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Set Rent Price</p>
                     <p className="mt-2 text-gray-400 pl-2">
                       Property owners have control over their rental properties and can set the rent price up to the value of 50 Matic.
@@ -509,14 +552,20 @@ const About = () => {
                   <li className="pb-4">
                     <h3 className="text-2xl mt-3 font-semibold text-yellow-200 ">Selling a Property</h3>
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Listing Fee</p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      A listing fee of 12 Matic is required to list a property for sale.
+                    </p>
 
+                    <p className="text-white text-base xl3:text-xl  italic mt-4">Selling Price</p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      The selling price cannot be less than the original price of the property - 150 Matic.
+                    </p>
 
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Payment Options</p>
                     <p className="mt-2 text-gray-400 pl-2">
                       Properties can be sold for MATIC or BHB tokens as payment. Mixed payments are not allowed. Note if you allow BHB tokens as a payment option, a Matic price is still required.
                       {/* Properties cannot be sold for less than their original price when being sold for MATIC tokens. */}
                     </p>
-                    SELLING CANT BE LESS THAN ORIGINAL PRICE
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Withdraw Sale</p>
                     <p className="mt-2 text-gray-400 pl-2">
                       A property for sale can be withdrawn from the market by the owner at any time. Listing fee not refunded.
@@ -629,9 +678,9 @@ const About = () => {
                   </div>
                   {ownedImageSrc !== './X.png' &&
                     <div>
-                      <div className="flex justify-center lg:justify-start">
+                      {/* <div className="flex justify-center lg:justify-start">
                         <img src="collectRent.png" className="md:w-3/5 lg:w-full border border-1 mt-6" />
-                      </div>
+                      </div> */}
                     </div>}
                 </div>
               </div>
@@ -829,19 +878,19 @@ const About = () => {
                 </li>
               </ul>
               <div className="gallery h-fit pb-16 lg:mt-24 md:pb-40 lg:pb-0 lg:h-full cursor-none lg:mr-12 ml-3.5 mt-8 lg:mt-0 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-44 md:mb-32">
-                <a href="/blockhouse-bay-gardens" className="clipped-border">
+                <a href="/blockhouse-bay-gardens" className="clipped-border brightness-125">
                   <img src="gallery1.png" id="clipped" />
                 </a>
-                <a href="/blockhouse-bay-gardens" className="clipped-border">
+                <a href="/blockhouse-bay-gardens" className="clipped-border brightness-125">
                   <img src="gallery2.png" id="clipped" />
                 </a>
-                <a href="/blockhouse-bay-gardens" className="clipped-border">
+                <a href="/blockhouse-bay-gardens" className="clipped-border brightness-125">
                   <img src="gallery3.png" id="clipped" />
                 </a>
-                <a href="/blockhouse-bay-gardens" className="clipped-border">
+                <a href="/blockhouse-bay-gardens" className="clipped-border brightness-125">
                   <img src="gallery4.png" id="clipped" />
                 </a>
-                <a href="/blockhouse-bay-gardens" className="clipped-border">
+                <a href="/blockhouse-bay-gardens" className="clipped-border brightness-125">
                   <img src="gallery5.png" id="clipped" />
                 </a>
                 {/* <div className="shadow"></div> */}
@@ -883,7 +932,7 @@ const About = () => {
                     </p>
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Rent Tax Mechanic</p>
                     <p className=" text-gray-400">
-                      <div className=" p-6 pl-0 pt-3 rounded-lg shadow-md max-w-2xl ">                        
+                      <div className=" p-6 pl-0 pt-3 rounded-lg shadow-md max-w-2xl ">
                         <p className="text-gray-400 pl-2 mb-4">
                           When paying rent in the game, a <span className="font-semibold">tax</span> is applied based on the rent price:
                         </p>
@@ -926,7 +975,7 @@ const About = () => {
                     <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Decentralization / Security</h3>
                     <p className="mt-2 text-gray-400 pl-2">
                       The BHB platform governs iteslf and cannot be interacted with in non-standard ways by any user or contract. This is by design to ensure the platform remains decentralised and secure. The exception being, the platform owner can withdraw any fees generated by the platform.
-                      
+
                       <p className="mt-2 text-gray-400">
                         The platform owner can gift unsold properties to users, but once a property has been sold, the platform owner has no control over the property and full control remains with the current property owner.
                       </p>
@@ -941,7 +990,7 @@ const About = () => {
                   <li>
                     <h3 className="text-2xl mt-2 font-semibold text-yellow-200">WalletConnect</h3>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Utilizing WalletConnect via Web3Modal, Blockhouse Bay ensures seamless and secure interaction between users' wallets and the blockchain. With this integration, users can easily connect their preferred wallets to access features, make transactions, and engage with the platform's decentralized services, all while maintaining full control and privacy over their digital assets.
+                      Utilizing WalletConnect, Blockhouse Bay ensures seamless and secure interaction between users' wallets and the blockchain. With this integration, users can easily connect their preferred wallets to access features, make transactions, and engage with the platform's decentralized services, all while maintaining full control and privacy over their digital assets.
                     </p>
                   </li>
                 </ul>

@@ -232,11 +232,19 @@ const ToRent = () => {
   if (loadingState === 'loaded' && !currentPosts.length) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
-        <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">To Rent</p>
-          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently for rent</p>
-          <p className='text-white text-base pt-2 lg:pt-4 pl-7 lg:pl-4'>Check back soon for new rentals</p>
+        <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
+          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-10 text-white xl3:mt-4">Vacant Properties</p>          
+          <p className='text-white text-base md:text-left md:text-3xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>There aren’t any rentals listed at the moment, but keep an eye on this space! New properties will be available soon, so check back regularly to find your next perfect rental.</p>
+          <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/how-to-play?section=renting" target='new'>Learn more about renting your first property</Link></p>
         </div>
+        <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full xl3:w-5/6 lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          <img src="col.png" className=" rotate-away  shadow-2xl shadow-amber-100" />
+          {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+        </div>
+      </div>
+      <div className="image-container lg:hidden md:ml-24 lg:ml-0 drop-shadow-lg mt-16 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
+        <img src="col.png" className="rotate-away2  brightness-110 shadow-2xl shadow-amber-100" />
+        {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
       </div>
     </div>
   )
@@ -367,7 +375,7 @@ const ToRent = () => {
                             </>
                           }
                           {ethers.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
-                            <div className='flex items-center justify-between'>
+                            <div className='flex items-center mb-[20px] justify-between'>
                               <p className={" break-words"}>
                                 {property.renterAddresses[3]}
                               </p>

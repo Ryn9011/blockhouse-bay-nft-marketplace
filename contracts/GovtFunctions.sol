@@ -66,17 +66,17 @@ contract GovtFunctions is ReentrancyGuard {
         return address(this).balance;
     }
 
-    function getRentAccumulated(address user) public view returns (uint256) {
-        return rentAccumulated[user];
-    }
+    // function getRentAccumulated(address user) public view returns (uint256) {
+    //     return rentAccumulated[user];
+    // }
 
     function getRentAccumulatedSender() public view returns (uint256) {
         return rentAccumulated[msg.sender];
     }
 
-    function setRentAccumulated(uint256 amount, address caller) internal {
-        rentAccumulated[caller] = amount;
-    }
+    // function setRentAccumulated(uint256 amount, address caller) internal {
+    //     rentAccumulated[caller] = amount;
+    // }
 
     function setRenterDepositBalance(address renter, uint256 value, uint256 propertyId) internal {
         renterDepositBalance[renter][propertyId] = value;              
@@ -352,9 +352,9 @@ contract GovtFunctions is ReentrancyGuard {
         }
 
         require(isRenter, "not tenant");
-        uint256 accumulated = getRentAccumulated(currentItem.owner);
-        console.log('accumulated: ', accumulated);
-        setRentAccumulated((msg.value + accumulated), currentItem.owner);
+       // uint256 accumulated = getRentAccumulated(currentItem.owner);
+        //console.log('accumulated: ', accumulated);
+       // setRentAccumulated((msg.value + accumulated), currentItem.owner);
         propertyMarketContract.setTotalIncomeGenerated(propertyId, msg.value);
         propertyMarketContract.setRenterToPropertyTimestamp(propertyId, block.timestamp, msg.sender);
     
@@ -376,29 +376,28 @@ contract GovtFunctions is ReentrancyGuard {
             uint256 newSupplyAmount = maxSupply - tokensToReceive;
             propertyMarketContract.setMaxSupply(newSupplyAmount);
             
-            require(rentAccumulated[currentItem.owner] > 0, "rent = 0");                                
+            require(msg.value > 0, "rent = 0");                                
 
-            uint256 taxAmount = calculateTax(currentItem.rentPrice, rentAccumulated[currentItem.owner]);
+            uint256 taxAmount = calculateTax(currentItem.rentPrice, msg.value);
        
-            payable(msg.sender).transfer(rentAccumulated[currentItem.owner] - taxAmount);
-
-            rentAccumulated[currentItem.owner] = 0;
+            payable(currentItem.owner).transfer(msg.value - taxAmount);
+          
         }       
         emit RentPaid(msg.sender, block.timestamp, propertyId);
     }
 
-    function calculateTax(uint256 rentPrice, uint256 accumulated) internal pure returns (uint256) {
+    function calculateTax(uint256 rentPrice, uint256 paymentAmount) internal pure returns (uint256) {
         uint256 baseTax = 500; // 5%
 
         // Convert rentPrice from wei to ether
         uint256 rentInEther = rentPrice / 1 ether; // rentPrice in ether units
 
         // Subtract 3 from rentInEther, not rentPrice in wei
-        uint256 additionalTax = (rentInEther - 3) * 100; // 1% for each 1 ether above 3
+        uint256 additionalTax = (rentInEther > 3) ? (rentInEther - 3) * 100 : 0; // 1% for each ether above 3
 
         uint256 totalTaxPercentage = baseTax + additionalTax;
 
-        return (accumulated * totalTaxPercentage) / 10000;
+        return (paymentAmount * totalTaxPercentage) / 10000;
     }
 
 
