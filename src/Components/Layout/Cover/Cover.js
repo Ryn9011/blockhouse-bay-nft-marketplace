@@ -1,10 +1,23 @@
 import Header from '../Header/Header';
 import { useLocation } from "react-router-dom";
 import ConnectButton from '../Header/ConnectWallet';
+import React, { useEffect, useState } from 'react'
 
 export default function Cover() {
     const location = useLocation();
     const { pathname } = location;
+    const [loading, setLoading] = useState(true);
+    const [bgImage, setBgImage] = useState('');
+
+    useEffect(() => {
+        const img = new Image();
+        img.src = 'mainbg.jpg'; // The background image URL
+        img.onload = () => {
+            setBgImage(img.src); // Store the loaded image source
+            setTimeout(() => {setLoading(false);}, 2000);
+            
+        };
+    }, []);
 
     function load() {
         // open
@@ -49,8 +62,17 @@ export default function Cover() {
 
     //Javascript split method to get the name of the path in array
     const splitLocation = pathname.split("/");
+
+    if (loading) {
+        return (
+            <div class="relative flex justify-center items-center mt-96">
+              
+                <img src="tokengif.gif" className="rounded-full h-96 w-96 brightness-125" />
+            </div>
+        )
+    }
     return (
-        <div className="bg-cover bg-no-repeat" style={{ backgroundImage: "url('mainbg.jpg')" }}>
+        <div className="bg-cover bg-no-repeat" style={{ backgroundImage: `url(${bgImage})` }}>
 
             <div style={{ backgroundImage: "url('aboutreduced.png')" }} className="bg-right h-screen brightness-110 lg:hidden bg-cover bg-center">
                 <Header />

@@ -25,10 +25,11 @@ import SpinnerIcon from '../Components/spinner';
 const ethers = require("ethers")
 
 /* global BigInt */
-
-window.ethereum.on('accountsChanged', function (accounts) {
-  window.location.reload();
-});
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', function (accounts) {
+    window.location.reload();
+  });
+}
 
 const ForSale = () => {
   const [loadingState, setLoadingState] = useState('not-loaded')
@@ -372,7 +373,7 @@ const ForSale = () => {
                         <div className="grid grid-cols-2 divide-x divide-white h-6">
                           <div className="flex justify-start pl-2">
                             <p className='font-semibold pr-3'>MATIC</p>
-                            <img className="h-6.5  w-7" src="./polygonsmall.png" />
+                            <img className="h-[27px]  w-7" src="./polygonsmall.png" />
                           </div>
                           <div className="flex justify-start pl-2">
                             <p className='font-semibold pl-1 pr-3'>BHB</p>

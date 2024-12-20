@@ -23,9 +23,11 @@ import SpinnerIcon from '../Components/spinner';
 
 const ethers = require("ethers")
 
-window.ethereum.on('accountsChanged', function (accounts) {
-  window.location.reload();
-});
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', function (accounts) {
+    window.location.reload();
+  });
+}
 
 const PropertyView = () => {
 

@@ -18,9 +18,11 @@ import SaleHistory from '../Components/sale-history'
 
 const ethers = require("ethers")
 
-window.ethereum.on('accountsChanged', function (accounts) {
-  window.location.reload();
-});
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', function (accounts) {
+    window.location.reload();
+  });
+}
 
 const AllProperties = () => {
 
@@ -72,7 +74,7 @@ const AllProperties = () => {
             const history = i.saleHistory.map((item) => {
               return {
                 price: ethers.formatUnits(item[0]),
-                type: Number(item[1]) === 1 ? "Matic" : "BHB"
+                type: Number(item[1]) === 1 ? "POL" : "BHB"
               }
             });
             saleHistory = history;
@@ -222,11 +224,11 @@ const AllProperties = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
+                        <p className="font-mono text-xs text-green-400">{property.rentPrice} POL</p>
                       </div>
                       <div className="flex flex-col">
                         <p>Total Income Generated:</p>
-                        <p className="font-mono text-xs pb-2 text-green-400">{property.totalIncomeGenerated} Matic</p>
+                        <p className="font-mono text-xs pb-2 text-green-400">{property.totalIncomeGenerated} POL</p>
                       </div>
                       <p>Tenants:</p>
                       <div className='text-[10px] mb-3 text-green-400 font-mono'>

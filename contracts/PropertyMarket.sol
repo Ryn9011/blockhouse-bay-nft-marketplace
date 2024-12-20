@@ -459,7 +459,8 @@ contract PropertyMarket is ReentrancyGuard {
             property.salePrice = price;
             property.tokenSalePrice = (tokenPrice != 0) ? tokenPrice * (1 ether) : 0;
             _relistCount.increment();
-            _propertiesSold.decrement();
+            _propertiesSold.decrement();            
+            i_govtContract.transfer(msg.value);
         }
         // Common actions
         property.isForSale = true;
@@ -568,8 +569,9 @@ contract PropertyMarket is ReentrancyGuard {
             require(msg.value == price, "");
             temp.saleHistory.push(Sale(price, 1));      
             temp.seller.transfer(
-                msg.value - ((msg.value * 500) / 10000)//5% goes to i_govt
+                msg.value - ((msg.value * 500) / 10000)
             ); 
+            i_govtContract.transfer((msg.value * 500) / 10000);  //5% goes to i_govt          
         }
         temp.dateSoldHistory.push(block.timestamp);
 
@@ -603,25 +605,6 @@ contract PropertyMarket is ReentrancyGuard {
         return userProperties[msg.sender];
     }
 
-    // function checkSetRoomAvailability(
-    //     uint256 propertyId
-    // ) internal returns (bool) {
-    //     Property storage property = idToProperty[propertyId];
-    //     if (!property.roomOneRented) {
-    //         property.roomOneRented = true;
-    //         return true;
-    //     } else if (!property.roomTwoRented) {
-    //         property.roomTwoRented = true;
-    //         return true;
-    //     } else if (!property.roomThreeRented) {
-    //         property.roomThreeRented = true;
-    //         return true;
-    //     } else if (!property.roomFourRented) {
-    //         property.roomThreeRented = true;
-    //         return true;
-    //     } 
-    //     return false;        
-    // }
 
     function checkAndSetRoomStatus(uint256 propertyId) internal {
         Property storage property = idToProperty[propertyId];        
@@ -706,14 +689,14 @@ contract PropertyMarket is ReentrancyGuard {
         renterTokens[msg.sender] = 0;
     }
 
-    function withdrawPropertyTax() external onlyGovt nonReentrant {        
-        uint256 bal = address(this).balance;
-        GovtContract govt = GovtContract(i_govtContract);
-        i_govt.transfer(bal);
-        if (govt.getBalance() > 0) {
-            govt.withdrawRentTax();
-        }        
-    }
+    // function withdrawPropertyTax() external onlyGovt nonReentrant {        
+    //     uint256 bal = address(this).balance;
+    //     GovtContract govt = GovtContract(i_govtContract);
+    //     i_govt.transfer(bal);
+    //     if (govt.getBalance() > 0) {
+    //         govt.withdrawRentTax();
+    //     }        
+    // }
 
     function giftProperties(
         address nft,

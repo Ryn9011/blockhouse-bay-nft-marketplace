@@ -24,9 +24,11 @@ const ethers = require("ethers")
 
 const copy = require('clipboard-copy')
 
-window.ethereum.on('accountsChanged', function (accounts) {
-  window.location.reload();
-});
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', function (accounts) {
+    window.location.reload();
+  });
+}
 
 const Renting = () => {
 

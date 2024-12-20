@@ -58,9 +58,11 @@ const useStyles = makeStyles({
   },
 });
 
-window.ethereum.on('accountsChanged', function (accounts) {
-  window.location.reload();
-});
+if (window.ethereum) {
+  window.ethereum.on('accountsChanged', function (accounts) {
+    window.location.reload();
+  });
+}
 
 const About = () => {
   const [expanded, setExpanded] = React.useState(false);
@@ -214,8 +216,6 @@ const About = () => {
                               <img src="logoplain.png" className="mb-12" alt="Blockhouse Bay" />
                             </div>
 
-                            {/* <h1 className="text-3xl font-bold mb-6">White Paper</h1> */}
-
                             <section className="mb-8">
                               <h2 className="text-2xl font-semibold mb-4">Introduction</h2>
                               <p>
@@ -247,14 +247,14 @@ const About = () => {
                             <section className="mb-8">
                               <h2 className="text-2xl font-semibold mb-4">Rental System and Rewards</h2>
                               <p>
-                                The platform also supports property rentals, with rent payments made in Matic, the native cryptocurrency of the Polygon network. Renters are rewarded with BHB tokens for paying their rent, which can be used within the platform to buy, sell, or rent properties. Additionally, BHB tokens can be used to purchase exclusive properties available only through these tokens. The platform features a diminishing supply model, where the amount of tokens rewarded decreases as the token supply diminishes.
+                                The platform also supports property rentals, with rent payments made in POL, the native cryptocurrency of the Polygon network. Renters are rewarded with BHB tokens for paying their rent, which can be used within the platform to buy, sell, or rent properties. Additionally, BHB tokens can be used to purchase exclusive properties available only through these tokens. The platform features a diminishing supply model, where the amount of tokens rewarded decreases as the token supply diminishes.
                               </p>
                             </section>
 
                             <section className="mb-8">
                               <h2 className="text-2xl font-semibold mb-4">Tokenomics</h2>
                               <ul className="list-disc ml-8">
-                                <li><strong>Total Supply:</strong> 10,000,000 BHB tokens were minted at the project's inception.</li>
+                                <li><strong>Total Supply:</strong> 100,000,000 BHB tokens were minted at the project's inception.</li>
                                 <li><strong>Distribution:</strong> 100% of the BHB tokens are available to users; none are reserved by Blockhouse Bay.</li>
                               </ul>
                             </section>
@@ -284,7 +284,7 @@ const About = () => {
                             <section className="mb-8">
                               <h2 className="text-2xl font-semibold mb-4">Disclaimer</h2>
                               <p>
-                                Blockhouse Bay offers a virtual real estate platform on the Polygon blockchain, allowing users to buy, sell, and rent digital properties using NFTs. Participation involves risks, including market volatility and fluctuations in cryptocurrency prices, especially Matic and BHB tokens.
+                                Blockhouse Bay offers a virtual real estate platform on the Polygon blockchain, allowing users to buy, sell, and rent digital properties using NFTs. Participation involves risks, including market volatility and fluctuations in cryptocurrency prices, especially POL and BHB tokens.
                               </p>
                               <p>
                                 Users are advised to conduct thorough research and exercise caution before engaging in transactions. The platform does not guarantee the value, authenticity, or future marketability of the digital properties or tokens. Features and tokenomics may change, and users should stay informed about the platform's updates.
@@ -297,10 +297,24 @@ const About = () => {
                             <section>
                               <h2 className="text-2xl font-semibold mb-4">Conclusion</h2>
                               <p>
-                                Blockhouse Bay offers an accessible and innovative entry into the virtual real estate market, leveraging Polygon's blockchain technology and NFT capabilities. With a secure and transparent platform, users can explore the potential of digital real estate in a decentralized environment.
+                                Blockhouse Bay is a gamified real estate simulation that serves as both an engaging platform and an innovative presale mechanism.
+                                Built on the Polygon blockchain, it allows users to earn and use BHB tokens through interactive gameplay, making the token acquisition
+                                process more dynamic and rewarding.
                               </p>
                               <p>
-                                For more information and updates, please visit the Blockhouse Bay website and follow our official communication channels.
+                                Through its unique approach, Blockhouse Bay fosters participation by combining the fun of a virtual real estate game with tangible rewards.
+                                Users can buy, sell, and rent properties, with each transaction secured by blockchain technology and represented as NFTs. By integrating
+                                POL and BHB tokens, the platform creates a self-contained economy where early adopters and active participants benefit the most.
+                              </p>
+                              <p>
+                                The roadmap outlines a clear progression from platform launch and presale activities to community building and future integration with DeFi
+                                protocols. These integrations will unlock further opportunities for BHB holders, such as earning interest or participating in liquidity pools,
+                                enhancing both token utility and ecosystem liquidity.
+                              </p>
+                              <p>
+                                Blockhouse Bay offers an accessible and enjoyable entry point into Web3, blending gaming, blockchain technology, and tokenomics. Whether you’re
+                                here to earn tokens, explore virtual real estate, or engage with a thriving community, Blockhouse Bay is your chance to experience the exciting
+                                possibilities of decentralized platforms.
                               </p>
                             </section>
                           </div>
@@ -324,12 +338,12 @@ const About = () => {
                     </Modal>
                     <p className="text-white text-xl xl3:text-xl italic mr-2 pt-0.5 mt-3">Purpose</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Blockhouse Bay has come into existence for three reasons:
-                      Firstly, it was my excuse for me the developer, ScubaSteve (my gaming alter ego),
-                      to dive into and better understand the mysteries of blockchain and NFTs. Secondly, to create something for others can have some fun with and even make some money along the way.
-                      Thirdly,
-                      it is a rather desperate attempt to crowdfund a new laptop -
-                      As much as opening a notepade on mine heats it up to the point I could probably roast marshmallows over it meanwhile the fans going off like bees trapped in a blender!
+                      The Blockhouse Bay project brings Web3 real estate to life by offering a platform where users
+                      can buy, sell, and rent properties using POL and BHB tokens. Through an innovative approach to token distribution,
+                      users can earn BHB tokens by participating in a real estate simulation rather than simply purchasing them, fostering
+                      engagement and value. Long-term, the project aims to integrate DeFi features,
+                      enabling BHB holders to earn interest and use tokens in a liquidity pool, strengthening both user opportunities and
+                      the platform’s ecosystem.
                     </p>
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Landlord, Tenant or Both!</p>
                     <p className="mt-2 mb-3.5 text-gray-400 pl-2">
@@ -352,18 +366,18 @@ const About = () => {
                   </li>
                   <li className="pt-2 pb-4">
                     <h3 className="text-2xl font-semibold text-yellow-200 ">Passive Income</h3>
-                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Earn MATIC and BHB Tokens</p>
+                    <p className="text-white text-xl xl3:text-xl  italic mt-4">Earn POL and BHB Tokens</p>
                     <p className="mt-1 text-gray-400 pl-2">
-                      As a landlord, you'll enjoy the satisfaction of earning real money from your renters in the form of MATIC tokens. As a renter, You'll have the chance to receive exclusive Blockhouse Bay tokens (BHB) every time rent is paid. These tokens open up exciting possibilities and provide a cost-effective way to purchase properties.
+                      As a landlord, you'll enjoy the satisfaction of earning real money from your renters in the form of POL tokens. As a renter, You'll have the chance to receive exclusive Blockhouse Bay tokens (BHB) every time rent is paid. These tokens open up exciting possibilities and provide a cost-effective way to purchase properties.
                     </p>
                   </li>
                 </ul>
               </div>
 
-              <div className="col-span-1 xl3:hidden mt-2 mr-4 bg-right-top bg-contain brightness-110 bg-no-repeat" style={{ backgroundImage: "url('insidereduced.png')", height: "400px%" }}
-              ></div>
+              {/* <div className="col-span-1 xl3:hidden mt-2 mr-4 bg-right-top bg-contain brightness-110 bg-no-repeat" style={{ backgroundImage: "url('insidereduced.png')", height: "400px%" }}
+              ></div> */}
 
-              <div className="col-span-1 hidden xl3:block mt-2 mr-4 bg-right-top bg-cover bg-no-repeat" style={{ backgroundImage: "url('livingroom1.png')", height: "400px%" }}
+              <div className="col-span-1  mt-2 mr-4 bg-right-top bg-cover bg-no-repeat" style={{ backgroundImage: "url('livingroom1.png')", height: "400px%" }}
               ></div>
 
             </div>
@@ -390,32 +404,67 @@ const About = () => {
                     </div>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Platform Launch <span className="not-italic">✅</span></p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Launch the Blockhouse Bay platform and introduce users to the world of Web3 real estate. The platform will be fully functional, allowing users to buy, sell, and rent properties using MATIC and BHB tokens.
+                      Launch the Blockhouse Bay platform and introduce users to the world of Web3 real estate. The platform will be fully functional, allowing users to buy, sell, and rent properties using POL and BHB tokens.
                     </p>
-                    <p className="text-white text-xl xl3:text-xl italic mt-4">Community Building</p>
-                    <p className="mt-2 text-gray-400 pl-2">
-                      Building a thriving community is at the heart of our mission. We're dedicated to creating an engaged, collaborative space where users shape the future of our platform together. Through events, forums, and social channels, we’ll grow a network that empowers and rewards active participation in the Blockhouse Bay platform.
-                    </p>
+
                     <p className="text-white text-xl xl3:text-xl italic mt-4">PreSale & Marketing Campaign</p>
                     <p className="mt-2 text-gray-400 pl-2">
                       This is the part where Blockhouse Bay differs from the rest.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Instead of just asking you to buy our tokens, we're giving you the opportunity to earn them and make some money along the way through playing the 
+                      Instead of just asking you to buy our tokens, we're giving you the opportunity to earn them and make some money along the way through playing the
                       Blockhouse Bay Web3 real estate simulation.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Early adopters will be rewarded with a free 
+                      A limited number of early adopters will be rewarded with a free Blockhouse Bay property of their choice from the properties available.
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      The revenue collected from the platform will be used to expand
+                    </p>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">List BHB on Exchanges</p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      The end goal is of course to have BHB listed on several tier 1 exchanges, but we will start with a few smaller exchanges to get the ball rolling ASAP
+                    </p>
+
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">Community Building</p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      Building a thriving community is at the heart of our mission.
+                      We're dedicated to creating an engaged, collaborative space where users shape the
+                      future of our platform together. Through events, forums, and social channels, we’ll
+                      grow a network that empowers and rewards active participation in the Blockhouse Bay platform.
+                    </p>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">DeFi Integration</p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      At the heart of our vision lies the ambition to expand the BHB token into the decentralized finance (DeFi) ecosystem.
+                      This initiative will unlock new opportunities for token holders, transforming BHB from just a reward token into a
+                      versatile financial tool. Our strategy focuses on two key areas:
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      <strong className="text-white">1. Yield Partnerships with Leading DeFi Platforms:</strong>
+                      We aim to collaborate with prominent DeFi platforms like Aave on the Polygon network, enabling BHB holders to lend,
+                      borrow, and earn interest. By integrating BHB into such platforms, we empower holders to grow their token holdings or
+                      leverage them as collateral, boosting utility and liquidity across the ecosystem.
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      <strong className="text-white">2. Liquidity Pools on Decentralized Exchanges (DEXs):</strong>
+                      To enhance tradeability and market access, we plan to establish liquidity pools on decentralized exchanges like
+                      QuickSwap (Polygon’s primary DEX) or UniSwap. This will allow users to trade BHB tokens seamlessly while fostering
+                      a vibrant market and strengthening liquidity.
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2">
+                      By bridging BHB into DeFi, we ensure that earning tokens is not just enjoyable but also meaningful, unlocking the
+                      token’s potential to deliver real financial value. This integration underlines our commitment to driving long-term
+                      growth and utility for our community.
                     </p>
                   </li>
                 </ul>
               </div>
 
-              <div className="col-span-1 xl3:hidden mt-2 mr-4 bg-right-top bg-contain brightness-110 bg-no-repeat" style={{ backgroundImage: "url('exc2.png')", height: "400px%" }}
+              <div className="col-span-1 mt-2 mr-4 brightness-110 bg-no-repeat bg-cover" style={{ backgroundImage: "url('exc2.png')" }}
               ></div>
 
-              <div className="col-span-1 hidden xl3:block mt-2 mr-4 bg-right-top bg-cover bg-no-repeat" style={{ backgroundImage: "url('livingroom1.png')", height: "400px%" }}
-              ></div>
+              {/* <div className="col-span-1 hidden xl3:block mt-2 mr-4 bg-right-top bg-cover bg-no-repeat" style={{ backgroundImage: "url('livingroom1.png')", height: "400px%" }}
+              ></div> */}
 
             </div>
           </AccordionDetails>
@@ -441,7 +490,7 @@ const About = () => {
                     </p>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Payment Options</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Properties can be bought by paying the asking price in MATIC or BHB tokens.
+                      Properties can be bought by paying the asking price in POL or BHB tokens.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2">BHB tokens can be acquired by becoming a tenant in a property owned by another user. Tenants are rewarded with tokens when they pay rent and the higher the rent price, the more tokens are rewarded</p>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Generating Income</p>
@@ -450,7 +499,7 @@ const About = () => {
                     </p>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Property Resale</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Property owners have the option to resell their property for either MATIC or BHB tokens.
+                      Property owners have the option to resell their property for either POL or BHB tokens.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2">
                       If you are buying a property you a currently renting, your deposit will be refunded to you.
@@ -459,13 +508,13 @@ const About = () => {
                       Properties can be sold with existing tennants which will transfer over to the new property owner with the sale.
                     </p>
                   </li>
-                  <li className="pb-4 pt-2">
+                  {/* <li className="pb-4 pt-2">
                     <h3 className="text-2xl font-semibold text-yellow-200 ">BHB Tokens</h3>
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Trading</p>
                     <p className="mt-2 text-gray-400 pl-2">
                       I would like the BHB token to
                     </p>
-                  </li>
+                  </li> */}
                 </ul>
               </div>
 
@@ -485,13 +534,13 @@ const About = () => {
                       The rent price that renters are expected to pay.
                     </li>
                     <li>
-                      Total Income Generated is the accumulated total Matic the property has generated from renters.
+                      Total Income Generated is the accumulated total POL the property has generated from renters.
                     </li>
                     <li>
                       Sale History lists the all purchase history of the property
                     </li>
                     <li>
-                      The amount of Matic/BHB shown at the bottom is the current asking price for the property.
+                      The amount of POL/BHB shown at the bottom is the current asking price for the property.
                       If the owner is not accepting tokens as payment, The BHB amount will be greyed out
                     </li>
                   </ul>
@@ -522,11 +571,11 @@ const About = () => {
                     <h3 className="text-2xl font-semibold text-yellow-200">Property Owner Actions</h3>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Collect Rent</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Rent will be automatically paid into your wallet when a tenant makes a payment in the form of MATIC tokens.
+                      Rent will be automatically paid into your wallet when a tenant makes a payment in the form of POL tokens.
                     </p>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Set Rent Price</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Property owners have control over their rental properties and can set the rent price up to the value of 50 Matic.
+                      Property owners have control over their rental properties and can set the rent price up to the value of 50 POL.
                       The state of the market will determine the demand for properties and the rent price that can be set.
                     </p>
 
@@ -553,18 +602,18 @@ const About = () => {
                     <h3 className="text-2xl mt-3 font-semibold text-yellow-200 ">Selling a Property</h3>
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Listing Fee</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      A listing fee of 12 Matic is required to list a property for sale.
+                      A listing fee of 12 POL is required to list a property for sale.
                     </p>
 
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Selling Price</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      The selling price cannot be less than the original price of the property - 150 Matic.
+                      The selling price cannot be less than the original price of the property - 150 POL.
                     </p>
 
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Payment Options</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Properties can be sold for MATIC or BHB tokens as payment. Mixed payments are not allowed. Note if you allow BHB tokens as a payment option, a Matic price is still required.
-                      {/* Properties cannot be sold for less than their original price when being sold for MATIC tokens. */}
+                      Properties can be sold for POL or BHB tokens as payment. Mixed payments are not allowed. Note if you allow BHB tokens as a payment option, a POL price is still required.
+                      {/* Properties cannot be sold for less than their original price when being sold for POL tokens. */}
                     </p>
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Withdraw Sale</p>
                     <p className="mt-2 text-gray-400 pl-2">
@@ -597,7 +646,7 @@ const About = () => {
 
               </div>
               <div className="lg:grid grid-cols-2">
-                <div className="flex flex-col mt-12 gap-4 pl-4 xl:pr-8">
+                <div className="flex flex-col gap-4 pl-4 xl:pr-8">
                   <p className="text-xl italic text-white">Property Sale Panel</p>
                   <div className="">
                     <Pagination
@@ -632,7 +681,7 @@ const About = () => {
                         </li>
 
                         <li>
-                          Total Income Generated is the accumulated total Matic the property has generated from renters.
+                          Total Income Generated is the accumulated total POL the property has generated from renters.
                         </li>
                         <li>
                           The number of rooms rented is how many people are currently renting from this property
@@ -702,7 +751,7 @@ const About = () => {
                 <h3 className="text-2xl font-semibold text-yellow-200">Renting a Room</h3>
                 <p className="text-white text-xl xl3:text-xl italic mt-4">Rental Deposit</p>
                 <p className="mt-2 text-gray-400 pl-2">
-                  To rent a room in a property, a deposit of 10 Matic must be made. This is refunded when the renter decides to vacate the room.
+                  To rent a room in a property, a deposit of 10 POL must be made. This is refunded when the renter decides to vacate the room.
                 </p>
                 <p className="text-white text-xl xl3:text-xl  italic mt-4">Rent Payment Obligation</p>
                 <p className="mt-2 text-gray-400 pl-2">
@@ -733,7 +782,7 @@ const About = () => {
                 <h3 className="text-2xl font-semibold text-yellow-200 my-4">Token Rewards</h3>
                 <p className="text-white text-xl xl3:text-xl italic mt-4">Earning BHB Tokens</p>
                 <p className="mt-2 text-gray-400 pl-2">
-                  Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in MATIC.
+                  Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in POL.
                 </p>
                 <p className="mt-2 text-gray-400 pl-2">
                   The higher the rent price paid, the higher the token rewards will be for the tenant.
@@ -743,7 +792,7 @@ const About = () => {
                 </p>
                 <p className="text-white text-xl xl3:text-xl  italic mt-4">Spending BHB Tokens</p>
                 <p className="mt-2 text-gray-400 pl-2">
-                  The initial token price of 2000 BHB works out to be cheaper than buying the property in MATIC. Renting is ideal for those who don't want to fork out up front the MATIC to buy a property and is a cheaper pathway to owning a property.
+                  The initial token price of 2000 BHB works out to be cheaper than buying the property in POL. Renting is ideal for those who don't want to fork out up front the POL to buy a property and is a cheaper pathway to owning a property.
                 </p>
                 <p className="mt-2 text-gray-400 pl-2">
 
@@ -773,7 +822,7 @@ const About = () => {
 
               <div className="col-span-1 lg:grid lg:grid-cols-2">
                 <div className="col-span-1">
-                  <div className="flex flex-col mt-12 gap-4 pl-4 xl:pr-8">
+                  <div className="flex flex-col mt-1 gap-4 pl-4 xl:pr-8">
                     <p className="text-xl italic text-white">Renting Panels</p>
                     <div className="">
                       <Pagination
@@ -810,7 +859,7 @@ const About = () => {
                             Sale History lists the all purchase history of the property
                           </li>
                           <li>
-                            The deposit is the amount of MATIC required to rent a room
+                            The deposit is the amount of POL required to rent a room
                           </li>
                         </ul>
                       </div>) : (
@@ -909,8 +958,8 @@ const About = () => {
             </div>
           </AccordionSummary>
           <AccordionDetails className="border border-1">
-            <div className="lg:grid lg:grid-cols-3 lg:gap-4 lg:text-lg text-lg xl:mb-6">
-              <div className="lg:col-span-2 lg:pr-32 xl:text-lg ">
+            <div className="lg:grid lg:grid-cols-5 lg:gap-4 lg:text-lg text-lg xl:mb-6 bg-contain">
+              <div className=" lg:pr-32 xl:text-lg col-span-3">
                 <ul>
                   <h3 className="text-2xl font-semibold text-yellow-200">Transactions</h3>
                   <p className="mt-2 text-gray-400 pl-2">The duration for completing a transaction, whether it involves buying, renting, or selling, can fluctuate based on network activity. Once a transaction is validated on the Polygon blockchain, property details will be automatically updated.</p>
@@ -925,10 +974,10 @@ const About = () => {
                   <li className="pb-4">
                     <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Fees</h3>
                     {/* <p className="text-white text-lg xl3:text-xl italic mt-3">Buying</p>
-                    <p className="mt-2 text-gray-400 pl-2">A 5 Matic fee is required when buying a property with BHB tokens.</p> */}
+                    <p className="mt-2 text-gray-400 pl-2">A 5 POL fee is required when buying a property with BHB tokens.</p> */}
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Selling</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Property owners have the option to sell their property to other interested buyers. A listing fee of 12 Matic will incur and 5% of the sale amount will be deducted when a sale is made.
+                      Property owners have the option to sell their property to other interested buyers. A listing fee of 12 POL will incur and 5% of the sale amount will be deducted when a sale is made.
                     </p>
                     <p className="text-white text-lg xl3:text-xl italic mt-4">Rent Tax Mechanic</p>
                     <p className=" text-gray-400">
@@ -939,15 +988,15 @@ const About = () => {
 
                         <ul className="list-disc list-inside text-gray-400 pl-2 mb-4">
                           <li><span className="font-semibold">Base Tax</span>: All rent payments have a starting tax of <span className="font-semibold">5%</span>.</li>
-                          <li><span className="font-semibold">Progressive Tax</span>: For every 1 MATIC increase in rent price above 3 MATIC, the tax increases by <span className="font-semibold">1%</span>.</li>
+                          <li><span className="font-semibold">Progressive Tax</span>: For every 1 POL increase in rent price above 3 POL, the tax increases by <span className="font-semibold">1%</span>.</li>
                         </ul>
 
                         <div className=" border border-gray-300 p-4 ml-2 rounded-lg shadow-sm mb-4">
                           <h4 className="font-semibold text-gray-400 pl-2 mb-2">For example:</h4>
                           <ul className="list-disc list-inside text-gray-400 pl-2">
-                            <li>Rent of 10 MATIC = <span className="font-semibold">12%</span> tax</li>
-                            <li>Rent of 30 MATIC = <span className="font-semibold">32%</span> tax</li>
-                            <li>Rent of 50 MATIC = <span className="font-semibold">52%</span> tax</li>
+                            <li>Rent of 10 POL = <span className="font-semibold">12%</span> tax</li>
+                            <li>Rent of 30 POL = <span className="font-semibold">32%</span> tax</li>
+                            <li>Rent of 50 POL = <span className="font-semibold">52%</span> tax</li>
                           </ul>
                         </div>
 
@@ -964,18 +1013,16 @@ const About = () => {
                     <p className="mt-2 text-gray-400 pl-2">
                       You can navigate away from the page with the pending transaction and track its status from your wallet.
                     </p>
-                    <p className="text-white text-lg xl3:text-xl italic mt-4">BHB Token Burn</p>
+                    <p className="text-white text-lg xl3:text-xl italic mt-4">BHB Token Tx Fee</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      A 1% fee is deducted from the total of any BHB transaction
-                      <p className="mt-2 text-gray-400">50% of the fee is sent to the development fund.</p>
-                      <p className="mt-2 text-gray-400">50% of the fee is burned (destroyed), reducing the total supply of BHB.</p>
+                      A 0.001% fee is deducted from the total of any BHB transaction.
+                      <p className="mt-2 text-gray-400">This goes to the BHB developers.</p>
                     </p>
                   </li>
                   <li className="pb-4">
                     <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Decentralization / Security</h3>
                     <p className="mt-2 text-gray-400 pl-2">
                       The BHB platform governs iteslf and cannot be interacted with in non-standard ways by any user or contract. This is by design to ensure the platform remains decentralised and secure. The exception being, the platform owner can withdraw any fees generated by the platform.
-
                       <p className="mt-2 text-gray-400">
                         The platform owner can gift unsold properties to users, but once a property has been sold, the platform owner has no control over the property and full control remains with the current property owner.
                       </p>
@@ -995,11 +1042,13 @@ const About = () => {
                   </li>
                 </ul>
               </div>
+              {/* <div className="p-32  h-5/6 lg:col-span-2">
+                <img src='buyingvertical.png' />
+              </div> */}
             </div>
           </AccordionDetails>
         </Accordion>
-      </div ></>
-
+      </div></>
   )
 }
 

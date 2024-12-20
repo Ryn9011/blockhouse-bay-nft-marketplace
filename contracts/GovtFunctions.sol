@@ -410,10 +410,10 @@ contract GovtFunctions is ReentrancyGuard {
     //     rentAccumulated[msg.sender] = 0;
     // }
 
-    function withdrawRentTax() public onlyPropertyMarket nonReentrant {
+    function withdrawRentTax() public onlyGovt nonReentrant {
         require(address(this).balance > 0, "no tax");
         uint256 bal = address(this).balance - totalDepositBal;
-        require(bal > totalDepositBal, "insufficient tax");
+        require(bal > 0, "insufficient amount to withdraw");
         payable(_govtAddress).transfer(bal);        
     }
 
@@ -422,9 +422,8 @@ contract GovtFunctions is ReentrancyGuard {
     }
 
     function checkGovtBalance() public view onlyGovt returns (uint256) {        
-        uint256 bal = address(this).balance - totalDepositBal;
-        uint256 marketBal = i_propertyMarketAddress.balance;
-        return bal + marketBal; 
+        uint256 bal = address(this).balance - totalDepositBal;        
+        return bal;
     }
 
     function amountToWithdraw() public view onlyGovt returns (uint256) {

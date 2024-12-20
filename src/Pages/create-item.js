@@ -419,8 +419,8 @@ const CreateItem = () => {
   }
 
   const govtWithdraw = async () => {
-    const contract = new Contract(nftmarketaddress, PropertyMarket.abi, signer);
-    const transaction = await contract.withdrawPropertyTax();
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer);
+    const transaction = await contract.withdrawRentTax();
     await transaction.wait();
   }  
 

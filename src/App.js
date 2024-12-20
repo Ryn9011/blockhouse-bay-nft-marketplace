@@ -81,6 +81,7 @@ const modal = createWeb3Modal({
 function App() {
   const location = useLocation();
   const { walletProvider } = useWeb3ModalProvider();
+  const [isCheckingProvider, setIsCheckingProvider] = useState(true);
 
   const [modalEvent, setModalEvent] = useState(null);
   const [provider, setProvider] = useState(null);
@@ -94,21 +95,28 @@ function App() {
   //   console.log('ACCOUNTS CHANGED' + accounts[0]);
   // });
 
+
   useEffect(() => {
+    let timeoutId;
+
     const setupProvider = async () => {
       if (walletProvider) {
-        const provider = new ethers.BrowserProvider(walletProvider);
-        const signer = await provider.getSigner();
-        setProvider(provider);
+        const browserProvider = new ethers.BrowserProvider(walletProvider);
+        const signer = await browserProvider.getSigner();
+        setProvider(browserProvider);
         setSigner(signer);
-
-        walletProvider.on("accountsChanged", (accounts) => {
-          window.location.reload();
-        });
+        setIsCheckingProvider(false); // Stop checking once the provider is set
+      } else {
+        // Wait for up to 1 second before showing the wallet connection message
+        timeoutId = setTimeout(() => {
+          setIsCheckingProvider(false); // Stop checking if no provider is found
+        }, 1000);
       }
     };
 
     setupProvider();
+
+    return () => clearTimeout(timeoutId); // Cleanup timeout on component unmount
   }, [walletProvider]);
 
   useEffect(() => {
@@ -188,31 +196,34 @@ function App() {
     <ModalContext.Provider value={{ modalEvent, provider, signer }}>
       <div className={` ${location.pathname !== "/" ? 'from-black via-black to-polygon-purple bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden`}>
         <div className="flex-1 overflow-y-auto overflow-x-hidden">
-          {/* */}
-          {location.pathname !== "/" &&
-            <Header />
-          }
-          {(provider != null || location.pathname === "/" || location.pathname === '/how-to-play') ? <div>  <Routes>
-            <Route path="/" element={<Cover />} />
-            <Route path="/all-properties" element={<AllProperties />} />
-            <Route path="/for-sale" element={<ForSale />} />
-            <Route path="/to-rent" element={<ToRent />} />
-            <Route path="/owned" element={<Owned />} />
-            <Route path="/renting" element={<Renting />} />
-            <Route path="/blockhouse-bay-gardens" element={<Exclusive />} />
-            <Route path="/how-to-play" element={<About />} />
-            <Route path="/create-item" element={<CreateItem />} />
-            <Route path="/property-view/:propertyId" element={<PropertyView />} />
-          </Routes></div> :
+          {location.pathname !== "/" && <Header />}
+          {isCheckingProvider ? (
             <div className='text-white text-2xl flex justify-center'>
               <div className="pt-6 text-center">
-
-                <div >
-                  {/* <img src="logoplain.png" className=" mb-12" alt="blockhouse bay" /> */}
-
-
-                  <div className=" sm:hidden p-4">
-                    <div className="">
+                
+              </div>
+            </div>
+          ) : (provider || location.pathname === "/" || location.pathname === '/how-to-play') ? (
+            <div>
+              <Routes>
+                <Route path="/" element={<Cover />} />
+                <Route path="/all-properties" element={<AllProperties />} />
+                <Route path="/for-sale" element={<ForSale />} />
+                <Route path="/to-rent" element={<ToRent />} />
+                <Route path="/owned" element={<Owned />} />
+                <Route path="/renting" element={<Renting />} />
+                <Route path="/blockhouse-bay-gardens" element={<Exclusive />} />
+                <Route path="/how-to-play" element={<About />} />
+                <Route path="/create-item" element={<CreateItem />} />
+                <Route path="/property-view/:propertyId" element={<PropertyView />} />
+              </Routes>
+            </div>
+          ) : (
+            <div className='text-white text-2xl flex justify-center'>
+              <div className="pt-6 text-center">
+                <div>
+                  <div className="sm:hidden p-4">
+                    <div>
                       <div className='px-8'>
                         <div className="bg-gray-900 rounded-lg p-2 pb-0 shadow-lg">
                           <img src="logoplain.png" className="mb-12" alt="Blockhouse Bay" />
@@ -243,25 +254,19 @@ function App() {
                           <p className='text-lg mb-6'>
                             Utilizing WalletConnect, Blockhouse Bay ensures seamless and secure interaction between users' wallets and the blockchain. With this integration, users can easily connect their preferred wallets to access features, make transactions, and engage with the platform's decentralized services, all while maintaining full control and privacy over their digital assets.
                           </p>
-                          <p>
-                            
-                          </p>
-                          {/* <div className='flex justify-center'>
-                            <ConnectButton />
-                          </div> */}
                         </section>
                       </div>
                     </div>
-
                   </div>
                 </div>
               </div>
-            </div>}
+            </div>
+          )}
         </div>
-        {/* {location.pathname === "/about" && <Footer />} */}
       </div>
     </ModalContext.Provider>
-  );
+);
+
 }
 
 // Exporting context hook for components to consume
