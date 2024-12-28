@@ -255,10 +255,12 @@ const Exclusive = () => {
         alert('Insufficient BHB token balance to rent exclusive property');
       } else if (error.message.includes('You can\'t rent your own property')) {
         alert('You can\'t rent your own property');
+      } else if (error.message.includes('You can\'t rent your own property')) {
+        alert('Property not yet owned');
       } else {
-        alert('Transaction Failed');
+        alert('Property not yet owned');
       }
-     
+
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2B({ ...txloadingState2B, [i]: false });
     }
@@ -333,23 +335,27 @@ const Exclusive = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p className='text-indigo-100'>Rent Price:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.rentPrice} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.rentPrice} POL</p>
+                      </div>
+                      <div className="flex flex-col pb-2">
+                        <p className='text-indigo-100'>Deposit Required</p>
+                        <p className="text-xs text-green-400 font-mono">{property.depositRequired} POL</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p className='text-indigo-100'>Total Income Generated:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} POL</p>
                       </div>
                       <div className="flex flex-col mb-2">
                         <p className='text-indigo-100'>Rooms Rented:</p>
                         <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/4</p>
                       </div>
 
-                      <p className={`text-indigo-100 ${property.renterAddresses[0] === '0x0000000000000000000000000000000000000000' ? 'mb-2' : ''}`}>Tenants:</p>
-                      <div className='text-[10px] lg:text-xs mb-3 text-green-400 font-mono'>
+                      <p className={`text-indigo-100 ${property.renterAddresses[0] === '0x0000000000000000000000000000000000000000' ? '' : ''}`}>Tenants:</p>
+                      <div className='text-[10px] h-[150px] lg:text-xs mb-3 text-green-400 font-mono'>
 
-                        {ethers.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
+                        {ethers.formatEther(property.renterAddresses[0]) !== "0.0" ?
                           <>
-                            <div className='flex items-center h-10 justify-between mb-2'>
+                            <div className='flex items-center justify-between mb-[11px]'>
                               <p className={" break-words"}>
                                 {property.renterAddresses[0]}
                               </p>
@@ -361,13 +367,12 @@ const Exclusive = () => {
                           :
                           <>
                             <div className='flex items-center'>
-                              <p className='h-11'>0x</p>
+                              <p className='mt-2 mb-[17px]'>0x</p>
                             </div>
                           </>
                         }
-
                         {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
-                          <div className='flex items-center h-10 justify-between mb-2'>
+                          <div className='flex items-center justify-between mb-[11px]'>
                             <p className={" break-words"}>
                               {property.renterAddresses[1]}
                             </p>
@@ -377,13 +382,13 @@ const Exclusive = () => {
                           </div>
                           :
                           <>
-                            <div className='flex justify-between h-full items-center'>
-                              <p className='h-11'>0x</p>
+                            <div className='flex justify-between items-center'>
+                              <p className='mt-2 mb-[17px]'>0x</p>
                             </div>
                           </>
                         }
                         {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
-                          <div className='flex items-center h-10 justify-between mb-2'>
+                          <div className='flex items-center justify-between mb-[11px]'>
                             <p className={" break-words"}>
                               {property.renterAddresses[2]}
                             </p>
@@ -394,12 +399,12 @@ const Exclusive = () => {
                           :
                           <>
                             <div className='flex items-center'>
-                              <p className='h-11'>0x</p>
+                              <p className='mt-2 mb-[17px]'>0x</p>
                             </div>
                           </>
                         }
                         {ethers.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
-                          <div className='flex items-center h-10 justify-between'>
+                          <div className='flex items-center mb-[20px] justify-between'>
                             <p className={" break-words"}>
                               {property.renterAddresses[3]}
                             </p>
@@ -410,7 +415,7 @@ const Exclusive = () => {
                           :
                           <>
                             <div className='flex items-center'>
-                              <p className='h-11'>0x</p>
+                              <p className='mt-2 mb-[17px]'>0x</p>
                             </div>
                           </>
                         }
@@ -421,16 +426,16 @@ const Exclusive = () => {
                     </div>
                   </div>
 
-                  <div className="h-44 px-2 pt-0.5 bg-black">
+                  <div className=" px-2 h-[180px] md:h-[185px] pb-2 md:pb-0 bg-black">
 
-                    <div className="pb-2">
+                    <div className="pb-2 md:pb-0">
                       <div className="mb-2 text-2xl lg:text-base">
                         <div className="">
                           {(property.isForSale) ? (
                             <div className='grid grid-cols-2 pt-1 divide-x-2 px-3'>
                               <div className='pt-1 mr-8'>
                                 <div className="flex justify-start">
-                                  <p className='font-semibold text-lg md:text-xl 2xl:text-2xl pr-3 mb-[2px]'>BHB</p>
+                                  <p className='font-semibold text-lg md:text-xl 2xl:text-2xl pr-3 mb-[5px]'>BHB</p>
                                   <img className="h-[28px] w-7 brightness-200" src="./tokenfrontsmall.png" alt="" />
                                 </div>
                                 <header className="items-center flex text-indigo-100">
@@ -448,12 +453,12 @@ const Exclusive = () => {
                               <div className="bg-black  pl-3 pt-1 flex ">
                                 <div className='text-lg md:text-xl 2xl:text-2xl flex flex-col justify-left font-semibold'>
                                   <p>Ranking</p>
-                                  <p className='text-transparent bg-clip-text text-lg brightness-125 bg-gradient-to-r from-rose-300 via-rose-500 to-rose-600  pl-2'><span className={property.ranking == 'unranked' ? 'text-indigo-100 font-extralight' : 'font-mono'}>{property.ranking !== 'unranked' &&<span>#</span>}{`${property.ranking}`}</span></p>
+                                  <p className='text-transparent bg-clip-text text-lg brightness-125 bg-gradient-to-r from-rose-300 via-rose-500 to-rose-600  pl-2'><span className={property.ranking == 'unranked' ? 'text-indigo-100 font-extralight' : 'font-mono'}>{property.ranking !== 'unranked' && <span>#</span>}{`${property.ranking}`}</span></p>
                                 </div>
                               </div>
                             </div>
                           ) : (
-                            <div className="bg-black py-[10.5px] pr-1.5 mt-2  flex flex-col gap-2 justify-between">
+                            <div className="bg-black py-[10.5px] pr-1.5 pt-3 mb-4.5  flex flex-col gap-2 justify-between">
                               <div className='text-2xl lg:pt-1.5 flex justify-center font-semibold'>
                                 <p className='text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-white via-white to-rose-500'>Ranking<span className={property.ranking == 'unranked' ? 'text-white' : 'italic font-extralight font-mono pl-1.5'}>{`#${property.ranking}`}</span></p>
                               </div>
@@ -461,7 +466,7 @@ const Exclusive = () => {
                           )}
                         </div>
                       </div>
-                      <div className="px-2">
+                      <div className="px-2 md:pb-2">
                         {(property.owner === 'Unowned' || property.isForSale) ? (
                           <>
                             {txloadingState1[i] || txloadingState1B[i] ? (
@@ -476,7 +481,7 @@ const Exclusive = () => {
                           </>
                         ) : (
                           <div className='flex justify-center'>
-                            <button disabled={true} className="mb-5 lg:mb-[15px] w-full  text-white font-bold py-2 mt-1 px-12 rounded">
+                            <button disabled={true} className="mb-5 lg:mb-[15px] w-full  text-white font-bold py-2 mt-2.5 px-12 rounded">
                               Not Currently for Sale
                             </button>
                           </div>
@@ -485,14 +490,14 @@ const Exclusive = () => {
                         {property.roomsToRent !== 4 ? (
                           <>
                             {txloadingState2[i] || txloadingState2B[i] ? (
-                              <p className='w-full bg-matic-blue text-xs italic px-3 lg:px-6 py-1 mb-3 rounded'>
+                              <p className='w-full bg-matic-blue text-xs italic px-3 lg:px-6 py-1 mb-3 md:mb-0 rounded'>
                                 <SpinnerIcon text={(txloadingState2[i] && !txloadingState2B[i]) ? 'Creating Tx' : 'Confirming Tx'} />
                               </p>
                             ) : (
                               <button
                                 onClick={() => rentProperty(property, i)}
                                 disabled={property.owner === "Unowned"}
-                                className={`w-full   font-bold py-2 px-12 rounded ${property.owner !== "Unowned" ? "hover:bg-sky-700 bg-matic-blue cursor-pointer  text-white" : "cursor-not-allowed bg-gray-400"} ${property.owner === "Unowned" ? "cursor-not-allowed bg-gray-700 text-gray-500" : ""}`}
+                                className={`w-full   font-bold py-2 px-12 rounded ${property.owner !== "Unowned" ? "hover:bg-sky-700 bg-blue-800 cursor-pointer  text-white" : "cursor-not-allowed bg-gray-400"} ${property.owner === "Unowned" ? "cursor-not-allowed bg-gray-700 text-gray-500" : ""}`}
                               >
                                 Rent Room
                               </button>
@@ -502,7 +507,7 @@ const Exclusive = () => {
                           // <button disabled='true' className="w-full bg-black text-red-400 font-bold pb-2 pt-1 px-12 rounded">
                           //   No Vacancy
                           // </button>
-                          <button                                                      
+                          <button
                             className={`w-full font-bold py-2 px-12 rounded bg-gray-700 text-gray-500 cursor-not-allowed`}
                           >
                             Rent Room
@@ -512,7 +517,7 @@ const Exclusive = () => {
                       </div>
                     </div>
                   </div>
-                  <div className='h-2 xl:h-3 bg-black '></div>
+                  {/* <div className='h-2 xl:h-3 bg-black '></div> */}
                 </div>
               )
             })}

@@ -437,4 +437,9 @@ contract GovtFunctions is ReentrancyGuard {
     function getMarketBal() public view onlyGovt returns (uint256) {
         return i_propertyMarketAddress.balance;
     }
+
+    function getTokenBalanceMaxSupply() public view onlyGovt returns (uint256) {
+        uint256 maxSupply = propertyMarketContract.getMaxSupply();          
+        return maxSupply;
+    }
 }

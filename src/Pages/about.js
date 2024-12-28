@@ -493,6 +493,7 @@ const About = () => {
                       Properties can be bought by paying the asking price in POL or BHB tokens.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2">BHB tokens can be acquired by becoming a tenant in a property owned by another user. Tenants are rewarded with tokens when they pay rent and the higher the rent price, the more tokens are rewarded</p>
+                    <p className="mt-2 text-gray-400 italic font-semibold pl-2">Note - If there is not the option to pay with BHB tokens, is is because the seller has chosen to only accept POL</p>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Generating Income</p>
                     <p className="mt-2 text-gray-400 pl-2">
                       Becoming a property owner can earn income in two ways: Passivly when tenants pay rent and by selling the property for a profit. As more properties are sold, inflation will come into play and properties will become more valable

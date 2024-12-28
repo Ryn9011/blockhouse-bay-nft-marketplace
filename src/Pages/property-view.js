@@ -415,7 +415,7 @@ const PropertyView = () => {
                           />
                         </div>
                         <label htmlFor={"maticRadio"} className="mb-2 pr-2 cursor-pointer pt-2 text-white">
-                          <p className={`font-bold ${property.isForSale ? 'text-white' : 'text-gray-500'}`}>{property.price} MATIC</p>
+                          <p className={`font-bold ${property.isForSale ? 'text-white' : 'text-gray-500'}`}>{property.price} POL</p>
                         </label>
                         <div>
                           <img

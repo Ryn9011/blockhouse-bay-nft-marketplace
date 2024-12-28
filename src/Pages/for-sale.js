@@ -307,7 +307,7 @@ const ForSale = () => {
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
             <header className="flex items-center h-16 mb-1 mr-3">
-              <p className="text-sm md:text-xl font-bold">Buy a property and earn Matic tokens from your renters! </p>
+              <p className="text-sm md:text-xl font-bold">Buy a property and earn POL tokens from your renters! </p>
             </header>
             <div className='mb-1'>
               <img className="h-8 w-9 mr-2 mt-4" src="./polygonsmall.png" />
@@ -356,11 +356,11 @@ const ForSale = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
+                        <p className="font-mono text-xs text-green-400">{property.rentPrice} POL</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Total Income Generated:</p>
-                        <p className="font-mono text-xs text-green-400">{property.totalIncomeGenerated} Matic</p>
+                        <p className="font-mono text-xs text-green-400">{property.totalIncomeGenerated} POL</p>
                       </div>
                       <SaleHistory property={property} />
                     </div>
@@ -372,7 +372,7 @@ const ForSale = () => {
 
                         <div className="grid grid-cols-2 divide-x divide-white h-6">
                           <div className="flex justify-start pl-2">
-                            <p className='font-semibold pr-3'>MATIC</p>
+                            <p className='font-semibold pr-3'>POL</p>
                             <img className="h-[27px]  w-7" src="./polygonsmall.png" />
                           </div>
                           <div className="flex justify-start pl-2">

@@ -416,7 +416,7 @@ const Renting = () => {
               <div className="flex pr-4 font-semibold text-white ml-2 lg:ml-0 mb-4 lg:mb-0 items-center">
 
                 <div className='md:hidden pl-8 mt-2'>
-                  <p className='text-sm mb-1'>Tokens Accumulated: </p>
+                  <p className='text-sm'>Tokens Accumulated: </p>
                   <div className='flex items-center'>
 
                     <p className="pl-1 md:mt-1.5 font-mono text-xs md:text-sm text-gray-400 mr-2">{renterTokens}</p>
@@ -493,7 +493,7 @@ const Renting = () => {
               <div className="flex pr-0 mt-1.5 font-semibold items-center text-white mb-1 lg:mb-0 text-xs md:text-base">
                 <div className='mt-2'>
 
-                  <p className='text-sm'>Tokens Accumulated: </p>
+                  <p className='text-sm mb-1'>Tokens Accumulated: </p>
                   <div className='flex items-center'>
                     <p className="pl-2 md:mt-1 font-medium font-mono text-xs text-gray-400 mr-2">{renterTokens}</p>
                     <img className="h-[28px] w-7 brightness-200" title='BHB' src="./tokenfrontsmall.png" alt="BHB" />
@@ -577,11 +577,11 @@ const Renting = () => {
                     </div>
                     <div className="flex flex-col pb-2">
                       <p>Rent Price:</p>
-                      <p className="font-mono text-xs text-green-400">{ethers.formatUnits(property.rentPrice).toString()} Matic</p>
+                      <p className="font-mono text-xs text-green-400">{ethers.formatUnits(property.rentPrice).toString()} POL</p>
                     </div>
                     <div className="flex flex-col pb-2">
                       <p>Deposit Paid:</p>
-                      <p className="font-mono text-xs text-green-400">{property.deposit} Matic</p>
+                      <p className="font-mono text-xs text-green-400">{property.deposit} POL</p>
                     </div>
                     <div className="flex flex-col pb-2">
                       <p>Rent Status</p>

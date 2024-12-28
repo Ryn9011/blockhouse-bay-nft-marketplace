@@ -61,8 +61,8 @@ export default function Pagination({
                 href='#'
                 className={
                   currentPage === number
-                    ? "bg-blue border-red-300 text-red-500 hover:text-red-500 relative inline-flex items-center justify-center w-10 h-10 border text-sm font-medium"
-                    : "bg-transparent border-gray-300 text-gray-300 hover:text-white relative inline-flex items-center justify-center w-10 h-10 border text-sm font-medium"
+                    ? "bg-blue border-red-300 text-red-500 hover:text-red-500 relative inline-flex items-center justify-center w-10 h-10 border text-sm font-medium cursor-pointer"
+                    : "bg-transparent border-gray-300 text-gray-300 hover:text-white relative inline-flex items-center justify-center w-10 h-10 border text-sm font-medium cursor-pointer"
                 }
               >
                 {number}

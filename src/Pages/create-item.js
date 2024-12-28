@@ -264,6 +264,12 @@ const CreateItem = () => {
     setContractBal(bal)
   }
 
+  const getTokenBalanceMaxSupply = async () => {
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
+    const maxSupply = await contract.getTokenBalanceMaxSupply()
+    console.log('maxSupply: ', maxSupply)
+  }
+
 
   const createSale = async () => {   
 
@@ -523,6 +529,9 @@ const CreateItem = () => {
                 </div>
                 <button onClick={getBhbForMarket} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
                     Get BHB for PropertyMarket
+                </button>
+                <button onClick={getTokenBalanceMaxSupply} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Get Token Balance Max Supply
                 </button>
             </div>
         </div>

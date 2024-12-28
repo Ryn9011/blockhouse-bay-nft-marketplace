@@ -315,7 +315,7 @@ const ToRent = () => {
                         </div>
                         <div className="flex flex-col pb-2">
                           <p>Rent Price:</p>
-                          <p className="font-mono text-xs text-green-400">{property.rentPrice} MATIC</p>
+                          <p className="font-mono text-xs text-green-400">{property.rentPrice} POL</p>
                         </div>
                         {/* <div className="flex flex-col">
                         <p>Total Income Generated:</p>
@@ -419,7 +419,7 @@ const ToRent = () => {
                         <div className="flex text-xs pl-5 lg:pl-3">
                           <ul className="list-disc pl-3.5 list-outside">
                             <li className='mb-1'>
-                              A rental deposit of <span className='font-mono text-xs text-blue-400'>{property.depositRequired} Matic</span> is required to rent this property.
+                              A rental deposit of <span className='font-mono text-xs text-blue-400'>{property.depositRequired} POL</span> is required to rent this property.
                             </li>
                             <li>
                               Rental deposits are refunded upon vacating a property, providing the renter is not evicted.

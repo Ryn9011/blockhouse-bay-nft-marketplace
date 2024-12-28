@@ -347,7 +347,7 @@ const Owned = () => {
           { value: listingPrice.toString() }
         )
       } catch (ex) {
-        alert('Transaction failed. (Make sure price is not lower than original price of 150 Matic)')
+        alert('Transaction failed. (Make sure price is not lower than original price of 150 POL)')
       }
       
 
@@ -1163,15 +1163,15 @@ const Owned = () => {
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Rent Price:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.rentPrice} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.rentPrice} POL</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Deposit Required</p>
-                        <p className="text-xs text-green-400 font-mono">{property.deposit} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.deposit} POL</p>
                       </div>
                       <div className="flex flex-col pb-2">
                         <p>Total Income Generated:</p>
-                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} Matic</p>
+                        <p className="text-xs text-green-400 font-mono">{property.totalIncomeGenerated} POL</p>
                       </div>
                       <div className="flex flex-col mb-2">
                         <p>Rooms Rented:</p>
@@ -1189,8 +1189,7 @@ const Owned = () => {
                           <p>My Listing Price</p>
                           {property.isForSale ? (
                             <>
-                              <p className='text-xs text-blue-400 font-mono mb-4'>{property.price.substring(0, property.price.length)} Matic | {property.tokenPrice.substring(0, property.tokenPrice.length)} BHB</p>
-
+                              <p className='text-xs text-blue-400 font-mono mb-4'>{property.price.substring(0, property.price.length)} POL | {property.tokenPrice.substring(0, property.tokenPrice.length)} BHB</p>
                             </>
                           ) : (
                             <div>
@@ -1210,10 +1209,13 @@ const Owned = () => {
 
                   <div className="p-4 pb-2 pt-2 bg-black">
                     {/*  */}
-                    <div className="mb-1 grid-rows-3 divide-y divide-white">
-                      <div className={`flex items-center  justify-between pb-2`}>
+                    <div className="mb-1 grid-rows-3">    
+                     
+                    <p className='text-xs italic'>Select info to add to your X Post template</p>  
+                    <div className='h-[1px] bg-white '></div>                       
+                      <div className={`flex items-center  justify-between pb-2 pt-1.5`}>                                       
                         <div className={`${classes.padding} mr-6`}>
-                          <div className="flex text-white">
+                          <div className="flex text-white items-center cursor-pointer">
                             <input
                               type="checkbox"
                               onChange={(e) => handleForSaleCheck(property, e,)}
@@ -1222,11 +1224,11 @@ const Owned = () => {
                               disabled={property.isForSale ? false : true}
                               className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.isForSale === false ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
-                            <label htmlFor="sellingRadio">
+                            <label htmlFor="sellingRadio cursor-pointer">
                               Selling
                             </label>
                           </div>
-                          <div className="flex ml-3">
+                          <div className="flex ml-3 items-center">
                             <input
                               type="checkbox"
                               onChange={(e) => handleRentCheck(property, e)}
@@ -1239,7 +1241,7 @@ const Owned = () => {
                               Vacant Rooms
                             </label>
                             <div className="relative flex flex-col items-center group ml-2">
-                              <svg
+                              {/* <svg
                                 className="w-4 h-4 text-white"
                                 xmlns="http://www.w3.org/2000/svg"
                                 viewBox="0 0 20 20"
@@ -1250,7 +1252,7 @@ const Owned = () => {
                                   d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
                                   clipRule="evenodd"
                                 />
-                              </svg>
+                              </svg> */}
                               <div className="absolute bottom-0 flex-col items-center hidden mb-6 group-hover:flex">
                                 <span className="relative flex w-48 z-10 p-2 text-xs leading-none text-white whitespace-no-wrap border border-1 border-white bg-black shadow-lg">
                                   Select info to add to your X post!
@@ -1275,7 +1277,7 @@ const Owned = () => {
                           </a>
                         </div>
                       </div>
-
+                      <div className='h-[1px] bg-white'></div>
 
                       <div className={`text-sm text-twitter-blue hidden pb-1 ${(twitterSaleChecked || twitterRentChecked) ? "border-t-2 border-b-2 border-white" : "border-none"}`}>
                         {(twitterSaleChecked || twitterRentChecked) &&
@@ -1289,7 +1291,7 @@ const Owned = () => {
                             <div id={`${property.propertyId}twitterSale`}>
                               <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
                               {property.propertyId < 501 ? (
-                                <p>{` ${property.price} Matic`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB.</span>}</p>
+                                <p>{` ${property.price} POL`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB.</span>}</p>
                               ) : (
                                 <p>{` ${property.tokenPrice} BHB.`}</p>
                               )}
@@ -1303,7 +1305,7 @@ const Owned = () => {
                               <p>{`Check out my Blockhouse Bay Property - ${property.name}. `}</p>
                               {property.roomsToRent != 4 &&
                                 <p>
-                                  {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic. `}
+                                  {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} POL. `}
                                 </p>
                               }
                             </div>
@@ -1314,13 +1316,13 @@ const Owned = () => {
                           <div id="twitterSaleRentSection" ref={twitterTextRef}>
                             <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
                             {property.propertyId < 501 ? (
-                              <p>{`Sale: ${property.price} Matic`} {property.tokenPrice != 0 && <span> / {property.tokenPrice} BHB - </span>}</p>
+                              <p>{`Sale: ${property.price} POL`} {property.tokenPrice != 0 && <span> / {property.tokenPrice} BHB - </span>}</p>
                             ) : (
                               <p>{` ${property.tokenPrice} BHB. `}</p>
                             )}
                             {property.roomsToRent != 4 &&
                               <p>
-                                {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} Matic. `}
+                                {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} POL. `}
                               </p>
                             }
                             <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
