@@ -187,13 +187,16 @@ const About = () => {
               <div className="col-span-1 pr-[16px] lg:pr-0">
                 <ul className="divide-y divide-gray-200 lg:ml-0  text-lg">
                   <li className="py-4 pt-0 ">
-                    <h3 className="text-2xl font-semibold text-yellow-200 lg:mt-0">What is Blockhouse Bay?</h3>
+                    <h3 className="text-2xl font-semibold text-yellow-200 lg:mt-0">Welcome to Blockhouse Bay</h3>
                     <div className="xl:hidden flex justify-center">
                       <img src="livingroom1.png" className="mt-4" alt="buy/sell/rent" />
                     </div>
-                    <p className="text-white text-xl xl3:text-xl italic mt-4">Real Estate Simulation</p>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">What is BlockHouse Bay?</p>
                     <p className="mt-2 text-gray-400 pl-2">
-                      Blockhouse Bay is a gamified real estate simulation that takes full advantage of Web 3 technologies and the Polygon blockchain. Get ready to experience the future of real estate!
+
+                      Pioneered by a visionary team in New Zealand, Blockhouse Bay is a cutting-edge gamified real estate simulation built on the power of Web3 technologies and the Polygon blockchain. Dive into an immersive experience where innovation meets real estate, redefining how you play, trade, and interact in the digital world. The future of property investment is here—are you ready to explore it?
+
+
                       <span onClick={handleModalOpen}>
                         <button className="text-indigo-400 text-sm ml-2 italic underline mt-2 mr-1" > White Paper</button>
                         <ArticleIcon className="brightness-150 hover:cursor-pointer" />
@@ -508,6 +511,9 @@ const About = () => {
                     <p className="mt-2 text-gray-400 pl-2">
                       Properties can be sold with existing tennants which will transfer over to the new property owner with the sale.
                     </p>
+                    <p className="mt-2 text-gray-400 pl-2">
+
+                    </p>
                   </li>
                   {/* <li className="pb-4 pt-2">
                     <h3 className="text-2xl font-semibold text-yellow-200 ">BHB Tokens</h3>
@@ -520,7 +526,7 @@ const About = () => {
               </div>
 
               <div className="lg:grid grid-cols-2 content-center">
-                <div className="flex flex-col mt-12 gap-4">
+                <div className="flex flex-col mt-12 md:mt-0 gap-4">
                   <p className="text-xl italic text-white">Property Sale Panel</p>
                   <p className="mr-4">The image shows an example of a property for sale</p>
                   <p className=" text-white italic">Information Displayed</p>
@@ -634,8 +640,8 @@ const About = () => {
                     </div>
 
                     <p className="mt-2 text-gray-400 pl-2">
-                      Whether you're looking for renters or buyers, you can share your property on X with the click of a button.
-                    </p>
+                      Just as in the real world, you need to advertise your property to attract buyers or renters. Blockhouse Bay makes this easy by allowing you to share your property on X with the click of a button.
+                    </p>                  
                     <p className="mt-2 text-gray-400 pl-2">
                       The Post button will open X with a template for you to customize including a link to your property.
                     </p>
@@ -647,7 +653,7 @@ const About = () => {
 
               </div>
               <div className="lg:grid grid-cols-2">
-                <div className="flex flex-col gap-4 pl-4 xl:pr-8">
+                <div className="flex mt-12 md:mt-0 flex-col gap-4 pl-4 xl:pr-8">
                   <p className="text-xl italic text-white">Property Sale Panel</p>
                   <div className="">
                     <Pagination
@@ -680,7 +686,6 @@ const About = () => {
                         <li>
                           The rent price that renters are expected to pay.
                         </li>
-
                         <li>
                           Total Income Generated is the accumulated total POL the property has generated from renters.
                         </li>
@@ -756,7 +761,13 @@ const About = () => {
                 </p>
                 <p className="text-white text-xl xl3:text-xl  italic mt-4">Rent Payment Obligation</p>
                 <p className="mt-2 text-gray-400 pl-2">
-                  Rent must be paid daily. A renter will be flagged as a late payer to the owner if no payment is made on time. It's down to the property owner's discretion to evict a tenant if they fail to pay rent consistently.
+                  A renter will be able to make a rent payment every 48 hours.
+                </p>
+                <p className="mt-2 text-gray-400 pl-2">
+                  After the 48 hour cooldown period, the renter will be able to make another rent payment. Property owners can see when rent is due and when it has been paid from indivual tenants.
+                </p>
+                <p className="mt-2 text-gray-400 pl-2">
+                  The property owner has the discretion to evict a tenant for consistently failing to pay rent. Note: This feature is designed to be lighthearted and primarily serves to ensure that properties aren’t occupied indefinitely by players who forget to vacate after earning enough BHB tokens and deciding not to continue renting.
                 </p>
                 <p className="mt-2 text-gray-400 pl-2">
                   If a renter is evicted, they will lose their rental deposit.
@@ -1022,10 +1033,11 @@ const About = () => {
                   </li>
                   <li className="pb-4">
                     <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Decentralization / Security</h3>
-                    <p className="mt-2 text-gray-400 pl-2">
+                    <p className="mt-2 text-gray-400 pl-2">                      
                       The BHB platform governs iteslf and cannot be interacted with in non-standard ways by any user or contract. This is by design to ensure the platform remains decentralised and secure. The exception being, the platform owner can withdraw any fees generated by the platform.
                       <p className="mt-2 text-gray-400">
-                        The platform owner can gift unsold properties to users, but once a property has been sold, the platform owner has no control over the property and full control remains with the current property owner.
+                      What control do the BHB team have over the platform?
+                        Just one thing - We can gift unsold properties to users (as talked about in the roadmap), but once a property has been sold, full control remains with the current property owner. Regarding the BHB token distribution, the BHB token is a fixed supply token and the team has no ability to mint more tokens or distribute tokens out from the platform - this is key to a fair and decentralized system.
                       </p>
                       <p className="mt-2 text-gray-400">
                         The smart contracts that govern the platform have been audited by a third party to help ensure they are secure and free from vulnerabilities.

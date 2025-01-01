@@ -788,7 +788,7 @@ const Owned = () => {
         <div className='text-[10px] font-mono text-green-400'>
           {ethers.formatEther(property.renterAddresses[0]).toString() !== "0.0" ?
             <>
-              <div className='flex items-center justify-between mb-2'>
+              <div className='flex items-center justify-between mb-[11px]'>
                 <p className={" break-words text-center " + getTenantToDeleteColour(property, 0)}>
                   {property.renterAddresses[0]}
                 </p>
@@ -797,10 +797,10 @@ const Owned = () => {
                 />
               </div>
             </>
-            : <p className='mt-2 mb-[20.6px]'>0x</p>
+            : <p className='mt-2 mb-[17px]'>0x</p>
           }          
           {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
-            <div className='flex items-center justify-between mb-2'>
+            <div className='flex items-center justify-between mb-[11px]'>
               <p className={" break-words text-center " + getTenantToDeleteColour(property, 1)}>
                 {property.renterAddresses[1]}
               </p>
@@ -811,11 +811,11 @@ const Owned = () => {
             :
             <>
               
-                <p className='mt-2 mb-[20.6px]'>0x</p>
+                <p className='mt-2 mb-[17px]'>0x</p>
             </>
           }
           {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
-            <div className='flex items-center justify-between mb-2'>
+            <div className='flex items-center justify-between mb-[11px]'>
               <p className={" break-words " + getTenantToDeleteColour(property, 2)}>
                 {property.renterAddresses[2]}
               </p>
@@ -825,7 +825,7 @@ const Owned = () => {
             </div>
             : <>
               
-                <p className='mt-2 mb-[20.6px]'>0x</p>
+                <p className='mt-2 mb-[17px]'>0x</p>
             </>
           }
           {ethers.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
@@ -839,7 +839,7 @@ const Owned = () => {
             </div>
             : <>
               
-                <p className='mt-2 mb-[20.6px]'>0x</p>
+                <p className='mt-2 mb-[17px]'>0x</p>
             </>
           }
         </div>
@@ -1162,7 +1162,7 @@ const Owned = () => {
                         </div>
                       </div>
                       <div className="flex flex-col pb-2">
-                        <p>Rent Price:</p>
+                        <p>Rent Price:</p> {property.propertyId}
                         <p className="text-xs text-green-400 font-mono">{property.rentPrice} POL</p>
                       </div>
                       <div className="flex flex-col pb-2">
@@ -1177,7 +1177,7 @@ const Owned = () => {
                         <p>Rooms Rented:</p>
                         <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/4</p>
                       </div>
-                      <div className='mb-2'>
+                      <div className='mb-2 h-[170px]'>
                         Tenants:
                         {setInitalAddresses(property)}
                       </div>

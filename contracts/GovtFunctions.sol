@@ -19,6 +19,7 @@ contract GovtFunctions is ReentrancyGuard {
     uint256 constant WEI_TO_ETH = 1000000000000000000;   
     uint256 internal constant MIN_DEPOSIT = 3 ether;       
     uint256 public totalDepositBal = 0;
+    uint256 propertiesWithRenterCount = 0;
     mapping(address => uint256) public rentAccumulated;
     // address => propertyId => deposit
     mapping(address => mapping(uint256 => uint256)) public renterDepositBalance;
@@ -64,6 +65,10 @@ contract GovtFunctions is ReentrancyGuard {
 
     function getBalance() public view returns (uint256) {
         return address(this).balance;
+    }
+
+    function getRentedProperties() public view returns (uint256) {
+        return propertiesWithRenterCount;
     }
 
     // function getRentAccumulated(address user) public view returns (uint256) {
@@ -256,6 +261,8 @@ contract GovtFunctions is ReentrancyGuard {
         bool isAlreadyRenter = false;  
         bool maxRentalsReached = true;
 
+        //need to check id property is already rented by another renter and if not, increment  propertiesWithRenterCount
+        bool isAlreadyRented = false;
         for (uint i = 0; i < 4; i++) {
             if (propertyRenters[i] == msg.sender) {
                 isAlreadyRenter = true;
@@ -263,13 +270,19 @@ contract GovtFunctions is ReentrancyGuard {
             }
             if (tennants[0][i] == 0) {
                 maxRentalsReached = false;
+            } else {
+                isAlreadyRented = true;
             }
         }
         require(!maxRentalsReached, "max properties rented");
         require(!isAlreadyRenter, "already a renter");
 
         bool availableRoom = checkSetRoomAvailability(currentProperty[0]);
-        require(availableRoom, "no vacancy");        
+        require(availableRoom, "no vacancy");    
+
+        if (!isAlreadyRented) {
+            propertiesWithRenterCount++;
+        }
 
         for (uint8 i = 0; i < 4; i++) {
             if (propertyRenters[i] == address(0)) {
@@ -320,7 +333,19 @@ contract GovtFunctions is ReentrancyGuard {
             payable(renterAddress).transfer(depositPaid);    
         }                       
         setRenterDepositBalance(msg.sender, 0, propertyId); 
-        decrementTotalDepositBalance(depositPaid);    
+        decrementTotalDepositBalance(depositPaid);   
+        // if renter was last renter on a property, decrement propertiesWithRenterCount. use getPropertyRenters to check if renter is last renter
+        address[4] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
+        bool isLastRenter = true;
+        for (uint i = 0; i < 4; i++) {
+            if (propertyRenters[i] != address(0)) {
+                isLastRenter = false;
+                break;
+            }
+        }
+        if (isLastRenter) {
+            propertiesWithRenterCount--;
+        }        
     }
 
     function payRent(uint256 propertyId) external payable nonReentrant {

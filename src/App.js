@@ -89,7 +89,7 @@ function App() {
 
   const [isOpen, setIsOpen] = useState(false);
 
-
+  console.log(location.pathname)
 
   // walletProvider.on("accountsChanged", (accounts) => {
   //   console.log('ACCOUNTS CHANGED' + accounts[0]);
@@ -194,13 +194,17 @@ function App() {
 
   return (
     <ModalContext.Provider value={{ modalEvent, provider, signer }}>
-      <div className={` ${location.pathname !== "/" ? 'from-black via-black to-polygon-purple bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden`}>
-        <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className={` ${location.pathname !== "/" ? 'from-black via-slate-800 to-slate-900 bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden `} style={
+        location.pathname.includes('property-view')
+          ? { backgroundImage: "url('../mainbg.jpg')", backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }
+          : undefined
+      }>
+        <div className="flex-1 overflow-y-auto overflow-x-hidden" >
           {location.pathname !== "/" && <Header />}
           {isCheckingProvider ? (
             <div className='text-white text-2xl flex justify-center'>
               <div className="pt-6 text-center">
-                
+              
               </div>
             </div>
           ) : (provider || location.pathname === "/" || location.pathname === '/how-to-play') ? (
@@ -226,7 +230,7 @@ function App() {
                     <div>
                       <div className='px-8'>
                         <div className="bg-gray-900 rounded-lg p-2 pb-0 shadow-lg">
-                          <img src="logoplain.png" className="mb-12" alt="Blockhouse Bay" />
+                          <img src="./../logoplain.png" className="mb-12" alt="Blockhouse Bay" />
                         </div>
                       </div>
                       <section className="mb-4">
@@ -244,10 +248,10 @@ function App() {
                     </div>
                   </div>
                   <div className={`${classes.paper} hidden sm:block rounded-lg`}>
-                    <div className="bg-indigo-950 text-black p-8">
+                    <div className="bg-slate-900 text-black p-8">
                       <div className="bg-indigo-100 p-6 rounded-lg shadow-lg">
-                        <div className="from-black via-indigo-900 to-polygon-purple bg-gradient-120 rounded-lg p-2 pb-0 shadow-lg">
-                          <img src="logoplain.png" className="mb-12" alt="Blockhouse Bay" />
+                        <div className="from-black via-indigo-900 to-slate-900 bg-gradient-120 rounded-lg p-2 pb-0 shadow-lg">
+                          <img src="./../logoplain.png" className="mb-12" alt="Blockhouse Bay" />
                         </div>
                         <section className="mb-4">
                           <h2 className="text-2xl font-semibold mb-4">Wallet Connection Required</h2>
@@ -265,7 +269,7 @@ function App() {
         </div>
       </div>
     </ModalContext.Provider>
-);
+  );
 
 }
 

@@ -111,7 +111,7 @@ const ToRent = () => {
         if (i.totalIncomeGenerated != 0) {
           totalIncomeGenerated = formatUnits(i.totalIncomeGenerated)
         } else totalIncomeGenerated = 0;
-        console.log('totalIncomeGenerated: ',totalIncomeGenerated)
+
         let item = {
           price,
           propertyId: Number(i.propertyId),
@@ -150,8 +150,12 @@ const ToRent = () => {
         if (item.roomFourRented == true) {
           item.roomsRented++
         }
+        if (!item.roomsRented < 4) {
+          setNumForRent(numForRent - 1)
+        }
         return item
       }))
+
       setCurrentPosts(items.slice(0, 20))
       //setSoldProperties(items)
       setTxLoadingState({ ...txloadingState, [i]: false });
@@ -200,8 +204,15 @@ const ToRent = () => {
       loadProperties(currentPage, i)
     } catch (error) {
       setTxLoadingState({ ...txloadingState, [i]: false });
-      console.log('rent proprerty error:', error)
-      alert('Transaction Failed')
+      setTxLoadingStateB({ ...txloadingStateB, [i]: false });
+      if (error.message.includes('max properties rented')) {
+        alert('Maximum properties rented');
+      }
+      if (error.message.includes('You can\'t rent your own property')) {
+        alert('You can\'t rent your own property');
+      } else {
+        alert('Transaction failed');
+      }      
     }
   }
 
@@ -446,6 +457,8 @@ const ToRent = () => {
                     </div>
                   </div>
                 )
+              } else {
+                setNumForRent(numForRent - 1)
               }
             })}
           </section>

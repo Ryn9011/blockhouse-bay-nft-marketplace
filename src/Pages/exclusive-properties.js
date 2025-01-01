@@ -255,10 +255,10 @@ const Exclusive = () => {
         alert('Insufficient BHB token balance to rent exclusive property');
       } else if (error.message.includes('You can\'t rent your own property')) {
         alert('You can\'t rent your own property');
-      } else if (error.message.includes('You can\'t rent your own property')) {
+      } else if (error.message.includes('Property not yet owned')) {
         alert('Property not yet owned');
       } else {
-        alert('Property not yet owned');
+        alert('transaction failed');
       }
 
       setTxLoadingState2({ ...txloadingState2, [i]: false });

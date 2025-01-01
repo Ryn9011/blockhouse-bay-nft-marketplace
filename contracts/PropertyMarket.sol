@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: MIT000000000000
-
 // SPDX-License-Identifier: MIT
 
 // This is considered an Exogenous, Decentralized, Anchored (pegged), Crypto Collateralized low volitility coin
@@ -217,7 +215,7 @@ contract PropertyMarket is ReentrancyGuard {
         // console.log('renterToPropertyPaymentTimestamps[caller][propertyId]: ', renterToPropertyPaymentTimestamps[caller][propertyId]);
     }
 
-    function fetchPropertiesForSale(uint256 page) public view returns (Property[] memory) {
+    function fetchPropertiesForSale(uint256 page, bool includeOnlyRented) public view returns (Property[] memory) {
         uint256 propertyCount = _propertyIds.current() - 50;
         uint256 startIndex = 20 * (page - 1);
         uint256 endIndex = startIndex + 20;
@@ -226,25 +224,34 @@ contract PropertyMarket is ReentrancyGuard {
         }
         
         Property[] memory propertiesForSale = new Property[](endIndex - startIndex);
-        uint256 currentIndex = 0;
+        uint256 currentIndex = 0;        
 
         for (uint256 i = 0; i < propertyCount; i++) {
             uint256 currentId = i + 1;
             if (currentId <= _propertyIds.current()) {
                 Property storage currentItem = idToProperty[currentId];
-                if (currentItem.isForSale && currentItem.propertyId < 501) {
-                    if (currentIndex >= startIndex && currentIndex < endIndex) {
-                        propertiesForSale[currentIndex - startIndex] = currentItem;
+                if (currentItem.isForSale && currentItem.propertyId < 501) {                    
+                    if (
+                        !includeOnlyRented || 
+                        (includeOnlyRented && (currentItem.roomOneRented || currentItem.roomTwoRented || 
+                                            currentItem.roomThreeRented || currentItem.roomFourRented))
+                    ) {
+                        if (currentIndex >= startIndex && currentIndex < endIndex) {
+                            propertiesForSale[currentIndex - startIndex] = currentItem;
+                        }                        
+                        currentIndex++;
                     }
-                    currentIndex++;
                 }
-                if (currentIndex >= endIndex) {
-                    break;
-                }
+            }            
+
+            if (currentIndex >= endIndex) {
+                break;
             }
         }
+
         return propertiesForSale;
     }
+
 
 
     function fetchMyProperties(uint256 page) public view returns (Property[] memory) {
