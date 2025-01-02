@@ -43,7 +43,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {PropertyToken} from "./PropertyToken.sol";
 
 interface GovtContract {
-    function refundDeposit(uint256, address, bool) external;
+    function refundDeposit(uint256, address, bool, bool) external;
     function withdrawRentTax() external;
     function getBalance() external view returns (uint256);
     function giftProperties(address nftContract, uint256 propertyId, address recipient) external;
@@ -666,7 +666,7 @@ contract PropertyMarket is ReentrancyGuard {
                     renterToPropertyPaymentTimestamps[sender][propertyId] = 0;
                 }
                 GovtContract govtContract = GovtContract(i_govtContract);
-                govtContract.refundDeposit(propertyId, msg.sender, false);
+                govtContract.refundDeposit(propertyId, msg.sender, false, idToProperty[propertyId].isForSale);
                 break;
             }
         }        
@@ -686,7 +686,7 @@ contract PropertyMarket is ReentrancyGuard {
         }        
         resetPropertyToRenters(propertyId, tennant);
         GovtContract govtContract = GovtContract(i_govtContract);
-        govtContract.refundDeposit(propertyId, tennant, true);
+        govtContract.refundDeposit(propertyId, tennant, true, idToProperty[propertyId].isForSale);
     }
 
     function withdrawERC20() public nonReentrant {

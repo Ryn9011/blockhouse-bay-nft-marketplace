@@ -511,8 +511,9 @@ const About = () => {
                     <p className="mt-2 text-gray-400 pl-2">
                       Properties can be sold with existing tennants which will transfer over to the new property owner with the sale.
                     </p>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">Sale History</p>
                     <p className="mt-2 text-gray-400 pl-2">
-
+                      The purchase history will scroll accross the panel displaying all purchase prices and dates of the property.
                     </p>
                   </li>
                   {/* <li className="pb-4 pt-2">
@@ -553,8 +554,8 @@ const About = () => {
                   </ul>
                 </div>
 
-                <div className="flex flex-col">
-                  <img className="mt-2.5 brightness-110 transform" src="forsale.png" />
+                <div className="flex justify-end mb-2">
+                  <img className="mt-2.5 brightness-110 transform max-w-[400px] max-h-[1000px]" src="forsale.png" />
                 </div>
               </div>
             </div>
@@ -633,13 +634,13 @@ const About = () => {
                     </p>
                   </li>
 
-                  <li className="py-4">
-                    <div className="flex">
-                      <h3 className="text-2xl font-semibold text-yellow-200 mt-1.5 pr-2">Sharing Your Property on </h3>
+                  <li className="pb-4">
+                    <div className="flex items-center">
+                      <h3 className="text-2xl font-semibold text-yellow-200 mt-3 pr-2">Sharing Your Property on </h3>
                       <img src="logo-white.png" className='w-6 h-6 mt-3' alt="X" />
                     </div>
 
-                    <p className="mt-2 text-gray-400 pl-2">
+                    <p className="mt-4 text-gray-400 pl-2">
                       Just as in the real world, you need to advertise your property to attract buyers or renters. Blockhouse Bay makes this easy by allowing you to share your property on X with the click of a button.
                     </p>                  
                     <p className="mt-2 text-gray-400 pl-2">
@@ -728,8 +729,8 @@ const About = () => {
                   )}
                 </div>
                 <div>
-                  <div className="flex justify-center lg:justify-start">
-                    <img className="mt-2 " alt="owner panel" src={ownedImageSrc} />
+                  <div className="flex justify-center md:mt-8 lg:mt-0 lg:justify-end">
+                    <img className="mt-2 max-h-[1450px] max-w-[380px]" alt="owner panel" src={ownedImageSrc} />
                   </div>
                   {ownedImageSrc !== './X.png' &&
                     <div>

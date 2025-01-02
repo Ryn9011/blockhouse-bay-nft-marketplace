@@ -410,7 +410,7 @@ const Renting = () => {
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
           <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Rented Properties</p>
           <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-44 lg:pt-4 pl-7 lg:pl-12'>Looking to rent a place? Discover available properties, secure your next rental, and check back here to manage your leases and stay on top of your rentals.</p>
-          <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:lg:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/how-to-play?section=owning" target='new'>Learn more about owning your first property</Link></p>
+          <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:lg:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
           {renterTokens > 0 &&
             <div className='md:pl-0 md:ml-12 mt-10 flex items-center mb-3 lg:mb-6'>
               <div className="flex pr-4 font-semibold text-white ml-2 lg:ml-0 mb-4 lg:mb-0 items-center">

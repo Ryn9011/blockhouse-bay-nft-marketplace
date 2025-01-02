@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import Header from './Components/Layout/Header';
@@ -18,6 +18,7 @@ import { useWeb3ModalProvider } from '@web3modal/ethers/react'
 import Modal from '@material-ui/core/Modal';
 import { makeStyles } from '@material-ui/core/styles';
 import ConnectButton from './Components/Layout/Header/ConnectWallet';
+import { use } from 'chai';
 const ethers = require("ethers");
 
 // Create a context for modal events
@@ -86,6 +87,8 @@ function App() {
   const [modalEvent, setModalEvent] = useState(null);
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
+  const [bgImage, setBgImage] = useState(null);
+  const [loadingImage, setLoadingImage] = useState(true);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -95,8 +98,17 @@ function App() {
   //   console.log('ACCOUNTS CHANGED' + accounts[0]);
   // });
 
+  useLayoutEffect(() => {
+    if (!location.pathname.includes('property-view')) {
+      setLoadingImage(false)
+      
+    }
+  },[]);
+
 
   useEffect(() => {
+
+  
     let timeoutId;
 
     const setupProvider = async () => {
@@ -148,6 +160,18 @@ function App() {
     setIsOpen(false)
   }
 
+  useEffect(() => {
+    if (location.pathname.includes('property-view')) {
+      setLoadingImage(true)
+      const img = new Image();
+        img.src = '../mainbg.jpg'; // The background image URL        
+        img.onload = () => {
+            setBgImage(img.src); // Store the loaded image source
+            setTimeout(() => {setLoadingImage(false);}, 2000);            
+        };
+    }
+  },[]);
+
   const useStyles = makeStyles({
     root: {
       backgroundColor: 'transparent',
@@ -191,12 +215,20 @@ function App() {
 
   const classes = useStyles();
 
+  if (loadingImage) {
+    return (
+        <div class="relative flex justify-center h-screen items-center bg-black">          
+            <img src="../tokengif.gif" className="rounded-full h-32 w-32  lg:h-96 lg:w-96 brightness-125" />
+        </div>
+    )
+  }
+
 
   return (
     <ModalContext.Provider value={{ modalEvent, provider, signer }}>
       <div className={` ${location.pathname !== "/" ? 'from-black via-slate-800 to-slate-900 bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden `} style={
         location.pathname.includes('property-view')
-          ? { backgroundImage: "url('../mainbg.jpg')", backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }
+          ? { backgroundImage: `url(${bgImage})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }
           : undefined
       }>
         <div className="flex-1 overflow-y-auto overflow-x-hidden" >
@@ -207,7 +239,7 @@ function App() {
               
               </div>
             </div>
-          ) : (provider || location.pathname === "/" || location.pathname === '/how-to-play') ? (
+          ) : (provider || location.pathname === "/" || location.pathname === '/about') ? (
             <div>
               <Routes>
                 <Route path="/" element={<Cover />} />
@@ -217,7 +249,7 @@ function App() {
                 <Route path="/owned" element={<Owned />} />
                 <Route path="/renting" element={<Renting />} />
                 <Route path="/blockhouse-bay-gardens" element={<Exclusive />} />
-                <Route path="/how-to-play" element={<About />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/create-item" element={<CreateItem />} />
                 <Route path="/property-view/:propertyId" element={<PropertyView />} />
               </Routes>

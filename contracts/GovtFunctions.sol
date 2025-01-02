@@ -104,6 +104,18 @@ contract GovtFunctions is ReentrancyGuard {
         totalDepositBal += amount;
     }
 
+    // increment or decrement propertiesWithRenterCount based on isForSale only if property has renters. fetch single property and check
+    function adjustPropertiesWithRenterCount(uint256 propertyId, bool isForSale) internal {
+        PropertyMarket.Property memory property = fetchSingleProperty(propertyId);
+        if (property.roomOneRented || property.roomTwoRented || property.roomThreeRented || property.roomFourRented) {
+            if (isForSale) {
+                propertiesWithRenterCount++;
+            } else {
+                propertiesWithRenterCount--;
+            }
+        }
+    }
+
     // function setTotalDepositBalance(uint256 amount, bool isAddition) internal {
     //     if (isAddition) {
     //         totalDepositBal += amount;
@@ -280,7 +292,7 @@ contract GovtFunctions is ReentrancyGuard {
         bool availableRoom = checkSetRoomAvailability(currentProperty[0]);
         require(availableRoom, "no vacancy");    
 
-        if (!isAlreadyRented) {
+        if (!isAlreadyRented && currentProperty[0].isForSale) {
             propertiesWithRenterCount++;
         }
 
@@ -325,7 +337,7 @@ contract GovtFunctions is ReentrancyGuard {
         return false;        
     }
 
-    function refundDeposit(uint256 propertyId, address renterAddress, bool evicted) onlyPropertyMarket external {
+    function refundDeposit(uint256 propertyId, address renterAddress, bool evicted, bool isForSale) onlyPropertyMarket external {
         require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
         uint256 depositPaid = renterDepositBalance[renterAddress][propertyId];
         require(depositPaid > 0, "no deposit to refund");   
@@ -336,16 +348,19 @@ contract GovtFunctions is ReentrancyGuard {
         decrementTotalDepositBalance(depositPaid);   
         // if renter was last renter on a property, decrement propertiesWithRenterCount. use getPropertyRenters to check if renter is last renter
         address[4] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
-        bool isLastRenter = true;
-        for (uint i = 0; i < 4; i++) {
-            if (propertyRenters[i] != address(0)) {
-                isLastRenter = false;
-                break;
+
+        if (isForSale) {
+            bool isLastRenter = true;
+            for (uint i = 0; i < 4; i++) {
+                if (propertyRenters[i] != address(0)) {
+                    isLastRenter = false;
+                    break;
+                }
             }
-        }
-        if (isLastRenter) {
-            propertiesWithRenterCount--;
-        }        
+            if (isLastRenter) {
+                propertiesWithRenterCount--;
+            }
+        }                            
     }
 
     function payRent(uint256 propertyId) external payable nonReentrant {

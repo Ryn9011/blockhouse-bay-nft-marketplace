@@ -452,8 +452,8 @@ const Exclusive = () => {
 
                               <div className="bg-black  pl-3 pt-1 flex ">
                                 <div className='text-lg md:text-xl 2xl:text-2xl flex flex-col justify-left font-semibold'>
-                                  <p>Ranking</p>
-                                  <p className='text-transparent bg-clip-text text-lg brightness-125 bg-gradient-to-r from-rose-300 via-rose-500 to-rose-600  pl-2'><span className={property.ranking == 'unranked' ? 'text-indigo-100 font-extralight' : 'font-mono'}>{property.ranking !== 'unranked' && <span>#</span>}{`${property.ranking}`}</span></p>
+                                  <p className='pb-0.5'>Ranking</p>
+                                  <p className='text-transparent bg-clip-text text-lg brightness-125 bg-gradient-to-r from-rose-300 via-rose-500 to-rose-600 pl-2'><span className={property.ranking == 'unranked' ? 'text-indigo-100 font-extralight' : 'font-mono'}>{property.ranking !== 'unranked' && <span>#</span>}{`${property.ranking}`}</span></p>
                                 </div>
                               </div>
                             </div>

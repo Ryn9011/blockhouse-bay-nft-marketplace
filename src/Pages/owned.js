@@ -1079,7 +1079,7 @@ const Owned = () => {
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
           <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-10 text-white xl3:mt-4">My Properties</p>          
           <p className='text-white text-base md:text-left md:text-3xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>Start building your real estate portfolio today! Explore available properties, make a purchase, and come back here to manage your growing assets.</p>
-          <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/how-to-play?section=owning" target='new'>Learn more about owning your first property</Link></p>
+          <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
         </div>
         <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full xl3:w-5/6 lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
           <img src="col.png" className=" rotate-away  shadow-2xl shadow-amber-100" />
@@ -1162,7 +1162,7 @@ const Owned = () => {
                         </div>
                       </div>
                       <div className="flex flex-col pb-2">
-                        <p>Rent Price:</p> {property.propertyId}
+                        <p>Rent Price:</p>
                         <p className="text-xs text-green-400 font-mono">{property.rentPrice} POL</p>
                       </div>
                       <div className="flex flex-col pb-2">
@@ -1177,7 +1177,7 @@ const Owned = () => {
                         <p>Rooms Rented:</p>
                         <p className="lg:pl-0 text-xs text-green-400 font-mono">{property.roomsToRent}/4</p>
                       </div>
-                      <div className='mb-2 h-[170px]'>
+                      <div className='mb-2 h-[175px]'>
                         Tenants:
                         {setInitalAddresses(property)}
                       </div>
@@ -1200,7 +1200,7 @@ const Owned = () => {
                         </div>
                         {property.isForSale &&
                           <div className='flex justify-end'>
-                            <img className={`h-16 w-20 mt-4 m-2 mb-[3px] ${property.propertyId > 500 ? 'hue-rotate-90' : ''}`} src="./for-sale.png" alt="for sale" />
+                            <img className={`h-16 w-20 mt-4 m-2 mb-[0px] ${property.propertyId > 500 ? 'hue-rotate-90' : ''}`} src="./for-sale.png" alt="for sale" />
                           </div>
                         }
                       </div>
@@ -1219,12 +1219,12 @@ const Owned = () => {
                             <input
                               type="checkbox"
                               onChange={(e) => handleForSaleCheck(property, e,)}
-                              id="sellingRadio"
+                              id={`sellingRadio${i}`}
                               name="twitter"
                               disabled={property.isForSale ? false : true}
                               className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.isForSale === false ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
-                            <label htmlFor="sellingRadio cursor-pointer">
+                            <label htmlFor={`sellingRadio${i}`} className='cursor-pointer'>
                               Selling
                             </label>
                           </div>
@@ -1232,12 +1232,12 @@ const Owned = () => {
                             <input
                               type="checkbox"
                               onChange={(e) => handleRentCheck(property, e)}
-                              id="vacantRoomsRadio"
+                              id={`vacantRoomsRadio${i}`}
                               name="twitter"
                               disabled={property.roomsToRent > 3 ? true : false}
                               className={`mr-2 flex-shrink-0 h-3 w-3 border border-blue-300 bg-white checked:bg-blue-500 checked:border-blue-500 focus:outline-none transition duration-200 align-center bg-no-repeat bg-center bg-contain float-left cursor-pointer ${property.roomsToRent > 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
                             />
-                            <label htmlFor="vacantRoomsRadio">
+                            <label htmlFor={`vacantRoomsRadio${i}`} className='cursor-pointer'>
                               Vacant Rooms
                             </label>
                             <div className="relative flex flex-col items-center group ml-2">
@@ -1361,7 +1361,7 @@ const Owned = () => {
                                   <div className="pr-1">Cancel Sale</div>
                                   <div className="mb-1 relative">
                                     <div className="relative flex flex-col items-center group">
-                                      <Link to="/how-to-play?section=renting" target='new'>
+                                      <Link to="/about?section=renting" target='new'>
                                         <svg
                                           className="w-4 h-4 text-white"
                                           xmlns="http://www.w3.org/2000/svg"
@@ -1406,7 +1406,7 @@ const Owned = () => {
                               <div className="pr-1">Sell</div>
                               <div className="mb-1 relative">
                                 <div className="relative flex flex-col items-center group">
-                                  <Link to="/how-to-play?section=owning" target='new'>
+                                  <Link to="/about?section=owning" target='new'>
                                     <svg
                                       className="w-4 h-4 text-white"
                                       xmlns="http://www.w3.org/2000/svg"
@@ -1483,7 +1483,7 @@ const Owned = () => {
                               />
                               <div>                                                                
                                 <img
-                                  className={`brightness-150 h-8 w-11 xl3:h-9 xl3:w-12 pl-2`}
+                                  className={`brightness-150 h-7 w-9 xl3:h-7 xl3:w-10 pl-2`}
                                   src="./tokenfrontsmall.png"
                                   alt=""
                                 ></img>
@@ -1517,7 +1517,7 @@ const Owned = () => {
                             <p className="pr-1">Evict tenant</p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
-                                <Link to="/how-to-play?section=owning" target='new'>
+                                <Link to="/about?section=owning" target='new'>
                                   <svg
                                     className="w-4 h-4 text-white"
                                     xmlns="http://www.w3.org/2000/svg"
@@ -1624,7 +1624,7 @@ const Owned = () => {
                             <p className="pr-1">Change Rent Price</p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
-                                <Link to="/how-to-play?section=owning" target='new'>
+                                <Link to="/about?section=owning" target='new'>
                                   <svg
                                     className="w-4 h-4 text-white"
                                     xmlns="http://www.w3.org/2000/svg"
@@ -1683,7 +1683,7 @@ const Owned = () => {
                             <p className="pr-1">Change Required Deposit</p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
-                                <Link to="/how-to-play?section=owning" target='new'>
+                                <Link to="/about?section=owning" target='new'>
                                   <svg
                                     className="w-4 h-4 text-white"
                                     xmlns="http://www.w3.org/2000/svg"
