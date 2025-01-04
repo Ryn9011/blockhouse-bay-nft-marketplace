@@ -21,7 +21,7 @@ const SaleHistory = (props) => {
   }
 
   return (
-    <div className="flex flex-col mt-4">
+    <div className="flex flex-col mt-0">
       {property.isForSale && location.pathname === '/to-rent' ? (
         <p className='text-indigo-100'>Sale History - <a href={`http://localhost:3000/property-view/${property.propertyId}`}
           className='cursor-pointer underline italic text-sm text-sky-400'>Currently Selling</a></p>

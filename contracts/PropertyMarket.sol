@@ -47,6 +47,7 @@ interface GovtContract {
     function withdrawRentTax() external;
     function getBalance() external view returns (uint256);
     function giftProperties(address nftContract, uint256 propertyId, address recipient) external;
+    function adjustPropertiesWithRenterCount(uint256 propertyId, bool isForSale) external;
 }
 
 contract PropertyMarket is ReentrancyGuard {
@@ -471,6 +472,8 @@ contract PropertyMarket is ReentrancyGuard {
         }
         // Common actions
         property.isForSale = true;
+        GovtContract govtContract = GovtContract(i_govtContract);
+        govtContract.adjustPropertiesWithRenterCount(propertyId, true);
         property.seller = payable(msg.sender);
     
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
@@ -493,6 +496,8 @@ contract PropertyMarket is ReentrancyGuard {
             _propertiesSold.increment();
             decrementRelistCount();
         }     
+        GovtContract govtContract = GovtContract(i_govtContract);
+        govtContract.adjustPropertiesWithRenterCount(propertyId, false);
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
     }
 

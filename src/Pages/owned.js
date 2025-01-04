@@ -347,7 +347,8 @@ const Owned = () => {
           { value: listingPrice.toString() }
         )
       } catch (ex) {
-        alert('Transaction failed. (Make sure price is not lower than original price of 150 POL)')
+        //'Transaction failed. (Make sure price is not lower than original price of 150 POL)'
+        alert(ex.message)
       }
       
 
@@ -1077,17 +1078,20 @@ const Owned = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-10 text-white xl3:mt-4">My Properties</p>          
+          <p className="ml-7 lg:ml-0 text-5xl xl3:text-6xl font-bold md:mb-32 xl3:mb-10 text-white xl3:mt-4">My Properties</p>          
+          <div className="image-container hidden lg:block ml-48 xl3:ml-72 drop-shadow-lg absolute h-2/6 mt-20  md:w-3/6 mb-32 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
+            <img src="col.png" className=" rotate-away2  shadow-2xl shadow-amber-100" />
+            <div className='h-10 mt-16'></div>
+            {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+          </div>
           <p className='text-white text-base md:text-left md:text-3xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>Start building your real estate portfolio today! Explore available properties, make a purchase, and come back here to manage your growing assets.</p>
           <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
         </div>
-        <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full xl3:w-5/6 lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
-          <img src="col.png" className=" rotate-away  shadow-2xl shadow-amber-100" />
-          {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
-        </div>
+       
       </div>
-      <div className="image-container lg:hidden md:ml-24 lg:ml-0 drop-shadow-lg mt-16 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
-        <img src="col.png" className="rotate-away2  brightness-110 shadow-2xl shadow-amber-100" />
+      <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-12 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
+        <img src="col.png" className="rotate-away2 brightness-110 shadow-2xl shadow-amber-100" />
+        <div className='h-10 mt-16'></div>
         {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
       </div>
     </div>

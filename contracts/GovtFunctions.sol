@@ -105,7 +105,7 @@ contract GovtFunctions is ReentrancyGuard {
     }
 
     // increment or decrement propertiesWithRenterCount based on isForSale only if property has renters. fetch single property and check
-    function adjustPropertiesWithRenterCount(uint256 propertyId, bool isForSale) internal {
+    function adjustPropertiesWithRenterCount(uint256 propertyId, bool isForSale) external onlyPropertyMarket {
         PropertyMarket.Property memory property = fetchSingleProperty(propertyId);
         if (property.roomOneRented || property.roomTwoRented || property.roomThreeRented || property.roomFourRented) {
             if (isForSale) {
@@ -277,13 +277,16 @@ contract GovtFunctions is ReentrancyGuard {
         bool isAlreadyRented = false;
         for (uint i = 0; i < 4; i++) {
             if (propertyRenters[i] == msg.sender) {
-                isAlreadyRenter = true;
                 break;
-            }
-            if (tennants[0][i] == 0) {
-                maxRentalsReached = false;
+            } 
+            if (propertyRenters[i] == address(0)) {
+                isAlreadyRented = false;               
             } else {
                 isAlreadyRented = true;
+            }
+
+            if (tennants[0][i] == 0) {
+                maxRentalsReached = false;
             }
         }
         require(!maxRentalsReached, "max properties rented");
@@ -360,7 +363,7 @@ contract GovtFunctions is ReentrancyGuard {
             if (isLastRenter) {
                 propertiesWithRenterCount--;
             }
-        }                            
+        }
     }
 
     function payRent(uint256 propertyId) external payable nonReentrant {

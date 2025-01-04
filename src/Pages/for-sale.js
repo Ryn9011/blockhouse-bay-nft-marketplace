@@ -300,8 +300,8 @@ const ForSale = () => {
   if (loadingState === 'loaded' && !currentPosts.length) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
-        <div className="lg:px-4 lg:ml-10" style={{ maxWidth: "1600px" }}>
-          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">For Sale</p>
+        <div className="lg:px-4 lg:ml-9" style={{ maxWidth: "1600px" }}>
+          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-4 text-white">For Sale</p>
           <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently for sale</p>
           <p className='text-white text-base pt-2 lg:pt-4 pl-11 lg:pl-7'>Check back soon for new listings</p>
           <label className="inline-flex items-center cursor-pointer mb-3 pt-2 pl-7 lg:pl-4 lg:pt-4">

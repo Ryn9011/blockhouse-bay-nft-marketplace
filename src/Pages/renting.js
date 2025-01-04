@@ -408,8 +408,13 @@ const Renting = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Rented Properties</p>
-          <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-44 lg:pt-4 pl-7 lg:pl-12'>Looking to rent a place? Discover available properties, secure your next rental, and check back here to manage your leases and stay on top of your rentals.</p>
+          <p className="ml-7 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Rented Properties</p>
+          <div className="image-container hidden lg:block ml-48 xl3:ml-72 drop-shadow-lg absolute h-2/6 mt-20  md:w-3/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
+            <img src="col.png" className=" rotate-away2  shadow-2xl shadow-amber-100" />
+            <div className='h-10 mt-16'></div>
+            {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+          </div>
+          <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8  xl3:mt-44 lg:pt-4 pl-7 lg:pl-12'>Looking to rent a place? Discover available properties, secure your next rental, and check back here to manage your leases and stay on top of your rentals.</p>
           <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:lg:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
           {renterTokens > 0 &&
             <div className='md:pl-0 md:ml-12 mt-10 flex items-center mb-3 lg:mb-6'>
@@ -458,11 +463,12 @@ const Renting = () => {
           </div>
         </div>
         <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
-          <img src="col.png" className=" rotate-away  shadow-2xl shadow-amber-100" />
+          {/* <img src="col.png" className=" rotate-away shadow-2xl shadow-amber-100" /> */}
+          <div className='h-10 mt-16'></div>
           {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
         </div>
       </div>
-      <div className="image-container lg:hidden md:ml-24 lg:ml-0 drop-shadow-lg mt-8 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
+      <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-8 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
         <img src="col.png" className="rotate-away2  brightness-110 shadow-2xl shadow-amber-100" />
         {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
       </div>
