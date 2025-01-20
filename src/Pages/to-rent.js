@@ -101,7 +101,7 @@ const ToRent = () => {
             const history = i.saleHistory.map((item) => {
               return {
                 price: formatUnits(item[0]),
-                type: Number(item[1]) === 1 ? "Matic" : "BHB"
+                type: Number(item[1]) === 1 ? "POL" : "BHB"
               }
             });
             saleHistory = history;

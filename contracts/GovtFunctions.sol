@@ -137,8 +137,8 @@ contract GovtFunctions is ReentrancyGuard {
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
         
         require(property[0].owner == msg.sender, "Not owner");
-        require(rentPrice >= 3 ether, "Rent can't be less than 3 matic");
-        require(rentPrice >= property[0].deposit && rentPrice <= 50 ether, "Rent cannot exceed 50 matic");
+        require(rentPrice >= 3 ether, "Rent can't be less than 3 pol");
+        require(rentPrice >= property[0].deposit && rentPrice <= 50 ether, "Rent cannot exceed 50 pol");
                 
         uint256 lastSaleIndex = property[0].dateSoldHistory.length - 1;
         uint256 lastSaleTime = property[0].dateSoldHistory[lastSaleIndex];
@@ -154,7 +154,7 @@ contract GovtFunctions is ReentrancyGuard {
         propertyIds[0] = propertyId;
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
         
-        require(depositPrice >= MIN_DEPOSIT, "deposit can't be less than 3 matic");
+        require(depositPrice >= MIN_DEPOSIT, "deposit can't be less than 3 pol");
         require(property[0].owner == msg.sender, "Not owner");
         require(depositPrice >= property[0].deposit && depositPrice <= 500 ether, "Invalid deposit price range");
 

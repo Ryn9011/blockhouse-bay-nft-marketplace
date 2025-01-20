@@ -488,14 +488,14 @@ contract PropertyMarket is ReentrancyGuard {
     ) public nonReentrant {
         Property storage property = idToProperty[propertyId];
         require(property.seller == msg.sender && property.isForSale, "");        
-
+        
         property.isForSale = false;
         property.salePrice = 0;
         property.tokenSalePrice = 0;
         if (propertyId < 501) {
             _propertiesSold.increment();
             decrementRelistCount();
-        }     
+        }        
         GovtContract govtContract = GovtContract(i_govtContract);
         govtContract.adjustPropertiesWithRenterCount(propertyId, false);
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
@@ -579,6 +579,8 @@ contract PropertyMarket is ReentrancyGuard {
         } else {            
             require(itemId < 501, "");            
             require(msg.value == price, "");
+            GovtContract govtContract = GovtContract(i_govtContract);
+            govtContract.adjustPropertiesWithRenterCount(itemId, false);
             temp.saleHistory.push(Sale(price, 1));      
             temp.seller.transfer(
                 msg.value - ((msg.value * 500) / 10000)

@@ -593,7 +593,7 @@ const Renting = () => {
                       <p>Rent Status</p>
 
 
-                      <p className={`font-mono text-xs text-green-400 ${property.rentStatus ? ' text-yellow-400' : ' text-green-400'}`}>{`${property.rentStatus ? 'Overdue' : 'Up-to-date'} `}</p>
+                      <p className={`font-mono text-xs text-green-400 ${property.rentStatus ? ' text-yellow-400' : ' text-green-400'}`}>{`${property.rentStatus ? 'Rent Due' : 'Up-to-date'} `}</p>
                     </div>
                   </div>
 

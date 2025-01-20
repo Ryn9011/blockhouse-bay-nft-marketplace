@@ -76,12 +76,13 @@ const ForSale = () => {
       const data = await marketContract.fetchPropertiesForSale(currentPage, onlyWithRentals)
       console.log(data)
       const numForSale = Number(await govtContract.getPropertiesForSale());
-      const rentedPropertyCount = Number(await govtContract.getRentedProperties());
-      console.log('rentedPropertyCount:', rentedPropertyCount);
+      const rentedPropertyCount = Number(await govtContract.getRentedProperties());      
 
       const currentPageNumItems = numForSale - (20 * (currentPage - 1))
-      const showBottomNav = currentPageNumItems > 12 ? true : false
-      setShowBottomNav(showBottomNav);
+      const showBottomNav = currentPageNumItems > 12 ? true : false   
+      if (!onlyWithRentals) {  
+        setShowBottomNav(showBottomNav);
+      }
       setNumForSale(numForSale);
       setRentedPropertyCount(rentedPropertyCount);
 
@@ -117,7 +118,7 @@ const ForSale = () => {
             const history = i.saleHistory.map((item) => {
               return {
                 price: ethers.formatUnits(item[0]),
-                type: Number(item[1]) === 1 ? "Matic" : "BHB"
+                type: Number(item[1]) === 1 ? "POL" : "BHB"
               }
             });
             saleHistory = history;
@@ -184,6 +185,14 @@ const ForSale = () => {
       }
     }
   }
+
+  const handleOnlyRentals = (e) => {    
+    console.log('rentedPropertyCount:', e);
+    const showBottomNav = rentedPropertyCount > 12 ? true : false      
+    console.log('showBottomNav:', showBottomNav);
+    setShowBottomNav(showBottomNav);
+    setOnlyWithRentals(e);
+  };
 
   const buyProperty = async (nft, i) => {
     try {
@@ -305,7 +314,7 @@ const ForSale = () => {
           <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently for sale</p>
           <p className='text-white text-base pt-2 lg:pt-4 pl-11 lg:pl-7'>Check back soon for new listings</p>
           <label className="inline-flex items-center cursor-pointer mb-3 pt-2 pl-7 lg:pl-4 lg:pt-4">
-            <input type="checkbox" checked={onlyWithRentals} onChange={(e) => setOnlyWithRentals(e.target.checked)} className="sr-only peer " />
+            <input type="checkbox" checked={onlyWithRentals} onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
             <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
             <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-blue-500">Show only properties with tenants</span>            
           </label>
@@ -330,7 +339,7 @@ const ForSale = () => {
           </div>
 
           <label className="inline-flex items-center cursor-pointer mb-3">
-            <input type="checkbox" onChange={(e) => setOnlyWithRentals(e.target.checked)} className="sr-only peer " />
+            <input type="checkbox" onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
             <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
             <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-blue-500">Show only properties with tenants</span>            
           </label>
@@ -373,7 +382,7 @@ const ForSale = () => {
                         </div>
                       </div>
                       <div className="flex flex-col pb-2">
-                        <p>Rooms Rented:</p>
+                        <p>Rooms Rented:</p> {property.propertyId}
                         <p className="font-mono text-xs text-green-400">{property.roomsToRent}/4</p>
                       </div>
                       <div className="flex flex-col pb-2">

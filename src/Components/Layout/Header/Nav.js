@@ -124,10 +124,13 @@ export default function Nav() {
 						</svg>
 					</li>
 					<li><a className={splitLocation[1] === "about" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/about">About</a></li>
-				</ul>
-				<div className='hidden xl:block'>
+					<li className='hidden xl:block'>
+						<div>
 					<ConnectButton />
-				</div>
+						</div>
+					</li>
+				</ul>
+				
 			</nav>
 			<div className="navbar-menu relative z-50 hidden">
 				<div className="navbar-backdrop fixed inset-0 bg-gray-800 opacity-75"></div>

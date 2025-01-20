@@ -188,7 +188,7 @@ const Owned = () => {
             const history = i.saleHistory.map((item) => {
               return {
                 price: ethers.formatUnits(item[0]),
-                type: Number(item[1]) === 1 ? "Matic" : "BHB"
+                type: Number(item[1]) === 1 ? "POL" : "BHB"
               }
             });
             saleHistory = history;
@@ -1100,8 +1100,8 @@ const Owned = () => {
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
-        <div className="px-4 sm:px-9 text-white" style={{ maxWidth: "1600px" }}>
-          <p className="text-5xl xl3:text-6xl font-bold mb-6 text-white">My Properties</p>
+        <div className="px-4 text-white" style={{ maxWidth: "1600px" }}>
+          <p className="text-5xl xl3:text-6xl font-bold mb-4 text-white">My Properties</p>
           <div className="flex">
             <p className="text-sm lg:text-xl pl-4 font-bold mr-1 mb-2">Manage Owned Properties</p>
           </div>
