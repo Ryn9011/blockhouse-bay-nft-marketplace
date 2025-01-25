@@ -47,7 +47,7 @@ export default function Nav() {
 				});
 			}
 		}
-		
+
 		if (backdrop.length) {
 			for (var i = 0; i < backdrop.length; i++) {
 				backdrop[i].addEventListener('click', function () {
@@ -86,51 +86,53 @@ export default function Nav() {
 						</svg>
 					</button>
 				</div>
-				<ul className="hidden absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 whitespace-nowrap xl:mx-auto xl:flex xl:items-center xl:w-auto xl:space-x-6">
-					<li><a className={splitLocation[1] === "for-sale" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/for-sale">For Sale</a></li>
-					<li className="text-gray-300">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-						</svg>
-					</li>
-					<li><a className={splitLocation[1] === "to-rent" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/to-rent">To Rent</a></li>
-					<li className="text-gray-300">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-						</svg>
-					</li>
-					<li><a className={splitLocation[1] === "owned" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/owned">My Properties</a></li>
-					<li className="text-gray-300">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-						</svg>
-					</li>
-					<li><a className={splitLocation[1] === "renting" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/renting">My Renting</a></li>
-					<li className="text-gray-300">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-						</svg>
-					</li>
-					<li><a className={splitLocation[1] === "all-properties" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/all-properties">All Properties</a></li>
-					<li className="text-gray-300">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-						</svg>
-					</li>
-					<li><a className={splitLocation[1] === "exclusive" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/blockhouse-bay-gardens">Blockhouse Bay Gardens</a></li>
-					<li className="text-gray-300">
-						<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-						</svg>
-					</li>
-					<li><a className={splitLocation[1] === "about" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/about">About</a></li>
-					<li className='hidden xl:block'>
-						<div>
-					<ConnectButton />
-						</div>
-					</li>
-				</ul>
+	
+					<ul className="hidden absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 whitespace-nowrap xl:mx-auto xl:flex xl:items-center xl:w-auto xl:space-x-6">
+						<li><a className={splitLocation[1] === "for-sale" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/for-sale">For Sale</a></li>
+						<li className="text-gray-300">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+							</svg>
+						</li>
+						<li><a className={splitLocation[1] === "to-rent" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/to-rent">To Rent</a></li>
+						<li className="text-gray-300">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+							</svg>
+						</li>
+						<li><a className={splitLocation[1] === "owned" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/owned">My Properties</a></li>
+						<li className="text-gray-300">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+							</svg>
+						</li>
+						<li><a className={splitLocation[1] === "renting" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/renting">My Renting</a></li>
+						<li className="text-gray-300">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+							</svg>
+						</li>
+						<li><a className={splitLocation[1] === "all-properties" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/all-properties">All Properties</a></li>
+						<li className="text-gray-300">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+							</svg>
+						</li>
+						<li><a className={splitLocation[1] === "exclusive" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/blockhouse-bay-gardens">Blockhouse Bay Gardens</a></li>
+						<li className="text-gray-300">
+							<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" className="w-4 h-4 current-fill" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+							</svg>
+						</li>
+						<li><a className={splitLocation[1] === "about" ? "active text-xl hover:text-red-500" : "text-xl text-indigo-100 hover:text-red-500"} href="/about">About</a></li>
+			
+					</ul>
+					<div className='hidden xl:block'>
+						<ConnectButton />
+					</div>
 				
+
+
 			</nav>
 			<div className="navbar-menu relative z-50 hidden">
 				<div className="navbar-backdrop fixed inset-0 bg-gray-800 opacity-75"></div>
@@ -177,7 +179,7 @@ export default function Nav() {
 						</ul>
 					</div>
 					<div>
-					<div className='flex justify-start pl-3 mt-6'>
+						<div className='flex justify-start pl-3 mt-6'>
 							<ConnectButton />
 						</div>
 						{/* <p className="mt-4 text-xs text-center text-indigo-100">

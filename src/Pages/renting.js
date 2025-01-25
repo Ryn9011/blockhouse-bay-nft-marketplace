@@ -534,7 +534,7 @@ const Renting = () => {
                 <p className="text-white font-semibold text-sm mt-2">BHB Token Address:</p>
                 <img src={copyImg} className="w-5 h-5 mt-2 ml-2 invert cursor-pointer md:hidden" onClick={handleCopy} />
               </div>
-
+              
               <div className="flex text-gray-400 mt-2 text-xs font-mono pl-2">
                 {propertytokenaddress}
                 <img src={copyImg} className="w-5 h-5 ml-2 invert cursor-pointer hidden md:block" onClick={handleCopy} />

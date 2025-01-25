@@ -14,6 +14,7 @@ import { propertytokenaddress } from '../config.js'
 import { Add } from "@material-ui/icons";
 import AddTokenButton from "../Components/AddTokenButton";
 import ArticleIcon from '@mui/icons-material/Article';
+import copyImg from '../copy.svg';
 const copy = require('clipboard-copy')
 
 
@@ -79,7 +80,7 @@ const About = () => {
   const section = searchParams.get('section') ? searchParams.get('section') : 'nft'
 
   const [currentImageNum, setCurrentImageNum] = useState(1);
-  const imgSrcs = ["./ownedSelling.png", "./ownedLate.png", "./torent.png", "./renting.png", "./X.png"];
+  const imgSrcs = ["./ownedSelling.png", "./ownedLate.png", "./toRent.png", "./renting.png", "./X.png"];
   const [ownedImageSrc, setOwnedImageSrc] = useState(imgSrcs[0])
   const [rentImageSrc, setRentImageSrc] = useState(imgSrcs[3])
 
@@ -172,7 +173,7 @@ const About = () => {
 
   return (
     <>
-      <div className="px-4 xl3:mx-64 mb-12">
+      <div className="px-4 xl3:mx-64 mb-44 lg:mb-12">
         <Accordion className={classes.root} expanded={expanded === 'default'} onChange={handleChange('default')}>
 
           <AccordionSummary expandIcon={<ExpandMoreIcon style={{ color: iconColor }} />} className={`${classes.summary} ${expanded === 'default' ? classes.summaryExpanded : 'p-16 text-green-400'}`}>
@@ -193,13 +194,13 @@ const About = () => {
                     </div>
                     <div className="text-white text-xl xl3:text-xl italic mt-3 flex justify-start items-center">
                       <div>What is BlockHouse Bay?</div>
-                      <span className="border border-1 rounded-full border-green-400 p-2 pt-1 ml-3" onClick={handleModalOpen}>                        
+                      <span className=" scale-90 border border-1 hover:cursor-pointer rounded-full bg-blue-700 hover:bg-blue-600 border-blue-700 p-2 pt-1 ml-3" onClick={handleModalOpen}>                        
                         <ArticleIcon className="brightness-150 hover:cursor-pointer" />
                       </span>
                     </div>
-                    <p className="mt-0 text-gray-400 pl-2 mr-4">Let’s address the big question right away: Is Blockhouse Bay a scam? No, it isn’t. But we’re also not going to pretend it’s some groundbreaking, world-changing project. We’re a small team with realistic goals, focused on delivering a functional and transparent Web3 real estate platform.</p>
+                    <p className="mt-0 text-gray-400 pl-2 mr-4 mt-1">Let’s address the big question right away: Is Blockhouse Bay a scam? No, it isn’t. But we’re also not going to pretend it’s some groundbreaking, world-changing project. We’re a small team from New Zealand with realistic goals, focused on delivering a creative and fun platform to build our token</p>
 
-                    <p className="mt-2 text-gray-400 pl-2 mr-4">We get it—traditional presales can feel inherently scammy. Many projects ask for money upfront in exchange for tokens, often without delivering real value. That’s why we’re taking a different approach. Instead of selling tokens before the platform is proven, we’re giving you the chance to <em>earn</em> tokens by participating in our Web3 real estate simulation. This way, you gain value while exploring what the platform has to offer, rather than taking a leap of faith.</p>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">We get it - traditional presales can feel inherently scammy. Many projects ask for money upfront in exchange for tokens, often without delivering real value. That’s why we’re taking a different approach. Instead of selling tokens before the platform is proven, we’re giving you the chance to <em>earn</em> tokens by participating in our Web3 real estate simulation. This way, you gain value while exploring what the platform has to offer, rather than taking a leap of faith.</p>
 
                     <p className="mt-2 text-gray-400 pl-2 mr-4">The ultimate goal of Blockhouse Bay is to build real value in the BHB token and the Blockhouse Bay brand, creating a foundation for even bigger opportunities in the future. By focusing on transparency, engagement, and meaningful participation, we’re working to grow a platform that rewards users while paving the way for long-term growth.</p>
 
@@ -215,24 +216,24 @@ const About = () => {
                       aria-labelledby="modal-title"
                       aria-describedby="modal-description"
                     >
-                      <div className={`${classes.paper} rounded-lg`}>
+                      <div className={`${classes.paper} rounded-lg`} >
                         {/* <img src="logoplain.png" className=" mb-12" alt="blockhouse bay" /> */}
 
 
-                        <div className="bg-slate-900 text-black p-8">
-                          <div className="bg-white p-6 rounded-lg shadow-lg">
+                        <div className="bg-slate-900 text-black md:p-8 p-0">
+                          <div className="bg-white p-2 md:p-6 rounded-lg shadow-lg">
                             <div className="from-black via-slate-800 to-slate-900 bg-gradient-120 rounded-lg p-2 pb-0 shadow-lg">
                               <img src="logoplain.png" className="mb-12" alt="Blockhouse Bay" />
                             </div>                        
                             
-                            <section className="mb-8">
-                              <h2 className="text-2xl font-semibold mb-4">White Paper Introduction</h2>
+                            <section className="mb-8 text-sm md:text-base">
+                              <h2 className="text-2xl font-semibold mb-4">White Paper</h2>
                               <p>
                                 Blockhouse Bay is a decentralized application (dApp) built on the Polygon blockchain, offering users an immersive virtual real estate market experience. Leveraging unique ERC721 tokens, users can buy, sell, and rent properties within the Blockhouse Bay ecosystem. This white paper outlines the platform's core features, tokenomics, and future goals.
                               </p>
                             </section>
 
-                            <section className="mb-8">
+                            <section className="mb-8 text-sm md:text-base text-sm">
                               <h2 className="text-2xl font-semibold mb-4">Project Overview</h2>
                               <p>
                                 Blockhouse Bay is a virtual real estate platform where each property is represented by an ERC721 token, ensuring each asset is unique and non-fungible. These NFTs grant users full ownership and control over their digital properties.
@@ -246,7 +247,7 @@ const About = () => {
                               </p>
                             </section>
 
-                            <section className="mb-8">
+                            <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Platform Advantages</h2>
                               <p>
                                 Blockhouse Bay benefits from the Polygon blockchain's scalability, efficiency, and low transaction fees, making it an attractive option for users interested in virtual real estate without high costs. The use of Arweave for permanent and decentralized storage ensures that property data and images are secure and tamper-proof.
@@ -255,10 +256,10 @@ const About = () => {
                                 The platform’s unique gameplay mechanics and token rewards create an interactive environment, encouraging user engagement while providing tangible benefits for participation.
                               </p>
                               <div className="flex items-center  mt-2">
-                                <p className="text-xl xl3:text-xl italic mr-2 ml-0 pt-0.5">Polygon & Arweave</p>
-                                <img className="h-8 w-9 mr-2 mt-1" src="./polygonsmall.png" />
+                                <p className="text:base font-semibold md:text-xl xl3:text-xl italic mr-2 ml-0 pt-0.5">Polygon & Arweave</p>
+                                <img className="h-8 w-8 mr-2 mt-1" src="./polygonsmall.png" />
                                 <div className="flex justify-center mr-4">
-                                  <img className="h-8 mt-1 w-9" src="./arweave.png" />
+                                  <img className="h-8 mt-1 w-8.5" src="./arweave.png" />
                                 </div>
                               </div>
                               <ul className="list-disc list-inside">
@@ -276,7 +277,7 @@ const About = () => {
                               </ul>
                             </section>
 
-                            <section className="mb-8">
+                            <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Property Transactions</h2>
                               <p>
                                 Property transactions on Blockhouse Bay are designed to be transparent and straightforward. Property prices are set by the current owner, eliminating the need for negotiations:
@@ -291,7 +292,7 @@ const About = () => {
                               </ul>
                             </section>
 
-                            <section className="mb-8">
+                            <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Rental System and Rewards</h2>
                               <p>
                                 The platform supports property rentals, with rent payments made in POL, the native cryptocurrency of the Polygon network. Renters are rewarded with BHB tokens for paying their rent, which can be used within the platform to buy, sell, or rent properties. The system is designed to encourage active participation while maintaining fairness through a progressive taxation model.
@@ -346,7 +347,7 @@ const About = () => {
                             </section>
 
 
-                            <section className="mb-8">
+                            <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Tokenomics</h2>
                               <p>
                                 <strong>Total Supply:</strong> 100,000,000 BHB tokens were minted at the project's inception.
@@ -359,14 +360,14 @@ const About = () => {
                               </p>
                             </section>
 
-                            <section className="mb-8">
+                            <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Community Building and Engagement</h2>
                               <p>
                                 Blockhouse Bay prioritizes community involvement by fostering user engagement through events, forums, and social channels. Community members can shape the future of the platform, with governance mechanisms planned to give users a voice in decision-making processes.
                               </p>
                             </section>
 
-                            <section className="mb-8">
+                            <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Future Goals for BHB Token</h2>
 
                               <h3 className="text-xl font-medium mt-6 mb-4">
@@ -385,7 +386,7 @@ const About = () => {
                               </p>
                             </section>
 
-                            <section className="mb-8">
+                            <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Disclaimer</h2>
                               <p>
                                 Blockhouse Bay offers a virtual real estate platform on the Polygon blockchain, allowing users to buy, sell, and rent digital properties using NFTs. Participation involves risks, including market volatility and fluctuations in cryptocurrency prices, especially POL and BHB tokens.
@@ -398,7 +399,7 @@ const About = () => {
                               </p>
                             </section>
 
-                            <section className="mb-8">
+                            <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Conclusion</h2>
                               <p>
                                 Blockhouse Bay is a gamified real estate simulation that serves as both an engaging platform and an innovative presale mechanism. Built on the Polygon blockchain, it allows users to earn and use BHB tokens through interactive gameplay, making the token acquisition process more dynamic and rewarding.
@@ -500,7 +501,7 @@ const About = () => {
                       Blockhouse Bay Web3 real estate simulation.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      A limited number of early adopters will be rewarded with a free Blockhouse Bay property of their choice from the properties available.
+                      A limited number of early adopters will be rewarded with a free Blockhouse Bay property of their choice from the properties available. This initiative allows the platform to demonstrate its ability to create value without requiring anyone to make a property purchase upfront.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
                       The revenue collected from the platform will be used to expand
@@ -903,19 +904,17 @@ const About = () => {
                 <p className="mt-2 text-gray-400 pl-2 mr-4">
                   You can also manually add the BHB token to your wallet by selecting import tokens and paste in the BHB token address:
                 </p>
-                <p>
+                <div className="flex flex-col md:items-center md:flex-row  mt-2 ml-2">
                   <span className="text-pink-400 text-xs break-all">
                     {propertytokenaddress}
                   </span>
-                  <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button>
-                </p>
-
+                  {/* <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button> */}
+                  <img src={copyImg} className="w-5 h-5 md:ml-2 invert cursor-pointer" onClick={handleCopy} />
+                </div>
               </div>
 
-
               <div className="lg:grid grid-cols-2">
-
-                <div className="flex mt-12 md:mt-0 flex-col gap-4 pl-4 xl:pr-8">
+                <div className="flex mt-8 lg:mt-0 flex-col gap-4 pl-4 xl:pr-8">
                   <p className="text-xl italic text-white">Renting Panels</p>
                   <div className="">
                     <Pagination
@@ -968,7 +967,7 @@ const About = () => {
 
                 <div>
                   <div className="flex justify-center mt-8 lg:mt-2 lg:justify-end">
-                    <img className="max-w-[382px] max-h-[1000px]" alt="owner panel" src={rentImageSrc} />
+                    <img className="max-w-[382px] max-h-[1000px]" alt="renter panel" src={rentImageSrc} />
                   </div>
                   {rentImageSrc === "./renting.png" &&
                     <div className="flex justify-center lg:justify-end">
@@ -991,7 +990,7 @@ const About = () => {
             </div>
           </AccordionSummary>
           <AccordionDetails className="border border-1">
-            <div className="lg:grid grid-cols-1 justify-items-center mb-32 lg:mb-20 lg:grid-cols-2 lg:mr-12 lg:gap-16 xl3:gap-32n text-lg ">
+            <div className="lg:grid grid-cols-1 justify-items-center mb-16 lg:mb-20 lg:grid-cols-2 lg:mr-12 lg:gap-16 xl3:gap-32n text-lg ">
               <ul className=" font-normal ">
                 <li className="pb-4">
                   <h3 className="text-2xl font-semibold text-green-300">Blockhouse Bay Gardens</h3>
