@@ -229,6 +229,24 @@
     width:var(--width);
     height:var(--height);
   }
+
+  .no-global-style img {
+    all: unset;
+}
+
+  @keyframes smooth-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  
+  .smooth-spin {
+    animation: smooth-spin 1s linear infinite;
+    will-change: transform;
+  }
   
   .clipped-border{
     -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);

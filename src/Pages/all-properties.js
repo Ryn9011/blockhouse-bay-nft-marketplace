@@ -36,104 +36,119 @@ const AllProperties = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
   const { modalEvent, provider, signer } = useModalContext();
 
+  
   useEffect(() => {
-   
-    setLoadingState("not-loaded");
-    loadProperties()
-    console.log("tes test ")
-  }, [currentPage])
+    console.log(provider);
+    console.log(signer);
+    setLoadingState('not-loaded');
+    if (signer == null) {
+
+      return;
+    }
+    if (provider != null) {
+
+      loadProperties();
+    }
+  }, [currentPage, signer]);
 
   const loadProperties = async () => {
 
     const tokenContract = new ethers.Contract(nftaddress, NFT.abi, provider)
     const marketContract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, provider)
     const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, provider)
-    const data = await govtContract.fetchAllProperties(currentPage)
 
-    const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
-      try {
-        // const tokenUri = 'https://dummyimage.com/300x200/000/fff'
-        const tokenUri = await tokenContract.tokenURI(i.tokenId)
-        if (tokenUri === undefined) {
-          tokenUri = ''
-        }
+    try {
+      const data = await govtContract.fetchAllProperties(currentPage)
 
-        const meta = await axios.get(tokenUri)
-        console.log(data)
-        let nftName = GetPropertyNames(meta)
+      const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
+        try {
+          // const tokenUri = 'https://dummyimage.com/300x200/000/fff'
+          const tokenUri = await tokenContract.tokenURI(i.tokenId)
+          if (tokenUri === undefined) {
+            tokenUri = ''
+          }
 
-        let price = await ethers.formatUnits(i.salePrice.toString(), 'ether')
-        //let depositHex = await govtContract.getDepositRequired()
-        //et deposit = await ethers.formatUnits(depositHex, 'ether')
+          const meta = await axios.get(tokenUri)
+          console.log(data)
+          let nftName = GetPropertyNames(meta)
 
-        const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+          let price = await ethers.formatUnits(i.salePrice.toString(), 'ether')
+          //let depositHex = await govtContract.getDepositRequired()
+          //et deposit = await ethers.formatUnits(depositHex, 'ether')
 
-        let saleHistory = [];
-        if (i.saleHistory.length > 0) {
-          i.saleHistory.forEach((item) => {
-            const history = i.saleHistory.map((item) => {
-              return {
-                price: ethers.formatUnits(item[0]),
-                type: Number(item[1]) === 1 ? "POL" : "BHB"
-              }
-            });
-            saleHistory = history;
-          })
-        } else {
-          saleHistory.push("Unsold")
-        }
-        let totalIncomeGenerated;
-        if (i.totalIncomeGenerated != 0) {
-          totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
-        } else totalIncomeGenerated = 0;
-        let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
-        let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
+          const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
+
+          let saleHistory = [];
+          if (i.saleHistory.length > 0) {
+            i.saleHistory.forEach((item) => {
+              const history = i.saleHistory.map((item) => {
+                return {
+                  price: ethers.formatUnits(item[0]),
+                  type: Number(item[1]) === 1 ? "POL" : "BHB"
+                }
+              });
+              saleHistory = history;
+            })
+          } else {
+            saleHistory.push("Unsold")
+          }
+          let totalIncomeGenerated;
+          if (i.totalIncomeGenerated != 0) {
+            totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
+          } else totalIncomeGenerated = 0;
+          let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
+          let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
 
 
-        let item = {
-          price,
-          propertyId: Number(i.propertyId),
-          seller: i.seller,
-          owner: owner,
-          image: tokenUri,
-          name: nftName,
-          description: meta.data.description,
-          roomOneRented: i.roomOneRented,
-          roomTwoRented: i.roomTwoRented,
-          roomThreeRented: i.roomThreeRented,
-          roomFourRented: i.roomFourRented,
-          rentPrice: rentPrice,
-          depositRequired: i.deposit,
-          available: false,
-          roomsRented: 0,
-          renterAddresses: renterAddresses,
-          saleHistory: saleHistory,
-          dateSoldHistory: i.dateSoldHistory,
-          totalIncomeGenerated: totalIncomeGenerated
+          let item = {
+            price,
+            propertyId: Number(i.propertyId),
+            seller: i.seller,
+            owner: owner,
+            image: tokenUri,
+            name: nftName,
+            description: meta.data.description,
+            roomOneRented: i.roomOneRented,
+            roomTwoRented: i.roomTwoRented,
+            roomThreeRented: i.roomThreeRented,
+            roomFourRented: i.roomFourRented,
+            rentPrice: rentPrice,
+            depositRequired: i.deposit,
+            available: false,
+            roomsRented: 0,
+            renterAddresses: renterAddresses,
+            saleHistory: saleHistory,
+            dateSoldHistory: i.dateSoldHistory,
+            totalIncomeGenerated: totalIncomeGenerated
+          }
+          if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
+            item.available = true;
+          }
+          if (item.roomOneRented == true) {
+            item.roomsRented++
+          }
+          if (item.roomTwoRented == true) {
+            item.roomsRented++
+          }
+          if (item.roomThreeRented == true) {
+            item.roomsRented++
+          }
+          if (item.roomFourRented == true) {
+            item.roomsRented++
+          }
+          return item
+        } catch (e) {
+          console.log(e)
         }
-        if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
-          item.available = true;
-        }
-        if (item.roomOneRented == true) {
-          item.roomsRented++
-        }
-        if (item.roomTwoRented == true) {
-          item.roomsRented++
-        }
-        if (item.roomThreeRented == true) {
-          item.roomsRented++
-        }
-        if (item.roomFourRented == true) {
-          item.roomsRented++
-        }
-        return item
-      } catch (e) {
-        console.log(e)
-      }
-    }))
-    setPropertyList(items)
-    setLoadingState('loaded')
+      }))
+      setPropertyList(items)
+      setLoadingState('loaded')
+    } catch (e) {
+      console.log(e)
+    }
   }
+
+
 
   // if (propertyList[0] === undefined) {
   //   return (<div>Unable to load images</div>)
@@ -143,12 +158,30 @@ const AllProperties = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
-          <div className="flex pl-6 lg:px-12">
+          <div className="flex items-center pl-6 lg:px-12">
             <p className="text-white text-3xl lg:text-5xl font-bold mb-2">Loading Properties</p>
-            <svg role="status" className="mt-1 lg:mt-3 ml-3 inline w-8 h-8 mr-2 text-red-500 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
-              <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
-            </svg>
+            <div className="ml-2 mb-2">
+              <svg className="h-[1.55rem] lg:h-[2.5rem] w-auto" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" rx="1" width="10" height="10" fill="white">
+                  <animate id="spinner_c7A9" begin="0;spinner_23zP.end" attributeName="x" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_Acnw" begin="spinner_ZmWi.end" attributeName="y" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_iIcm" begin="spinner_zfQN.end" attributeName="x" dur="0.2s" values="13;1" fill="freeze" />
+                  <animate id="spinner_WX4U" begin="spinner_rRAc.end" attributeName="y" dur="0.2s" values="13;1" fill="freeze" />
+                </rect>
+                <rect x="1" y="13" rx="1" width="10" height="10" fill="white">
+                  <animate id="spinner_YLx7" begin="spinner_c7A9.end" attributeName="y" dur="0.2s" values="13;1" fill="freeze" />
+                  <animate id="spinner_vwnJ" begin="spinner_Acnw.end" attributeName="x" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_KQuy" begin="spinner_iIcm.end" attributeName="y" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_arKy" begin="spinner_WX4U.end" attributeName="x" dur="0.2s" values="13;1" fill="freeze" />
+                </rect>
+                <rect x="13" y="13" rx="1" width="10" height="10" fill="white">
+                  <animate id="spinner_ZmWi" begin="spinner_YLx7.end" attributeName="x" dur="0.2s" values="13;1" fill="freeze" />
+                  <animate id="spinner_zfQN" begin="spinner_vwnJ.end" attributeName="y" dur="0.2s" values="13;1" fill="freeze" />
+                  <animate id="spinner_rRAc" begin="spinner_KQuy.end" attributeName="x" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_23zP" begin="spinner_arKy.end" attributeName="y" dur="0.2s" values="1;13" fill="freeze" />
+                </rect>
+              </svg>
+            </div>
           </div>
           <img src="night.png" className="pl-6 pr-6 h-4/5 lg:h-5/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12 brightness-125 " />
         </div>
@@ -159,7 +192,7 @@ const AllProperties = () => {
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
-        <div className="px-4" style={{ maxWidth: "1600px" }}>
+        <div className="px-6 md:px-9" style={{ maxWidth: "1600px" }}>
           <h1 className="text-white mb-5">All Properties</h1>
           <div className="flex text-white pl-4 mb-5">
             <p className="text-sm lg:text-xl pl-4 font-bold mr-1 mb-2">All Blockhouse Bay properties</p>

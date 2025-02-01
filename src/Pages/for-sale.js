@@ -76,11 +76,11 @@ const ForSale = () => {
       const data = await marketContract.fetchPropertiesForSale(currentPage, onlyWithRentals)
       console.log(data)
       const numForSale = Number(await govtContract.getPropertiesForSale());
-      const rentedPropertyCount = Number(await govtContract.getRentedProperties());      
+      const rentedPropertyCount = Number(await govtContract.getRentedProperties());
 
       const currentPageNumItems = numForSale - (20 * (currentPage - 1))
-      const showBottomNav = currentPageNumItems > 12 ? true : false   
-      if (!onlyWithRentals) {  
+      const showBottomNav = currentPageNumItems > 12 ? true : false
+      if (!onlyWithRentals) {
         setShowBottomNav(showBottomNav);
       }
       setNumForSale(numForSale);
@@ -186,9 +186,9 @@ const ForSale = () => {
     }
   }
 
-  const handleOnlyRentals = (e) => {    
+  const handleOnlyRentals = (e) => {
     console.log('rentedPropertyCount:', e);
-    const showBottomNav = rentedPropertyCount > 12 ? true : false      
+    const showBottomNav = rentedPropertyCount > 12 ? true : false
     console.log('showBottomNav:', showBottomNav);
     setShowBottomNav(showBottomNav);
     setOnlyWithRentals(e);
@@ -250,7 +250,7 @@ const ForSale = () => {
       console.log('price', typeof (price))
       const transaction = await contract2.createPropertySale(
         nftaddress,
-          nft.propertyId,
+        nft.propertyId,
         propertytokenaddress,
         isTokenSale,
         {
@@ -288,16 +288,34 @@ const ForSale = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
-          <div className="flex pl-6 lg:px-12">
+          <div className="flex items-center pl-6 lg:px-12">
             <p className="text-white text-3xl lg:text-5xl font-bold mb-2">Loading Properties</p>
-            <Link to="/about?section=renting" target='new'>
-              <svg role="status" className="mt-1 lg:mt-3 ml-3 inline w-8 h-8 mr-2 text-red-500 animate-spin dark:text-gray-600 fill-gray-600 dark:fill-gray-300" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor" />
-                <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
+            <div className="ml-2 mb-2">
+              <svg className="h-[1.55rem] lg:h-[2.5rem] w-auto" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" rx="1" width="10" height="10" fill="white">
+                  <animate id="spinner_c7A9" begin="0;spinner_23zP.end" attributeName="x" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_Acnw" begin="spinner_ZmWi.end" attributeName="y" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_iIcm" begin="spinner_zfQN.end" attributeName="x" dur="0.2s" values="13;1" fill="freeze" />
+                  <animate id="spinner_WX4U" begin="spinner_rRAc.end" attributeName="y" dur="0.2s" values="13;1" fill="freeze" />
+                </rect>
+                <rect x="1" y="13" rx="1" width="10" height="10" fill="white">
+                  <animate id="spinner_YLx7" begin="spinner_c7A9.end" attributeName="y" dur="0.2s" values="13;1" fill="freeze" />
+                  <animate id="spinner_vwnJ" begin="spinner_Acnw.end" attributeName="x" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_KQuy" begin="spinner_iIcm.end" attributeName="y" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_arKy" begin="spinner_WX4U.end" attributeName="x" dur="0.2s" values="13;1" fill="freeze" />
+                </rect>
+                <rect x="13" y="13" rx="1" width="10" height="10" fill="white">
+                  <animate id="spinner_ZmWi" begin="spinner_YLx7.end" attributeName="x" dur="0.2s" values="13;1" fill="freeze" />
+                  <animate id="spinner_zfQN" begin="spinner_vwnJ.end" attributeName="y" dur="0.2s" values="13;1" fill="freeze" />
+                  <animate id="spinner_rRAc" begin="spinner_KQuy.end" attributeName="x" dur="0.2s" values="1;13" fill="freeze" />
+                  <animate id="spinner_23zP" begin="spinner_arKy.end" attributeName="y" dur="0.2s" values="1;13" fill="freeze" />
+                </rect>
               </svg>
-            </Link>
+            </div>
           </div>
-          <img src="autumn.png" className="pl-6 pr-6 h-3/6 md:w-full md:h-5/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12 brightness-110" />
+
+
+          <img src="autumn.png" className="pl-6 pr-6 h-3/6 w-full md:h-5/6 lg:h-4/6 xl3:h-5/6 lg:w-3/6 xl3:w-3/5 lg:pl-12 brightness-110" />
           <p className='text-white pl-6 pr-2 lg:pl-12 mt-4 font-extralight text-lg italic lg:w-3/5'>
             Explore the offerings of Blockhouse Bay, where the latest properties await discerning first-time buyers and seasoned investors seeking to enhance their real estate holdings.
           </p>
@@ -315,8 +333,8 @@ const ForSale = () => {
           <p className='text-white text-base pt-2 lg:pt-4 pl-11 lg:pl-7'>Check back soon for new listings</p>
           <label className="inline-flex items-center cursor-pointer mb-3 pt-2 pl-7 lg:pl-4 lg:pt-4">
             <input type="checkbox" checked={onlyWithRentals} onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
-            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-            <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-blue-500">Show only properties with tenants</span>            
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-400"></div>
+            <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-green-500">Show only properties with tenants</span>
           </label>
         </div>
       </div>
@@ -326,23 +344,25 @@ const ForSale = () => {
   return (
     <div className="pt-10 pb-10">
       <div className="flex justify-center">
-        <div className="px-4" style={{ maxWidth: "1600px" }}>
+        <div className="px-6 md:px-9" style={{ maxWidth: "1600px" }}>
           <p className="text-5xl xl3:text-6xl font-bold text-white">For Sale</p>
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
             <header className="flex items-center h-16 mb-1 mr-3">
-              <p className="text-sm md:text-xl font-bold">Buy a property and earn POL tokens from your renters! </p>
+              <p className="text-sm md:text-xl font-bold">Buy a property and earn POL tokens from your renters!</p>
             </header>
             <div className='mb-1'>
               <img className="h-8 w-9 mr-2 mt-4" src="./polygonsmall.png" />
             </div>
           </div>
 
-          <label className="inline-flex items-center cursor-pointer mb-3">
-            <input type="checkbox" onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
-            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-            <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-blue-500">Show only properties with tenants</span>            
-          </label>
+          {currentPage === 1 && 
+            <label className="inline-flex items-center cursor-pointer mb-3 pt-2 pl-7 lg:pl-0 lg:pt-4">
+              <input type="checkbox" checked={onlyWithRentals} onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
+              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-400"></div>
+              <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-green-100">Show only properties with tenants</span>
+            </label>
+          }
 
           <Pagination
             postsPerPage={postsPerPage}
@@ -382,7 +402,7 @@ const ForSale = () => {
                         </div>
                       </div>
                       <div className="flex flex-col pb-2">
-                        <p>Rooms Rented:</p> {property.propertyId}
+                        <p>Rooms Rented:</p>
                         <p className="font-mono text-xs text-green-400">{property.roomsToRent}/4</p>
                       </div>
                       <div className="flex flex-col pb-2">
@@ -448,7 +468,7 @@ const ForSale = () => {
                                 <div className='flex items-center'>
                                   <label htmlFor={"pogRadio" + i} className="mb-2 cursor-pointer pt-3.5 xl3:pt-3 text-xs xl3:text-sm text-white">
                                     <p className="font-bold">{property.tokenSalePrice}</p>
-                                  </label>                                 
+                                  </label>
                                 </div>
                               </>
                             )}

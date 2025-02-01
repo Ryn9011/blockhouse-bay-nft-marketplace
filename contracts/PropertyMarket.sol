@@ -231,7 +231,7 @@ contract PropertyMarket is ReentrancyGuard {
             uint256 currentId = i + 1;
             if (currentId <= _propertyIds.current()) {
                 Property storage currentItem = idToProperty[currentId];
-                if (currentItem.isForSale && currentItem.propertyId < 501) {                    
+                if (currentItem.isForSale && currentItem.propertyId < 501) {
                     if (
                         !includeOnlyRented || 
                         (includeOnlyRented && (currentItem.roomOneRented || currentItem.roomTwoRented || 
@@ -239,7 +239,7 @@ contract PropertyMarket is ReentrancyGuard {
                     ) {
                         if (currentIndex >= startIndex && currentIndex < endIndex) {
                             propertiesForSale[currentIndex - startIndex] = currentItem;
-                        }                        
+                        }
                         currentIndex++;
                     }
                 }

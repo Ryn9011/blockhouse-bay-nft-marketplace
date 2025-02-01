@@ -189,12 +189,12 @@ const About = () => {
                 <ul className="divide-y divide-gray-200 lg:ml-0  text-lg">
                   <li className="py-4 pt-0 lg:pb-0">
                     <h3 className="text-2xl font-semibold text-yellow-200 lg:mt-0">Welcome to Blockhouse Bay</h3>
-                    <div className="xl:hidden md:border border-1 rounded-md border-white flex justify-center">
+                    <div className="xl:hidden lg:border border-1 rounded-md border-white flex justify-center">
                       <img src="livingroom1.png" className="mt-4" alt="buy/sell/rent" />
                     </div>
                     <div className="text-white text-xl xl3:text-xl italic mt-3 flex justify-start items-center">
                       <div>What is BlockHouse Bay?</div>
-                      <span className=" scale-90 border border-1 hover:cursor-pointer rounded-full bg-blue-700 hover:bg-blue-600 border-blue-700 p-2 pt-1 ml-3" onClick={handleModalOpen}>                        
+                      <span className=" scale-90 border border-1 hover:cursor-pointer rounded-full bg-blue-700 hover:bg-blue-600 border-blue-700 p-2 pt-1 ml-3" onClick={handleModalOpen}>
                         <ArticleIcon className="brightness-150 hover:cursor-pointer" />
                       </span>
                     </div>
@@ -224,8 +224,8 @@ const About = () => {
                           <div className="bg-white p-2 md:p-6 rounded-lg shadow-lg">
                             <div className="from-black via-slate-800 to-slate-900 bg-gradient-120 rounded-lg p-2 pb-0 shadow-lg">
                               <img src="logoplain.png" className="mb-12" alt="Blockhouse Bay" />
-                            </div>                        
-                            
+                            </div>
+
                             <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">White Paper</h2>
                               <p>
@@ -255,10 +255,10 @@ const About = () => {
                               <p>
                                 The platform’s unique gameplay mechanics and token rewards create an interactive environment, encouraging user engagement while providing tangible benefits for participation.
                               </p>
-                              <div className="flex items-center  mt-2">
+                              <div className="flex justify-start items-center mt-2">
                                 <p className="text:base font-semibold md:text-xl xl3:text-xl italic mr-2 ml-0 pt-0.5">Polygon & Arweave</p>
-                                <img className="h-8 w-8 mr-2 mt-1" src="./polygonsmall.png" />
-                                <div className="flex justify-center mr-4">
+                                <div className="flex w-1/6">
+                                  <img className="h-8 w-8.5 mr-2 mt-1" src="./polygonsmall.png" />
                                   <img className="h-8 mt-1 w-8.5" src="./arweave.png" />
                                 </div>
                               </div>
@@ -636,7 +636,7 @@ const About = () => {
                   </ul>
                 </div>
 
-                <div className="flex justify-end mb-2">
+                <div className="flex justify-center mb-2">
                   <img className="mt-2.5 brightness-110 transform max-w-[400px] max-h-[1000px]" src="forsale.png" />
                 </div>
               </div>

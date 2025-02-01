@@ -231,7 +231,7 @@ function App() {
           ? { backgroundImage: `url(${bgImage})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }
           : undefined
       }>
-        <div className="flex-1 overflow-y-auto overflow-x-hidden" >
+        <div className="flex-1 overflow-y-auto overflow-x-hidden mb-12">
           {location.pathname !== "/" && <Header />}
           {isCheckingProvider ? (
             <div className='text-white text-2xl flex justify-center'>
