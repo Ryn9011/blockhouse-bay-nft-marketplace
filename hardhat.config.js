@@ -18,7 +18,7 @@ module.exports = {
       url: `https://polygon-amoy.g.alchemy.com/v2/${projectId}`,
       accounts: [privateKey],
       gas: 2100000,
-      gasPrice: 8000000000,
+      gasPrice: 25000000000,
       chainId: 80002
     },
     mainnet: {

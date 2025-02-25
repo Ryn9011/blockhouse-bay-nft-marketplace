@@ -189,11 +189,6 @@ const ToRent = () => {
       setTxLoadingState({ ...txloadingState, [i]: true }); 
       console.log('property.depositHex: ', property.depositHex)  
 
-      let gasLimit = await govtContract.rentProperty.estimateGas(property.propertyId, {
-        value: Number(property.depositHex).toString()
-      });
-
-      gasLimit = gasLimit+100000n;
 
       const feeData = await provider.getFeeData();
       const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
@@ -201,10 +196,7 @@ const ToRent = () => {
       const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
       const transaction = await govtContract.rentProperty(property.propertyId, {       
-        value: Number(property.depositHex).toString(),
-        gasLimit: gasLimit,
-        maxFeePerGas: maxFeePerGas,
-        maxPriorityFeePerGas: maxPriorityFeePerGas
+        value: Number(property.depositHex).toString()
       });
       
       await transaction.wait();

@@ -335,30 +335,6 @@ const Owned = () => {
       let maticAmount = !isExclusive ? document.getElementById('amountInput' + i).value : document.getElementById('tokenInput' + i).value
       const priceFormatted = ethers.parseUnits(maticAmount, 'ether');
 
-      let gasLimit;
-      try {
-        gasLimit = await contract.sellProperty.estimateGas(
-          nftaddress,
-          property.tokenId,
-          property.propertyId,
-          priceFormatted,
-          tokenAmount,
-          isExclusive,
-          { value: listingPrice.toString() }
-        )
-      } catch (ex) {
-        //'Transaction failed. (Make sure price is not lower than original price of 150 POL)'
-        alert(ex.message)
-      }
-      
-
-      gasLimit = gasLimit + 300000n;
-
-      const feeData = await provider.getFeeData();
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
-
       const transaction = await contract.sellProperty(
         nftaddress,
         property.tokenId,
@@ -366,10 +342,7 @@ const Owned = () => {
         priceFormatted,
         tokenAmount,
         isExclusive,
-        { 
-          gasLimit: gasLimit,
-          maxPriorityFeePerGas: maxPriorityFeePerGas,
-          maxFeePerGas: maxFeePerGas,
+        {           
           value: listingPrice.toString()
         }
       )
@@ -541,21 +514,7 @@ const Owned = () => {
     const contract = new Contract(nftmarketaddress, Market.abi, signer)
     setTxLoadingState2({ ...txloadingState2, [i]: true });
     try {
-
-      // let gasLimit = await contract.cancelSale.estimateGas(nftaddress, property.tokenId, property.propertyId)
-      // gasLimit = gasLimit + 300000n;
-
-      // const feeData = await provider.getFeeData();
-      // const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      // const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      // const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
-
-
-      const transaction = await contract.cancelSale(nftaddress, property.tokenId, property.propertyId, {
-        // gasLimit: gasLimit,
-        // maxPriorityFeePerGas: maxPriorityFeePerGas,
-        // maxFeePerGas: maxFeePerGas
-      })
+      const transaction = await contract.cancelSale(nftaddress, property.tokenId, property.propertyId)
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2({ ...txloadingState2B, [i]: true });
 
@@ -579,21 +538,10 @@ const Owned = () => {
     //console.log(newPrice)
     //console.log(property.propertyId)
     try {      
-      let gasLimit = await contract.setDeposit.estimateGas(property.propertyId, newPrice)
-      gasLimit = gasLimit + 100000n;
-
-      const feeData = await provider.getFeeData();
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
       setTxLoadingState5({ ...txloadingState5, [i]: true });
 
-      const transaction = await contract.setDeposit(property.propertyId, newPrice, {
-        gasLimit: gasLimit,
-        maxPriorityFeePerGas: maxPriorityFeePerGas,
-        maxFeePerGas: maxFeePerGas
-      })
+      const transaction = await contract.setDeposit(property.propertyId, newPrice)
       setTxLoadingState5({ ...txloadingState5, [i]: false });
       setTxLoadingState5B({ ...txloadingState5B, [i]: true });
       await transaction.wait();
@@ -617,19 +565,7 @@ const Owned = () => {
     try {
       setTxLoadingState4({ ...txloadingState4, [i]: true });
 
-      let gasLimit = await contract.setRentPrice.estimateGas(property.propertyId, newPrice)
-      gasLimit = gasLimit + 100000n;
-
-      const feeData = await provider.getFeeData();
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
-
-      const transaction = await contract.setRentPrice(property.propertyId, newPrice, {
-        gasLimit: gasLimit,
-        maxPriorityFeePerGas: maxPriorityFeePerGas,
-        maxFeePerGas: maxFeePerGas
-      })
+      const transaction = await contract.setRentPrice(property.propertyId, newPrice)
       setTxLoadingState4({ ...txloadingState4, [i]: false });
       setTxLoadingState4B({ ...txloadingState4B, [i]: true });
       await transaction.wait()
@@ -672,19 +608,7 @@ const Owned = () => {
     try {
       setTxLoadingState3({ ...txloadingState3, [i]: true });
 
-      let gasLimit = await contract.evictTennant.estimateGas(property.propertyId, tenantToDelete.address)
-      gasLimit = gasLimit + 100000n;
-
-      const feeData = await provider.getFeeData();
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
-
-      const transaction = await contract.evictTennant(property.propertyId, tenantToDelete.address, {
-        gasLimit: gasLimit,
-        maxPriorityFeePerGas: maxPriorityFeePerGas,
-        maxFeePerGas: maxFeePerGas
-      })
+      const transaction = await contract.evictTennant(property.propertyId, tenantToDelete.address)
       setTxLoadingState3({ ...txloadingState3, [i]: false });
       setTxLoadingState3B({ ...txloadingState3B, [i]: true });
       await transaction.wait()

@@ -2,8 +2,8 @@ const { ethers } = require("hardhat");
 const fs = require('fs');
 
 async function main() {
-  const deployingAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-  //const deployingAddress = "0xa2Fe6EB40BE5768d929c0ef13dF6936522348067";
+  //const deployingAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const deployingAddress = "0x211F1b957C16C0a04b1363D9F569bBFeeb311981";
   const deployingSigner = (await ethers.getSigners())[0]; // Access the first signer
 
   console.log("Deploying signer:", deployingSigner);
@@ -43,7 +43,6 @@ async function main() {
   await nft.setDeployingAddress(deployingAddress);
 
   const tx2 = await propertyMarket.deployTokenContract();
-  console.log('whats this ', tx2)
   await tx2.wait();
 
   const tokenContractAddress = await propertyMarket.getTokenContractAddress();

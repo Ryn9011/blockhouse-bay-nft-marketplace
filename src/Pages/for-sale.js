@@ -224,41 +224,12 @@ const ForSale = () => {
         }
       }
 
-      let gasLimit;
-      console.log('here price?:', price.toString());
-      try {
-        gasLimit = await contract2.createPropertySale.estimateGas(
-          nftaddress,
-          nft.propertyId,
-          propertytokenaddress,
-          isTokenSale,
-          {
-            value: price.toString(),
-          }
-        );
-      } catch (ex) {
-        console.log('Error:', ex);
-      }
-
-      gasLimit = gasLimit + 100000n;
-
-      const feeData = await provider.getFeeData();
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
-
       console.log('price', typeof (price))
       const transaction = await contract2.createPropertySale(
         nftaddress,
         nft.propertyId,
         propertytokenaddress,
-        isTokenSale,
-        {
-          value: price.toString(),
-          gasLimit: gasLimit,
-          maxFeePerGas: maxFeePerGas.toString(),
-          maxPriorityFeePerGas: maxPriorityFeePerGas.toString()
-        }
+        isTokenSale
       );
 
       if (document.getElementById("pogRadio" + i) != undefined) {

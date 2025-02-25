@@ -17,7 +17,7 @@ contract GovtFunctions is ReentrancyGuard {
     address private _govtAddress;
     bool private hasSetGovtAddress = false;
     uint256 constant WEI_TO_ETH = 1000000000000000000;   
-    uint256 internal constant MIN_DEPOSIT = 3 ether;       
+    uint256 internal constant MIN_DEPOSIT = 0.001 ether;       
     uint256 public totalDepositBal = 0;
     uint256 propertiesWithRenterCount = 0;
     mapping(address => uint256) public rentAccumulated;

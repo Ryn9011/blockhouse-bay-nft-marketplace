@@ -47,7 +47,7 @@ const mainnet = {
   name: 'Mainnet',
   currency: 'MATIC',
   explorerUrl: 'https://polygonscan.com',
-  rpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/demo/q0VzLCMyDnSw-0A2hC_AofLEmPEaQ6y-'
+  rpcUrl: 'https://polygon-mainnet.g.alchemy.com/v2/q0VzLCMyDnSw-0A2hC_AofLEmPEaQ6y-'
 }
 
 const metadata = {
@@ -68,7 +68,7 @@ const ethersConfig = defaultConfig({
 
 const modal = createWeb3Modal({
   ethersConfig,
-  chains: [amoy],
+  chains: [mainnet],
   projectId,
   enableAnalytics: true,
   tokens: {

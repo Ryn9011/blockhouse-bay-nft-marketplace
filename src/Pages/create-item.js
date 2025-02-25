@@ -288,16 +288,19 @@ const CreateItem = () => {
     for (let i = 0; i < numBatches && i * batchSize < urisn.length; i++) {
       const batch = urisn.slice(i * batchSize, (i + 1) * batchSize);
       // Estimate the gas required for the transaction
-      const gasLimit = await contract.createTokens.estimateGas(batch);          
+      const gasLimit = await contract.createTokens.estimateGas(batch);    
+      console.log('Estimated Gas Limit:', gasLimit.toString());      
       const feeData = await provider.getFeeData();      
       const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
       const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
 
       const transaction = await contract.createTokens(batch ,{
         gasLimit: gasLimit,
-        maxPriorityFeePerGas: maxPriorityFeePerGas,
-        maxFeePerGas: maxFeePerGas
+        // maxPriorityFeePerGas: maxPriorityFeePerGas,
+        // maxFeePerGas: maxFeePerGas
       });
+
+      console.log('does get past create tx')
 
       const receipt = await transaction.wait();
       console.log(receipt.logs)

@@ -290,26 +290,11 @@ const Renting = () => {
       setTxLoadingState1({ ...txloadingState1, [i]: true });
       const amount = property.rentPrice.toString();
 
-      console.log('Amount: ', amount)
-
-      let gasLimit = await govtContract.payRent.estimateGas(property.propertyId, {
-        value: amount
-      });
-
-      gasLimit = gasLimit + 300000n;
-
-      const feeData = await provider.getFeeData();
-
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas          
+               
 
       const transaction = await govtContract.payRent(
         property.propertyId,
-        {
-          gasLimit,
-          maxFeePerGas,
-          maxPriorityFeePerGas,
+        {         
           value: amount
         }
       )
@@ -328,24 +313,9 @@ const Renting = () => {
   const CollectTokens = async () => {
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     try {
-
-      let gasLimit = await contract.withdrawERC20.estimateGas();
-
-      gasLimit = gasLimit + 300000n;
-
-      const feeData = await provider.getFeeData();
-
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas  
-
       setTxLoadingState({ ...txloadingState, [551]: true });
 
-      const transaction = await contract.withdrawERC20({
-        gasLimit,
-        maxFeePerGas,
-        maxPriorityFeePerGas
-      })
+      const transaction = await contract.withdrawERC20()
       setTxLoadingState({ ...txloadingState, [551]: false });
 
       setTxLoadingStateB({ ...txloadingStateB, [551]: true });
