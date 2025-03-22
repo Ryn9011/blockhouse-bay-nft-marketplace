@@ -32,7 +32,7 @@ if (window.ethereum) {
 const PropertyView = () => {
 
   const { propertyId } = useParams();
-  console.log(propertyId)
+  // console.log(propertyId)
   const [loadingState, setLoadingState] = useState('not-loaded')
   const [numForSale, setNumForSale] = useState();
   const [property, setProperty] = useState();
@@ -58,7 +58,7 @@ const PropertyView = () => {
     const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
     const data = await govtContract.fetchSingleProperty(propertyId)
     const numForSale = await govtContract.getPropertiesForSale();
-    console.log(data)
+    // console.log(data)
     setNumForSale(Number(numForSale));
 
     const tokenUri = await tokenContract.tokenURI(data.tokenId)
@@ -71,12 +71,12 @@ const PropertyView = () => {
 
     const targetId = parts.slice(3).join('/');
 
-    console.log(Number(data.propertyId))
+    // console.log(Number(data.propertyId))
     var nftName = GetPropertyNames(meta, Number(data.propertyId));
     let price = ethers.formatUnits(data.salePrice.toString(), 'ether')
     let tokenSalePriceFormatted = ethers.formatUnits(data.tokenSalePrice.toString(), 'ether')
     const renterAddresses = await marketContract.getPropertyRenters(Number(data.propertyId));
-    console.log(renterAddresses)
+    
     let saleHistory = [];
     if (data.saleHistory.length > 0) {
       data.saleHistory.forEach((item) => {
@@ -92,7 +92,7 @@ const PropertyView = () => {
       saleHistory.push("Unsold")
     }
     let owner = data.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : data.owner
-    console.log('owner', owner)
+    // console.log('owner', owner)
     let rentPrice = await ethers.formatUnits(data.rentPrice.toString(), 'ether')
     let totalIncomeGenerated = ethers.formatUnits(data.totalIncomeGenerated)
 
@@ -183,7 +183,6 @@ const PropertyView = () => {
 
       gasLimit = gasLimit + 100000n;
 
-      console.log('does get here?')
 
       const feeData = await provider.getFeeData();
       const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
@@ -229,7 +228,7 @@ const PropertyView = () => {
 
   const rentProperty = async (property) => {
     try {
-      console.log('id ', property.propertyId)
+      
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
       const deposit = Number(property.depositHex).toString() //await await govtContract.getDepositRequired();
@@ -252,7 +251,7 @@ const PropertyView = () => {
       const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
       const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
-      console.log('before tx')
+      
 
       const transaction = await govtContract.rentProperty(property.propertyId, {
         value: Number(property.depositHex).toString(),
@@ -265,7 +264,7 @@ const PropertyView = () => {
       setTxLoadingState2B(true);
       let trans = await transaction.wait();
       setLoadingState(false)
-      console.log(trans)
+      
       loadProperties()
     } catch (error) {
       setTxLoadingState2(false);
@@ -334,7 +333,7 @@ const PropertyView = () => {
               key={property.propertyId}
               className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
             >
-              {console.log(property.propertyId + " hit")}
+              
               <img className='w-fit h-fit' src={property.image} alt="" />
               <div className="p-4">
                 <p
@@ -368,7 +367,7 @@ const PropertyView = () => {
                   </div>
                   <p>Tenants:</p>
                   <div className='text-[10px] mb-3 text-green-400 font-mono'>
-                    {console.log(property.renterAddresses[0])}
+                    
                     {ethers.formatEther(property.renterAddresses[0]) !== "0.0" ?
                       <>
                         <div className='flex items-center justify-between mb-2'>

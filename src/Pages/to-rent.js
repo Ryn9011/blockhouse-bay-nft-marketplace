@@ -36,8 +36,8 @@ const ToRent = () => {
 
 
   useEffect(() => {
-    console.log(provider);
-    console.log(signer);
+    // console.log(provider);
+    // console.log(signer);
     setLoadingState('not-loaded');
     if (signer == null) {      
       
@@ -54,15 +54,15 @@ const ToRent = () => {
       const tokenContract = new Contract(nftaddress, NFT.abi, provider)
       const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, provider) 
       //const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
-      console.log(marketContract.address)
+      
       const data = await marketContract.fetchPropertiesSold(currentPage) 
-      console.log('data: ',data)
+      
 
       let propetiesSold = Number(await marketContract.getPropertiesSold());
       const relistCount = Number(await marketContract.getRelistCount());
 
       const numForRent = propetiesSold + relistCount
-      console.log('numForRent: ',numForRent)
+      
 
       const currentPageNumItems = numForRent - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
@@ -84,17 +84,17 @@ const ToRent = () => {
         let depositHex = i.deposit//await govtContract.getDepositRequired();
         let deposit = formatUnits(depositHex, 'ether')
        
-        console.log('deposit: ',deposit)
+        
         const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
-        console.log('renterAddresses: ',renterAddresses)
+        
 
       //call getTennantsMapping with address of user to get the propertyIds they are renting
         let renters = await marketContract.getTenantsMapping(address);
-        console.log('renters: ',renters)
+        
 
 
         let saleHistory = [];
-        console.log(Number(i.propertyId))
+        
         
         if (i.saleHistory.length > 0) {
           i.saleHistory.forEach((item) => {
@@ -106,7 +106,7 @@ const ToRent = () => {
             });
             saleHistory = history;
           })
-          console.log(saleHistory)
+          
 
         } else {
           saleHistory.push("Unsold")
@@ -143,23 +143,23 @@ const ToRent = () => {
           item.available = true;
         }
         if (item.roomOneRented == true) {
-          console.log('roomOneRented')
+          
           item.roomsRented++
         }
         if (item.roomTwoRented == true) {
-          console.log('roomTwoRented')
+          
           item.roomsRented++
         }
         if (item.roomThreeRented == true) {
-          console.log('roomThreeRented')
+          
           item.roomsRented++
         }
         if (item.roomFourRented == true) {
-          console.log('roomFourRented')
+          
           item.roomsRented++
         }
         if (item.roomsRented > 4) {
-          console.log('roomsRented: ',item.roomsRented)
+          
           setNumForRent(numForRent - 1)
         }
         return item
@@ -184,10 +184,10 @@ const ToRent = () => {
 
   const rentProperty = async (property, i) => {
     try {
-      console.log('propertyId: ', property.propertyId)
+      
       const govtContract = new Contract(govtaddress, GovtFunctions.abi, signer)  
       setTxLoadingState({ ...txloadingState, [i]: true }); 
-      console.log('property.depositHex: ', property.depositHex)  
+      
 
 
       const feeData = await provider.getFeeData();
@@ -351,7 +351,7 @@ const ToRent = () => {
                       </div> */}
                         <p>Tenants:</p>
                         <div className='text-[10px] mb-3 text-green-400 font-mono'>
-                          {console.log(property.renterAddresses[0])}
+                          
                           {ethers.formatEther(property.renterAddresses[0]) !== "0.0" ?
                             <>
                               <div className='flex items-center justify-between mb-2'>

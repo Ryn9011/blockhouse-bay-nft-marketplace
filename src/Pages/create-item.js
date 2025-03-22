@@ -1,4 +1,4 @@
-import { React, useState } from 'react';
+import { React, useEffect, useState } from 'react';
 import { useModalContext } from '../App'
 
 // import Web3Modal from 'web3modal'
@@ -44,13 +44,20 @@ const CreateItem = () => {
   const [govtBal, setGovtBal] = useState()
   const [amountToWithdrawBal, setAmountToWithdrawBal] = useState()
   const [contractBal, setContractBal] = useState()
+  const [connectedWalletAddress, setConnectedWalletAddress] = useState()
 
   // const filesTest = [
   //   { name: "property1.jpeg", path: "/Users/ryanjennings/Desktop/final/" },   
   //   { name: "property2.jpeg", path: "/Users/ryanjennings/Desktop/untitled folder 4/property2.jpeg" },   
   // ];
 
-  // let names =  ["105 Laurelwood Drive", "41 Riverdale Road"];
+  // let names =  ["105 Laurelwood Drive", "41 Riverdale Road"];  
+
+  useEffect(() => {       
+    if (signer)
+      setConnectedWalletAddress(signer.address)
+    }
+  , [signer])
     
   const initialise = async () => {
     await window.ethereum.enable()
@@ -433,6 +440,10 @@ const CreateItem = () => {
     await transaction.wait();
   }  
 
+  if (connectedWalletAddress !== '0xa2Fe6EB40BE5768d929c0ef13dF6936522348067') {
+    return (<div></div>)
+  }
+
   return (
     <>
       {balance && <p className='text-white'>{balance}</p>}
@@ -540,7 +551,6 @@ const CreateItem = () => {
         </div>
     </>
   )
-
 
 }
 

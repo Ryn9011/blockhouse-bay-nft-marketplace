@@ -43,8 +43,8 @@ const Exclusive = () => {
   const { modalEvent, provider, signer } = useModalContext();
 
   useEffect(() => {
-    console.log(provider);
-    console.log(signer);
+    // console.log(provider);
+    // console.log(signer);
     if (signer == null) {
 
       return;
@@ -61,7 +61,7 @@ const Exclusive = () => {
       const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
       const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
       const data = await govtContract.fetchExclusiveProperties();
-      console.log(data) 
+      // console.log(data) 
 
       const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
@@ -119,19 +119,19 @@ const Exclusive = () => {
           totalIncomeGenerated: totalIncomeGenerated
         }
         if (item.roomOneRented == true) {
-          console.log("hit1")
+          
           item.roomsToRent++
         }
         if (item.roomTwoRented == true) {
-          console.log("hit2")
+          
           item.roomsToRent++
         }
         if (item.roomThreeRented == true) {
-          console.log("hit3")
+          
           item.roomsToRent++
         }
         if (item.roomFourRented == true) {
-          console.log("hit4")
+          
           item.roomsToRent++
         }
         item.ranking = calculateRankingTotal(item)
@@ -141,7 +141,7 @@ const Exclusive = () => {
         setTxLoadingState2B({ ...txloadingState2B, [i]: false });
         return item
       }))
-      console.log(items)
+      // console.log(items)
       items.sort((a, b) => {
         const regex = /^\d+/; // regular expression to match the beginning number
         const aNumber = (a.name && a.name.match(regex)) ? parseInt(a.name.match(regex)[0]) : 0;
@@ -149,10 +149,10 @@ const Exclusive = () => {
         return aNumber - bNumber; // compare the numbers and return the result
       });
 
-      console.log(items);
+      // console.log(items);
 
       let properties = calculateRankingPosition(items);
-      console.log(properties)
+      
       setCurrentPosts(properties)
       setLoadingState('loaded')
     } catch (ex) {
@@ -170,7 +170,7 @@ const Exclusive = () => {
 
 
   const buyProperty = async (nft, i) => {
-    console.log('NFT: ',nft)
+    
     try {
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
       let isTokenSale = true
@@ -200,7 +200,7 @@ const Exclusive = () => {
         // }
       )
 
-      console.log('Transaction: ', transaction)
+      // console.log('Transaction: ', transaction)
 
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: true });

@@ -28,10 +28,10 @@ library RewardCalculator {
         } else if (rent >= 20) {
             baseReward = (rent * 7600) / 100000;
         } else if (rent >= 3) {
-            baseReward = (rent * 7500) / 100000;
+            baseReward = (rent * 5500) / 100000;
         } else {
-            //revert("Rent must be greater than or equal to 3");
-            baseReward = 5;
+            revert("Rent must be greater than or equal to 3");
+            //baseReward = 5;
         }
 
         // Debugging information
@@ -43,8 +43,8 @@ library RewardCalculator {
 
         // Debugging information
       //  console.log("RENT: ", rent);
-        console.log("REWARD: ", (adjustedReward * 100) / (10 ** 18));
-        console.log('REMAINING SUPPLY: ', currentSupply / (10 ** 18));
+        // console.log("REWARD: ", (adjustedReward * 100) / (10 ** 18));
+        // console.log('REMAINING SUPPLY: ', currentSupply / (10 ** 18));
  
         return adjustedReward * 100;
     }

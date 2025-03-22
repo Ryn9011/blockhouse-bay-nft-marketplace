@@ -153,7 +153,7 @@ const Owned = () => {
         //console.log(i)
         const tokenUri = await token.tokenURI(i.tokenId)
         
-        console.log('owner: ', i.owner)
+        // console.log('owner: ', i.owner)
 
         const meta = await axios.get(tokenUri)
 
@@ -317,42 +317,52 @@ const Owned = () => {
     }
   }
 
-  const SellProperty = async (property, i) => {
+  const SellProperty = async (property, i) => {    
     let tokenAmount = document.getElementById('tokenInput' + i).value
     tokenAmount = tokenAmount === "" ? 0 : tokenAmount
 
     const contract = new Contract(nftmarketaddress, Market.abi, signer);
 
     try {
+      
       setTxLoadingState2({ ...txloadingState2, [i]: true });
       const listingPrice = await contract.getListingPrice()
       //console.log('Listing price: ', listingPrice.toString())
       const nftContract = new Contract(nftaddress, NFT.abi, signer)
+      
       await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction      
-
-      const isExclusive = property.isExclusive
-
+      
+      const isExclusive = property.propertyId > 500 ? true : false
+      
       let maticAmount = !isExclusive ? document.getElementById('amountInput' + i).value : document.getElementById('tokenInput' + i).value
+      
       const priceFormatted = ethers.parseUnits(maticAmount, 'ether');
-
-      const transaction = await contract.sellProperty(
-        nftaddress,
-        property.tokenId,
-        property.propertyId,
-        priceFormatted,
-        tokenAmount,
-        isExclusive,
-        {           
-          value: listingPrice.toString()
-        }
-      )
-      setTxLoadingState2({ ...txloadingState2, [i]: false });
-      setTxLoadingState2B({ ...txloadingState2B, [i]: true });
-      await transaction.wait()
+      
+      try {  const transaction = await contract.sellProperty(
+          nftaddress,
+          property.tokenId,
+          property.propertyId,
+          priceFormatted,
+          tokenAmount,
+          isExclusive,
+          {           
+            value: listingPrice.toString()
+          }
+        )
+        setTxLoadingState2({ ...txloadingState2, [i]: false });
+        setTxLoadingState2B({ ...txloadingState2B, [i]: true });
+        
+        await transaction.wait()
+        // console.log('Transaction mined')
+      } catch (ex) {
+        console.log(ex)
+        alert(ex.message.substring(0, ex.message.indexOf('(')))
+      }
+      
     } catch (Ex) {
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2B({ ...txloadingState2B, [i]: true });
-      //console.log('Transaction failed')
+      console.log('Transaction failed')
     }
     loadProperties()
   }
@@ -918,7 +928,7 @@ const Owned = () => {
       }
     }
     catch (ex) {
-      //console.log(ex)
+      console.log(ex)
 
     }
   }

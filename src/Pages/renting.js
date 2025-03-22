@@ -69,8 +69,8 @@ const Renting = () => {
 
 
   useEffect(() => {
-    console.log(provider);
-    console.log(signer);
+    // console.log(provider);
+    // console.log(signer);
     if (signer == null) {
 
       return;
@@ -95,8 +95,8 @@ const Renting = () => {
   // }, [modalEvent]);
 
   const CheckTimestampExpired = (property, connectedAddress) => {
-    console.log(property)
-    console.log(connectedAddress)
+    // console.log(property)
+    // console.log(connectedAddress)
     if (property.payments === undefined) {
 
       return true;
@@ -105,17 +105,17 @@ const Renting = () => {
     const allTimestampsZero = property.payments.every(payment => {
       const timestamp = payment[2];
 
-      console.log('timestamp ', Number(timestamp))
+      // console.log('timestamp ', Number(timestamp))
       return timestamp == 0 || timestamp === '0x00';
     });
 
-    console.log('allTimestampsZero ', allTimestampsZero)
+    // console.log('allTimestampsZero ', allTimestampsZero)
 
     if (allTimestampsZero) {
       return true;
     }
-    console.log(property.payments)
-    console.log(property.payments[0].propertyId)
+    // console.log(property.payments)
+    // console.log(property.payments[0].propertyId)
 
     // problem is it bypasses the first check as payments array exists but only for another renter
     // const currentObject = property.payments.filter(a => Number(a.propertyId) == Number(property.propertyId) && a.renter == connectedAddress)[0] 
@@ -133,7 +133,7 @@ const Renting = () => {
 
 
 
-    console.log(currentObject)
+    
     // console.log(ethers.BigNumber.from(currentObject.timestamp.toNumber())).toNumber()
     const twentyFourHoursInMillis = 700 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
     const currentTimeInMillis = Math.floor(Date.now() / 1000);
@@ -141,16 +141,16 @@ const Renting = () => {
     if (currentObject === undefined) {
       return true;
     }
-    console.log(currentObject)
+    
     // console.log(currentTimeInMillis)
     // console.log(currentTimeInMillis - (currentObject.timestamp.toNumber()))
 
     if ((currentTimeInMillis - (Number(currentObject.timestamp))) > twentyFourHoursInMillis) {
-      console.log("true")
+      
       // setRentText('Rent overdue')
       return true
     } else {
-      console.log("false")
+      
       // setRentText('Rent up to date')
       return false
     }
@@ -158,7 +158,7 @@ const Renting = () => {
 
   const loadProperties = async (i) => {
     try {
-      console.log('Retries: ', retries)
+      
       if (exceptionCount === 0) {
         return;
       }
@@ -173,7 +173,7 @@ const Renting = () => {
         throw Error('User disconnected')
       }
 
-      console.log(address)
+      
       setConnectedAddress(address);
 
       const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
@@ -183,15 +183,15 @@ const Renting = () => {
       setTokenAddress(tokenContractAddress);
 
       const data = await marketContract.fetchMyRentals()
-      console.log(data)
+      
 
       const tokensHex = await marketContract.getTokensEarned()
       const tokens = ethers.formatUnits(tokensHex.toString(), 'ether')
-      console.log(tokens)
+      
       setRenterTokens(tokens);
 
       let dataFiltered = data.filter(a => Number(a.propertyId) !== 0)
-      console.log(dataFiltered)
+      
       const propertyIds = [];
 
       for (let i = 0; i < data.length; i++) {
@@ -202,7 +202,7 @@ const Renting = () => {
       // const renters = await marketContract.getPropertyPayments(propertyIds);
       // console.log(renters)
       // setRenterTimestamps(renters)      
-      console.log(renterTimestamps)
+      
       const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
 
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
@@ -235,9 +235,9 @@ const Renting = () => {
           deposit: deposit,
         }
 
-        console.log(dataFiltered)
+        
         item.rentStatus = CheckTimestampExpired(item, address)
-        console.log(item.rentStatus)
+        
 
         if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented) {
           item.available = true;
@@ -264,7 +264,7 @@ const Renting = () => {
       setTxLoadingState2({ ...txloadingState2B, [i]: false });
       if (ex.message === 'User Rejected') {
         // Handle user rejection
-        console.log('Connection request rejected by the user.');
+        
         // Display an error message to the user        
         if (retries > 0) {
           setRetries(retries - 1);
@@ -342,7 +342,7 @@ const Renting = () => {
     } catch (ex) {
       alert('Transaction Failed')
     }
-    console.log(rentedProperties.length)
+    
     loadProperties()
   }
 

@@ -38,8 +38,8 @@ const AllProperties = () => {
 
   
   useEffect(() => {
-    console.log(provider);
-    console.log(signer);
+    //console.log(provider);
+    //console.log(signer);
     setLoadingState('not-loaded');
     if (signer == null) {
 
@@ -69,7 +69,7 @@ const AllProperties = () => {
           }
 
           const meta = await axios.get(tokenUri)
-          console.log(data)
+          //console.log(data)
           let nftName = GetPropertyNames(meta)
 
           let price = await ethers.formatUnits(i.salePrice.toString(), 'ether')

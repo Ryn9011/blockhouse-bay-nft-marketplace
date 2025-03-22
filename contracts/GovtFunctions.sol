@@ -17,7 +17,7 @@ contract GovtFunctions is ReentrancyGuard {
     address private _govtAddress;
     bool private hasSetGovtAddress = false;
     uint256 constant WEI_TO_ETH = 1000000000000000000;   
-    uint256 internal constant MIN_DEPOSIT = 0.001 ether;       
+    uint256 internal minDeposit = 30 ether;       
     uint256 public totalDepositBal = 0;
     uint256 propertiesWithRenterCount = 0;
     mapping(address => uint256) public rentAccumulated;
@@ -61,6 +61,10 @@ contract GovtFunctions is ReentrancyGuard {
             _govtAddress = govtAddress;
             hasSetGovtAddress = true;
         }
+    }
+
+    function setDepoitMin(uint256 minDepositVal) public onlyGovt {
+        minDeposit = minDepositVal;
     }
 
     function getBalance() public view returns (uint256) {
@@ -138,7 +142,7 @@ contract GovtFunctions is ReentrancyGuard {
         
         require(property[0].owner == msg.sender, "Not owner");
         require(rentPrice >= 3 ether, "Rent can't be less than 3 pol");
-        require(rentPrice >= property[0].deposit && rentPrice <= 50 ether, "Rent cannot exceed 50 pol");
+        require(rentPrice >= property[0].deposit && rentPrice <= 60 ether, "Rent cannot exceed 60 pol");
                 
         uint256 lastSaleIndex = property[0].dateSoldHistory.length - 1;
         uint256 lastSaleTime = property[0].dateSoldHistory[lastSaleIndex];
@@ -154,7 +158,7 @@ contract GovtFunctions is ReentrancyGuard {
         propertyIds[0] = propertyId;
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
         
-        require(depositPrice >= MIN_DEPOSIT, "deposit can't be less than 3 pol");
+        require(depositPrice >= minDeposit, "deposit can't be less than 3 pol");
         require(property[0].owner == msg.sender, "Not owner");
         require(depositPrice >= property[0].deposit && depositPrice <= 500 ether, "Invalid deposit price range");
 
@@ -376,9 +380,10 @@ contract GovtFunctions is ReentrancyGuard {
 
         uint256 rentTime = propertyMarketContract.getRenterToPropertyTimestamp(propertyId, msg.sender);
 
-        // require(
-        //     (block.timestamp - rentTime) > 600, "can't pay rent more than once in 24hrs" //change this!!!!
-        // );
+        require(
+            (block.timestamp - rentTime) > 172800,
+            "Can't pay rent more than once in 48hrs"
+        );
 
         uint256[4][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
    

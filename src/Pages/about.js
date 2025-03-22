@@ -89,7 +89,7 @@ const About = () => {
   const iconColor = "grey"
 
   useMemo(() => {
-    console.log(currentImageNum, ' ', ownedImageSrc)
+    // console.log(currentImageNum, ' ', ownedImageSrc)
 
     if (currentImageNum === 1) {
       setOwnedImageSrc(imgSrcs[1])
@@ -111,7 +111,7 @@ const About = () => {
   };
 
   useEffect(() => {
-    console.log(section)
+    // console.log(section)
     if (section === "nft") {
       setExpanded("default")
       setDefaultExpanded(true)
@@ -487,61 +487,47 @@ const About = () => {
                     <div className="xl:hidden flex justify-center">
                       <img src="exc2.png" className="mt-4" alt="buy/sell/rent" />
                     </div>
+
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Platform Launch <span className="not-italic">✅</span></p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
                       Launch the Blockhouse Bay platform and introduce users to the world of Web3 real estate. The platform will be fully functional, allowing users to buy, sell, and rent properties using POL and BHB tokens.
                     </p>
 
-                    <p className="text-white text-xl xl3:text-xl italic mt-4">PreSale & Marketing Campaign</p>
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">Early Adopter Giveaway & Marketing Campaign</p>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">This is where Blockhouse Bay differs from the rest.</p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      This is the part where Blockhouse Bay differs from the rest.
-                    </p>
-                    <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      Instead of just asking you to buy our tokens, we're giving you the opportunity to earn them and make some money along the way through playing the
-                      Blockhouse Bay Web3 real estate simulation.
+                      Instead of just asking you to buy our tokens, we're giving you the opportunity to earn them and make money along the way through playing the Blockhouse Bay Web3 real estate simulation.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
                       A limited number of early adopters will be rewarded with a free Blockhouse Bay property of their choice from the properties available. This initiative allows the platform to demonstrate its ability to create value without requiring anyone to make a property purchase upfront.
                     </p>
-                    <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      The revenue collected from the platform will be used to expand
-                    </p>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">The revenue collected from the platform will be used to expand.</p>
+
                     <p className="text-white text-xl xl3:text-xl italic mt-4">List BHB on Exchanges</p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      The end goal is of course to have BHB listed on several tier 1 exchanges, but we will start with a few smaller exchanges to get the ball rolling ASAP
+                      We would love to have BHB listed on several tier 1 exchanges, but we will start with a few smaller exchanges to get the ball rolling ASAP.
                     </p>
 
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Community Building</p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      Building a thriving community is at the heart of our mission.
-                      We're dedicated to creating an engaged, collaborative space where users shape the
-                      future of our platform together. Through events, forums, and social channels, we’ll
-                      grow a network that empowers and rewards active participation in the Blockhouse Bay platform.
+                      Building a thriving community is at the heart of our mission. We're dedicated to creating an engaged, collaborative space where users shape the future of our platform together. Through events, forums, and social channels, we’ll grow a network that empowers and rewards active participation in the Blockhouse Bay platform.
                     </p>
-                    <p className="text-white text-xl xl3:text-xl italic mt-4">DeFi Integration</p>
+
+                    <p className="text-white text-xl xl3:text-xl italic mt-4">Beyond the Roadmap: A Transparent Approach</p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      At the heart of our vision lies the ambition to expand the BHB token into the decentralized finance (DeFi) ecosystem.
-                      This initiative will unlock new opportunities for token holders, transforming BHB from just a reward token into a
-                      versatile financial tool. Our strategy focuses on two key areas:
+                      Unlike many projects that overpromise and underdeliver, we’re not here to hype Blockhouse Bay into something it isn’t. There’s no grand, unrealistic vision of a "metaverse empire" or billion-dollar ecosystem.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      <strong className="text-white">1. Yield Partnerships with Leading DeFi Platforms:</strong>
-                      We aim to collaborate with prominent DeFi platforms like Aave on the Polygon network, enabling BHB holders to lend,
-                      borrow, and earn interest. By integrating BHB into such platforms, we empower holders to grow their token holdings or
-                      leverage them as collateral, boosting utility and liquidity across the ecosystem.
+                      Our long-term goal is simple: build the brand, strengthen the token, and let the platform’s value grow organically.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      <strong className="text-white">2. Liquidity Pools on Decentralized Exchanges (DEXs):</strong>
-                      To enhance tradeability and market access, we plan to establish liquidity pools on decentralized exchanges like
-                      QuickSwap (Polygon’s primary DEX) or UniSwap. This will allow users to trade BHB tokens seamlessly while fostering
-                      a vibrant market and strengthening liquidity.
+                      Rather than making empty promises or quick cash grabs, we’re committed to letting Blockhouse Bay evolve naturally based on community interest and real adoption.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      By bridging BHB into DeFi, we ensure that earning tokens is not just enjoyable but also meaningful, unlocking the
-                      token’s potential to deliver real financial value. This integration underlines our commitment to driving long-term
-                      growth and utility for our community.
+                      If we reach a point where scaling makes sense, we’ll do it the right way—by reinvesting into the platform, not by selling you a dream.
                     </p>
                   </li>
+
                 </ul>
               </div>
 
@@ -571,7 +557,10 @@ const About = () => {
                     <h3 className="text-2xl font-semibold text-yellow-200 mt-0">Buying</h3>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Availability</p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      There are a total of 500 standard properties and 50 exclusive properties available for purchase. Each property is represented by a pre minted non-fungible token (NFT).
+                      There are a total of 500 standard properties and 50 exclusive properties available for purchase. Each property is represented by a pre-minted non-fungible token (NFT).
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">
+                      Initally all properties are owned by BlockHouse Bay and will show the platform's address as as the owner. As properties are sold, the ownership will be transferred to the buyer.
                     </p>
                     <p className="text-white text-xl xl3:text-xl italic mt-4">Payment Options</p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">

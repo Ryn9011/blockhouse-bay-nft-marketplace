@@ -62,10 +62,10 @@ contract PropertyMarket is ReentrancyGuard {
     address payable immutable i_govt;
     address payable i_govtContract;
     bool public govtContractSet = false;    
-    uint256 public constant LISTING_PRICE = 0.001 ether;
-    uint256 public constant INITIAL_SALE_PRICE = 0.001 ether;
-    uint256 constant INITIAL_TOKEN_PRICE = 1 ether;
-    uint256 constant INITIAL_EXCLUSIVE_PRICE = 1 ether;    
+    uint256 public LISTING_PRICE = 20 ether;
+    uint256 public constant INITIAL_SALE_PRICE = 650 ether;
+    uint256 constant INITIAL_TOKEN_PRICE = 20000 ether;
+    uint256 constant INITIAL_EXCLUSIVE_PRICE = 100000 ether;    
     uint256 constant INITIAL_MINT = 100000000 * (10 ** 18);
     uint256 tokenMaxSupply = INITIAL_MINT;    
 
@@ -144,6 +144,10 @@ contract PropertyMarket is ReentrancyGuard {
 
     function getMaxSupply() public view returns (uint256) {
         return tokenMaxSupply;
+    }
+
+    function setListingPrice(uint256 price) public onlyGovt (uint256) {
+        listingPrice = price;
     }
 
     function setMaxSupply(uint256 amount) public onlyGovtContract {
@@ -516,8 +520,8 @@ contract PropertyMarket is ReentrancyGuard {
             listing.propertyId = tokenId;
             listing.nftContract = nftContract;
             listing.tokenId = tokenId;
-            listing.rentPrice = 0.001 ether;
-            listing.deposit = 0.001 ether;
+            listing.rentPrice = 10 ether;
+            listing.deposit = 30 ether;
             listing.seller = payable(msg.sender);
             listing.owner = payable(i_govt);
             listing.isForSale = true;

@@ -48,8 +48,8 @@ const ForSale = () => {
 
 
   useEffect(() => {
-    console.log(provider);
-    console.log(signer);
+    // console.log(provider);
+    // console.log(signer);
     setLoadingState('not-loaded');
     if (signer == null) {
 
@@ -74,7 +74,7 @@ const ForSale = () => {
       const tokenContract = new Contract(nftaddress, NFT.abi, provider);
 
       const data = await marketContract.fetchPropertiesForSale(currentPage, onlyWithRentals)
-      console.log(data)
+      // console.log(data)
       const numForSale = Number(await govtContract.getPropertiesForSale());
       const rentedPropertyCount = Number(await govtContract.getRentedProperties());
 
@@ -107,7 +107,7 @@ const ForSale = () => {
         }
 
         if (i.propertyId == 2) {
-          console.log('THIS ONE:', i)
+    
         }
 
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
@@ -129,7 +129,7 @@ const ForSale = () => {
         let owner = i.owner === '0x0000000000000000000000000000000000000000' ? 'Unowned' : i.owner
         let rentPrice = await ethers.formatUnits(i.rentPrice.toString(), 'ether')
         let totalIncomeGenerated = ethers.formatUnits(i.totalIncomeGenerated)
-        console.log(typeof (i.propertyId))
+        // console.log(typeof (i.propertyId))
 
         //let tokenSalePriceFormatted = ethers.formatUnits(hexTokenPrice, 'ether')
         let item = {
@@ -187,9 +187,9 @@ const ForSale = () => {
   }
 
   const handleOnlyRentals = (e) => {
-    console.log('rentedPropertyCount:', e);
+    // console.log('rentedPropertyCount:', e);
     const showBottomNav = rentedPropertyCount > 12 ? true : false
-    console.log('showBottomNav:', showBottomNav);
+
     setShowBottomNav(showBottomNav);
     setOnlyWithRentals(e);
   };
@@ -206,8 +206,8 @@ const ForSale = () => {
       let price = ethers.parseUnits(nft.price.toString());
 
       const bigIntValue = BigInt(price);
-      console.log('bigIntValue:', Number(bigIntValue));
-      console.log('price:', Number(price));
+      // console.log('bigIntValue:', Number(bigIntValue));
+      // console.log('price:', Number(price));
       let isTokenSale = false;
 
       let propertyTokenContract = undefined;
@@ -224,7 +224,7 @@ const ForSale = () => {
         }
       }
 
-      console.log('price', typeof (price))
+      // console.log('price', typeof (price))
       const transaction = await contract2.createPropertySale(
         nftaddress,
         nft.propertyId,
