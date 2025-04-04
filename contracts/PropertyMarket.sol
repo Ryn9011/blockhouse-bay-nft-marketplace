@@ -62,7 +62,7 @@ contract PropertyMarket is ReentrancyGuard {
     address payable immutable i_govt;
     address payable i_govtContract;
     bool public govtContractSet = false;    
-    uint256 public LISTING_PRICE = 20 ether;
+    uint256 public listingPrice = 20 ether;
     uint256 public constant INITIAL_SALE_PRICE = 650 ether;
     uint256 constant INITIAL_TOKEN_PRICE = 20000 ether;
     uint256 constant INITIAL_EXCLUSIVE_PRICE = 100000 ether;    
@@ -138,15 +138,15 @@ contract PropertyMarket is ReentrancyGuard {
 
     receive() external payable {}
 
-    function getListingPrice() public pure returns (uint256) {
-        return LISTING_PRICE;
+    function getListingPrice() public returns (uint256) {
+        return listingPrice;
     }
 
     function getMaxSupply() public view returns (uint256) {
         return tokenMaxSupply;
     }
 
-    function setListingPrice(uint256 price) public onlyGovt (uint256) {
+    function setListingPrice(uint256 price) public onlyGovt {
         listingPrice = price;
     }
 
@@ -460,7 +460,7 @@ contract PropertyMarket is ReentrancyGuard {
         Property storage property = idToProperty[propertyId];
         
         require(property.owner == msg.sender, "");        
-        require(msg.value == LISTING_PRICE, "");
+        require(msg.value == listingPrice, "");
         require(!property.isForSale, "");
         
         if (isExclusive) {

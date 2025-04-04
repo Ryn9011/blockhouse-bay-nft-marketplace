@@ -306,7 +306,7 @@ const PropertyView = () => {
     <div className=" pb-10">
 
       <div className="flex justify-center">
-        <div className="px-3 mx-3 md:mx-0 md:px-6 pb-6 bg-black" style={{ maxWidth: "450px" }}>
+        <div className="px-3 mx-3 md:mx-0 md:px-6 pb-6 rounded-lg bg-gray-900" style={{ maxWidth: "450px" }}>
 
           {/* <p className="text-4xl xl3:text-5xl font-bold mb-6 text-white">{property.name}</p> */}
           <div className="flex text-white pl-4">

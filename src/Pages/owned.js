@@ -1317,7 +1317,7 @@ const Owned = () => {
                                   <div className="pr-1">Cancel Sale</div>
                                   <div className="mb-1 relative">
                                     <div className="relative flex flex-col items-center group">
-                                      <Link to="/about?section=renting" target='new'>
+                                      <Link to="/about?section=owning" target='new'>
                                         <svg
                                           className="w-4 h-4 text-white"
                                           xmlns="http://www.w3.org/2000/svg"

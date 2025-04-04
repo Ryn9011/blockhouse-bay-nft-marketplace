@@ -46,6 +46,9 @@ const CreateItem = () => {
   const [contractBal, setContractBal] = useState()
   const [connectedWalletAddress, setConnectedWalletAddress] = useState()
 
+  const [listingPrice, setListingPrice] = useState();
+  const [minDepositPrice, setMinDepositPrice] = useState();
+
   // const filesTest = [
   //   { name: "property1.jpeg", path: "/Users/ryanjennings/Desktop/final/" },   
   //   { name: "property2.jpeg", path: "/Users/ryanjennings/Desktop/untitled folder 4/property2.jpeg" },   
@@ -277,6 +280,18 @@ const CreateItem = () => {
     console.log('maxSupply: ', maxSupply)
   }
 
+  const handleListingPriceChange = async () => {
+    const contract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    const transaction = await contract.setListingPrice(listingPrice)
+    await transaction.wait()
+  }
+
+  const handleMinDepositPriceChange = async () => {
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
+    const transaction = await contract.setMinDepositPrice(minDepositPrice)
+    await transaction.wait()
+  }
+
 
   const createSale = async () => {   
 
@@ -440,7 +455,7 @@ const CreateItem = () => {
     await transaction.wait();
   }  
 
-  if (connectedWalletAddress !== '0xa2Fe6EB40BE5768d929c0ef13dF6936522348067') {
+  if (connectedWalletAddress !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266') {
     return (<div></div>)
   }
 
@@ -547,6 +562,16 @@ const CreateItem = () => {
                 <button onClick={getTokenBalanceMaxSupply} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
                     Get Token Balance Max Supply
                 </button>
+                <button onClick={handleListingPriceChange} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                  Set Listing Price
+                </button>
+                <input className='mt-3' onChange={(e) => setListingPrice(e.target.value)} />
+            
+                <button onClick={handleMinDepositPriceChange} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                  Set Min Deposit Price
+                </button>
+                <input input className='my-3' onChange={(e) => setMinDepositPrice(e.target.value)} />
+
             </div>
         </div>
     </>

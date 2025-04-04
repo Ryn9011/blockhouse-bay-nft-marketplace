@@ -280,15 +280,15 @@ contract GovtFunctions is ReentrancyGuard {
         //need to check id property is already rented by another renter and if not, increment  propertiesWithRenterCount
         bool isAlreadyRented = false;
         for (uint i = 0; i < 4; i++) {
+            // user already a renter
             if (propertyRenters[i] == msg.sender) {
-                break;
+                isAlreadyRenter = true;
             } 
+            // property full up
             if (propertyRenters[i] == address(0)) {
                 isAlreadyRented = false;               
-            } else {
-                isAlreadyRented = true;
             }
-
+            // user already rented 4 properties
             if (tennants[0][i] == 0) {
                 maxRentalsReached = false;
             }
@@ -380,10 +380,10 @@ contract GovtFunctions is ReentrancyGuard {
 
         uint256 rentTime = propertyMarketContract.getRenterToPropertyTimestamp(propertyId, msg.sender);
 
-        require(
-            (block.timestamp - rentTime) > 172800,
-            "Can't pay rent more than once in 48hrs"
-        );
+        // require(
+        //     (block.timestamp - rentTime) > 172800,
+        //     "Can't pay rent more than once in 48hrs"
+        // );
 
         uint256[4][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
    

@@ -194,9 +194,10 @@ const About = () => {
                     </div>
                     <div className="text-white text-xl xl3:text-xl italic mt-3 flex justify-start items-center">
                       <div>What is BlockHouse Bay?</div>
-                      <span className=" scale-90 border border-1 hover:cursor-pointer rounded-full bg-blue-700 hover:bg-blue-600 border-blue-700 p-2 pt-1 ml-3" onClick={handleModalOpen}>
+                      <span className=" scale-90 border border-1 hover:cursor-pointer rounded-lg bg-blue-700 hover:bg-blue-600 border-blue-700 p-2 pt-1 ml-3" onClick={handleModalOpen}>
                         <ArticleIcon className="brightness-150 hover:cursor-pointer" />
                       </span>
+                      <a href="https://x.com/BlockhouseBayio" target="new"><img src="logo-white.png" className='w-9 h-9 ml-4 p-1' alt="https://x.com/BlockhouseBayio" /></a>
                     </div>
                     <p className="mt-0 text-gray-400 pl-2 mr-4 mt-1">Let’s address the big question right away: Is Blockhouse Bay a scam? No, it isn’t. But we’re also not going to pretend it’s some groundbreaking, world-changing project. We’re a small team from New Zealand with realistic goals, focused on delivering a creative and fun platform to build our token</p>
 
@@ -367,7 +368,7 @@ const About = () => {
                               </p>
                             </section>
 
-                            <section className="mb-8 text-sm md:text-base">
+                            {/* <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Future Goals for BHB Token</h2>
 
                               <h3 className="text-xl font-medium mt-6 mb-4">
@@ -384,7 +385,7 @@ const About = () => {
                               <p>
                                 Collaborating with other virtual worlds, gaming platforms, or NFT marketplaces to extend the utility of BHB tokens beyond Blockhouse Bay.
                               </p>
-                            </section>
+                            </section> */}
 
                             <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Disclaimer</h2>
@@ -424,7 +425,7 @@ const About = () => {
                         <div className="flex justify-center items-center mt-4 text-sm italic">
                           <p className="mr-1"></p>
                           <div className="flex items-center">
-                            <a href="mailto:blockhousebaycrypto@gmail.com" className="text-yellow-100 underline">BlockHouse Bay</a>
+                            <a href="mailto:bhbteam@blockhousebay.io" className="text-yellow-100 underline">bhbteam@blockhousebay.io</a>
                           </div>
                           {/* <img src={"favicon.ico"} className="h-10 w-10 ml-2" alt="React logo" /> */}
                         </div>
@@ -675,6 +676,9 @@ const About = () => {
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
                       Owners can evict a tenant if the tenant consistently fails to pay rent. It is ultimately down to the owner's discretion to decide whether to evict a tenant or not; they may feel generous and let the tenant stay a while longer, even if they're behind on rent.
                     </p>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">
+                      Note: This feature is designed to be lighthearted and primarily serves to ensure that properties aren’t occupied indefinitely by players who forget to vacate after earning enough BHB tokens and deciding not to continue renting.
+                    </p>
                   </li>
 
                   <li className="pb-4">
@@ -825,44 +829,11 @@ const About = () => {
           <AccordionDetails className="border border-1 rounded-md">
             <div className="lg:grid lg:grid-cols-2 gap-11 xl:mr-0">
               <div className="lg:col-span-1">
-                <h3 className="text-2xl font-semibold text-yellow-200">Renting a Room</h3>
-                <p className="text-white text-xl xl3:text-xl italic mt-4">Rental Deposit</p>
-                <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  To rent a room in a property, a deposit of 10 POL must be made. This is refunded when the renter decides to vacate the room.
-                </p>
-                <p className="text-white text-xl xl3:text-xl  italic mt-4">Rent Payment Obligation</p>
-                <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  A renter will be able to make a rent payment every 48 hours.
-                </p>
-                <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  After the 48 hour cooldown period, the renter will be able to make another rent payment. Property owners can see when rent is due and when it has been paid from indivual tenants.
-                </p>
-                <p className="mt-2 text-gray-400 pl-2 mr-4 pr-4">
-                  The property owner has the discretion to evict a tenant for consistently failing to pay rent. Note: This feature is designed to be lighthearted and primarily serves to ensure that properties aren’t occupied indefinitely by players who forget to vacate after earning enough BHB tokens and deciding not to continue renting.
-                </p>
-                <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  If a renter is evicted, they will lose their rental deposit.
-                </p>
-                <p className="text-white text-xl xl3:text-xl  italic mt-4">Restrictions</p>
-                <p className=" text-gray-400 pl-2 mr-4 mt-2">
-                  Properties with at least one available spare room can be rented from the property owner.
-                </p>
-                <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  A user can rent only one room on the same property.
-                </p>
-                <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  A user cannot rent a room on a property they own.
-                </p>
-                <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  A total of 4 deposits can be made at any one time for an inidival wallet address and so a maximum of 4 properties can be rented at any one time.
-                </p>
-                <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  Rent price cannot be changed within 30 days of buying a property.
-                </p>
 
 
 
-                <h3 className="text-2xl font-semibold text-yellow-200 my-4">Token Rewards</h3>
+
+                <h3 className="text-2xl font-semibold text-yellow-200 mb-4">Token Rewards</h3>
                 <p className="text-white text-xl xl3:text-xl italic mt-4">Earning BHB Tokens</p>
                 <p className="mt-2 text-gray-400 pl-2 mr-4">
                   Each time a renter pays rent to the property owner, they are rewarded with BHB tokens which can be used to purchase a property as an alternative to paying in POL.
@@ -900,6 +871,40 @@ const About = () => {
                   {/* <button className="border px-2 py-0.5 ml-2 border-1 text-xs" onClick={handleCopy}>Copy</button> */}
                   <img src={copyImg} className="w-5 h-5 md:ml-2 invert cursor-pointer" onClick={handleCopy} />
                 </div>
+                <h3 className="text-2xl font-semibold text-yellow-200 mt-8">Renting a Room</h3>
+                <p className="text-white text-xl xl3:text-xl italic mt-4">Rental Deposit</p>
+                <p className="mt-2 text-gray-400 pl-2 mr-4">
+                  To rent a room in a property, a deposit of 10 POL must be made. This is refunded when the renter decides to vacate the room.
+                </p>
+                <p className="text-white text-xl xl3:text-xl  italic mt-4">Rent Payment Obligation</p>
+                <p className="mt-2 text-gray-400 pl-2 mr-4">
+                  A renter will be able to make a rent payment every 48 hours.
+                </p>
+                <p className="mt-2 text-gray-400 pl-2 mr-4">
+                  After the 48 hour cooldown period, the renter will be able to make another rent payment. Property owners can see when rent is due and when it has been paid from indivual tenants.
+                </p>
+                <p className="mt-2 text-gray-400 pl-2 mr-4 pr-4">
+                  The property owner has the discretion to evict a tenant for consistently failing to pay rent. Note: This feature is designed to be lighthearted and primarily serves to ensure that properties aren’t occupied indefinitely by players who forget to vacate after earning enough BHB tokens and deciding not to continue renting.
+                </p>
+                <p className="mt-2 text-gray-400 pl-2 mr-4">
+                  If a renter is evicted, they will lose their rental deposit.
+                </p>
+                <p className="text-white text-xl xl3:text-xl  italic mt-4">Restrictions</p>
+                <p className=" text-gray-400 pl-2 mr-4 mt-2">
+                  Properties with at least one available spare room can be rented from the property owner.
+                </p>
+                <p className="mt-2 text-gray-400 pl-2 mr-4">
+                  A user can rent only one room on the same property.
+                </p>
+                <p className="mt-2 text-gray-400 pl-2 mr-4">
+                  A user cannot rent a room on a property they own.
+                </p>
+                <p className="mt-2 text-gray-400 pl-2 mr-4">
+                  A total of 4 deposits can be made at any one time for an inidival wallet address and so a maximum of 4 properties can be rented at any one time.
+                </p>
+                <p className="mt-2 text-gray-400 pl-2 mr-4">
+                  Rent price cannot be changed within 30 days of buying a property.
+                </p>
               </div>
 
               <div className="lg:grid grid-cols-2">
@@ -979,31 +984,44 @@ const About = () => {
             </div>
           </AccordionSummary>
           <AccordionDetails className="border border-1">
-            <div className="lg:grid grid-cols-1 justify-items-center mb-16 lg:mb-20 lg:grid-cols-2 lg:mr-12 lg:gap-16 xl3:gap-32n text-lg ">
+            <div className="lg:grid grid-cols-1 justify-items-center mb-16 lg:mb-4 lg:grid-cols-2 lg:mr-12 lg:gap-16 xl3:gap-32n text-lg ">
               <ul className=" font-normal ">
+
                 <li className="pb-4">
                   <h3 className="text-2xl font-semibold text-green-300">Blockhouse Bay Gardens</h3>
                   <p className="mt-2 text-gray-400 pl-2 mr-4">
-                    Discover a collection of stunning exclusive properties that can only be acquired with BHB tokens.
+                    A prestigious collection of ultra-exclusive properties, available only to those with BHB tokens.
                   </p>
                   <p className="mt-2 text-gray-400 pl-2 mr-4">
-                    Blockhouse Bay Gardens, a long exclusive street of grand and stunning homes,
-                    is a paradise of luxurious living.
-                    offering an unparalleled lifestyle in one of the bay's most beautiful settings. </p>
+                    Blockhouse Bay Gardens is the crown jewel of the bay—an elite enclave of grand, luxurious homes.
+                    Nestled in the most sought-after location, these properties offer a lifestyle of prestige, wealth, and limitless possibilities.
+                    Owning a home here isn’t just about property—it’s about power.
+                  </p>
                 </li>
                 <li className="py-4">
-                  <h3 className="text-xl italic font-normal text-white">Buying</h3>
-                  <p className="mt-2 text-gray-400 pl-2 mr-4">Properties on Blockhouse Bay Gardens can only be purchased and sold using BHB tokens</p>
+                  <h3 className="text-xl italic font-normal text-white">Buying - Exclusive Access</h3>
+                  <p className="mt-2 text-gray-400 pl-2 mr-4">
+                    Properties in Blockhouse Bay Gardens can only be bought and sold using BHB tokens, ensuring rarity and exclusivity.
+                  </p>
                 </li>
                 <li className="py-4">
-                  <h3 className="text-xl italic font-normal text-white">Renting</h3>
-                  <p className="mt-2 text-gray-400 pl-2 mr-4">Tripple BHB token rewards will be given to renters on this street</p>
-                  <p className="mt-2 text-gray-400 pl-2 mr-4">A user must be holding a minimum of 2500 BHB tokens in order to become a renter on this street</p>
+                  <h3 className="text-xl italic font-normal text-white">Renting - Premium Rewards</h3>
+                  <p className="mt-2 text-gray-400 pl-2 mr-4">
+                    Tenants on this prestigious street receive triple BHB token rewards, making it the most rewarding place to live in Blockhouse Bay.
+                  </p>
+                  <p className="mt-2 text-gray-400 pl-2 mr-4">
+                    A minimum of 2,500 BHB tokens is required to rent in this elite neighborhood, ensuring only the most dedicated members of the community can call it home.
+                  </p>
                 </li>
                 <li className="py-4">
-                  <h3 className="text-xl italic text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-purple-400 via-white to-purple-800">Ranking#</h3>
-                  <p className="mt-2 text-gray-400 pl-2 mr-4">Once a property on this street has been sold, they will be given a ranking and ordered accordingly based on total income generated from rent and sale history total.</p>
+                  <h3 className="text-xl italic text-transparent bg-clip-text brightness-125 bg-gradient-to-r from-purple-400 via-white to-purple-800">Ranking - The Elite List</h3>
+                  <p className="mt-2 text-gray-400 pl-2 mr-4">
+                    Every property sold in Blockhouse Bay Gardens will be ranked based on total income from rent and sales.
+                    The most successful properties rise to the top, solidifying their legacy as the most valuable assets in the bay.
+                  </p>
                 </li>
+
+
               </ul>
               <div className="flex justify-center w-full">
                 <div className="gallery h-fit pb-16  md:pb-40 lg:pb-0 lg:h-full cursor-none lg:mr-12 mt-8 md:mt-32 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-8 md:mb-32">
@@ -1107,9 +1125,9 @@ const About = () => {
                         What control do the BHB team have over the platform?
                         Just one thing - We can gift unsold properties to users (as talked about in the roadmap), but once a property has been sold, full control remains with the current property owner. Regarding the BHB token distribution, the BHB token is a fixed supply token and the team has no ability to mint more tokens or distribute tokens out from the platform - this is key to a fair and decentralized system.
                       </p>
-                      <p className="mt-2 text-gray-400">
+                      {/* <p className="mt-2 text-gray-400">
                         The smart contracts that govern the platform have been audited by a third party to help ensure they are secure and free from vulnerabilities.
-                      </p>
+                      </p> */}
                       <p className="mt-2 text-gray-400">
                         The platform mechanics are designed so that a user will never have considerable amounts of money tied up in its contracts. This is to help prevent a user from losing a significant amount of value in the event of a bug or exploit.
                       </p>

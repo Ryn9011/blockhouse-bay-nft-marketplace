@@ -306,7 +306,7 @@ const Renting = () => {
       console.log(ex)
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: false });
-      alert('Transaction Failed')
+      alert('Tx failed - Check your balance and try again')
     }
   }
 

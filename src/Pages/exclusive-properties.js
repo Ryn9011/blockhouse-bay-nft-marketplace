@@ -209,7 +209,7 @@ const Exclusive = () => {
       loadProperties()
     } catch (error) {
       console.log(error)
-      alert('Transaction Failed');
+      alert('Transaction Failed - Make sure you are holding at least 2500 BHB tokens');
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: false });
     }
