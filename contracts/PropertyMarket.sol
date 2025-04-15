@@ -62,10 +62,11 @@ contract PropertyMarket is ReentrancyGuard {
     address payable immutable i_govt;
     address payable i_govtContract;
     bool public govtContractSet = false;    
-    uint256 public listingPrice = 20 ether;
-    uint256 public constant INITIAL_SALE_PRICE = 650 ether;
-    uint256 constant INITIAL_TOKEN_PRICE = 20000 ether;
-    uint256 constant INITIAL_EXCLUSIVE_PRICE = 100000 ether;    
+    uint256 public listingPrice = 0.001 ether;
+    uint256 public constant INITIAL_SALE_PRICE = 0.001 ether;
+    uint256 constant MAX_SALE_PRICE = 100000000 ether;
+    uint256 constant INITIAL_TOKEN_PRICE = 1 ether;
+    uint256 constant INITIAL_EXCLUSIVE_PRICE = 1 ether;    
     uint256 constant INITIAL_MINT = 100000000 * (10 ** 18);
     uint256 tokenMaxSupply = INITIAL_MINT;    
 
@@ -138,7 +139,7 @@ contract PropertyMarket is ReentrancyGuard {
 
     receive() external payable {}
 
-    function getListingPrice() public returns (uint256) {
+    function getListingPrice() public view returns (uint256) {
         return listingPrice;
     }
 
@@ -147,7 +148,7 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function setListingPrice(uint256 price) public onlyGovt {
-        listingPrice = price;
+        listingPrice = price * 1 ether;
     }
 
     function setMaxSupply(uint256 amount) public onlyGovtContract {
@@ -467,7 +468,7 @@ contract PropertyMarket is ReentrancyGuard {
             require(propertyId >= 500, "");
             property.tokenSalePrice = tokenPrice * (1 ether);
         } else {
-            require(propertyId <= 500 && propertyId > 0 && price >= INITIAL_SALE_PRICE, "");
+            require(propertyId <= 500 && propertyId > 0 && price >= INITIAL_SALE_PRICE && price <= MAX_SALE_PRICE, "");
             property.salePrice = price;
             property.tokenSalePrice = (tokenPrice != 0) ? tokenPrice * (1 ether) : 0;
             _relistCount.increment();
@@ -520,8 +521,8 @@ contract PropertyMarket is ReentrancyGuard {
             listing.propertyId = tokenId;
             listing.nftContract = nftContract;
             listing.tokenId = tokenId;
-            listing.rentPrice = 10 ether;
-            listing.deposit = 30 ether;
+            listing.rentPrice = 0.001 ether;
+            listing.deposit = 0.001 ether;
             listing.seller = payable(msg.sender);
             listing.owner = payable(i_govt);
             listing.isForSale = true;
@@ -615,7 +616,7 @@ contract PropertyMarket is ReentrancyGuard {
         temp.owner = payable(msg.sender);
         temp.isForSale = false;
         temp.seller = payable(address(0)); 
-        temp.rentPrice = 3 ether;               
+        temp.rentPrice = 3 ether; // reset rent price              
         userProperties[msg.sender].push(itemId);
     }
 

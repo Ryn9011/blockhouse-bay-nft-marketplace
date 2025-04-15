@@ -199,7 +199,11 @@ const About = () => {
                       </span>
                       <a href="https://x.com/BlockhouseBayio" target="new"><img src="logo-white.png" className='w-9 h-9 ml-4 p-1' alt="https://x.com/BlockhouseBayio" /></a>
                     </div>
-                    <p className="mt-0 text-gray-400 pl-2 mr-4 mt-1">Let’s address the big question right away: Is Blockhouse Bay a scam? No, it isn’t. But we’re also not going to pretend it’s some groundbreaking, world-changing project. We’re a small team from New Zealand with realistic goals, focused on delivering a creative and fun platform to build our token</p>
+                    <p className="mt-0 text-gray-400 pl-2 mr-4 mt-1">
+  Let’s address the big question right away: Is Blockhouse Bay a scam? No, it isn’t. But we’re also not going to pretend it’s some groundbreaking, world-changing project. We’re a small team from New Zealand
+  <span className="inline-block align-middle"><img src="nz.png" className="h-6 w-7 mr-1 ml-2" /></span> with realistic goals, focused on delivering a creative and fun platform to build our token
+</p>
+
 
                     <p className="mt-2 text-gray-400 pl-2 mr-4">We get it - traditional presales can feel inherently scammy. Many projects ask for money upfront in exchange for tokens, often without delivering real value. That’s why we’re taking a different approach. Instead of selling tokens before the platform is proven, we’re giving you the chance to <em>earn</em> tokens by participating in our Web3 real estate simulation. This way, you gain value while exploring what the platform has to offer, rather than taking a leap of faith.</p>
 
@@ -657,6 +661,9 @@ const About = () => {
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
                       Property owners have control over their rental properties and can set the rent price up to the value of 50 POL.
                       The state of the market will determine the demand for properties and the rent price that can be set.
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">
+                      Note - after purchasing a property, the rent price will be reset to the minimum value and cannot be changed for 30 days after the sale.
                     </p>
 
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Set Required Depsoit</p>

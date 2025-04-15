@@ -48,6 +48,8 @@ const CreateItem = () => {
 
   const [listingPrice, setListingPrice] = useState();
   const [minDepositPrice, setMinDepositPrice] = useState();
+  const [tokenIds, setTokenIds] = useState([]);
+  const [exUris, setExUris] = useState();
 
   // const filesTest = [
   //   { name: "property1.jpeg", path: "/Users/ryanjennings/Desktop/final/" },   
@@ -170,12 +172,12 @@ const CreateItem = () => {
 
 
   const getBhbForMarket = async () => {
-    const provider = new ethers.JsonRpcProvider("http://localhost:8545");  
+    // const provider = new ethers.JsonRpcProvider("http://localhost:8545");  
 
-    const propertyTokenContract = new ethers.Contract('0xCafac3dD18aC6c6e92c921884f9E4176737C052c', PropertyToken.abi, provider);
-
+    // const propertyTokenContract = new ethers.Contract('0xCafac3dD18aC6c6e92c921884f9E4176737C052c', PropertyToken.abi, signer);
+    const propertyTokenContract = new Contract(propertytokenaddress, PropertyToken.abi, signer)
     // Query the balance
-    const balance = await propertyTokenContract.balanceOf('0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512');
+    const balance = await propertyTokenContract.balanceOf(nftmarketaddress);
   
     console.log(`Balance of :`, ethers.formatUnits(balance, 18));
   };
@@ -281,9 +283,16 @@ const CreateItem = () => {
   }
 
   const handleListingPriceChange = async () => {
+    console.log('listingPrice: ', listingPrice)
+    const listingPriceParsed = ethers.parseUnits(listingPrice, 18)
+    console.log('listingPriceParsed: ', listingPriceParsed)
     const contract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
+    try {
     const transaction = await contract.setListingPrice(listingPrice)
     await transaction.wait()
+    } catch (error) {
+      console.error('Error setting listing price:', error)
+    }
   }
 
   const handleMinDepositPriceChange = async () => {
@@ -310,14 +319,14 @@ const CreateItem = () => {
     for (let i = 0; i < numBatches && i * batchSize < urisn.length; i++) {
       const batch = urisn.slice(i * batchSize, (i + 1) * batchSize);
       // Estimate the gas required for the transaction
-      const gasLimit = await contract.createTokens.estimateGas(batch);    
-      console.log('Estimated Gas Limit:', gasLimit.toString());      
-      const feeData = await provider.getFeeData();      
-      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
+      // const gasLimit = await contract.createTokens.estimateGas(batch);    
+      // console.log('Estimated Gas Limit:', gasLimit.toString());      
+      // const feeData = await provider.getFeeData();      
+      // const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
+      // const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater
 
       const transaction = await contract.createTokens(batch ,{
-        gasLimit: gasLimit,
+        
         // maxPriorityFeePerGas: maxPriorityFeePerGas,
         // maxFeePerGas: maxFeePerGas
       });
@@ -345,23 +354,21 @@ const CreateItem = () => {
     for (let i = 0; i < numOfBatches && i * batchSize < tokenIds.length; i++) {
       const idsBatch = tokenIds.slice(i * batchSize, (i + 1) * batchSize);
 
-      let gasLimit = await contract.createPropertyListing.estimateGas(nftaddress, idsBatch);
-      gasLimit = gasLimit + 100000n;
+      // let gasLimit = await contract.createPropertyListing.estimateGas(nftaddress, idsBatch);
+      // gasLimit = gasLimit + 100000n;
 
       // // Fetch the current gas fee data
-      const feeData = await provider.getFeeData();
-      console.log("Current Fee Data:", feeData);
+      // const feeData = await provider.getFeeData();
+      // console.log("Current Fee Data:", feeData);
 
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+      // const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      // const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      // const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
 
 
       // add gas limits here as well
       let transaction2 = await contract.createPropertyListing(nftaddress, idsBatch, {
-        gasLimit: gasLimit,
-        maxPriorityFeePerGas: maxPriorityFeePerGas,
-        maxFeePerGas: maxFeePerGas
+
       })
       await transaction2.wait()
     }    
@@ -371,28 +378,13 @@ const CreateItem = () => {
     console.log(formInput)
     const urisn = Object.keys(dataEx.paths).map(uri => "https://arweave.net/" + dataEx.paths[uri].id);
 
-     let contract = new ethers.Contract(nftaddress, NFT.abi, signer)
-    // // Estimate the gas required for the transaction
-     let gasLimit = await contract.createExclusiveTokens.estimateGas(urisn);
-    gasLimit = gasLimit + 100000n;
-
-    // // // Fetch the current gas fee data
-    const feeData = await provider.getFeeData();
-    console.log("Current Fee Data:", feeData);
-
-    // // // Set the maxFeePerGas and maxPriorityFeePerGas with a buffer
-    const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-    const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-    const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+    let contract = new ethers.Contract(nftaddress, NFT.abi, signer) 
 
     console.log(urisn)
 
-
     const tokenIds = [];
       const transaction = await contract.createExclusiveTokens(urisn, {
-        gasLimit: gasLimit,
-        maxPriorityFeePerGas: maxPriorityFeePerGas,
-        maxFeePerGas: maxFeePerGas
+
       });
       const receipt = await transaction.wait(); 
       for (let j = 0; j < receipt.logs.length; j++) {
@@ -401,40 +393,40 @@ const CreateItem = () => {
           tokenIds.push(tokenId);
         }
       }
+
+      setTokenIds(tokenIds)
    
     console.log(tokenIds)
     const params = {
       gasLimit: 30000000
-    }
+    }      
+  }
 
+
+  const createExclusiveProperties = async () => {
+    const urisn = Object.keys(dataEx.paths).map(uri => "https://arweave.net/" + dataEx.paths[uri].id);
     let contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
     
-    let listingPrice = await contract2.getListingPrice()     
-    listingPrice = listingPrice.toString()
-    console.log('listingPrice: ', listingPrice) 
+    // let listingPrice = await contract2.getListingPrice()     
+    // listingPrice = listingPrice.toString()
 
-    const gasLimit2 = await contract2.createPropertyListing.estimateGas(nftaddress, tokenIds);
-    console.log('Estimated Gas Limit:', gasLimit2.toString());
+    const batchSize = 10;
+    const numOfBatches = Math.ceil(urisn.length / batchSize);  
+    
+    const newTokenIdsTemp = [];
+    for (let i = 501; i < 551; i++) {
+      newTokenIdsTemp.push(i);
+    }
 
-    // // Fetch the current gas fee data
-    const feeData2 = await provider.getFeeData();
-    console.log("Current Fee Data:", feeData2);
-
-    // // Set the maxFeePerGas and maxPriorityFeePerGas with a buffer
-    const maxPriorityFeePerGas2 = feeData2.maxPriorityFeePerGas + ethers.parseUnits('2', 'gwei'); // Add a 2 gwei buffer
-    const maxFeePerGas2 = maxPriorityFeePerGas2 + ethers.parseUnits('2', 'gwei'); // Ensure maxFeePerGas is greater      
-
-    let transaction2 = await contract2.createPropertyListing(
-      nftaddress, 
-      tokenIds, 
-      {
-        value: listingPrice, 
-        gasLimit: gasLimit2,
-        maxPriorityFeePerGas: maxPriorityFeePerGas2,
-        maxFeePerGas: maxFeePerGas2      
-      }
-    );
-    await transaction2.wait();    
+    for (let i = 0; i < numOfBatches && i * batchSize < newTokenIdsTemp.length; i++) {
+      const batch = newTokenIdsTemp.slice(i * batchSize, (i + 1) * batchSize);
+        
+      let transaction2 = await contract2.createPropertyListing(
+        nftaddress, 
+        batch
+      );
+      await transaction2.wait();  
+    }    
   }
 
   const giftProperties = async () => {
@@ -455,7 +447,7 @@ const CreateItem = () => {
     await transaction.wait();
   }  
 
-  if (connectedWalletAddress !== '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266') {
+  if (connectedWalletAddress !== '0x211F1b957C16C0a04b1363D9F569bBFeeb311981') {
     return (<div></div>)
   }
 
@@ -524,7 +516,10 @@ const CreateItem = () => {
                     Create Digital Asset
                 </button>
                 <button onClick={createSaleEx} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
-                    Create Exclusives
+                    Create 721Tokens
+                </button>
+                <button onClick={createExclusiveProperties} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                    Create exclusive listings
                 </button>
          
                 <button onClick={govtWithdraw} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">

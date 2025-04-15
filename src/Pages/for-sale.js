@@ -195,7 +195,7 @@ const ForSale = () => {
   };
 
   const buyProperty = async (nft, i) => {
-    try {
+    try {     
       let brb = document.getElementById("pogRadio" + i)
       let matic = document.getElementById("maticRadio" + i)
       if (brb.checked === false && matic.checked === false) {
@@ -224,13 +224,20 @@ const ForSale = () => {
         }
       }
 
-      // console.log('price', typeof (price))
+      // log out each elemnt of trasnaction
+      // console.log('price:', price);
+      // console.log('propertytokenaddress:', propertytokenaddress);
+      // console.log('nftaddress:', nftaddress);
+      // console.log('nft.propertyId:', nft.propertyId);
       const transaction = await contract2.createPropertySale(
         nftaddress,
         nft.propertyId,
         propertytokenaddress,
-        isTokenSale
+        isTokenSale,
+        { value: price }
       );
+
+      console.log('Transaction:', transaction);
 
       if (document.getElementById("pogRadio" + i) != undefined) {
         if (document.getElementById("pogRadio" + i).checked) {

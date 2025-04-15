@@ -30,8 +30,8 @@ library RewardCalculator {
         } else if (rent >= 3) {
             baseReward = (rent * 5500) / 100000;
         } else {
-            revert("Rent must be greater than or equal to 3");
-            //baseReward = 5;
+            // revert("Rent must be greater than or equal to 3");
+            baseReward = 5;
         }
 
         // Debugging information

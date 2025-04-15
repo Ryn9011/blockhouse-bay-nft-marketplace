@@ -21,7 +21,7 @@ import {
 } from '../config'
 import Pagination from '../Pagination'
 import GetPropertyNames from '../getPropertyName'
-const ethers = require("ethers")
+const { ethers, BigNumber } = require("ethers");
 /* global BigInt */
 
 const useStyles = makeStyles({
@@ -152,7 +152,7 @@ const Owned = () => {
       const items = await Promise.all(data.filter(i => Number(i.propertyId) !== 0 && (a => Number(a.tokenId !== 0))).map(async i => {
         //console.log(i)
         const tokenUri = await token.tokenURI(i.tokenId)
-        
+
         // console.log('owner: ', i.owner)
 
         const meta = await axios.get(tokenUri)
@@ -201,7 +201,7 @@ const Owned = () => {
         const propertyId = Number(ethers.formatUnits(BigInt(i.propertyId), 0));
 
         // call getRenterDepositBalance on govt contract
-        
+
 
         ////console.log(propertyId)
 
@@ -317,52 +317,55 @@ const Owned = () => {
     }
   }
 
-  const SellProperty = async (property, i) => {    
+  const SellProperty = async (property, i) => {
     let tokenAmount = document.getElementById('tokenInput' + i).value
     tokenAmount = tokenAmount === "" ? 0 : tokenAmount
 
     const contract = new Contract(nftmarketaddress, Market.abi, signer);
 
     try {
-      
+
       setTxLoadingState2({ ...txloadingState2, [i]: true });
-      const listingPrice = await contract.getListingPrice()
-      //console.log('Listing price: ', listingPrice.toString())
+      const listingPrice = await contract.getListingPrice();
+      console.log('Listing price: ', listingPrice.toString())
       const nftContract = new Contract(nftaddress, NFT.abi, signer)
-      
+
+
       await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction      
-      
+
       const isExclusive = property.propertyId > 500 ? true : false
-      
+
       let maticAmount = !isExclusive ? document.getElementById('amountInput' + i).value : document.getElementById('tokenInput' + i).value
-      
+
       const priceFormatted = ethers.parseUnits(maticAmount, 'ether');
+      // const listingPriceFormatted = ethers.parseUnits(BigInt(listingPrice), 'ether')
       
-      try {  const transaction = await contract.sellProperty(
+      try {
+        const transaction = await contract.sellProperty(
           nftaddress,
           property.tokenId,
           property.propertyId,
           priceFormatted,
           tokenAmount,
           isExclusive,
-          {           
+          {
             value: listingPrice.toString()
           }
         )
         setTxLoadingState2({ ...txloadingState2, [i]: false });
         setTxLoadingState2B({ ...txloadingState2B, [i]: true });
-        
+
         await transaction.wait()
         // console.log('Transaction mined')
       } catch (ex) {
         console.log(ex)
         alert(ex.message.substring(0, ex.message.indexOf('(')))
       }
-      
+
     } catch (Ex) {
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2B({ ...txloadingState2B, [i]: true });
-      console.log('Transaction failed')
+      console.log(Ex.message)
     }
     loadProperties()
   }
@@ -544,10 +547,10 @@ const Owned = () => {
     depVal = parseFloat(depVal).toFixed(4);
     //console.log(depVal)
     let newPrice = ethers.parseUnits(depVal, 'ether')
-    
+
     //console.log(newPrice)
     //console.log(property.propertyId)
-    try {      
+    try {
 
       setTxLoadingState5({ ...txloadingState5, [i]: true });
 
@@ -665,11 +668,11 @@ const Owned = () => {
 
     const characterNumber = Number(characterCode)
     //if (characterNumber >= 0 && characterNumber <= 9) {
-      if (e.currentTarget.value && e.currentTarget.value.length) {
-        return
-      } else if (characterNumber === 0) {
-        e.preventDefault()
-      }
+    if (e.currentTarget.value && e.currentTarget.value.length) {
+      return
+    } else if (characterNumber === 0) {
+      e.preventDefault()
+    }
     // } else {
     //   e.preventDefault()
     // }
@@ -733,7 +736,7 @@ const Owned = () => {
               </div>
             </>
             : <p className='mt-2 mb-[17px]'>0x</p>
-          }          
+          }
           {ethers.formatEther(property.renterAddresses[1]).toString() !== "0.0" ?
             <div className='flex items-center justify-between mb-[11px]'>
               <p className={" break-words text-center " + getTenantToDeleteColour(property, 1)}>
@@ -745,8 +748,8 @@ const Owned = () => {
             </div>
             :
             <>
-              
-                <p className='mt-2 mb-[17px]'>0x</p>
+
+              <p className='mt-2 mb-[17px]'>0x</p>
             </>
           }
           {ethers.formatEther(property.renterAddresses[2]).toString() !== "0.0" ?
@@ -759,8 +762,8 @@ const Owned = () => {
               />
             </div>
             : <>
-              
-                <p className='mt-2 mb-[17px]'>0x</p>
+
+              <p className='mt-2 mb-[17px]'>0x</p>
             </>
           }
           {ethers.formatEther(property.renterAddresses[3]).toString() !== "0.0" ?
@@ -773,8 +776,8 @@ const Owned = () => {
               />
             </div>
             : <>
-              
-                <p className='mt-2 mb-[17px]'>0x</p>
+
+              <p className='mt-2 mb-[17px]'>0x</p>
             </>
           }
         </div>
@@ -782,56 +785,56 @@ const Owned = () => {
     }
   }
 
-  function handleSellButton(e, i, pid) {    
+  function handleSellButton(e, i, pid) {
     const sellBtn = document.getElementById(`sellBtn${i}`);
     const tokenInput = document.getElementById(`tokenInput${i}`);
     const amountInput = document.getElementById(`amountInput${i}`);
     const maticCheckbox = document.getElementById(`matic${i}`);
 
-    const isInputInvalid = (input) => {      
+    const isInputInvalid = (input) => {
       if (input !== null) {
         if (input.value.length === 0 || input.value.length > 10) {
           return true;
         }
-      }       
+      }
     }
 
     const disableButton = () => {
-        sellBtn.disabled = true;
-        sellBtn.classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-sky-700");
-        sellBtn.classList.add("bg-gray-400", "cursor-default", "text-gray-600");
+      sellBtn.disabled = true;
+      sellBtn.classList.remove("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-sky-700");
+      sellBtn.classList.add("bg-gray-400", "cursor-default", "text-gray-600");
     };
 
     const enableButton = () => {
-        sellBtn.disabled = false;
-        sellBtn.classList.remove("bg-gray-400", "cursor-default", "text-gray-600");
-        sellBtn.classList.add("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-sky-700");
+      sellBtn.disabled = false;
+      sellBtn.classList.remove("bg-gray-400", "cursor-default", "text-gray-600");
+      sellBtn.classList.add("bg-matic-blue", "cursor-pointer", "text-white", "hover:bg-sky-700");
     };
 
     if (pid > 500) {
       //console.log(tokenInput)
-        if (isInputInvalid(tokenInput) || isInputInvalid(amountInput)) {
-            disableButton();
-        } else {
-            enableButton();
-        }
+      if (isInputInvalid(tokenInput) || isInputInvalid(amountInput)) {
+        disableButton();
+      } else {
+        enableButton();
+      }
     } else {
-        if (!maticCheckbox.checked) {
-          //console.log(amountInput.value.length)
-            if (e.target.value.length > 0 && e.target.value.length < 10) {
-                enableButton();
-            } else {
-                disableButton(); 
-            }
-        } else {            
-            if (isInputInvalid(tokenInput) || isInputInvalid(amountInput)) {              
-                disableButton();
-            } else {              
-                enableButton();
-            }
+      if (!maticCheckbox.checked) {
+        //console.log(amountInput.value.length)
+        if (e.target.value.length > 0 && e.target.value.length < 10) {
+          enableButton();
+        } else {
+          disableButton();
         }
+      } else {
+        if (isInputInvalid(tokenInput) || isInputInvalid(amountInput)) {
+          disableButton();
+        } else {
+          enableButton();
+        }
+      }
     }
-}
+  }
 
 
 
@@ -992,7 +995,7 @@ const Owned = () => {
     <div className="pt-10 pb-10">
       <div className="flex">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-        <div className="flex items-center pl-6 lg:px-12">
+          <div className="flex items-center pl-6 lg:px-12">
             <p className="text-white text-3xl lg:text-5xl font-bold mb-2">Loading Properties</p>
             <div className="ml-2 mb-2">
               <svg className="h-[1.55rem] lg:h-[2.5rem] w-auto" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -1030,8 +1033,8 @@ const Owned = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-7 lg:ml-0 text-5xl xl3:text-6xl font-bold md:mb-32 xl3:mb-10 text-white xl3:mt-4">My Properties</p>          
-          <div className="image-container hidden lg:block ml-48 xl3:ml-72 drop-shadow-lg absolute h-2/6 mt-20  md:w-3/6 mb-32 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          <p className="ml-7 lg:ml-0 text-5xl xl3:text-6xl font-bold md:mb-32 xl3:mb-10 text-white xl3:mt-4">My Properties</p>
+          <div className="image-container hidden lg:block ml-48 xl3:ml-72 drop-shadow-lg absolute h-2/6 mt-20  md:w-2/5 mb-32 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
             <img src="col.png" className=" rotate-away2  shadow-2xl shadow-amber-100" />
             <div className='h-10 mt-16'></div>
             {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
@@ -1039,7 +1042,7 @@ const Owned = () => {
           <p className='text-white text-base md:text-left md:text-3xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>Start building your real estate portfolio today! Explore available properties, make a purchase, and come back here to manage your growing assets.</p>
           <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
         </div>
-       
+
       </div>
       <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-12 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
         <img src="col.png" className="rotate-away2 brightness-110 shadow-2xl shadow-amber-100" />
@@ -1165,11 +1168,11 @@ const Owned = () => {
 
                   <div className="p-4 pb-2 pt-2 bg-black">
                     {/*  */}
-                    <div className="mb-1 grid-rows-3">    
-                     
-                    <p className='text-xs italic'>Select info to add to your X Post template</p>  
-                    <div className='h-[1px] bg-white '></div>                       
-                      <div className={`flex items-center  justify-between pb-2 pt-1.5`}>                                       
+                    <div className="mb-1 grid-rows-3">
+
+                      <p className='text-xs italic'>Select info to add to your X Post template</p>
+                      <div className='h-[1px] bg-white '></div>
+                      <div className={`flex items-center  justify-between pb-2 pt-1.5`}>
                         <div className={`${classes.padding} mr-6`}>
                           <div className="flex text-white items-center cursor-pointer">
                             <input
@@ -1426,7 +1429,7 @@ const Owned = () => {
                                 <img className="h-[25px] w-[27px] ml-2" src="./polygonsmall.png" />
                               </div>}
 
-                            <div className={`items-center ${property.propertyId < 501 ? 'flex invisible' : 'flex mt-4'}`} id={'maticInput' + i}>
+                            <div className={`items-center ${property.propertyId < 501 ? 'flex invisible' : 'flex mt-3'}`} id={'maticInput' + i}>
                               <input
                                 className="w-4/6 h-6 bg-black shadow appearance-none border rounded py-2 px-0 text-white leading-tight focus:outline-none focus:shadow-outline "
                                 type="number"
@@ -1437,7 +1440,7 @@ const Owned = () => {
                                 onChange={(e) => handleSellButton(e, i, property.propertyId)}
                                 id={"tokenInput" + i}
                               />
-                              <div>                                                                
+                              <div>
                                 <img
                                   className={`brightness-150 h-7 w-9 xl3:h-7 xl3:w-10 pl-2`}
                                   src="./tokenfrontsmall.png"

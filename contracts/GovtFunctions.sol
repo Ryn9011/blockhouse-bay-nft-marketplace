@@ -17,7 +17,7 @@ contract GovtFunctions is ReentrancyGuard {
     address private _govtAddress;
     bool private hasSetGovtAddress = false;
     uint256 constant WEI_TO_ETH = 1000000000000000000;   
-    uint256 internal minDeposit = 30 ether;       
+    uint256 internal minDeposit = 0.001 ether;       
     uint256 public totalDepositBal = 0;
     uint256 propertiesWithRenterCount = 0;
     mapping(address => uint256) public rentAccumulated;
@@ -263,7 +263,7 @@ contract GovtFunctions is ReentrancyGuard {
 
         if (propertyId > 500) {
             uint256 bal = propertyToken.balanceOf(msg.sender);
-            require(bal >= 2500 ether, "insufficient BHB token balance to rent excl");
+            // require(bal >= 2500 ether, "insufficient BHB token balance to rent excl");
         }
         
         require(msg.value == currentProperty[0].deposit, "correct deposit required");
@@ -305,7 +305,7 @@ contract GovtFunctions is ReentrancyGuard {
 
         for (uint8 i = 0; i < 4; i++) {
             if (propertyRenters[i] == address(0)) {
-                propertyRenters[i] = msg.sender;                
+                propertyRenters[i] = msg.sender;
                 propertyMarketContract.setPropertyRenters(propertyId, propertyRenters);                
                 break;
             }
@@ -327,7 +327,7 @@ contract GovtFunctions is ReentrancyGuard {
 
     function checkSetRoomAvailability(
         PropertyMarket.Property memory property
-    ) internal returns (bool) {        
+    ) internal pure returns (bool) {        
         if (!property.roomOneRented) {
             // property.roomOneRented = true;            
             return true;

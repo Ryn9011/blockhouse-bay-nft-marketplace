@@ -284,9 +284,9 @@ const ToRent = () => {
           <p className="xl3:ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold text-white">To Rent</p>
           <div className="flex text-white pl-4">
             {/* <h5>Rent a property and earn</h5> */}
-            <header className="flex-col items-center mb-4 mt-4">
+            <header className="flex-col items-center mb-4 mt-4">              
               <div className="text-base md:text-xl font-bold">Rent a room from a home owner and earn BHB tokens</div>
-              <p className='mb-2 text-sm md:text-base mt-2 ml-2 text-green-100 italic'>An account can rent 1 room in up to 4 properties</p>
+              <p className='mb-2 text-sm md:text-base mt-3 md:mt-2 md:ml-2 text-green-100 italic'>Once a property has been sold, it will be available to rent, and an account can rent one room in up to four properties.</p>
             </header>
             {/* <div className=" hidden lg:block">
               <img

@@ -74,10 +74,13 @@ export default function Cover() {
 
     if (loading || loadingSmall) {
         return (
-            <div class="relative flex justify-center items-center mt-80 lg:mt-96">
-              
-                <img src="tokengif.gif" className="rounded-full h-32 w-32  lg:h-96 lg:w-96 brightness-125" />
-            </div>
+            <div className="relative flex justify-center items-center h-screen bg-black">
+          <img
+            src="../tokengif.gif"
+            className="rounded-full h-32 w-32 lg:h-96 lg:w-96 brightness-125"
+            alt="Loading"
+          />
+        </div>
         )
     }
     return (

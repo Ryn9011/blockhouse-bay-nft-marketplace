@@ -215,23 +215,24 @@ function App() {
 
   const classes = useStyles();
 
-  if (loadingImage) {
-    return (
-        <div class="relative flex justify-center h-screen items-center bg-black">          
-            <img src="../tokengif.gif" className="rounded-full h-32 w-32  lg:h-96 lg:w-96 brightness-125" />
-        </div>
-    )
-  }
-
-
   return (
-    <ModalContext.Provider value={{ modalEvent, provider, signer }}>
+    <div className="min-h-screen bg-black">
+      {loadingImage ? (
+        <div className="relative flex justify-center items-center h-screen bg-black">
+          <img
+            src="../tokengif.gif"
+            className="rounded-full h-32 w-32 lg:h-96 lg:w-96 brightness-125"
+            alt="Loading"
+          />
+        </div>
+      ) : (
+        <ModalContext.Provider value={{ modalEvent, provider, signer }}>
       <div className={` ${location.pathname !== "/" ? 'from-black via-slate-800 to-slate-900 bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden `} style={
         location.pathname.includes('property-view')
           ? { backgroundImage: `url(${bgImage})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }
           : undefined
       }>
-        <div className="flex-1 overflow-y-auto overflow-x-hidden mb-12">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden mb-12 lg:mb-0">
           {location.pathname !== "/" && <Header />}
           {isCheckingProvider ? (
             <div className='text-white text-2xl flex justify-center'>
@@ -301,8 +302,9 @@ function App() {
         </div>
       </div>
     </ModalContext.Provider>
+      )}
+    </div>
   );
-
 }
 
 // Exporting context hook for components to consume

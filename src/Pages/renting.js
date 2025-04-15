@@ -135,8 +135,8 @@ const Renting = () => {
 
     
     // console.log(ethers.BigNumber.from(currentObject.timestamp.toNumber())).toNumber()
-    const twentyFourHoursInMillis = 700 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
-    const currentTimeInMillis = Math.floor(Date.now() / 1000);
+    const twentyFourHoursInSeconds = 700 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
     //const currentTimeInMullisPlusOneDay = Date.now() + twentyFourHoursInMillis;
     if (currentObject === undefined) {
       return true;
@@ -145,7 +145,7 @@ const Renting = () => {
     // console.log(currentTimeInMillis)
     // console.log(currentTimeInMillis - (currentObject.timestamp.toNumber()))
 
-    if ((currentTimeInMillis - (Number(currentObject.timestamp))) > twentyFourHoursInMillis) {
+    if ((currentTimeInSeconds - (Number(currentObject.timestamp))) > twentyFourHoursInSeconds) {
       
       // setRentText('Rent overdue')
       return true
@@ -396,13 +396,13 @@ const Renting = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-7 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 text-white">My Rented Properties</p>
-          <div className="image-container hidden lg:block ml-48 xl3:ml-72 drop-shadow-lg absolute h-2/6 mt-20  md:w-3/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          <p className="ml-7 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-6 md:mb-32 xl3:mb-10 text-white">My Rented Properties</p>
+          <div className="image-container hidden lg:block ml-48 xl3:ml-72 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
             <img src="col.png" className=" rotate-away2  shadow-2xl shadow-amber-100" />
             <div className='h-10 mt-16'></div>
             {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
           </div>
-          <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8  xl3:mt-44 lg:pt-4 pl-7 lg:pl-12'>Looking to rent a place? Discover available properties, secure your next rental, and check back here to manage your leases and stay on top of your rentals.</p>
+          <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24  xl3:mt-44 lg:pt-4 pl-7 lg:pl-12'>Looking to rent a place? Discover available properties, secure your next rental, and check back here to manage your leases and stay on top of your rentals.</p>
           <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:lg:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
           {renterTokens > 0 &&
             <div className='md:pl-0 md:ml-12 mt-10 flex items-center mb-3 lg:mb-6'>
