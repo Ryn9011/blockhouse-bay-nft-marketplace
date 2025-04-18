@@ -188,10 +188,8 @@ const Exclusive = () => {
         return;
       }
 
-      const transaction = await contract2.createPropertySale(
-        nftaddress,
-        nft.propertyId,
-        propertytokenaddress,
+      const transaction = await contract2.createPropertySale(        
+        nft.propertyId,        
         isTokenSale,
         // {
         //   maxFeePerGas: maxFeePerGas,
@@ -237,7 +235,7 @@ const Exclusive = () => {
       } else if (error.message.includes('Property not yet owned')) {
         alert('Property not yet owned');
       } else {
-        alert('transaction failed');
+        alert('transaction failed - check you have not reached max rentals for this account');
       }
 
       setTxLoadingState2({ ...txloadingState2, [i]: false });

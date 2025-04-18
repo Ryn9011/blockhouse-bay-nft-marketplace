@@ -212,7 +212,7 @@ const ToRent = () => {
       if (error.message.includes('You can\'t rent your own property')) {
         alert('You can\'t rent your own property');
       } else {
-        alert('Transaction failed');
+        alert('Transaction failed - check you have not reached max rentals for this account');
       }      
     }
   }

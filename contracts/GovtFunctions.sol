@@ -55,7 +55,7 @@ contract GovtFunctions is ReentrancyGuard {
         i_propertyMarketAddress = propertyMarketAddress;       
     }
 
-    function setGovtAddress(address govtAddress) public {
+    function setGovtAddress(address govtAddress) public onlyGovt {
         if (!hasSetGovtAddress) {
             console.log('govtAddress: ', govtAddress);
             _govtAddress = govtAddress;
@@ -75,17 +75,9 @@ contract GovtFunctions is ReentrancyGuard {
         return propertiesWithRenterCount;
     }
 
-    // function getRentAccumulated(address user) public view returns (uint256) {
-    //     return rentAccumulated[user];
-    // }
-
     function getRentAccumulatedSender() public view returns (uint256) {
         return rentAccumulated[msg.sender];
     }
-
-    // function setRentAccumulated(uint256 amount, address caller) internal {
-    //     rentAccumulated[caller] = amount;
-    // }
 
     function setRenterDepositBalance(address renter, uint256 value, uint256 propertyId) internal {
         renterDepositBalance[renter][propertyId] = value;              
@@ -119,14 +111,6 @@ contract GovtFunctions is ReentrancyGuard {
             }
         }
     }
-
-    // function setTotalDepositBalance(uint256 amount, bool isAddition) internal {
-    //     if (isAddition) {
-    //         totalDepositBal += amount;
-    //     } else {
-    //         totalDepositBal -= amount;
-    //     }        
-    // }
 
     function getPropertiesForSale() public view returns (uint256) {
         uint256 propertyCount = propertyMarketContract.getPropertyIds() - 50;
@@ -284,9 +268,9 @@ contract GovtFunctions is ReentrancyGuard {
             if (propertyRenters[i] == msg.sender) {
                 isAlreadyRenter = true;
             } 
-            // property full up
-            if (propertyRenters[i] == address(0)) {
-                isAlreadyRented = false;               
+            // property already rented
+            if (propertyRenters[i] != address(0)) {
+                isAlreadyRented = true;               
             }
             // user already rented 4 properties
             if (tennants[0][i] == 0) {
@@ -341,10 +325,10 @@ contract GovtFunctions is ReentrancyGuard {
             // property.roomFourRented = true;            
             return true;
         }
-        return false;        
+        return false;
     }
 
-    function refundDeposit(uint256 propertyId, address renterAddress, bool evicted, bool isForSale) onlyPropertyMarket external {
+    function refundDeposit(uint256 propertyId, address renterAddress, bool evicted, bool isForSale, bool changePropertiesWithRenterCount) onlyPropertyMarket external {
         require(propertyId <= 550 && propertyId >= 1, "Invalid property ID");
         uint256 depositPaid = renterDepositBalance[renterAddress][propertyId];
         require(depositPaid > 0, "no deposit to refund");   
@@ -356,16 +340,18 @@ contract GovtFunctions is ReentrancyGuard {
         // if renter was last renter on a property, decrement propertiesWithRenterCount. use getPropertyRenters to check if renter is last renter
         address[4] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
 
-        if (isForSale) {
-            bool isLastRenter = true;
-            for (uint i = 0; i < 4; i++) {
-                if (propertyRenters[i] != address(0)) {
-                    isLastRenter = false;
-                    break;
+        if (changePropertiesWithRenterCount) {            
+            if (isForSale) {
+                bool isLastRenter = true;
+                for (uint i = 0; i < 4; i++) {
+                    if (propertyRenters[i] != address(0)) {
+                        isLastRenter = false;
+                        break;
+                    }
                 }
-            }
-            if (isLastRenter) {
-                propertiesWithRenterCount--;
+                if (isLastRenter) {
+                    propertiesWithRenterCount--;
+                }
             }
         }
     }
@@ -375,7 +361,7 @@ contract GovtFunctions is ReentrancyGuard {
         PropertyMarket.Property memory currentItem = fetchSingleProperty(propertyId);
         require(
             msg.value == currentItem.rentPrice,
-            "amount != rent"
+            "incorrect rent amount"
         );
 
         uint256 rentTime = propertyMarketContract.getRenterToPropertyTimestamp(propertyId, msg.sender);

@@ -367,7 +367,7 @@ const CreateItem = () => {
 
 
       // add gas limits here as well
-      let transaction2 = await contract.createPropertyListing(nftaddress, idsBatch, {
+      let transaction2 = await contract.createPropertyListing(idsBatch, {
 
       })
       await transaction2.wait()
@@ -421,8 +421,7 @@ const CreateItem = () => {
     for (let i = 0; i < numOfBatches && i * batchSize < newTokenIdsTemp.length; i++) {
       const batch = newTokenIdsTemp.slice(i * batchSize, (i + 1) * batchSize);
         
-      let transaction2 = await contract2.createPropertyListing(
-        nftaddress, 
+      let transaction2 = await contract2.createPropertyListing(        
         batch
       );
       await transaction2.wait();  
@@ -437,7 +436,7 @@ const CreateItem = () => {
     let pid = BigInt(Number(formInput.pid))
     console.log(pid)
     console.log(BigInt(15))
-    const transaction = await contract.giftProperties(nftaddress, pid, formInput.address);
+    const transaction = await contract.giftProperties(pid, formInput.address);
     await transaction.wait();
   }
 

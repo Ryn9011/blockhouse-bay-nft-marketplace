@@ -338,15 +338,15 @@ const Owned = () => {
       let maticAmount = !isExclusive ? document.getElementById('amountInput' + i).value : document.getElementById('tokenInput' + i).value
 
       const priceFormatted = ethers.parseUnits(maticAmount, 'ether');
+      const tokenAmountFormatted = ethers.parseUnits(tokenAmount, 18);
       // const listingPriceFormatted = ethers.parseUnits(BigInt(listingPrice), 'ether')
       
       try {
-        const transaction = await contract.sellProperty(
-          nftaddress,
+        const transaction = await contract.sellProperty(          
           property.tokenId,
           property.propertyId,
           priceFormatted,
-          tokenAmount,
+          tokenAmountFormatted,
           isExclusive,
           {
             value: listingPrice.toString()
@@ -527,7 +527,7 @@ const Owned = () => {
     const contract = new Contract(nftmarketaddress, Market.abi, signer)
     setTxLoadingState2({ ...txloadingState2, [i]: true });
     try {
-      const transaction = await contract.cancelSale(nftaddress, property.tokenId, property.propertyId)
+      const transaction = await contract.cancelSale(property.tokenId, property.propertyId)
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2({ ...txloadingState2B, [i]: true });
 

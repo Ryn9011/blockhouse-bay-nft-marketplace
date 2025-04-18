@@ -45,6 +45,10 @@ async function main() {
   const tx2 = await propertyMarket.deployTokenContract();
   await tx2.wait();
 
+  const tx3 = await propertyMarket.setNftContractAddress(nft.target);
+  await tx3.wait();
+  console.log("NFT contract address set in PropertyMarket");
+
   const tokenContractAddress = await propertyMarket.getTokenContractAddress();
   
   const propertyTokenContract = await ethers.getContractAt('PropertyToken', tokenContractAddress);

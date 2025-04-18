@@ -43,10 +43,10 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import {PropertyToken} from "./PropertyToken.sol";
 
 interface GovtContract {
-    function refundDeposit(uint256, address, bool, bool) external;
+    function refundDeposit(uint256, address, bool, bool, bool) external;
     function withdrawRentTax() external;
     function getBalance() external view returns (uint256);
-    function giftProperties(address nftContract, uint256 propertyId, address recipient) external;
+    function giftProperties(uint256 propertyId, address recipient) external;
     function adjustPropertiesWithRenterCount(uint256 propertyId, bool isForSale) external;
 }
 
@@ -71,6 +71,7 @@ contract PropertyMarket is ReentrancyGuard {
     uint256 tokenMaxSupply = INITIAL_MINT;    
 
     PropertyToken public tokenContract;
+    address nftContract;
  
     struct Sale {
         uint256 price;
@@ -112,11 +113,6 @@ contract PropertyMarket is ReentrancyGuard {
     mapping(address => uint256) public renterTokens;    
     mapping(address => mapping(uint256 => uint256)) renterToPropertyPaymentTimestamps;    
     mapping(address => uint256[]) public userProperties; 
-
-    // modifier onlyOwner(uint256 propertyId) {
-    //     require(idToProperty[propertyId].owner == msg.sender, "");
-    //     _;
-    // }
 
     modifier onlyGovt() {
         require(i_govt == msg.sender, "");
@@ -333,22 +329,6 @@ contract PropertyMarket is ReentrancyGuard {
         renterTokens[caller] += amount;
     }
 
-    // function getRentAccumulated(address user) public view returns (uint256) {
-    //     return rentAccumulated[user];
-    // }
-
-    // function setRentAccumulated(uint256 amount, address caller) public onlyGovtContract {
-    //     rentAccumulated[caller] = amount;
-    // }
-
-    // function getTotalDepositBal() public view returns (uint256) {
-    //     return totalDepositBal;
-    // }
-
-    // function setTotalDepositBal(uint256 amount) public onlyGovtContract {
-    //     totalDepositBal += amount;
-    // }
-
     function fetchPropertiesSold(uint256 page) public view returns (Property[] memory) {
         uint256 propertyCount = _propertyIds.current();        
         uint256 startIndex = 20 * (page - 1);
@@ -441,7 +421,8 @@ contract PropertyMarket is ReentrancyGuard {
         return tenants[tenant];
     }
 
-    function deployTokenContract() public onlyGovt {
+    function deployTokenContract() public onlyGovt nonReentrant {
+        require(address(tokenContract) == address(0), "already deployed");
         PropertyToken propertyToken = new PropertyToken(
             INITIAL_MINT,
             address(this),
@@ -450,8 +431,12 @@ contract PropertyMarket is ReentrancyGuard {
         tokenContract = propertyToken;
     }
 
-    function sellProperty(
-        address nftContract,
+    function setNftContractAddress(address nftContractAddress) public onlyGovt nonReentrant {
+        require(nftContract == address(0), "already set");
+        nftContract = nftContractAddress;
+    }
+
+    function sellProperty(        
         uint256 tokenId,
         uint256 propertyId,
         uint256 price,
@@ -460,17 +445,19 @@ contract PropertyMarket is ReentrancyGuard {
     ) external payable nonReentrant {
         Property storage property = idToProperty[propertyId];
         
-        require(property.owner == msg.sender, "");        
-        require(msg.value == listingPrice, "");
+        require(property.owner == msg.sender, "not owner");        
+        require(msg.value == listingPrice, "incorrect listing price");
         require(!property.isForSale, "");
         
         if (isExclusive) {
-            require(propertyId >= 500, "");
-            property.tokenSalePrice = tokenPrice * (1 ether);
+            require(propertyId >= 501 && propertyId < 551, "");
+            property.tokenSalePrice = tokenPrice;
+            // set price bounds for tokens
+            require(tokenPrice >= 1 ether && tokenPrice <= 10000000 ether, "");
         } else {
-            require(propertyId <= 500 && propertyId > 0 && price >= INITIAL_SALE_PRICE && price <= MAX_SALE_PRICE, "");
+            require(propertyId <= 500 && propertyId >= 1 && price >= INITIAL_SALE_PRICE && price <= MAX_SALE_PRICE, "");
             property.salePrice = price;
-            property.tokenSalePrice = (tokenPrice != 0) ? tokenPrice * (1 ether) : 0;
+            property.tokenSalePrice = (tokenPrice != 0) ? tokenPrice : 0;
             _relistCount.increment();
             _propertiesSold.decrement();            
             i_govtContract.transfer(msg.value);
@@ -486,8 +473,7 @@ contract PropertyMarket is ReentrancyGuard {
 
 
     //user cancel property sale
-    function cancelSale(
-        address nftContract,
+    function cancelSale(        
         uint256 tokenId,
         uint256 propertyId
     ) public nonReentrant {
@@ -507,8 +493,7 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     //initial sale from after minto
-    function createPropertyListing(
-        address nftContract,
+    function createPropertyListing(        
         uint256[] memory tokenIds
     ) public payable onlyGovt nonReentrant {        
 
@@ -542,26 +527,20 @@ contract PropertyMarket is ReentrancyGuard {
         }
     }
 
-    function createPropertySale(
-        address nftContract,
-        uint256 itemId,
-        address propertyTokenContractAddress,
+    function createPropertySale(        
+        uint256 itemId,        
         bool isPaymentTokensBool
     ) public payable nonReentrant {  
         Property storage temp = idToProperty[itemId];
-        require(itemId < 551 && itemId > 0, "");
+        require(itemId <= 550 && itemId >= 1, "");
         require(temp.isForSale == true);
         uint256 price = temp.salePrice;
         uint256 tokenId = temp.tokenId;
      
-        if (isPaymentTokensBool) {
-            require(
-                propertyTokenContractAddress == address(tokenContract),
-                ""
-            );
+        if (isPaymentTokensBool) {    
             require(temp.tokenSalePrice != 0, "");
 
-            IERC20 propertyToken = IERC20(propertyTokenContractAddress);
+            IERC20 propertyToken = IERC20(address(tokenContract));
             
             require(
                 propertyToken.allowance(msg.sender, address(this)) ==
@@ -582,8 +561,8 @@ contract PropertyMarket is ReentrancyGuard {
                 Sale(temp.tokenSalePrice, 2)
             );                   
         } else {            
-            require(itemId < 501, "");            
-            require(msg.value == price, "");
+            require(itemId < 501 && itemId > 0, "");            
+            require(msg.value == price, "incorrect price");
             GovtContract govtContract = GovtContract(i_govtContract);
             govtContract.adjustPropertiesWithRenterCount(itemId, false);
             temp.saleHistory.push(Sale(price, 1));      
@@ -597,7 +576,7 @@ contract PropertyMarket is ReentrancyGuard {
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
         
         if (temp.owner != i_govt) {
-            vacateCommonTasks(itemId, msg.sender);
+            vacateCommonTasks(itemId, msg.sender, false);
             for (uint256 j = 0; j < userProperties[temp.owner].length; j++) {
                 if (userProperties[temp.owner][j] == itemId) {
                     userProperties[temp.owner][j] = userProperties[temp.owner][userProperties[temp.owner].length - 1];
@@ -661,10 +640,10 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function vacate(uint256 pid) public nonReentrant {
-        vacateCommonTasks(pid, msg.sender);
+        vacateCommonTasks(pid, msg.sender, true);
     }
 
-    function vacateCommonTasks(uint256 propertyId, address sender) internal {
+    function vacateCommonTasks(uint256 propertyId, address sender, bool changePropertiesWithRenterCount) internal {
         for (uint256 i = 0; i < 4; i++) {
             if (tenants[sender][i] == propertyId) {                
                 tenants[sender][i] = 0;
@@ -678,7 +657,7 @@ contract PropertyMarket is ReentrancyGuard {
                     renterToPropertyPaymentTimestamps[sender][propertyId] = 0;
                 }
                 GovtContract govtContract = GovtContract(i_govtContract);
-                govtContract.refundDeposit(propertyId, msg.sender, false, idToProperty[propertyId].isForSale);
+                govtContract.refundDeposit(propertyId, msg.sender, false, idToProperty[propertyId].isForSale, changePropertiesWithRenterCount);
                 break;
             }
         }        
@@ -698,7 +677,8 @@ contract PropertyMarket is ReentrancyGuard {
         }        
         resetPropertyToRenters(propertyId, tennant);
         GovtContract govtContract = GovtContract(i_govtContract);
-        govtContract.refundDeposit(propertyId, tennant, true, idToProperty[propertyId].isForSale);
+
+        govtContract.refundDeposit(propertyId, tennant, true, idToProperty[propertyId].isForSale, true);
     }
 
     function withdrawERC20() public nonReentrant {
@@ -717,8 +697,7 @@ contract PropertyMarket is ReentrancyGuard {
     //     }        
     // }
 
-    function giftProperties(
-        address nft,
+    function giftProperties(        
         uint256 pId,
         address recipient    
     ) public onlyGovt nonReentrant{
@@ -732,7 +711,7 @@ contract PropertyMarket is ReentrancyGuard {
         idToProperty[pId].dateSoldHistory.push(block.timestamp);
         userProperties[recipient].push(pId);
         
-        IERC721(nft).transferFrom(
+        IERC721(nftContract).transferFrom(
             address(this),
             address(uint160(recipient)),
             pId

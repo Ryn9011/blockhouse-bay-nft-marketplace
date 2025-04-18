@@ -74,9 +74,11 @@ const ForSale = () => {
       const tokenContract = new Contract(nftaddress, NFT.abi, provider);
 
       const data = await marketContract.fetchPropertiesForSale(currentPage, onlyWithRentals)
-      // console.log(data)
+      console.log(data)
       const numForSale = Number(await govtContract.getPropertiesForSale());
       const rentedPropertyCount = Number(await govtContract.getRentedProperties());
+
+      console.log('rentedPropertyCount:', rentedPropertyCount);
 
       const currentPageNumItems = numForSale - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
@@ -111,6 +113,7 @@ const ForSale = () => {
         }
 
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
+        console.log('price:', price);
         let tokenSalePriceFormatted = ethers.formatUnits(i.tokenSalePrice.toString(), 'ether')
         let saleHistory = [];
         if (i.saleHistory.length > 0) {
@@ -206,8 +209,8 @@ const ForSale = () => {
       let price = ethers.parseUnits(nft.price.toString());
 
       const bigIntValue = BigInt(price);
-      // console.log('bigIntValue:', Number(bigIntValue));
-      // console.log('price:', Number(price));
+      console.log('bigIntValue:', Number(bigIntValue));
+      console.log('price:', Number(price));
       let isTokenSale = false;
 
       let propertyTokenContract = undefined;
@@ -215,6 +218,7 @@ const ForSale = () => {
 
       setTxLoadingState({ ...txloadingState, [i]: true });
       if (brb != undefined) {
+        console.log('brb:', brb.checked);
         if (brb.checked) {
           price = ethers.parseUnits("0", 'ether');
           isTokenSale = true;
@@ -228,13 +232,13 @@ const ForSale = () => {
       // console.log('price:', price);
       // console.log('propertytokenaddress:', propertytokenaddress);
       // console.log('nftaddress:', nftaddress);
-      // console.log('nft.propertyId:', nft.propertyId);
-      const transaction = await contract2.createPropertySale(
-        nftaddress,
-        nft.propertyId,
-        propertytokenaddress,
+      console.log('nft.propertyId:', nft.propertyId);
+      const transaction = await contract2.createPropertySale(        
+        nft.propertyId,        
         isTokenSale,
-        { value: price }
+        {
+          value: price.toString(),
+        }
       );
 
       console.log('Transaction:', transaction);

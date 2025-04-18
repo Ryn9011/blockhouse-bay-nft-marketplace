@@ -167,39 +167,12 @@ const PropertyView = () => {
           await propertyTokenContract.allowSender(amount);
         }
       }
-
-      let gasLimit = await contract2.createPropertySale.estimateGas(
-        nftaddress,
-        nft.propertyId,
-        propertytokenaddress,
+      
+      const transaction = await contract2.createPropertySale(        
+        nft.propertyId,        
         isTokenSale,
         {
           value: price,
-        }
-      );
-
-
-
-
-      gasLimit = gasLimit + 100000n;
-
-
-      const feeData = await provider.getFeeData();
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
-
-
-      const transaction = await contract2.createPropertySale(
-        nftaddress,
-        nft.propertyId,
-        propertytokenaddress,
-        isTokenSale,
-        {
-          value: price,
-          gasLimit: gasLimit,
-          maxFeePerGas: maxFeePerGas,
-          maxPriorityFeePerGas: maxPriorityFeePerGas
         }
       );
 
