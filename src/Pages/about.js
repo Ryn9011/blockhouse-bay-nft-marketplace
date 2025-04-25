@@ -292,7 +292,7 @@ const About = () => {
                                   When a property is listed for sale, the corresponding NFT is transferred to the Blockhouse Bay market smart contract.
                                 </li>
                                 <li>If the sale is canceled, the NFT is returned to the owner.</li>
-                                <li>A listing fee of 12 POL is required to list a property for sale.</li>
+                                <li>A listing fee is required to list a property for sale.</li>
                                 <li>A 5% deduction applies to successful sales.</li>
                               </ul>
                             </section>
@@ -692,12 +692,12 @@ const About = () => {
                     <h3 className="text-2xl mt-3 font-semibold text-yellow-200 ">Selling a Property</h3>
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Listing Fee</p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      A listing fee of 12 POL is required to list a property for sale.
+                      A listing fee is required to list a property for sale.
                     </p>
 
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Selling Price</p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      The selling price cannot be less than the original price of the property - 150 POL.
+                      The selling price cannot be less than the original price of the property.
                     </p>
 
                     <p className="text-white text-base xl3:text-xl  italic mt-4">Payment Options</p>
@@ -1140,11 +1140,21 @@ const About = () => {
                       </p>
                     </p>
                   </li>
-                  <li>
+                  <li className="pb-4">
                     <h3 className="text-2xl mt-2 font-semibold text-yellow-200">WalletConnect</h3>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
                       Utilizing WalletConnect, Blockhouse Bay ensures seamless and secure interaction between users' wallets and the blockchain. With this integration, users can easily connect their preferred wallets to access features, make transactions, and engage with the platform's decentralized services, all while maintaining full control and privacy over their digital assets.
                     </p>
+                  </li>
+                  <li>
+                    <h3 className="text-2xl mt-2 font-semibold text-yellow-200">Troubleshooting</h3>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">The platform has been battle-tested, and the only hiccup you might run into is thinking an account is connected when it’s not.</p>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">
+                      Pages will automatically reload when they detect a change in the connected account. This helps ensure users always see accurate information and that transactions are made with the correct account.
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">
+                      However, some browsers e.g. Brave will block the reload functionality by default and so the user will need to refresh the page manually when switching the connected account.
+                    </p>                    
                   </li>
                 </ul>
               </div>

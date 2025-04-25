@@ -459,13 +459,13 @@ contract PropertyMarket is ReentrancyGuard {
             property.salePrice = price;
             property.tokenSalePrice = (tokenPrice != 0) ? tokenPrice : 0;
             _relistCount.increment();
-            _propertiesSold.decrement();            
+            _propertiesSold.decrement();  
+            GovtContract govtContract = GovtContract(i_govtContract);
+            govtContract.adjustPropertiesWithRenterCount(propertyId, true);          
             i_govtContract.transfer(msg.value);
         }
         // Common actions
         property.isForSale = true;
-        GovtContract govtContract = GovtContract(i_govtContract);
-        govtContract.adjustPropertiesWithRenterCount(propertyId, true);
         property.seller = payable(msg.sender);
     
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
@@ -486,9 +486,10 @@ contract PropertyMarket is ReentrancyGuard {
         if (propertyId < 501) {
             _propertiesSold.increment();
             decrementRelistCount();
+        } else {
+            GovtContract govtContract = GovtContract(i_govtContract);
+            govtContract.adjustPropertiesWithRenterCount(propertyId, false);
         }        
-        GovtContract govtContract = GovtContract(i_govtContract);
-        govtContract.adjustPropertiesWithRenterCount(propertyId, false);
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
     }
 

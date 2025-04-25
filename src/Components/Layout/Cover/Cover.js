@@ -95,7 +95,7 @@ export default function Cover() {
                             <img src="logoplain.png" alt="" />
                         </div>
                     </div>
-                    <div className="flex justify-center mb-6 xl3:mb-12 ">
+                    <div className="flex justify-center mb-6 xl3:mb-0 ">
                         <a href="/about" className="text-white bg-pink-900 border-pink-300 hover:text-white opacity-85 hover:bg-opacity-60 border-4 shadow-lg text-sm md:text-base 
                          font-semibold hover:no-underline
                            rounded py-2.5 px-4 md:py-3 md:px-6">Get Started</a>

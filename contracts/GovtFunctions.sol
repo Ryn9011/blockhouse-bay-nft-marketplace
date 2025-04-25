@@ -55,9 +55,8 @@ contract GovtFunctions is ReentrancyGuard {
         i_propertyMarketAddress = propertyMarketAddress;       
     }
 
-    function setGovtAddress(address govtAddress) public onlyGovt {
-        if (!hasSetGovtAddress) {
-            console.log('govtAddress: ', govtAddress);
+    function setGovtAddress(address govtAddress) public {
+        if (!hasSetGovtAddress) {            
             _govtAddress = govtAddress;
             hasSetGovtAddress = true;
         }
@@ -386,6 +385,7 @@ contract GovtFunctions is ReentrancyGuard {
         }
 
         require(isRenter, "not tenant");
+        
        // uint256 accumulated = getRentAccumulated(currentItem.owner);
         //console.log('accumulated: ', accumulated);
        // setRentAccumulated((msg.value + accumulated), currentItem.owner);

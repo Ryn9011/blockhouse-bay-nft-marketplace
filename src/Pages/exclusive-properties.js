@@ -182,7 +182,7 @@ const Exclusive = () => {
           amount)
       } catch (error) {
         console.log(error)
-        alert(error);
+        alert("Transaction Failed - Make sure you are holding enough BHB and try again.");
         setTxLoadingState1({ ...txloadingState1, [i]: false });
         setTxLoadingState1B({ ...txloadingState1B, [i]: false });
         return;
@@ -207,7 +207,7 @@ const Exclusive = () => {
       loadProperties()
     } catch (error) {
       console.log(error)
-      alert('Transaction Failed - Make sure you are holding enough BHB and try again. If you are renting a room, make sure you are holding at least 2500 BHB tokens');
+      alert('Transaction Failed - Make sure you are holding enough BHB and try again.');
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: false });
     }
@@ -309,11 +309,11 @@ const Exclusive = () => {
                 >
                   <img className='w-fit h-fit' src={property.image} alt="" />
                   <div className="p-4">
-                    <h2
-                      className="whitespace-nowrap font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500"
+                    <p
+                      className="text-[24px] sm:text-2xl lg:text-3xl xl3:text-4xl whitespace-nowrap font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white to-purple-500"
                     >
                       {property.name}
-                    </h2>
+                    </p>
                     <div style={{ overflow: "hidden" }}>
                       <div className='flex justify-between mb-2 mt-4 '>
                         <div>
@@ -421,7 +421,7 @@ const Exclusive = () => {
                     </div>
                   </div>
 
-                  <div className=" px-2 h-[180px] md:h-[185px] pb-2 md:pb-0 bg-black">
+                  <div className=" px-2 h-[184px] md:h-[185px] pb-2 md:pb-0 bg-black">
 
                     <div className="pb-2 md:pb-0">
                       <div className="mb-2 text-2xl lg:text-base">
@@ -476,7 +476,7 @@ const Exclusive = () => {
                           </>
                         ) : (
                           <div className='flex justify-center'>
-                            <button disabled={true} className="mb-5 lg:mb-[15px] w-full  text-white font-bold py-2 mt-2.5 px-12 rounded">
+                            <button disabled={true} className="mb-5 lg:mb-[15px] w-full  text-white font-bold py-2 mt-2.5 px-10 rounded">
                               Not Currently for Sale
                             </button>
                           </div>
@@ -503,9 +503,9 @@ const Exclusive = () => {
                           //   No Vacancy
                           // </button>
                           <button
-                            className={`w-full font-bold py-2 px-12 rounded bg-gray-700 text-gray-500 cursor-not-allowed`}
+                            className={`w-full font-bold py-2 px-12 rounded bg-black cursor-not-allowed`}
                           >
-                            Rent Room
+                            No Vacancy
                           </button>
                         )
                         }

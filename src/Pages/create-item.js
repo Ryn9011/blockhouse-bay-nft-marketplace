@@ -288,7 +288,7 @@ const CreateItem = () => {
     console.log('listingPriceParsed: ', listingPriceParsed)
     const contract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
     try {
-    const transaction = await contract.setListingPrice(listingPrice)
+    const transaction = await contract.setListingPrice(listingPrice.toString())
     await transaction.wait()
     } catch (error) {
       console.error('Error setting listing price:', error)
