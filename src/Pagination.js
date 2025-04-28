@@ -13,6 +13,8 @@ export default function Pagination({
     pageNumbers.push(i);
   }
 
+  const pageCorrection = currentPage === 1 ? 0 : 1;
+
   const getItemCount = () => {
     if (totalPosts < postsPerPage) {
       return (
@@ -39,10 +41,10 @@ export default function Pagination({
             Showing
             <span className='font-medium'>
               {" "}
-              {currentPage === 1 ? currentPage : currentPage * postsPerPage - postsPerPage}{" "}
+              {(currentPage === 1 ? currentPage : currentPage * postsPerPage - postsPerPage)+ pageCorrection}{" "}
             </span>
             -
-            {getItemCount()}       
+            {getItemCount()}
             of
             <span className='font-medium'> {totalPosts} </span>
             properties

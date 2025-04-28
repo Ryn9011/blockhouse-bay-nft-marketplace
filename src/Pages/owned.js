@@ -997,7 +997,7 @@ const Owned = () => {
   if (loadingState !== 'loaded') return (
     <div className="pt-10 pb-10">
       <div className="flex">
-        <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
+        <div className="lg:px-4 md:ml-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
           <div className="flex items-center pl-6 lg:px-12">
             <p className="text-white text-3xl lg:text-5xl font-bold mb-2">Loading Properties</p>
             <div className="ml-2 mb-2">
@@ -1036,18 +1036,23 @@ const Owned = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-7 lg:ml-0 text-5xl font-bold md:mb-32 xl3:mb-10 text-white xl3:mt-4">My Properties</p>
-          <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-3/5 mb-32 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          <p className="ml-7 lg:ml-0 text-5xl font-bold md:mb-16 lg:mb-32 xl3:mb-10 text-white xl3:mt-4">My Properties</p>
+          <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
             <img src="col.png" className=" rotate-away2  shadow-2xl shadow-amber-100" />
             <div className='h-10 mt-16'></div>
             {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
           </div> 
-          <p className='text-white text-base md:text-left md:text-3xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>Start building your real estate portfolio today! Explore available properties, make a purchase, and come back here to manage your growing assets.</p>
-          <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
+          <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-12 lg:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>Start building your real estate portfolio today! Explore available properties, make a purchase, and come back here to manage your growing assets.</p>
+          <p className="text-xs pl-7 mb-6 md:mb-12 lg:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
+        </div>
+        <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          {/* <img src="col.png" className=" rotate-away shadow-2xl shadow-amber-100" /> */}
+          <div className='h-10 mt-16'></div>
+          {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
         </div>
 
       </div>
-      <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-12 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
+      <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-12 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-3/4 lg:w-2/4 md:pt-10 lg:pt-32 md:right-30">
         <img src="col.png" className="rotate-away2 brightness-110 shadow-2xl shadow-amber-100" />
         <div className='h-10 mt-16'></div>
         {/* <div className="gradient-overlay2 md:h-5/6"></div> */}

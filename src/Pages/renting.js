@@ -396,13 +396,13 @@ const Renting = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-7 lg:ml-0 text-5xl  font-bold mb-6 md:mb-32 xl3:mb-24 text-white">My Rented Properties</p>
-          <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          <p className="ml-7 lg:ml-0 text-5xl  font-bold mb-6 md:mb-16 lg:mb-32 xl3:mb-24 text-white">My Rented Properties</p>
+          <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 xl3:w-3/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
             <img src="col.png" className=" rotate-away2  shadow-2xl shadow-amber-100" />
             <div className='h-10 mt-16'></div>
             {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
           </div>
-          <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24  xl3:mt-44 lg:pt-4 pl-7 lg:pl-12'>Looking to rent a place? Discover available properties, secure your next rental, and check back here to manage your leases and stay on top of your rentals.</p>
+          <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-12 lg:mt-24  xl3:mt-44 lg:pt-4 pl-7 lg:pl-12'>Looking to rent a place? Discover available properties, secure your next rental, and check back here to manage your leases and stay on top of your rentals.</p>
           <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:lg:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
           {renterTokens > 0 &&
             <div className='md:pl-0 md:ml-12 mt-10 flex items-center mb-3 lg:mb-6'>
@@ -439,28 +439,33 @@ const Renting = () => {
 
           {/* <p className='text-white text-base italic font-extralight pt-2 lg:pt-4 pl-7 lg:pl-4'>Rent a property then check back here.</p> */}
           {/* <p className='text-white text-sm mt-12 pl-6'>Add the BHB Token address to your wallet</p> */}
-          <div className='ml-4 lg:ml-6 md:mt-4 hidden md:block'>
+          <div className='ml-4 lg:ml-6 md:mt-4 hidden xl3:block'>
             <div className='pl-6 lg:pt-2'>
               <AddTokenButton />
             </div>
             <p className="text-white text-sm pl-6 mt-2 lg:mt-4">BHB Token Address:</p>
             <div className="flex text-gray-400 pl-6 text-xs">
               {propertytokenaddress}
-              <img src={copyImg} className="w-5 h-5 ml-2 invert cursor-pointer" onClick={handleCopy} />
+              <img src={copyImg} className="w-4 h-4 ml-2 invert cursor-pointer" onClick={handleCopy} />
             </div>
           </div>
         </div>
-        <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
-          {/* <img src="col.png" className=" rotate-away shadow-2xl shadow-amber-100" /> */}
-          <div className='h-10 mt-16'></div>
-          {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+        <div className="image-container hidden lg:block xl3:hidden drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
+        <div className='pl-64 lg:pt-2'>
+          <AddTokenButton />
+        </div>
+        <p className="text-white text-sm pl-64 mt-2 lg:mt-4">BHB Token Address:</p>
+        <div className="flex text-gray-400 pl-64 text-xs">
+          {propertytokenaddress}
+          <img src={copyImg} className="w-5 h-5 ml-2 invert cursor-pointer" onClick={handleCopy} />
+        </div>
         </div>
       </div>
-      <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-8 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
+      <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-8 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-3/4 lg:w-2/4 md:pt-16 lg:pt-32 md:right-30">
         <img src="col.png" className="rotate-away2  brightness-110 shadow-2xl shadow-amber-100" />
         {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
       </div>
-      <div className='ml-4 lg:ml-0 md:hidden'>
+      <div className='ml-4 md:pl-32 md:pt-12 lg:ml-0 lg:hidden'>
         <div className='pl-6 lg:pt-2'>
           <AddTokenButton />
         </div>

@@ -62,7 +62,8 @@ const ForSale = () => {
   }, [currentPage, signer]);
 
   useEffect(() => {
-    loadProperties();
+    loadProperties();    
+      setCurrentPage(1);    
   }, [onlyWithRentals]);
 
 
@@ -73,7 +74,9 @@ const ForSale = () => {
       const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider);
       const tokenContract = new Contract(nftaddress, NFT.abi, provider);
 
-      const data = await marketContract.fetchPropertiesForSale(currentPage, onlyWithRentals)
+      const data = await marketContract.fetchPropertiesForSale(1, onlyWithRentals)
+
+
       console.log(data)
       const numForSale = Number(await govtContract.getPropertiesForSale());
       const rentedPropertyCount = Number(await govtContract.getRentedProperties());
@@ -262,7 +265,7 @@ const ForSale = () => {
   };
 
 
-  const paginate = (pageNumber) => {
+  const paginate = (pageNumber) => {    
     setCurrentPage(pageNumber)
   };
 
@@ -338,13 +341,13 @@ const ForSale = () => {
             </div>
           </div>
 
-          {currentPage === 1 && 
+          {/* {currentPage === 1 &&  */}
             <label className="inline-flex items-center cursor-pointer mb-3 pt-2 pl-7 lg:pl-0 lg:pt-4">
               <input type="checkbox" checked={onlyWithRentals} onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
               <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-400"></div>
               <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-green-100">Show only properties with tenants</span>
             </label>
-          }
+          {/* } */}
 
           <Pagination
             postsPerPage={postsPerPage}
