@@ -211,9 +211,6 @@ const ForSale = () => {
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
       let price = ethers.parseUnits(nft.price.toString());
 
-      const bigIntValue = BigInt(price);
-      console.log('bigIntValue:', Number(bigIntValue));
-      console.log('price:', Number(price));
       let isTokenSale = false;
 
       let propertyTokenContract = undefined;
@@ -221,7 +218,6 @@ const ForSale = () => {
 
       setTxLoadingState({ ...txloadingState, [i]: true });
       if (brb != undefined) {
-        console.log('brb:', brb.checked);
         if (brb.checked) {
           price = ethers.parseUnits("0", 'ether');
           isTokenSale = true;
@@ -231,10 +227,6 @@ const ForSale = () => {
         }
       }
 
-      // log out each elemnt of trasnaction
-      // console.log('price:', price);
-      // console.log('propertytokenaddress:', propertytokenaddress);
-      // console.log('nftaddress:', nftaddress);
       console.log('nft.propertyId:', nft.propertyId);
       const transaction = await contract2.createPropertySale(        
         nft.propertyId,        
@@ -255,10 +247,10 @@ const ForSale = () => {
       setTxLoadingStateB({ ...txloadingStateB, [i]: true });
       await transaction.wait();
       loadProperties(currentPage, i);
-    } catch (error) {
+    } catch (ex) {
       // Handle the error when the user rejects the transaction in MetaMask
-      console.error("Transaction rejected by the user or an error occurred:", error);
-      alert('Transaction Failed');
+      console.error("Transaction rejected by the user or an error occurred:", ex);
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
       setTxLoadingState({ ...txloadingState, [i]: false });
       setTxLoadingStateB({ ...txloadingStateB, [i]: false });
     }

@@ -249,8 +249,8 @@ contract GovtFunctions is ReentrancyGuard {
             // require(bal >= 2500 ether, "insufficient BHB token balance to rent excl");
         }
         
-        require(msg.value == currentProperty[0].deposit, "correct deposit required");
-        require(currentProperty[0].owner != msg.sender, "You can't rent your own property");
+        require(msg.value == currentProperty[0].deposit, "incorrect deposit amount");
+        require(currentProperty[0].owner != msg.sender, "You cannot rent your own property");
         require(currentProperty[0].owner != _govtAddress, "Property not yet owned");
 
         uint256[4][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
@@ -384,7 +384,7 @@ contract GovtFunctions is ReentrancyGuard {
             }
         }
 
-        require(isRenter, "not tenant");
+        require(isRenter, "is not tenant");
         
        // uint256 accumulated = getRentAccumulated(currentItem.owner);
         //console.log('accumulated: ', accumulated);
@@ -402,11 +402,11 @@ contract GovtFunctions is ReentrancyGuard {
         if (maxSupply > 0) {
             uint256 tokensToReceive = RewardCalculator.getTokenAmountToReceive(price, maxSupply, INITIAL_MINT);     
 
-            console.log('tokensToReceive: ', tokensToReceive);
+            // console.log('tokensToReceive: ', tokensToReceive);
       
             propertyMarketContract.setRenterTokens(tokensToReceive, msg.sender);
 
-            console.log('maxSupply: ', maxSupply);
+            // console.log('maxSupply: ', maxSupply);
             uint256 newSupplyAmount = maxSupply - tokensToReceive;
             propertyMarketContract.setMaxSupply(newSupplyAmount);
             

@@ -31,7 +31,7 @@ module.exports = {
     settings: {
       //optimizer: {enabled: process.env.DEBUG ? false : true},
       optimizer: {
-        runs: 1000,
+        runs: 100,
         enabled: true,
       }
     }

@@ -192,17 +192,17 @@ const About = () => {
                     <div className="xl:hidden lg:border border-1 rounded-md border-white flex justify-center">
                       <img src="livingroom1.png" className="mt-4" alt="buy/sell/rent" />
                     </div>
-                    <div className="text-white text-xl xl3:text-xl italic mt-3 flex justify-start items-center">
+                    <div className="text-white md:text-xl xl3:text-xl italic mt-3 flex justify-start items-center">
                       <div>What is BlockHouse Bay?</div>
                       <span className=" scale-90 border border-1 hover:cursor-pointer rounded-lg bg-blue-700 hover:bg-blue-600 border-blue-700 p-2 pt-1 ml-3" onClick={handleModalOpen}>
                         <ArticleIcon className="brightness-150 hover:cursor-pointer" />
                       </span>
-                      <a href="https://x.com/BlockhouseBayio" target="new"><img src="logo-white.png" className='w-9 h-9 ml-4 p-1' alt="https://x.com/BlockhouseBayio" /></a>
+                      <a href="https://x.com/BlockhouseBayio" target="new"><img src="logo-white.png" className='w-10 h-9 ml-4 p-1' alt="https://x.com/BlockhouseBayio" /></a>
                     </div>
                     <p className="mt-0 text-gray-400 pl-2 mr-4 mt-1">
-  Let’s address the big question right away: Is Blockhouse Bay a scam? No, it isn’t. But we’re also not going to pretend it’s some groundbreaking, world-changing project. We’re a small team from New Zealand
-  <span className="inline-block align-middle"><img src="nz.png" className="h-6 w-7 mr-1 ml-2" /></span> with realistic goals, focused on delivering a creative and fun platform to build our token
-</p>
+                      Let’s address the big question right away: Is Blockhouse Bay a scam? No, it isn’t. But we’re also not going to pretend it’s some groundbreaking, world-changing project. We’re a small team from New Zealand
+                      <span className="inline-block align-middle"><img src="nz.png" className="h-6 w-7 mr-1 ml-2" /></span> with realistic goals, focused on delivering a creative and fun platform to build our token
+                    </p>
 
 
                     <p className="mt-2 text-gray-400 pl-2 mr-4">We get it - traditional presales can feel inherently scammy. Many projects ask for money upfront in exchange for tokens, often without delivering real value. That’s why we’re taking a different approach. Instead of selling tokens before the platform is proven, we’re giving you the chance to <em>earn</em> tokens by participating in our Web3 real estate simulation. This way, you gain value while exploring what the platform has to offer, rather than taking a leap of faith.</p>
@@ -1030,7 +1030,7 @@ const About = () => {
 
 
               </ul>
-              <div className="flex justify-center w-full">
+              <div className="flex justify-center w-full md:ml-56  lg:ml-0">
                 <div className="gallery h-fit pb-16  md:pb-40 lg:pb-0 lg:h-full cursor-none lg:mr-12 mt-8 md:mt-32 lg:mb-96 mb-24 xs:ml-5 xs2:ml-8 xs2:mb:32 sm:mb-32 sm:ml-24 md:ml-8 md:mb-32">
                   <a href="/blockhouse-bay-gardens" className="clipped-border brightness-125">
                     <img src="gallery1.png" id="clipped" />
@@ -1154,7 +1154,10 @@ const About = () => {
                     </p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
                       However, some browsers e.g. Brave will block the reload functionality by default and so the user will need to refresh the page manually when switching the connected account.
-                    </p>                    
+                    </p>
+                    <p className="mt-2 text-gray-400 pl-2 mr-4">
+                      The add-token button will also be disabled in these browsers and BHB will need to be added manually to you wallet as a custom token.
+                    </p>
                   </li>
                 </ul>
               </div>

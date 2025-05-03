@@ -254,14 +254,14 @@ const Renting = () => {
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: false });
       setTxLoadingState2({ ...txloadingState2, [i]: false });
-      setTxLoadingState2({ ...txloadingState2B, [i]: false });
+      setTxLoadingState2B({ ...txloadingState2B, [i]: false });
     } catch (ex) {
       setTxLoadingState({ ...txloadingState, [i]: false });
       setTxLoadingStateB({ ...txloadingStateB, [i]: false });
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: false });
       setTxLoadingState2({ ...txloadingState2, [i]: false });
-      setTxLoadingState2({ ...txloadingState2B, [i]: false });
+      setTxLoadingState2B({ ...txloadingState2B, [i]: false });
       if (ex.message === 'User Rejected') {
         // Handle user rejection
         
@@ -290,8 +290,6 @@ const Renting = () => {
       setTxLoadingState1({ ...txloadingState1, [i]: true });
       const amount = property.rentPrice.toString();
 
-               
-
       const transaction = await govtContract.payRent(
         property.propertyId,
         {         
@@ -306,7 +304,7 @@ const Renting = () => {
       console.log(ex)
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: false });
-      alert('Tx failed - Check your balance and try again')
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
     }
   }
 
@@ -330,17 +328,20 @@ const Renting = () => {
   //if same address has rented more than one room, this will vacate all of them
   const Vacate = async (property, i) => {
     const contract = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer)
-    setTxLoadingState2({ ...txloadingState2, [i]: true });
+
     try {
+      setTxLoadingState2({ ...txloadingState2, [i]: true });
       const transaction = await contract.vacate(
         property.propertyId
       )
       setTxLoadingState2({ ...txloadingState2, [i]: false });
-
       setTxLoadingState2B({ ...txloadingState2B, [i]: true });
       await transaction.wait()
+      loadProperties();
     } catch (ex) {
-      alert('Transaction Failed')
+      setTxLoadingState2({ ...txloadingState2, [i]: false });
+      setTxLoadingState2B({ ...txloadingState2B, [i]: false });
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
     }
     
     loadProperties()

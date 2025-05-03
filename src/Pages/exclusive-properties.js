@@ -227,16 +227,8 @@ const Exclusive = () => {
       setTxLoadingState2B({ ...txloadingState2B, [i]: true });
       await transaction.wait()
       loadProperties()
-    } catch (error) {
-      if (error.message.includes('insufficient BHB token balance to rent excl')) {
-        alert('Insufficient BHB token balance to rent exclusive property');
-      } else if (error.message.includes('You can\'t rent your own property')) {
-        alert('You can\'t rent your own property');
-      } else if (error.message.includes('Property not yet owned')) {
-        alert('Property not yet owned');
-      } else {
-        alert('transaction failed - check you have not reached max rentals for this account');
-      }
+    } catch (ex) {
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
 
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2B({ ...txloadingState2B, [i]: false });
@@ -503,7 +495,7 @@ const Exclusive = () => {
                           //   No Vacancy
                           // </button>
                           <button
-                            className={`w-full font-bold py-2 px-12 rounded bg-black cursor-not-allowed`}
+                            className={`w-full font-bold py-2 px-12 rounded bg-black`}
                           >
                             No Vacancy
                           </button>

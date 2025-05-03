@@ -362,7 +362,8 @@ const Owned = () => {
         // console.log('Transaction mined')
       } catch (ex) {
         console.log(ex)
-        alert('Check you have enough MATIC in your wallet to pay for the listing fee')
+        // alert('Check you have enough MATIC in your wallet to pay for the listing fee')
+        alert(ex.message.substring(0, ex.message.indexOf('(')))
       }
 
     } catch (Ex) {

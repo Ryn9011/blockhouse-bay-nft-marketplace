@@ -57,13 +57,11 @@ const ToRent = () => {
       
       const data = await marketContract.fetchPropertiesSold(currentPage) 
       
-
       let propetiesSold = Number(await marketContract.getPropertiesSold());
       const relistCount = Number(await marketContract.getRelistCount());
 
       const numForRent = propetiesSold + relistCount
       
-
       const currentPageNumItems = numForRent - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
       setShowBottomNav(showBottomNav);
@@ -187,14 +185,7 @@ const ToRent = () => {
       
       const govtContract = new Contract(govtaddress, GovtFunctions.abi, signer)  
       setTxLoadingState({ ...txloadingState, [i]: true }); 
-      
-
-
-      const feeData = await provider.getFeeData();
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
-
+            
       const transaction = await govtContract.rentProperty(property.propertyId, {       
         value: Number(property.depositHex).toString()
       });
@@ -203,17 +194,10 @@ const ToRent = () => {
       setTxLoadingState({ ...txloadingState, [i]: false });
       setTxLoadingStateB({ ...txloadingStateB, [i]: true });
       loadProperties(currentPage, i)
-    } catch (error) {
+    } catch (ex) {
       setTxLoadingState({ ...txloadingState, [i]: false });
       setTxLoadingStateB({ ...txloadingStateB, [i]: false });
-      if (error.message.includes('max properties rented')) {
-        alert('Maximum properties rented');
-      }
-      if (error.message.includes('You can\'t rent your own property')) {
-        alert('You can\'t rent your own property');
-      } else {
-        alert('Transaction failed - check you have not reached max rentals for this account');
-      }      
+      alert(ex.message.substring(0, ex.message.indexOf('('))) 
     }
   }
 

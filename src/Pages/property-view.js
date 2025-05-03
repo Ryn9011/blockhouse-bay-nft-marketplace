@@ -151,7 +151,7 @@ const PropertyView = () => {
       }
 
       const contract2 = new ethers.Contract(nftmarketaddress, PropertyMarket.abi, signer);
-      let price = ethers.parseUnits(nft.price.toString(), 'ether');
+      let price = ethers.parseUnits(nft.price.toString());
       let isTokenSale = false;
 
       let propertyTokenContract = undefined;
@@ -172,7 +172,7 @@ const PropertyView = () => {
         nft.propertyId,        
         isTokenSale,
         {
-          value: price,
+          value: price.toString(),
         }
       );
 
@@ -186,10 +186,10 @@ const PropertyView = () => {
       setTxLoadingStateB(true);
       await transaction.wait();
       loadProperties();
-    } catch (error) {
+    } catch (ex) {
       // Handle the error when the user rejects the transaction in MetaMask
-      console.error("Transaction rejected by the user or an error occurred:", error);
-      alert('Transaction Failed')
+      console.log('error: ', ex)      
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
       setTxLoadingState(false);
       setTxLoadingStateB(false);
       if (retries > 0) {
@@ -204,46 +204,23 @@ const PropertyView = () => {
       
       const govtContract = new ethers.Contract(govtaddress, GovtFunctions.abi, signer)
 
-      const deposit = Number(property.depositHex).toString() //await await govtContract.getDepositRequired();
-      // const deposit = ethers.parseUnits(test.toString(), 'ether')
-      // const num = ethers.utils.formatEther(deposit)
-      // const rentals = await marketContract.getPropertiesRented()
-      // ? ethers.utils.parseUnits(property.rentPrice.toString(), 'ether') 
-      // : ethers.utils.parseUnits(contract.defaultRentPrice.toString(), 'ether')
-      //STOP SAME ADDRESS RENTING MORE THAN ONE ROOM?
       setTxLoadingState2(true);
-      let gasLimit2 = await govtContract.rentProperty.estimateGas(property.propertyId, {
-        value: Number(property.depositHex).toString()
-      });
-
-      gasLimit2 = gasLimit2 + 100000n;
-
-      const feeData = await provider.getFeeData();
-
-      const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
-      const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
-      const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
-
-      
 
       const transaction = await govtContract.rentProperty(property.propertyId, {
         value: Number(property.depositHex).toString(),
-        gasLimit: gasLimit2,
-        maxFeePerGas: maxFeePerGas,
-        maxPriorityFeePerGas: maxPriorityFeePerGas
       });
 
+      await transaction.wait();
       setTxLoadingState2(false);
       setTxLoadingState2B(true);
-      let trans = await transaction.wait();
       setLoadingState(false)
       
       loadProperties()
-    } catch (error) {
+    } catch (ex) {
       setTxLoadingState2(false);
       setTxLoadingState2B(false);
-      console.log('Pay rent error:', error)
-      alert('Transaction Failed')
+      console.log('error: ', ex)
+      alert(ex.message.substring(0, ex.message.indexOf('(')))
     }
   }
 

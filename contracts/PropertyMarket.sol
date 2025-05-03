@@ -226,7 +226,7 @@ contract PropertyMarket is ReentrancyGuard {
         }
         
         Property[] memory propertiesForSale = new Property[](endIndex - startIndex);
-        uint256 currentIndex = 0;        
+        uint256 currentIndex = 0;
 
         for (uint256 i = 0; i < propertyCount; i++) {
             uint256 currentId = i + 1;
@@ -453,7 +453,7 @@ contract PropertyMarket is ReentrancyGuard {
             require(propertyId >= 501 && propertyId < 551, "");
             property.tokenSalePrice = tokenPrice;
             // set price bounds for tokens
-            require(tokenPrice >= 1 ether && tokenPrice <= 10000000 ether, "");
+            require(tokenPrice >= 1 ether && tokenPrice <= 10000000 ether, "invalid token price");
         } else {
             require(propertyId <= 500 && propertyId >= 1 && price >= INITIAL_SALE_PRICE && price <= MAX_SALE_PRICE, "");
             property.salePrice = price;
@@ -478,7 +478,7 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 propertyId
     ) public nonReentrant {
         Property storage property = idToProperty[propertyId];
-        require(property.seller == msg.sender && property.isForSale, "");        
+        require(property.seller == msg.sender && property.isForSale, "property not for sale | not owner");        
         
         property.isForSale = false;
         property.salePrice = 0;
@@ -533,13 +533,14 @@ contract PropertyMarket is ReentrancyGuard {
         bool isPaymentTokensBool
     ) public payable nonReentrant {  
         Property storage temp = idToProperty[itemId];
-        require(itemId <= 550 && itemId >= 1, "");
-        require(temp.isForSale == true);
+        require(itemId <= 550 && itemId >= 1, "invalid property id");
+        require(temp.isForSale == true, "not for sale");
+        require(temp.seller != msg.sender, "cannot buy your own property");        
         uint256 price = temp.salePrice;
         uint256 tokenId = temp.tokenId;
      
         if (isPaymentTokensBool) {    
-            require(temp.tokenSalePrice != 0, "");
+            require(temp.tokenSalePrice != 0, "invalid token sale price");
 
             IERC20 propertyToken = IERC20(address(tokenContract));
             
@@ -562,7 +563,7 @@ contract PropertyMarket is ReentrancyGuard {
                 Sale(temp.tokenSalePrice, 2)
             );                   
         } else {            
-            require(itemId < 501 && itemId > 0, "");            
+            require(itemId < 501 && itemId > 0, "invalid property id");            
             require(msg.value == price, "incorrect price");
             GovtContract govtContract = GovtContract(i_govtContract);
             govtContract.adjustPropertiesWithRenterCount(itemId, false);
@@ -641,7 +642,8 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function vacate(uint256 pid) public nonReentrant {
-        vacateCommonTasks(pid, msg.sender, true);
+        require(pid >=1 && pid <= 550, "invalid property id");
+        vacateCommonTasks(pid, msg.sender, true);        
     }
 
     function vacateCommonTasks(uint256 propertyId, address sender, bool changePropertiesWithRenterCount) internal {
@@ -668,7 +670,7 @@ contract PropertyMarket is ReentrancyGuard {
         uint256 propertyId,
         address tennant
     ) public nonReentrant {
-        require(idToProperty[propertyId].owner == msg.sender, "");        
+        require(idToProperty[propertyId].owner == msg.sender, "not owner");        
         for (uint256 i = 0; i < tenants[msg.sender].length; i++) {
             if (tenants[tennant][i] == propertyId) {
                 tenants[tennant][i] = 0;
