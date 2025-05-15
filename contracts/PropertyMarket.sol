@@ -115,12 +115,12 @@ contract PropertyMarket is ReentrancyGuard {
     mapping(address => uint256[]) public userProperties; 
 
     modifier onlyGovt() {
-        require(i_govt == msg.sender, "");
+        require(i_govt == msg.sender, "only govt");
         _;
     }
 
     modifier onlyGovtContract() {
-        require(i_govtContract == msg.sender, "");
+        require(i_govtContract == msg.sender, "only govt contract");
         _;
     }
 
@@ -162,8 +162,7 @@ contract PropertyMarket is ReentrancyGuard {
     function decrementRelistCount() internal {
         _relistCount.decrement();
     }
-
-    //function to set totalincomegenerated
+    
     function setTotalIncomeGenerated(uint256 propertyId, uint256 amount) public onlyGovtContract nonReentrant {
         idToProperty[propertyId].totalIncomeGenerated += amount;
     }
@@ -177,6 +176,13 @@ contract PropertyMarket is ReentrancyGuard {
 
     function setTenantsMapping(address user, uint256 propertyId, uint8 index) public onlyGovtContract nonReentrant {
         tenants[user][index] = propertyId;
+    }
+    
+    // failsafe but should never be used in theory
+    function transferContractBalance() public onlyGovt nonReentrant {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "no balance");
+        i_govtContract.transfer(balance);
     }
 
     function getPropertyRenters(
@@ -473,10 +479,10 @@ contract PropertyMarket is ReentrancyGuard {
 
 
     //user cancel property sale
-    function cancelSale(        
-        uint256 tokenId,
+    function cancelSale(                
         uint256 propertyId
     ) public nonReentrant {
+        require(propertyId <= 550 && propertyId >= 1, "invalid property id");
         Property storage property = idToProperty[propertyId];
         require(property.seller == msg.sender && property.isForSale, "property not for sale | not owner");        
         
@@ -486,11 +492,10 @@ contract PropertyMarket is ReentrancyGuard {
         if (propertyId < 501) {
             _propertiesSold.increment();
             decrementRelistCount();
-        } else {
             GovtContract govtContract = GovtContract(i_govtContract);
             govtContract.adjustPropertiesWithRenterCount(propertyId, false);
-        }        
-        IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
+        }   
+        IERC721(nftContract).transferFrom(address(this), msg.sender, propertyId);
     }
 
     //initial sale from after minto
@@ -557,16 +562,15 @@ contract PropertyMarket is ReentrancyGuard {
                     temp.seller,
                     temp.tokenSalePrice
                 ),
-                ""
+                "transfer failed"
             );            
             temp.saleHistory.push(
                 Sale(temp.tokenSalePrice, 2)
             );                   
         } else {            
-            require(itemId < 501 && itemId > 0, "invalid property id");            
+            require(itemId < 501 && itemId >= 1, "invalid property id");            
             require(msg.value == price, "incorrect price");
-            GovtContract govtContract = GovtContract(i_govtContract);
-            govtContract.adjustPropertiesWithRenterCount(itemId, false);
+
             temp.saleHistory.push(Sale(price, 1));      
             temp.seller.transfer(
                 msg.value - ((msg.value * 500) / 10000)
@@ -592,6 +596,8 @@ contract PropertyMarket is ReentrancyGuard {
                 decrementRelistCount();
             }
             _propertiesSold.increment();
+            GovtContract govtContract = GovtContract(i_govtContract);
+            govtContract.adjustPropertiesWithRenterCount(itemId, false);
         }
 
         temp.owner = payable(msg.sender);
@@ -685,8 +691,8 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function withdrawERC20() public nonReentrant {
-        // console.log('tokens: ',renterTokens[msg.sender] / (10 ** 18));
-        require(renterTokens[msg.sender] > 0, "");
+        //console.log('tokens: ',renterTokens[msg.sender] / (10 ** 18));
+        require(renterTokens[msg.sender] > 0, "no tokens");
         tokenContract.transfer(msg.sender, renterTokens[msg.sender]);
         renterTokens[msg.sender] = 0;
     }

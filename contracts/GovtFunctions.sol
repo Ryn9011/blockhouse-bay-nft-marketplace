@@ -62,7 +62,7 @@ contract GovtFunctions is ReentrancyGuard {
         }
     }
 
-    function setDepoitMin(uint256 minDepositVal) public onlyGovt {
+    function setDepositMin(uint256 minDepositVal) public onlyGovt {
         minDeposit = minDepositVal;
     }
 
@@ -124,8 +124,8 @@ contract GovtFunctions is ReentrancyGuard {
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
         
         require(property[0].owner == msg.sender, "Not owner");
-        require(rentPrice >= 3 ether, "Rent can't be less than 3 pol");
-        require(rentPrice >= property[0].deposit && rentPrice <= 60 ether, "Rent cannot exceed 60 pol");
+        require(rentPrice >= 10 ether, "Rent can't be less than 10 pol");
+        require(rentPrice >= property[0].deposit && rentPrice <= 500 ether, "Rent cannot exceed 500 pol");
                 
         uint256 lastSaleIndex = property[0].dateSoldHistory.length - 1;
         uint256 lastSaleTime = property[0].dateSoldHistory[lastSaleIndex];
@@ -141,7 +141,7 @@ contract GovtFunctions is ReentrancyGuard {
         propertyIds[0] = propertyId;
         PropertyMarket.Property[] memory property = propertyMarketContract.getPropertyDetails(propertyIds, false);
         
-        require(depositPrice >= minDeposit, "deposit can't be less than 3 pol");
+        require(depositPrice >= minDeposit, "deposit can't be set below min deposit value");
         require(property[0].owner == msg.sender, "Not owner");
         require(depositPrice >= property[0].deposit && depositPrice <= 500 ether, "Invalid deposit price range");
 
@@ -376,7 +376,7 @@ contract GovtFunctions is ReentrancyGuard {
         uint256 tenantLength = tennants[0].length;
 
         for (uint8 i = 0; i < tenantLength; i++) {
-            console.log('tenantlength: ', tenantLength);
+            // console.log('tenantlength: ', tenantLength);
             if (tennants[0][i] == propertyId) {
                 //propertyMarketContract.setTenantsMapping(msg.sender, propertyId, i);
                 isRenter = true;
@@ -406,13 +406,17 @@ contract GovtFunctions is ReentrancyGuard {
       
             propertyMarketContract.setRenterTokens(tokensToReceive, msg.sender);
 
-            // console.log('maxSupply: ', maxSupply);
+            console.log('maxSupply from govt: ', maxSupply);
+            console.log('tokensToReceive from govt: ', tokensToReceive);
             uint256 newSupplyAmount = maxSupply - tokensToReceive;
             propertyMarketContract.setMaxSupply(newSupplyAmount);
             
             require(msg.value > 0, "rent = 0");                                
 
             uint256 taxAmount = calculateTax(currentItem.rentPrice, msg.value);
+
+            console.log('taxAmount: ', taxAmount);
+            console.log('msg.value: ', msg.value);
        
             payable(currentItem.owner).transfer(msg.value - taxAmount);
           
@@ -422,17 +426,25 @@ contract GovtFunctions is ReentrancyGuard {
 
     function calculateTax(uint256 rentPrice, uint256 paymentAmount) internal pure returns (uint256) {
         uint256 baseTax = 500; // 5%
-
-        // Convert rentPrice from wei to ether
-        uint256 rentInEther = rentPrice / 1 ether; // rentPrice in ether units
-
-        // Subtract 3 from rentInEther, not rentPrice in wei
-        uint256 additionalTax = (rentInEther > 3) ? (rentInEther - 3) * 100 : 0; // 1% for each ether above 3
+        uint256 rentInEther = rentPrice / 1 ether;
+        
+        uint256 additionalTax = (rentInEther > 10) ? ((rentInEther - 10) / 5) * 100 : 0;
+        //console.log('baseTax: ', baseTax);
+        //console.log('additionalTax: ', additionalTax);
 
         uint256 totalTaxPercentage = baseTax + additionalTax;
+      //  console.log('totalTaxPercentage: ', totalTaxPercentage);
+        
+        uint256 maxTaxPercentage = 6000; // 60%
+        if (totalTaxPercentage > maxTaxPercentage) {
+            totalTaxPercentage = maxTaxPercentage;
+        }
+        // console.log('maxTaxPercentage: ', maxTaxPercentage);
+        // console.log('totalTaxPercentage after cap: ', totalTaxPercentage);
 
         return (paymentAmount * totalTaxPercentage) / 10000;
     }
+
 
 
     // function transferRentToPropertyOwner(address propertyOwner) internal nonReentrant {

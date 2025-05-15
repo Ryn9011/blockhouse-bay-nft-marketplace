@@ -73,6 +73,7 @@ const Owned = () => {
   const [listingPrice, setListingPrice] = useState(0);
 
   const { modalEvent, provider, signer } = useModalContext();
+  const [minDeposit, setMinDeposit] = useState(0);
 
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
@@ -151,6 +152,11 @@ const Owned = () => {
       // setAmountAccumulated(value)
 
       //console.log(data)
+
+     
+      // const minDepositVal = await govt.getMinDeposit();
+      // setMinDeposit(ethers.formatUnits(minDepositVal, 'ether'))
+
 
       const items = await Promise.all(data.filter(i => Number(i.propertyId) !== 0 && (a => Number(a.tokenId !== 0))).map(async i => {
         //console.log(i)
@@ -522,6 +528,9 @@ const Owned = () => {
 
   // }
 
+  // check if tokenid and propertyId are the same
+  // check cancel sale on contract. whyc is 
+
   const CancelSale = async (property, i) => {
     // const web3Modal = new Web3Modal()
     // const connection = await web3Modal.connect()
@@ -530,8 +539,8 @@ const Owned = () => {
 
     const contract = new Contract(nftmarketaddress, Market.abi, signer)
     setTxLoadingState2({ ...txloadingState2, [i]: true });
-    try {
-      const transaction = await contract.cancelSale(property.tokenId, property.propertyId)
+    try {      
+      const transaction = await contract.cancelSale(property.propertyId)
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2({ ...txloadingState2B, [i]: true });
 
@@ -1651,7 +1660,7 @@ const Owned = () => {
                       <div className="pt-3">
                         <div className="text-sm font-bold mb-4 mt-1 flex items-center justify-between">
                           <div className='flex'>
-                            <p className="pr-1">Change Required Deposit</p>
+                            <p className="pr-1">Change Rental Deposit  <p className=' font-base text-xs mt-[3px] font-thin text-purple-400 italic'>Min 1.0 POL</p></p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
                                 <Link to="/about?section=owning" target='new'>
@@ -1676,6 +1685,7 @@ const Owned = () => {
                                 </div>
                               </div>
                             </div>
+                           
                           </div>
 
                           <div className='flex items-center'>

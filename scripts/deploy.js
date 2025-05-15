@@ -21,7 +21,7 @@ async function main() {
   // Send test Ether to the deployed contract
   const tx = await deployingSigner.sendTransaction({
     to: propertyMarket.target,
-    value: ethers.parseEther("0.1"), // Replace with the desired amount of test Ether
+    value: ethers.parseEther("0.1"), 
   });
   await tx.wait();  
 

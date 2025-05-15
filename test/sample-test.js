@@ -12,48 +12,52 @@ describe("PropertyMarket", function () {
   this.timeout(120000);
   it("Should create and execute market sales", async function () {
   
-    const deployingAddress = "0xa2Fe6EB40BE5768d929c0ef13dF6936522348067";
-    const deployingSigner = (await ethers.getSigners())[0]; // Access the first signer
-    console.log('start balance of i_govt', (await ethers.provider.getBalance(deployingSigner)).toString());
-    //console.log("Deploying signer:", deployingSigner);
+  const deployingAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
   
-    const RewardCalculator = await ethers.getContractFactory("RewardCalculator");
-    const rewardCalculator = await RewardCalculator.deploy();
-    await rewardCalculator.waitForDeployment();
-    console.log("Reward calculator deployed to:", rewardCalculator.target);
-  
-    const PropertyMarket = await ethers.getContractFactory("PropertyMarket");
-    const propertyMarket = await PropertyMarket.deploy();
-    await propertyMarket.waitForDeployment();
-    console.log("PropertyMarket deployed to:", propertyMarket.target);
-  
-    // Send test Ether to the deployed contract
-    const tx = await deployingSigner.sendTransaction({
-      to: propertyMarket.target,
-      value: ethers.parseEther("0.1"), // Replace with the desired amount of test Ether
-    });
-    await tx.wait();
-  
-    const GovtFunctions = await ethers.getContractFactory("GovtFunctions", {
-      libraries: {
-        RewardCalculator: rewardCalculator.target,
-      },
-    });
-    const govtFunctions = await GovtFunctions.deploy(propertyMarket.target);
-    await govtFunctions.waitForDeployment();
-    console.log("GovtFunctions deployed to:", govtFunctions.target);
+  const deployingSigner = (await ethers.getSigners())[0]; // Access the first signer
 
-    await govtFunctions.setGovtAddress(deployingSigner);
-  
-    const NFT = await ethers.getContractFactory("NFT");
-    const nft = await NFT.deploy(propertyMarket.target);
-    await nft.waitForDeployment();
-    console.log("NFT deployed to:", nft.target);
-    await nft.setDeployingAddress(deployingSigner);
-  
-    const tx2 = await propertyMarket.deployTokenContract();
-    // console.log('whats this ', tx2)
-    await tx2.wait();
+  // console.log("Deploying signer:", deployingSigner);
+
+  const RewardCalculator = await ethers.getContractFactory("RewardCalculator");
+  const rewardCalculator = await RewardCalculator.deploy();
+  await rewardCalculator.waitForDeployment();
+  console.log("Reward calculator deployed to:", rewardCalculator.target);
+
+  const PropertyMarket = await ethers.getContractFactory("PropertyMarket");
+  const propertyMarket = await PropertyMarket.deploy();
+  await propertyMarket.waitForDeployment();
+  console.log("PropertyMarket deployed to:", propertyMarket.target);
+
+  // Send test Ether to the deployed contract
+  const tx = await deployingSigner.sendTransaction({
+    to: propertyMarket.target,
+    value: ethers.parseEther("0.1"), // Replace with the desired amount of test Ether
+  });
+  await tx.wait();  
+
+  const GovtFunctions = await ethers.getContractFactory("GovtFunctions", {
+    libraries: {
+      RewardCalculator: rewardCalculator.target,
+    },
+  });
+  const govtFunctions = await GovtFunctions.deploy(propertyMarket.target);
+  await govtFunctions.waitForDeployment();
+  console.log("GovtFunctions deployed to:", govtFunctions.target);
+
+  await govtFunctions.setGovtAddress(deployingAddress);
+
+  const NFT = await ethers.getContractFactory("NFT");
+  const nft = await NFT.deploy(propertyMarket.target);
+  await nft.waitForDeployment();
+  console.log("NFT deployed to:", nft.target);
+  await nft.setDeployingAddress(deployingAddress);
+
+  const tx2 = await propertyMarket.deployTokenContract();
+  await tx2.wait();
+
+  const tx3 = await propertyMarket.setNftContractAddress(nft.target);
+  await tx3.wait();
+  console.log("NFT contract address set in PropertyMarket");
   
     const tokenContractAddress = await propertyMarket.getTokenContractAddress();
     
@@ -98,14 +102,30 @@ describe("PropertyMarket", function () {
     }
 
       
-    const numOfBatches = 10;
-
+    const numOfBatches = 25;
     for (let i = 0; i < numOfBatches && i * batchSize < tokenIds.length; i++) {
       const idsBatch = tokenIds.slice(i * batchSize, (i + 1) * batchSize);
-      let transaction2 = await propertyMarket.createPropertyListing(nft.target, idsBatch) //, { value: listingPrice }
-      await transaction2.wait();
-    }    
 
+      // let gasLimit = await contract.createPropertyListing.estimateGas(nftaddress, idsBatch);
+      // gasLimit = gasLimit + 100000n;
+
+      // // Fetch the current gas fee data
+      // const feeData = await provider.getFeeData();
+      // console.log("Current Fee Data:", feeData);
+
+      // const basePriorityFee = feeData.maxPriorityFeePerGas || ethers.parseUnits('1.5', 'gwei'); // Fallback to 1.5 gwei if undefined
+      // const maxPriorityFeePerGas = basePriorityFee + ethers.parseUnits('10', 'gwei'); // Add 2 gwei buffer
+      // const maxFeePerGas = maxPriorityFeePerGas + ethers.parseUnits('20', 'gwei'); // Add 5 gwei buffer to maxFeePerGas
+
+
+      // add gas limits here as well
+      let transaction2 = await propertyMarket.createPropertyListing(idsBatch, {
+
+      })
+      await transaction2.wait()
+    }    
+  
+    console.log('completed first batch of tokens')
     const urisn2 = Object.keys(dataEx.paths).map(uri => "https://arweave.net/" + dataEx.paths[uri].id);
 
     const tokenIds2 = [];
@@ -118,7 +138,7 @@ describe("PropertyMarket", function () {
         }
       }
 
-    let transaction2 = await propertyMarket.createPropertyListing(nft.target, tokenIds2, { value: listingPrice })    
+    let transaction2 = await propertyMarket.createPropertyListing(tokenIds2)    
     await transaction2.wait();
 
 
@@ -145,9 +165,9 @@ describe("PropertyMarket", function () {
     var [_,_,_,_,_,_,_, renter4] = await ethers.getSigners()  
     var [_,_,_,_,_,_,_,_, renter5] = await ethers.getSigners()  
 
-    let allproperti2es = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(1, 0, true, false)
+    // let allproperti2es = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(1, 0, true, false)
 
-    console.log('all properties for sale', allproperti2es.length)
+    // console.log('all properties for sale', allproperti2es.length)
  
     // console.log('initial balance of govtFunctions', (await ethers.provider.getBalance(govtFunctions.target)).toString());
     // console.log('initial balance of propertyMarket', (await ethers.provider.getBalance(propertyMarket.target)).toString());
@@ -159,8 +179,12 @@ describe("PropertyMarket", function () {
     // }  
 
     // console.log('has create properties?')
+
+    // 0.001 as wei not ether
+
+
  
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 1, tokenContractAddress, false, { value: initialSalePrice}) 
+    await propertyMarket.connect(buyerAddress).createPropertySale(1, false, { value: 1000000000000000}) 
     // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 2, tokenContractAddress, false, { value: initialSalePrice}) 
     // let allproperti2es3 = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(25)
     // //console.log(allproperti2es3.length)
@@ -210,7 +234,7 @@ describe("PropertyMarket", function () {
     //console.log('all properties for sale', allproperties.length)
     //console.log('all properties for sale2', allproperties2[19])
     // console.log(allproperties)
-    // await govtFunctions.connect(renterAddress).rentProperty(1, { value: rentdeposit })
+    await govtFunctions.connect(renterAddress).rentProperty(1, { value: 1000000000000000})
     // await govtFunctions.connect(renter2).rentProperty(1, { value: rentdeposit })
     // await govtFunctions.connect(renter3).rentProperty(1, { value: rentdeposit })
     // await govtFunctions.connect(renter4).rentProperty(1, { value: rentdeposit }) 
@@ -262,8 +286,42 @@ describe("PropertyMarket", function () {
     // console.log('renteraddress ', balance)
 
     // for (let i = 0; i < 50; i++) {
+    const rentValues = [
+      '11', '30', '60', '100', '150', '250', '300', '400', '500'
+    ];
       
-    //   await govtFunctions.connect(renterAddress).payRent(1, { value: ethers.parseUnits('3', 'ether')}) 
+
+    for (let i = 0; i < rentValues.length; i++) {
+      const rent = ethers.parseUnits(rentValues[i], 'ether');
+    
+      console.log(`\n--- Rent Payment Test: ${rentValues[i]} POL ---`);
+    
+      // Set rent
+      await govtFunctions.connect(buyerAddress).setRentPrice(1, rent);
+    
+      // Get balance before
+      const balanceBefore = await ethers.provider.getBalance(buyerAddress.address);
+      console.log('Buyer balance before:', ethers.formatEther(balanceBefore), 'ETH');
+    
+      // Pay rent
+      const tx = await govtFunctions.connect(renterAddress).payRent(1, { value: rent });
+      await tx.wait();
+    
+      // Get balance after
+      const balanceAfter = await ethers.provider.getBalance(buyerAddress.address);
+      console.log('Buyer balance after:', ethers.formatEther(balanceAfter), 'ETH');
+    
+      // Difference
+      const balanceDiff = balanceAfter - balanceBefore;
+      console.log('Balance diff:', ethers.formatEther(balanceDiff.toString()), 'ETH');
+    }
+
+    
+
+    await propertyMarket.connect(renterAddress).withdrawERC20()
+    let bal = await propertyTokenContract.balanceOf(renterAddress)
+  
+    console.log('balance of renter after pay rent', bal.toString());
     //   await propertyMarket.connect(renterAddress).withdrawERC20()
     //   let bal = await propertyTokenContract.balanceOf(renterAddress)
     //   let balanceInEth = ethers.formatEther(bal);

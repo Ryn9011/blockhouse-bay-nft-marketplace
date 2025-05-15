@@ -282,6 +282,12 @@ const CreateItem = () => {
     console.log('maxSupply: ', maxSupply)
   }
 
+  const getPropertyMarketBalance = async () => {
+    const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
+    const balance = await contract.getMarketBal()
+    console.log('property market balance: ', balance)
+  }
+
   const handleListingPriceChange = async () => {
     console.log('listingPrice: ', listingPrice)
     const listingPriceParsed = ethers.parseUnits(listingPrice, 18)
@@ -297,8 +303,12 @@ const CreateItem = () => {
 
   const handleMinDepositPriceChange = async () => {
     const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
-    const transaction = await contract.setMinDepositPrice(minDepositPrice)
-    await transaction.wait()
+    try {
+      const transaction = await contract.setDepoitMin(minDepositPrice)
+      await transaction.wait()
+    } catch (error) {
+      console.error('Error setting min deposit price:', error)
+    } 
   }
 
 
@@ -565,6 +575,11 @@ const CreateItem = () => {
                   Set Min Deposit Price
                 </button>
                 <input input className='my-3' onChange={(e) => setMinDepositPrice(e.target.value)} />
+
+                <button onClick={getPropertyMarketBalance} className="font-bold mt-4 bg-pink-500 text-white rounded p-4 shadow-lg">
+                  Get Property Market Balance
+                </button>
+                
 
             </div>
         </div>

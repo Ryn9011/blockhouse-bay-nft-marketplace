@@ -300,56 +300,77 @@ const About = () => {
                             <section className="mb-8 text-sm md:text-base">
                               <h2 className="text-2xl font-semibold mb-4">Rental System and Rewards</h2>
                               <p>
-                                The platform supports property rentals, with rent payments made in POL, the native cryptocurrency of the Polygon network. Renters are rewarded with BHB tokens for paying their rent, which can be used within the platform to buy, sell, or rent properties. The system is designed to encourage active participation while maintaining fairness through a progressive taxation model.
+                                The platform supports property rentals, with rent payments made in POL, the native cryptocurrency of the Polygon network. Renters are rewarded with BHB tokens for paying their rent, which can be used within the platform to buy, sell, or rent properties. The system is designed to encourage active participation while maintaining fairness through a progressive taxation model and a dynamic reward mechanism.
                               </p>
 
                               <h3 className="text-xl font-medium mt-6 mb-4">Rent Tax Mechanic</h3>
                               <p className="mb-4">
-                                When paying rent in Blockhouse Bay, a tax is applied based on the rent price to ensure fairness and equitable token distribution. The tax system comprises two components:
+                                When rent is paid in Blockhouse Bay, a tax is applied to the payment <strong>before it reaches the property owner</strong>. This tax is based on the rent amount and increases progressively to discourage price gouging:
                               </p>
                               <ul className="list-disc list-inside">
                                 <li>
-                                  <strong>Base Tax:</strong> All rent payments start with a flat tax of 5%.
+                                  <strong>Base Tax:</strong> All rent payments start with a flat tax of <strong>5%</strong>.
                                 </li>
                                 <li>
-                                  <strong>Progressive Tax:</strong> For every 1 POL increase in rent price above 3 POL, the tax increases by an additional 1%.
+                                  <strong>Progressive Tax:</strong> For every <strong>5 POL</strong> the rent price exceeds <strong>10 POL</strong>, the tax increases by <strong>1%</strong>.
+                                </li>
+                                <li>
+                                  <strong>Tax Cap:</strong> The tax is capped at <strong>60%</strong> of the total rent, regardless of how high the rent is set.
                                 </li>
                               </ul>
                               <p className="mt-4">
-                                This progressive system rewards higher rent prices, as property owners will always earn more for higher rent payments, but the steep taxation mechanic helps to discourage unfair play. Below are some examples to illustrate how the tax applies:
+                                This means that while property owners always earn more when charging higher rent, their effective earnings are reduced proportionally by tax. Below are some example tax rates:
                               </p>
                               <ul className="list-disc list-inside mt-2 mb-4">
-                                <li>Rent of 10 POL = 12% tax</li>
-                                <li>Rent of 30 POL = 32% tax</li>
-                                <li>Rent of 50 POL = 52% tax</li>
+                                <li>Rent of 10 POL = 5% tax</li>
+                                <li>Rent of 30 POL = 9% tax</li>
+                                <li>Rent of 60 POL = 15% tax</li>
+                                <li>Rent of 100 POL = 23% tax</li>
+                                <li>Rent of 250 POL = 53% tax</li>
+                                <li>Rent of 500 POL = 60% tax (capped)</li>
                               </ul>
+
                               <p>
-                                While the system penalizes excessive rent amounts with higher taxes, property owners are still incentivized to set reasonable prices that maximize both their earnings and tenant participation. The mechanism also ensures the in-game economy remains balanced and prevents exploitation of the rewards system e.g. renting from your own property.
+                                This taxation structure promotes balance and discourages exploitative strategies, such as renting from your own properties to farm rewards.
                               </p>
 
                               <h3 className="text-xl font-medium mt-6 mb-4">Token Rewards</h3>
                               <p>
-                                Renters are rewarded with BHB tokens for fulfilling their rent obligations, ensuring a tangible benefit for active participation in the game. The reward system is designed to be dynamic, adapting to both the rent amount and the remaining supply of BHB tokens.
+                                Renters are rewarded with BHB tokens when they pay rent. The number of tokens received is determined by the rent amount and the remaining BHB supply. Rewards scale with higher rents but decrease over time as the token supply diminishes.
                               </p>
-                              <p>
-                                As the total token supply decreases over time, the reward payouts adjust proportionally. This mechanism ensures the sustainability of the reward system and encourages renters to participate early while token availability is higher. The reward calculation considers multiple factors, such as:
+                              <p className="mb-4">
+                                The final BHB reward is calculated in two steps:
                               </p>
                               <ul className="list-disc list-inside">
                                 <li>
-                                  <strong>Rent Amount:</strong> Higher rent payments yield greater rewards, with diminishing returns to balance the economy and prevent exploitation.
+                                  <strong>Base Reward:</strong> A percentage of the rent becomes the base reward. This percentage increases with higher rent tiers.
                                 </li>
                                 <li>
-                                  <strong>Depreciating Supply:</strong> The total BHB token supply impacts reward payouts, with rewards decreasing as the supply shrinks. This encourages strategic engagement with the game over time.
+                                  <strong>Supply Adjustment:</strong> The base reward is then scaled based on how much BHB supply remains. As supply decreases, rewards diminish proportionally.
                                 </li>
                               </ul>
-                              <p>
-                                For example, a larger rent payment will initially yield higher rewards, but as the supply of BHB tokens diminishes, the reward per transaction reduces proportionally. This ensures long-term balance in the token economy and incentivizes consistent participation throughout the lifecycle of the game.
+                              <p className="mt-4 mb-2">
+                                <span className="font-bold">Final Reward Formula:</span><br />
+                                <code>Final Reward = Rent × Scaling Rate × (Current Supply ÷ Initial Supply)</code>
+                              </p>
+                              <p className="mb-2">
+                                📊 <strong>Reward Scaling Tiers:</strong>
+                              </p>
+                              <ul className="list-disc list-inside">
+                                <li>10 – 49.99 POL: 0.30%</li>
+                                <li>50 – 59.99 POL: 0.35%</li>
+                                <li>60 – 89.99 POL: 0.40%</li>
+                                <li>90 – 399.99 POL: 0.50%</li>
+                                <li>400 – 500 POL: 0.60%</li>
+                              </ul>
+                              <p className="mt-4">
+                                This system ensures that renters who contribute more receive larger rewards, but the declining supply limits long-term farming potential and promotes early participation.
                               </p>
                               <p>
-                                In addition to being rewarded, players can use their BHB tokens to purchase exclusive properties, participate in future platform integrations, and trade within the ecosystem, further enhancing the token's utility.
+                                BHB tokens can be used to purchase exclusive properties, participate in platform governance or future integrations, and trade within the ecosystem — enhancing their utility and player engagement.
                               </p>
-
                             </section>
+
 
 
                             <section className="mb-8 text-sm md:text-base">
@@ -881,7 +902,7 @@ const About = () => {
                 <h3 className="text-2xl font-semibold text-yellow-200 mt-8">Renting a Room</h3>
                 <p className="text-white text-xl xl3:text-xl italic mt-4">Rental Deposit</p>
                 <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  To rent a room in a property, a deposit of 10 POL must be made. This is refunded when the renter decides to vacate the room.
+                  To rent a room in a property, a deposit of 10 POL must be made. This is refunded when the renter decides to vacate the room. Note - the property owner can change the deposit required.
                 </p>
                 <p className="text-white text-xl xl3:text-xl  italic mt-4">Rent Payment Obligation</p>
                 <p className="mt-2 text-gray-400 pl-2 mr-4">
@@ -1084,33 +1105,54 @@ const About = () => {
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
                       Property owners have the option to sell their property to other interested buyers. A listing fee of 12 POL will incur and 5% of the sale amount will be deducted when a sale is made.
                     </p>
-                    <p className="text-white text-lg xl3:text-xl italic mt-4">Rent Tax Mechanic</p>
-                    <p className=" text-gray-400">
-                      <div className=" p-6 pl-0 pt-3 rounded-lg shadow-md max-w-2xl ">
+                    <p className="text-white text-lg xl3:text-xl italic mt-4">Rent Tax & Reward Mechanic</p>
+                    <div className="text-gray-400">
+                      <div className="p-6 pl-0 pt-3 rounded-lg shadow-md max-w-2xl">
                         <p className="text-gray-400 pl-2 mr-4 mb-4">
-                          When paying rent in the game, a <span className="font-semibold">tax</span> is applied based on the rent price:
+                          When rent is paid in the game, two mechanics apply: a <span className="font-semibold">tax</span> is deducted from the rent amount before it reaches the property owner, and the renter receives a reward in <span className="font-semibold">BHB tokens</span> based on the rent price and current token supply.
                         </p>
 
                         <ul className="list-disc list-inside text-gray-400 pl-2 mr-4 mb-4">
-                          <li><span className="font-semibold">Base Tax</span>: All rent payments have a starting tax of <span className="font-semibold">5%</span>.</li>
-                          <li><span className="font-semibold">Progressive Tax</span>: For every 1 POL increase in rent price above 3 POL, the tax increases by <span className="font-semibold">1%</span>.</li>
+                          <li>
+                            <span className="font-semibold">Base Tax:</span> All rent payments are subject to a base tax of <span className="font-semibold">5%</span>, deducted from the amount paid.
+                          </li>
+                          <li>
+                            <span className="font-semibold">Progressive Tax:</span> For every <span className="font-semibold">5 POL</span> over <span className="font-semibold">10 POL</span>, an additional <span className="font-semibold">1%</span> tax is added.
+                          </li>
+                          <li>
+                            <span className="font-semibold">Tax Cap:</span> The total tax is capped at <span className="font-semibold">60%</span>. The owner receives the remaining amount after tax.
+                          </li>
+                          <li>
+                            <span className="font-semibold">Reward Tiers:</span> Renters earn BHB tokens based on rent tiers. Higher rents yield higher base rewards.
+                          </li>
+                          <li>
+                            <span className="font-semibold">Diminishing Supply:</span> The actual BHB reward is scaled by remaining token supply. As the total supply decreases, the reward value for renters also decreases proportionally.
+                          </li>
                         </ul>
 
-                        <div className=" border border-gray-300 p-4 ml-2 rounded-lg shadow-sm mb-4">
-                          <h4 className="font-semibold text-gray-400 pl-2 mr-4 mb-2">For example:</h4>
+                        <div className="border border-gray-300 p-4 ml-2 rounded-lg shadow-sm mb-4">
+                          <h4 className="font-semibold text-gray-400 pl-2 mr-4 mb-2">Examples (Assuming Full Supply):</h4>
                           <ul className="list-disc list-inside text-gray-400 pl-2 mr-4">
-                            <li>Rent of 10 POL = <span className="font-semibold">12%</span> tax</li>
-                            <li>Rent of 30 POL = <span className="font-semibold">32%</span> tax</li>
-                            <li>Rent of 50 POL = <span className="font-semibold">52%</span> tax</li>
+                            <li>Rent of 10 POL → <span className="font-semibold">5%</span> tax, eligible for 30 BHB</li>
+                            <li>Rent of 30 POL → <span className="font-semibold">9%</span> tax, eligible for 89 BHB</li>
+                            <li>Rent of 60 POL → <span className="font-semibold">15%</span> tax, eligible for 239 BHB</li>
+                            <li>Rent of 100 POL → <span className="font-semibold">23%</span> tax, eligible for 499 BHB</li>
+                            <li>Rent of 250 POL → <span className="font-semibold">53%</span> tax, eligible for 1249 BHB</li>
+                            <li>Rent of 500 POL → <span className="font-semibold">60%</span> tax (capped), eligible for 2749 BHB</li>
                           </ul>
+                          <p className="text-sm text-gray-500 pl-2 pt-2 italic">
+                            Note: Actual rewards will decrease over time as token supply diminishes.
+                          </p>
                         </div>
 
                         <p className="text-gray-400 pl-2 mr-4">
-                          This system rewards higher rent prices, as property owners will always earn more for higher rent payments, but a steep taxation mechanic is necessary to help discourage unfair play.
+                          This system rewards active participation while discouraging inflated rents. Property owners receive higher payouts with higher rent, but taxes scale accordingly. Renters benefit more when supply is abundant, encouraging early and sustained activity.
                         </p>
                       </div>
+                    </div>
 
-                    </p>
+
+
                     <p className="text-white text-lg xl3:text-xl italic">Duration</p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
                       Transactions can take a few minutes to complete. If a transaction is taking longer than expected, it may be due to network congestion.
