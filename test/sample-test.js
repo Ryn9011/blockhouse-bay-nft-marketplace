@@ -6,6 +6,7 @@ const data = require('../src/final-manifest.json');
 const dataEx = require('../src/exc-manifest.json');
 
 const fs = require('fs');
+
 // const { govtaddress } = require("../src/config");
 
 describe("PropertyMarket", function () {
@@ -165,382 +166,88 @@ describe("PropertyMarket", function () {
     var [_,_,_,_,_,_,_, renter4] = await ethers.getSigners()  
     var [_,_,_,_,_,_,_,_, renter5] = await ethers.getSigners()  
 
-    // let allproperti2es = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(1, 0, true, false)
 
-    // console.log('all properties for sale', allproperti2es.length)
- 
-    // console.log('initial balance of govtFunctions', (await ethers.provider.getBalance(govtFunctions.target)).toString());
-    // console.log('initial balance of propertyMarket', (await ethers.provider.getBalance(propertyMarket.target)).toString());
-    // console.log("Balance of PropertyMarket:", (await propertyTokenContract.balanceOf(propertyMarket.target)).toString());
+    var rentedPropetiesForSale;
 
-    // console.log('initialSalePErice', initialSalePrice.toString())
-    // for (let j = 0; j < 2; j++) {
-    //   await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, j+1, tokenContractAddress, false, { value: initialSalePrice}) 
-    // }  
-
-    // console.log('has create properties?')
-
-    // 0.001 as wei not ether
-
-
+    var salePrice = ethers.parseUnits("1", 'ether');
+    var rentPrice = ethers.parseUnits("11", 'ether');
  
     await propertyMarket.connect(buyerAddress).createPropertySale(1, false, { value: 1000000000000000}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 2, tokenContractAddress, false, { value: initialSalePrice}) 
-    // let allproperti2es3 = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(25)
-    // //console.log(allproperti2es3.length)
-
-    // const numForSale = await govtFunctions.connect(buyerAddress).getPropertiesForSale();
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 3, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 4, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 5, tokenContractAddress, false, { value: initialSalePrice}) 
-
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 6, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 7, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 8, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 9, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 10, tokenContractAddress, false, { value: initialSalePrice}) 
-    
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 11, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 12, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 13, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 14, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 15, tokenContractAddress, false, { value: initialSalePrice}) 
-    
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 16, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 282, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 18, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 19, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 295, tokenContractAddress, false, { value: initialSalePrice}) 
-
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 444, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 222, tokenContractAddress, false, { value: initialSalePrice}) 
-    // // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 233, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 440, tokenContractAddress, false, { value: initialSalePrice}) 
-    // await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, 500, tokenContractAddress, false, { value: initialSalePrice}) 
-    // const numberOfTimes = 500;
-    // for (let i = 1; i <= numberOfTimes; i++) {
-    //   await propertyMarket.connect(buyerAddress).createPropertySale(nft.target, i, tokenContractAddress, false, { value: initialSalePrice });
-    // }
-    
-    //await nft.connect(buyerAddress).giveResaleApproval(1);
-    //await propertyMarket.connect(buyerAddress).sellUserProperty(nft.target, 1, 1, rentdeposit, defaultTokenPrice, { value: listingPrice})
-
-    // const contractBal1 = await propertyMarket.connect(deployingSigner).getContractBalance()
-    
-    // await propertyMarket.connect(buyerAddress).setRentPrice(1, 70)
-    // let allproperties = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(1, 0, true, true)
-    //let allproperties2 = await propertyMarket.connect(buyerAddress).fetchPropertiesForSale(19)
-
-    //console.log('all properties for sale', allproperties.length)
-    //console.log('all properties for sale2', allproperties2[19])
-    // console.log(allproperties)
-    await govtFunctions.connect(renterAddress).rentProperty(1, { value: 1000000000000000})
-    // await govtFunctions.connect(renter2).rentProperty(1, { value: rentdeposit })
-    // await govtFunctions.connect(renter3).rentProperty(1, { value: rentdeposit })
-    // await govtFunctions.connect(renter4).rentProperty(1, { value: rentdeposit }) 
-    
+    await propertyMarket.connect(buyerAddress).createPropertySale(2, false, { value: 1000000000000000}) 
+    await propertyMarket.connect(buyerAddress).createPropertySale(3, false, { value: 1000000000000000}) 
 
 
-    // const rentals = await propertyMarket.connect(renterAddress).fetchMyRentals()
-    //console.log('my rentals, ', rentals);
-    
-    // let sold = await propertyMarket.connect(buyerAddress).fetchPropertiesSold(1)
-    // sold.forEach((item) => {
-    //   console.log(item.propertyId.toNumber())
-    // })
-    // console.log('SOLD P1: ',sold.length)  
-    // let sold2 = await propertyMarket.connect(buyerAddress).fetchPropertiesSold(2)
-    // console.log('SOLD P2: ',sold2)  
+    rentedPropetiesForSale = await govtFunctions.connect(renterAddress).getRentedProperties();
+    console.log("rentedPropetiesForSale expect ?", rentedPropetiesForSale)
 
-    
+    //change rent price
+    await govtFunctions.connect(buyerAddress).setRentPrice(1, rentPrice)
   
+    var deposit = ethers.parseUnits("0.001", 'ether');
+    await govtFunctions.connect(renterAddress).rentProperty(1, { value: deposit})
+    await govtFunctions.connect(renterAddress).rentProperty(2, { value: deposit})
+    await govtFunctions.connect(renterAddress).rentProperty(3, { value: deposit})
+
+    var tokenPrice = ethers.parseUnits("11", 'ether');
 
 
+    await nft.connect(buyerAddress).giveResaleApproval(1);
 
-    //const renters = await propertyMarket.connect(buyerAddress).getPropertyRenters(1)
+    await propertyMarket.connect(buyerAddress).sellProperty(1, salePrice, 0, false, { value: 1000000000000000})    
+    const tokensPrice = ethers.parseUnits('10', 'ether')
+    await propertyMarket.connect(buyerAddress).sellProperty(3, salePrice, tokensPrice, false, { value: 1000000000000000})
 
-    // //console log renters and payments array where propertyId is not 0
-    // for (let i = 0; i < renters.length; i++) {
-    //   if (renters[i] !== 0) {
-    //     //log renters[i] and payments[i]
-    //     for (let j = 0; j < rentals.length; j++) {
-         
-    //         console.log('renter: ', renters[i], 'payment: ', rentals[j])
-          
-    //     }
-    //   }
-    // }
-    // await propertyMarket.connect(buyer2Address).rentProperty(1, { value: rentdeposit })   
-    //await propertyMarket.connect(renter2).rentProperty(1, { value: rentdeposit })   
-    //await govtFunctions.connect(buyerAddress).setRentPrice(1,ethers.parseUnits('100', 'ether'))
+    console.log("successfully listed property for sale")
 
-
-    // let renterCount = await propertyMarket.connect(buyerAddress).getPropertyRenters(1)
-    // console.log(renterCount.toString())
-    // //renter pays property rent
-    // // let tokenBalance = await propertyTokenContract.balanceOf(renterAddress.target)
-    // // console.log(tokenBalance.toString())
-    // for (let i = 0; i < 2; i++) {
-    // console.log('before rent')
-    // const balance = await ethers.provider.getBalance(renterAddress.address);
-    // console.log('renteraddress ', balance)
-
-    // for (let i = 0; i < 50; i++) {
-    const rentValues = [
-      '11', '30', '60', '100', '150', '250', '300', '400', '500'
-    ];
-      
-
-    for (let i = 0; i < rentValues.length; i++) {
-      const rent = ethers.parseUnits(rentValues[i], 'ether');
+    rentedPropetiesForSale = await govtFunctions.connect(renterAddress).getRentedProperties();
+    console.log("rentedPropetiesForSale expect 2", rentedPropetiesForSale)
     
-      console.log(`\n--- Rent Payment Test: ${rentValues[i]} POL ---`);
+    //await propertyMarket.connect(buyer2Address).createPropertySale(1, false, { value: salePrice})
     
-      // Set rent
-      await govtFunctions.connect(buyerAddress).setRentPrice(1, rent);
-    
-      // Get balance before
-      const balanceBefore = await ethers.provider.getBalance(buyerAddress.address);
-      console.log('Buyer balance before:', ethers.formatEther(balanceBefore), 'ETH');
-    
-      // Pay rent
-      const tx = await govtFunctions.connect(renterAddress).payRent(1, { value: rent });
-      await tx.wait();
-    
-      // Get balance after
-      const balanceAfter = await ethers.provider.getBalance(buyerAddress.address);
-      console.log('Buyer balance after:', ethers.formatEther(balanceAfter), 'ETH');
-    
-      // Difference
-      const balanceDiff = balanceAfter - balanceBefore;
-      console.log('Balance diff:', ethers.formatEther(balanceDiff.toString()), 'ETH');
-    }
+    // rentedPropetiesForSale = await govtFunctions.connect(renterAddress).getRentedProperties();
+    // console.log("rentedPropetiesForSale expect 0", rentedPropetiesForSale)
 
-    
-
+    await govtFunctions.connect(renterAddress).payRent(1, { value: rentPrice})
     await propertyMarket.connect(renterAddress).withdrawERC20()
-    let bal = await propertyTokenContract.balanceOf(renterAddress)
+    
+    await propertyTokenContract.connect(renterAddress).allowSender(tokensPrice)
+    await propertyMarket.connect(renterAddress).createPropertySale(3, true ) 
+
+    rentedPropetiesForSale = await govtFunctions.connect(renterAddress).getRentedProperties();
+    console.log("rentedPropetiesForSale expect 1", rentedPropetiesForSale)
   
-    console.log('balance of renter after pay rent', bal.toString());
-    //   await propertyMarket.connect(renterAddress).withdrawERC20()
-    //   let bal = await propertyTokenContract.balanceOf(renterAddress)
-    //   let balanceInEth = ethers.formatEther(bal);
-    //   if ( i % 10 === 0) {
-    //    // console.log('balance of renter after withdraw', balanceInEth.toString());
-    //   }      
-    // }
-
-    // for (let i = 0; i < 50; i++) {
+    // const rentValues = [
+    //   '11', '30', '60', '100', '150', '250', '300', '400', '500'
+    // ];
       
-    //   await govtFunctions.connect(renter2).payRent(1, { value: ethers.parseUnits('100', 'ether')}) 
-    //   await propertyMarket.connect(renter2).withdrawERC20()
-    //   let bal = await propertyTokenContract.balanceOf(renter2)
-    //   let balanceInEth = ethers.formatEther(bal);
-    //   if ( i % 10 === 0) {
-    //    // console.log('balance of renter after withdraw', balanceInEth.toString());
-    //   }      
+    // for (let i = 0; i < rentValues.length; i++) {
+    //   const rent = ethers.parseUnits(rentValues[i], 'ether');
+    
+    //   console.log(`\n--- Rent Payment Test: ${rentValues[i]} POL ---`);
+    
+    //   // Set rent
+    //   await govtFunctions.connect(buyerAddress).setRentPrice(1, rent);
+    
+    //   // Get balance before
+    //   const balanceBefore = await ethers.provider.getBalance(buyerAddress.address);
+    //   console.log('Buyer balance before:', ethers.formatEther(balanceBefore), 'ETH');
+    
+    //   // Pay rent
+    //   const tx = await govtFunctions.connect(renterAddress).payRent(1, { value: rent });
+    //   await tx.wait();
+    
+    //   // Get balance after
+    //   const balanceAfter = await ethers.provider.getBalance(buyerAddress.address);
+    //   console.log('Buyer balance after:', ethers.formatEther(balanceAfter), 'ETH');
+    
+    //   // Difference
+    //   const balanceDiff = balanceAfter - balanceBefore;
+    //   console.log('Balance diff:', ethers.formatEther(balanceDiff.toString()), 'ETH');
     // }
 
-    // for (let i = 0; i < 50; i++) {
-      
-    //   await govtFunctions.connect(renter3).payRent(1, { value: ethers.parseUnits('100', 'ether')}) 
-    //   await propertyMarket.connect(renter3).withdrawERC20()
-    //   let bal = await propertyTokenContract.balanceOf(renter3)
-    //   let balanceInEth = ethers.formatEther(bal);
-    //   if ( i % 10 === 0) {
-    //    // console.log('balance of renter after withdraw', balanceInEth.toString());
-    //   }      
-    // }
-
-    // for (let i = 0; i < 50; i++) {
-      
-    //   await govtFunctions.connect(renterAddress).payRent(1, { value: ethers.parseUnits('100', 'ether')}) 
-    //   await propertyMarket.connect(renterAddress).withdrawERC20()
-    //   let bal = await propertyTokenContract.balanceOf(renterAddress)
-    //   let balanceInEth = ethers.formatEther(bal);
-    //   if ( i % 10 === 0) {
-    //    // console.log('balance of renter after withdraw', balanceInEth.toString());
-    //   }      
-    // }
-
-    // for (let i = 0; i < 50; i++) {
-      
-    //   await govtFunctions.connect(renter4).payRent(1, { value: ethers.parseUnits('100', 'ether')}) 
-    //   await propertyMarket.connect(renter4).withdrawERC20()
-    //   let bal = await propertyTokenContract.balanceOf(renter5)
-    //   let balanceInEth = ethers.formatEther(bal);
-    //   if ( i % 10 === 0) {
-    //    // console.log('balance of renter after withdraw', balanceInEth.toString());
-    //   }      
-    // }
-    
-    //get the balance in eth of propertyMarket
-
-    // await govtFunctions.connect(renterAddress).rentProperty(2, { value: rentdeposit })
-    // await govtFunctions.connect(renter2).rentProperty(1, { value: rentdeposit })
-    // await govtFunctions.connect(renter3).rentProperty(1, { value: rentdeposit })
-    // await govtFunctions.connect(renter4).rentProperty(1, { value: rentdeposit }) 
-    
     
 
-
-    // let relistPrice = ethers.parseUnits('0.05', 'ether')
-
-    // await nft.connect(buyerAddress).giveResaleApproval(1);
-    // await propertyMarket.connect(buyerAddress).sellProperty(nft.target, 1, 1, relistPrice, defaultTokenPrice, false ,{ value: listingPrice })
-    
-    // // const allowed = ethers.parseUnits('1', 'ether')
-    // // await propertyTokenContract.connect(renterAddress).allowSender(allowed)
-    // //renter address buys property using tokens
-    // let tenants = await propertyMarket.connect(renterAddress).getPropertiesRented()
-    // console.log('tenants', tenants[0])
-    // console.log('tenants', tenants[1])
-    // console.log('tenants', tenants[2])
-    // console.log('tenants', tenants[3])
-
-    // let property3 = await govtFunctions.connect(renter4).fetchSingleProperty(1)
-    // console.log('property before sale', property3)
-    // const renters3 = await propertyMarket.connect(renter4).getPropertyRenters(1)
-    // console.log('renters after rent: ', renters3)
-    
-    // await propertyMarket.connect(renter2).createPropertySale(nft.target, 1, tokenContractAddress, false, { value: relistPrice}) 
-
-    // let property4 = await govtFunctions.connect(renter4).fetchSingleProperty(1)
-    // console.log('property after sale', property4)
-    
-    // const renters = await propertyMarket.connect(renter4).getPropertyRenters(1)
-    // console.log('renters after sale: ', renters)
-
-    // await govtFunctions.connect(renter5).rentProperty(1, { value: rentdeposit }) 
-    // const renters2 = await propertyMarket.connect(renter4).getPropertyRenters(1)
-    // console.log('renters after rent: ', renters2)
-
-    // let property = await govtFunctions.connect(renter4).fetchSingleProperty(1)
-    // console.log('property after rerent', property)
-
-
-    // let totalDepositBalance = await govtFunctions.connect(deployingSigner).checkTotalDepositBalance()
-    // console.log('total deposit balance', totalDepositBalance.toString())
-    // let totalGovtContBal = await govtFunctions.connect(deployingSigner).checkGovtBalance()
-    // console.log('total govt balance', totalGovtContBal.toString())
-    // let amountToWithdraw = await govtFunctions.connect(deployingSigner).amountToWithdraw()
-    // console.log('amount to withdraw', amountToWithdraw.toString())
-    // let contractBal = await govtFunctions.connect(deployingSigner).getContractBal()
-    // console.log('contract balance', contractBal.toString())
-
-    // console.log('balance of propertyMarket after', (await ethers.provider.getBalance(propertyMarket.target)).toString());
-
-    // console.log('balance of i_govt', (await ethers.provider.getBalance(deployingSigner)).toString());
-    // console.log('balance of ptopertyContractBefore', (await ethers.provider.getBalance(propertyMarket)).toString());
-
-    // let balGovt = await propertyMarket.connect(deployingSigner).withdrawPropertyTax();
-    // console.log('balance of i_govt after withdraw', (await ethers.provider.getBalance(deployingSigner)).toString());
-    // console.log('balance of i_govt', (await ethers.provider.getBalance(deployingSigner)).toString());
-    // console.log('balance of i_govt after withdraw', (await ethers.provider.getBalance(deployingSigner)).toString());
-    // console.log('balance of ptopertyContractAfter', (await ethers.provider.getBalance(propertyMarket)).toString());
-
-    // const tokensHex = await propertyMarket.connect(renterAddress).getTokensEarned();
-
-
-    
-
-    //const rentals = await propertyMarket.connect(renterAddress).fetchMyRentals();
-    //console.log('my rentals, ', rentals);
-
-    //console log the payments array for each rental
-    // for (let i = 0; i < rentals.length; i++) {
-    //   if (rentals[i] !== 0) {
-    //     //log renters[i] and payments[i]
-    //     for (let j = 0; j < rentals.length; j++) {
-         
-    //         //console.log('renter: ', rentals[i], 'payment: ', rentals[i].payments[j])
-          
-    //     }
-    //   }
-    // }
-
-
-    // const tokensHex = await propertyMarket.connect(renterAddress).getTokensEarned();
-    // const tokens = ethers.formatUnits(tokensHex.toString(), 'ether')
-    // console.log("Reward amount: ", (tokens).toString()); 
-    // //   if (i % 100 === 0) {
-    // //     console.log("Balance of PropertyMarket:", (await propertyTokenContract.balanceOf(propertyMarket.target)).toString());
-    // //     console.log("Reward amount: ", (tokens).toString());    
-    // //   }
-
-
-    //await govtFunctions.connect(renterAddress).rentProperty(4, { value: rentdeposit })
-    // const allowed = ethers.parseUnits('1', 'ether')
-    // await propertyTokenContract.connect(renterAddress).allowSender(allowed)
-    // //renter address buys property using tokens
-    // await propertyMarket.connect(renterAddress).createPropertySale(nft.target, 501, tokenContractAddress, true) 
-
-    // let myProperties = await propertyMarket.connect(renterAddress).fetchMyProperties(1);
-    // //console.log('buyer properties after resell listing', myProperties)
-
-    // await govtFunctions.connect(renterAddress).setRentPrice(501,ethers.parseUnits('100', 'ether'))
-    // await govtFunctions.connect(buyerAddress).rentProperty(501, { value: rentdeposit })
-    // await govtFunctions.connect(buyerAddress).payRent(501, { value: ethers.parseUnits('100', 'ether')}) 
-
-    
-
-    // console.log("Balance of renter:", (await propertyTokenContract.balanceOf(renterAddress.target)).toString());
-
-    // console.log('owner matic balance before collect', (await ethers.provider.getBalance(buyerAddress.target)).toString()); 
-    // await govtFunctions.connect(buyerAddress).collectRent()
-    // console.log('owner matic balance after collect', (await ethers.provider.getBalance(buyerAddress.target)).toString());
-
-    // console.log('matic balance of govtFunctions before withDrawRentTax', (await ethers.provider.getBalance(govtFunctions.target)).toString());
-    // console.log('matic balance of propertyMarket before withDrawPropertyTax', (await ethers.provider.getBalance(propertyMarket.target)).toString());
-
-    // console.log('matic balance of deployingSigner before withDrawPropertyTax', (await ethers.provider.getBalance(deployingSigner.target)).toString());
-    // await propertyMarket.connect(deployingSigner).withdrawPropertyTax();
-    // console.log('matic balance of deployingSigner after withDrawPropertyTax', (await ethers.provider.getBalance(deployingSigner.target)).toString());
-    // console.log('matic balance of govtFunctions after withDrawRentTax', (await ethers.provider.getBalance(govtFunctions.target)).toString());
-    // console.log('matic balance of propertyMarket after withDrawPropertyTax', (await ethers.provider.getBalance(propertyMarket.target)).toString());
-    // // }
-    //  await govtFunctions.connect(buyerAddress).setRentPrice(1,ethers.parseUnits('3', 'ether'))
-    // for (let i = 0; i < 2; i++) {
-    //   await propertyMarket.connect(buyer2Address).payRent(1, { value: ethers.parseUnits('3', 'ether')})                    
-    //   const tokensHex = await propertyMarket.connect(buyer2Address).getTokensEarned();
-    //   const tokens = ethers.formatUnits(tokensHex.toString(), 'ether')
-    //   if (i % 100 === 0) {
-    //     console.log("Balance of PropertyMarket:", (await propertyTokenContract.balanceOf(propertyMarket.target)).toString());
-    //     console.log("Reward amount2: ", (tokens).toString());    
-    //   }  
-      //  await propertyMarket.connect(buyer2Address).withdrawERC20(tokenContractAddress)
-      //  console.log("Balance of renter:", (await propertyTokenContract.balanceOf(renterAddress.target)).toString());
-    // }
-    
-    
-    
-    // //property owner gives resale approval to contract pass in propId
-    // await nft.connect(buyerAddress).giveResaleApproval(1);
-    // // // //property owner lists property for resale
-    // await propertyMarket.connect(buyerAddress).sellProperty(nft.target, 1, 1, initialSalePrice+5, defaultTokenPrice, false ,{ value: initialSalePrice })
-    // console.log('before myProperties')
-    //let myProperties = await propertyMarket.connect(buyerAddress).fetchMyProperties(1);
-    // // console.log('after myProperties')
-    // // let userProps = await propertyMarket.connect(buyerAddress).getUserProperties();
-    // //  console.log('user properties', userProps)
-    // // //console.log('buyer properties after resell listing', myProperties)
-
-    // //  let sale = await propertyMarket.fetchPropertiesForSale(1)
-    // // console.log('all propertiesForSale', sale.length)  
-
-    // // // console.log('renter amount of token: ', await propertyTokenContract.balanceOf(renterAddress.target))
-
-    // // //renter address allows contract to spend x amount of tokens on its behalf
-    // const allowed = ethers.parseUnits('5', 'ether')
-    // await propertyTokenContract.connect(renterAddress).allowSender(allowed)
-    // // // //renter address buys property using tokens
-    // await propertyMarket.connect(renterAddress).createPropertySale(nft.target, 1, tokenContractAddress, true, { value: initialSalePrice }) 
-    // let my3Properties = await propertyMarket.connect(buyer2Address).fetchMyProperties(1)
-    // console.log('buyer2 properties', my3Properties)
-    // console.log('renter amount of token: ', await propertyTokenContract.balanceOf(renterAddress.target))
-
-
-
+  
   });
 });
 

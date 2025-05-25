@@ -60,8 +60,7 @@ const Exclusive = () => {
       const tokenContract = new Contract(nftaddress, NFT.abi, provider)
       const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
       const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
-      const data = await govtContract.fetchExclusiveProperties();
-      // console.log(data) 
+      const data = await govtContract.fetchExclusiveProperties();      
 
       const items = await Promise.all(data.filter(i => Number(i.propertyId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
         const tokenUri = await tokenContract.tokenURI(i.tokenId)
@@ -178,8 +177,8 @@ const Exclusive = () => {
       const amount = ethers.parseUnits(nft.tokenSalePrice, 'ether')
       setTxLoadingState1({ ...txloadingState1, [i]: true });
       try {   
-        await propertyTokenContract.allowSender(
-          amount)
+        const allowTx = await propertyTokenContract.allowSender(amount);
+        await allowTx.wait();
       } catch (error) {
         console.log(error)
         alert("Transaction Failed - Make sure you are holding enough BHB and try again.");
@@ -191,14 +190,7 @@ const Exclusive = () => {
       const transaction = await contract2.createPropertySale(        
         nft.propertyId,        
         isTokenSale,
-        // {
-        //   maxFeePerGas: maxFeePerGas,
-        //   maxPriorityFeePerGas: maxPriorityFeePerGas,
-        //   gasLimit: gasLimit,
-        // }
       )
-
-      // console.log('Transaction: ', transaction)
 
       setTxLoadingState1({ ...txloadingState1, [i]: false });
       setTxLoadingState1B({ ...txloadingState1B, [i]: true });

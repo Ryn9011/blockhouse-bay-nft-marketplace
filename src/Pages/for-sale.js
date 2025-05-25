@@ -223,7 +223,8 @@ const ForSale = () => {
           isTokenSale = true;
           propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer);
           amount = ethers.parseUnits(nft.tokenSalePrice, 'ether');
-          await propertyTokenContract.allowSender(amount);
+          const allowSenderTx = await propertyTokenContract.allowSender(amount);
+          await allowSenderTx.wait();
         }
       }
 

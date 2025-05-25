@@ -164,7 +164,8 @@ const PropertyView = () => {
           isTokenSale = true;
           propertyTokenContract = new ethers.Contract(propertytokenaddress, PropertyToken.abi, signer);
           amount = ethers.parseUnits(nft.tokenSalePrice, 'ether');
-          await propertyTokenContract.allowSender(amount);
+          const allowSenderTx = await propertyTokenContract.allowSender(amount);
+          await allowSenderTx.wait();
         }
       }
       
@@ -315,8 +316,13 @@ const PropertyView = () => {
                     <p>Rent Price:</p>
                     <p className="font-mono text-xs text-green-400">{property.rentPrice} Matic</p>
                   </div>
+                  <div className="flex flex-col pb-2">
+                    <p>Total Income Generated:</p>
+                    <p className="font-mono text-xs text-green-400">{property.totalIncomeGenerated} Matic</p>
+                  </div>
                   <p>Tenants:</p>
                   <div className='text-[10px] mb-3 text-green-400 font-mono'>
+                    
                     
                     {ethers.formatEther(property.renterAddresses[0]) !== "0.0" ?
                       <>
@@ -385,10 +391,7 @@ const PropertyView = () => {
                       </>
                     }
                   </div>
-                  <div className="flex flex-col pb-2">
-                    <p>Total Income Generated:</p>
-                    <p className="font-mono text-xs text-green-400">{property.totalIncomeGenerated} Matic</p>
-                  </div>
+                  
                   <SaleHistory property={property} />
                 </div>
               </div>

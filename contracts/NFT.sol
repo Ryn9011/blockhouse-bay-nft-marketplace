@@ -45,14 +45,6 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
         return newItemId;
     }
 
-    // function createTokens(string[] memory tokenURIs) public returns (uint[] memory) {
-    //     uint[] memory tokenIds = new uint[](tokenURIs.length);
-    //     for (uint i = 0; i < tokenURIs.length; i++) {
-    //         tokenIds[i] = createToken(tokenURIs[i]);
-    //     }
-    //     return tokenIds;
-    // }
-
     function createTokens(string[] memory tokenURIs) public onlyOwner returns (uint[] memory) {
         uint[] memory tokenIds = new uint[](tokenURIs.length);
         uint256 newItemId;
@@ -71,13 +63,11 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
     function createExclusiveTokens(string[] memory tokenURIs) public onlyOwner returns (uint[] memory) {
         uint[] memory tokenIds = new uint[](tokenURIs.length);
         uint256 newItemId = 500;     
-        for (uint i = 0; i < tokenURIs.length; i++) {
-            //_exclusiveIds.increment();
+        for (uint i = 0; i < tokenURIs.length; i++) {            
             newItemId++;          
-            _safeMint(msg.sender, newItemId); // Mint to the contract address
+            _safeMint(msg.sender, newItemId);
             _setTokenURI(newItemId, tokenURIs[i]);
-            tokenIds[i] = newItemId;
-            //transferTokens(tokenIds[i]);
+            tokenIds[i] = newItemId;            
         }
         setApprovalForAll(contractAddress, true); // Approve the marketplace contract to transfer the tokens        
         return tokenIds;
@@ -86,13 +76,6 @@ contract NFT is ERC721URIStorage, IERC721Receiver {
     function transferTokens(uint tokenId) public onlyOwner {
         safeTransferFrom(address(this), msg.sender, tokenId); // Transfer the tokens to the buyer        
     }
-
-    // function transferTokens(uint[] memory tokenIds) public {
-    //     for (uint i = 0; i < tokenIds.length; i++) {
-    //         safeTransferFrom(address(this), msg.sender, tokenIds[i]); // Transfer the tokens to the buyer
-    //     }
-    // }
-
     function giveResaleApproval(uint256 tokenId) public { 
          require( ownerOf(tokenId) == msg.sender, "You must own this NFT in order to resell it" ); 
          setApprovalForAll(contractAddress, true); return; 

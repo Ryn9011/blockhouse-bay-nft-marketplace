@@ -66,6 +66,10 @@ contract GovtFunctions is ReentrancyGuard {
         minDeposit = minDepositVal;
     }
 
+    function getDepositMin() public view returns (uint256) {
+        return minDeposit;
+    }
+
     function getBalance() public view returns (uint256) {
         return address(this).balance;
     }
@@ -101,7 +105,13 @@ contract GovtFunctions is ReentrancyGuard {
 
     // increment or decrement propertiesWithRenterCount based on isForSale only if property has renters. fetch single property and check
     function adjustPropertiesWithRenterCount(uint256 propertyId, bool isForSale) external onlyPropertyMarket {
+        console.log('adjustPropertiesWithRenterCount called', propertyId, ' ', isForSale);
         PropertyMarket.Property memory property = fetchSingleProperty(propertyId);
+        // log each room status
+        console.log('roomOneRented: ', property.roomOneRented);
+        console.log('roomTwoRented: ', property.roomTwoRented);
+        console.log('roomThreeRented: ', property.roomThreeRented);
+        console.log('roomFourRented: ', property.roomFourRented);
         if (property.roomOneRented || property.roomTwoRented || property.roomThreeRented || property.roomFourRented) {
             if (isForSale) {
                 propertiesWithRenterCount++;
@@ -283,6 +293,7 @@ contract GovtFunctions is ReentrancyGuard {
         require(availableRoom, "no vacancy");    
 
         if (!isAlreadyRented && currentProperty[0].isForSale) {
+            console.log('add +1 from rentProperty');
             propertiesWithRenterCount++;
         }
 
@@ -339,7 +350,8 @@ contract GovtFunctions is ReentrancyGuard {
         // if renter was last renter on a property, decrement propertiesWithRenterCount. use getPropertyRenters to check if renter is last renter
         address[4] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
 
-        if (changePropertiesWithRenterCount) {            
+        if (changePropertiesWithRenterCount) {     
+            console.log('changePropertiesWithRenterCount from refund called', propertyId, ' ', isForSale);       
             if (isForSale) {
                 bool isLastRenter = true;
                 for (uint i = 0; i < 4; i++) {

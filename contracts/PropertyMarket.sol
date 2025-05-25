@@ -443,7 +443,6 @@ contract PropertyMarket is ReentrancyGuard {
     }
 
     function sellProperty(        
-        uint256 tokenId,
         uint256 propertyId,
         uint256 price,
         uint256 tokenPrice,
@@ -458,7 +457,7 @@ contract PropertyMarket is ReentrancyGuard {
         if (isExclusive) {
             require(propertyId >= 501 && propertyId < 551, "");
             property.tokenSalePrice = tokenPrice;
-            // set price bounds for tokens
+ 
             require(tokenPrice >= 1 ether && tokenPrice <= 10000000 ether, "invalid token price");
         } else {
             require(propertyId <= 500 && propertyId >= 1 && price >= INITIAL_SALE_PRICE && price <= MAX_SALE_PRICE, "");
@@ -467,18 +466,17 @@ contract PropertyMarket is ReentrancyGuard {
             _relistCount.increment();
             _propertiesSold.decrement();  
             GovtContract govtContract = GovtContract(i_govtContract);
-            govtContract.adjustPropertiesWithRenterCount(propertyId, true);          
+            govtContract.adjustPropertiesWithRenterCount(propertyId, true);
             i_govtContract.transfer(msg.value);
         }
-        // Common actions
+   
         property.isForSale = true;
         property.seller = payable(msg.sender);
     
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+        IERC721(nftContract).transferFrom(msg.sender, address(this), propertyId);
     }
 
 
-    //user cancel property sale
     function cancelSale(                
         uint256 propertyId
     ) public nonReentrant {
@@ -498,7 +496,7 @@ contract PropertyMarket is ReentrancyGuard {
         IERC721(nftContract).transferFrom(address(this), msg.sender, propertyId);
     }
 
-    //initial sale from after minto
+    //initial sale from after mint
     function createPropertyListing(        
         uint256[] memory tokenIds
     ) public payable onlyGovt nonReentrant {        
@@ -581,6 +579,15 @@ contract PropertyMarket is ReentrancyGuard {
 
         IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
         
+        if (itemId < 501) {
+            if (temp.owner != i_govt) {
+                decrementRelistCount();
+            }
+            _propertiesSold.increment();
+            GovtContract govtContract = GovtContract(i_govtContract);
+            govtContract.adjustPropertiesWithRenterCount(itemId, false);
+        }
+
         if (temp.owner != i_govt) {
             vacateCommonTasks(itemId, msg.sender, false);
             for (uint256 j = 0; j < userProperties[temp.owner].length; j++) {
@@ -589,15 +596,6 @@ contract PropertyMarket is ReentrancyGuard {
                     userProperties[temp.owner].pop();
                 }
             }
-        }
-
-        if (itemId < 501) {
-            if (temp.owner != i_govt) {
-                decrementRelistCount();
-            }
-            _propertiesSold.increment();
-            GovtContract govtContract = GovtContract(i_govtContract);
-            govtContract.adjustPropertiesWithRenterCount(itemId, false);
         }
 
         temp.owner = payable(msg.sender);
@@ -696,15 +694,6 @@ contract PropertyMarket is ReentrancyGuard {
         tokenContract.transfer(msg.sender, renterTokens[msg.sender]);
         renterTokens[msg.sender] = 0;
     }
-
-    // function withdrawPropertyTax() external onlyGovt nonReentrant {        
-    //     uint256 bal = address(this).balance;
-    //     GovtContract govt = GovtContract(i_govtContract);
-    //     i_govt.transfer(bal);
-    //     if (govt.getBalance() > 0) {
-    //         govt.withdrawRentTax();
-    //     }        
-    // }
 
     function giftProperties(        
         uint256 pId,

@@ -41,6 +41,8 @@ const Renting = () => {
   const [rentStatus, setRentStatus] = useState(false)
   const [rentText, setRentText] = useState('')
   const [retries, setRetries] = useState(5)
+  const [noRentImage, setNoRentImage] = useState('');
+  const [loadingSmall, setLoadingSmall] = useState(true);
 
   const [postsPerPage] = useState(20);
   const [currentPage, setCurrentPage] = useState(1);
@@ -155,6 +157,15 @@ const Renting = () => {
       return false
     }
   }
+
+  useEffect(() => {
+      const smallImg = new Image();
+      smallImg.src = 'col.png'; // The background image URL
+      smallImg.onload = () => {
+          setNoRentImage(smallImg.src); // Store the loaded image source
+          setLoadingSmall(false);
+      }
+  }, []);
 
   const loadProperties = async (i) => {
     try {
@@ -354,7 +365,7 @@ const Renting = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
 
-  if (loadingState !== 'loaded') return (
+  if (loadingState !== 'loaded' || loadingSmall) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
@@ -399,7 +410,7 @@ const Renting = () => {
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
           <p className="ml-7 lg:ml-0 text-5xl  font-bold mb-6 md:mb-16 lg:mb-32 xl3:mb-24 text-white">My Rented Properties</p>
           <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 xl3:w-3/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
-            <img src="col.png" className=" rotate-away2  shadow-2xl shadow-amber-100" />
+            <img src={noRentImage} className=" rotate-away2  shadow-2xl shadow-amber-100" />
             <div className='h-10 mt-16'></div>
             {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
           </div>
@@ -463,7 +474,7 @@ const Renting = () => {
         </div>
       </div>
       <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-8 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-3/4 lg:w-2/4 md:pt-16 lg:pt-32 md:right-30">
-        <img src="col.png" className="rotate-away2  brightness-110 shadow-2xl shadow-amber-100" />
+        <img src={noRentImage} className="rotate-away2  brightness-110 shadow-2xl shadow-amber-100" />
         {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
       </div>
       <div className='ml-4 md:pl-32 md:pt-12 lg:ml-0 lg:hidden'>

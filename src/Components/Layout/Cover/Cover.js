@@ -166,10 +166,7 @@ export default function Cover() {
                         <div className='flex justify-start pl-3'>
                             <div className="pt-6">
                                 <ConnectButton />
-                            </div>
-                            {/* <p className="mt-4 text-xs text-center text-white">
-							<span>Copyright © 2023</span>
-						</p> */}
+                            </div>           
                         </div>
                     </nav>
                 </div>
@@ -182,11 +179,7 @@ export default function Cover() {
                     </div>
                     <div className="flex justify-center mb-6 xl3:mb-12 ">
                         <a href="/about" className="text-white bg-red-500 border-red-300 hover:text-white opacity-85 hover:bg-opacity-60 text-base font-semibold hover:no-underline border-4 shadow-lg rounded py-3 px-6">Get Started</a>
-                    </div>
-                    {/* <div className="flex justify-center relative px-4 lg:px-0 lg:pb-12 xl3:pb-0">
-                <img src="test48.png" className=" lg:w-3/5" alt="" />
-            </div> */}
-
+                    </div>      
                 </section>
             </div>
         </div>

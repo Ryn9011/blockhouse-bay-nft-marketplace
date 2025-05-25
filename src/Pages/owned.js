@@ -71,6 +71,8 @@ const Owned = () => {
   const [totalUserPropertyCount, setTotalUserPropertyCount] = useState(0);
   const { address, chainId, isConnected } = useWeb3ModalAccount();
   const [listingPrice, setListingPrice] = useState(0);
+  const [noRentImage, setNoRentImage] = useState('');
+  const [loadingSmall, setLoadingSmall] = useState(true);
 
   const { modalEvent, provider, signer } = useModalContext();
   const [minDeposit, setMinDeposit] = useState(0);
@@ -104,6 +106,15 @@ const Owned = () => {
     } else {
     }
   }, [modalEvent]);
+
+  useEffect(() => {
+      const smallImg = new Image();
+      smallImg.src = 'col.png'; // The background image URL
+      smallImg.onload = () => {
+          setNoRentImage(smallImg.src); // Store the loaded image source
+          setLoadingSmall(false);
+      }
+  }, []);
 
   async function loadProperties(i) {
     try {
@@ -154,7 +165,7 @@ const Owned = () => {
       //console.log(data)
 
      
-      // const minDepositVal = await govt.getMinDeposit();
+      // const minDepositVal = await govt.minDeposit();
       // setMinDeposit(ethers.formatUnits(minDepositVal, 'ether'))
 
 
@@ -339,8 +350,8 @@ const Owned = () => {
       console.log('Listing price: ', listingPrice.toString())
       const nftContract = new Contract(nftaddress, NFT.abi, signer)
 
-
-      await nftContract.giveResaleApproval(property.propertyId) //give user explaination of this tranasction      
+      const approvalTx = await nftContract.giveResaleApproval(property.propertyId);
+      await approvalTx.wait();     
 
       const isExclusive = property.propertyId > 500 ? true : false
 
@@ -351,8 +362,7 @@ const Owned = () => {
       // const listingPriceFormatted = ethers.parseUnits(BigInt(listingPrice), 'ether')
       
       try {
-        const transaction = await contract.sellProperty(          
-          property.tokenId,
+        const transaction = await contract.sellProperty(                    
           property.propertyId,
           priceFormatted,
           tokenAmountFormatted,
@@ -998,13 +1008,13 @@ const Owned = () => {
   //   </div>
   // )
 
-  if (loadingState === 'loaded' && !isConnected) return (
-    <div className='text-sm text-white flex justify-center mt-6'>
-      <p>Your wallet needs to be connected to view your properties. Connect your wallet connection and refresh the page</p>
-    </div>
-  )
+  // if (loadingState === 'loaded' && !isConnected) return (
+  //   <div className='text-sm text-white flex justify-center mt-6'>
+  //     <p>Your wallet needs to be connected to view your properties. Connect your wallet connection and refresh the page</p>
+  //   </div>
+  // )
 
-  if (loadingState !== 'loaded') return (
+  if (loadingState !== 'loaded' || loadingSmall) return (
     <div className="pt-10 pb-10">
       <div className="flex">
         <div className="lg:px-4 md:ml-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
@@ -1048,7 +1058,7 @@ const Owned = () => {
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
           <p className="ml-7 lg:ml-0 text-5xl font-bold md:mb-16 lg:mb-32 xl3:mb-10 text-white xl3:mt-4">My Properties</p>
           <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
-            <img src="col.png" className=" rotate-away2  shadow-2xl shadow-amber-100" />
+            <img src={noRentImage} className=" rotate-away2  shadow-2xl shadow-amber-100" />
             <div className='h-10 mt-16'></div>
             {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
           </div> 
@@ -1063,7 +1073,7 @@ const Owned = () => {
 
       </div>
       <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-12 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-3/4 lg:w-2/4 md:pt-10 lg:pt-32 md:right-30">
-        <img src="col.png" className="rotate-away2 brightness-110 shadow-2xl shadow-amber-100" />
+        <img src={noRentImage} className="rotate-away2 brightness-110 shadow-2xl shadow-amber-100" />
         <div className='h-10 mt-16'></div>
         {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
       </div>
@@ -1660,7 +1670,7 @@ const Owned = () => {
                       <div className="pt-3">
                         <div className="text-sm font-bold mb-4 mt-1 flex items-center justify-between">
                           <div className='flex'>
-                            <p className="pr-1">Change Rental Deposit  <p className=' font-base text-xs mt-[3px] font-thin text-purple-400 italic'>Min 1.0 POL</p></p>
+                            <p className="pr-1">Change Rental Deposit  <p className=' font-base text-xs mt-[3px] font-thin text-purple-400 italic'>Min {minDeposit} POL</p></p>
                             <div className="mb-1 relative">
                               <div className="relative flex flex-col items-center group">
                                 <Link to="/about?section=owning" target='new'>

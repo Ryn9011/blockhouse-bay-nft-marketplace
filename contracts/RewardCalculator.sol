@@ -34,7 +34,7 @@ library RewardCalculator {
             baseReward = (rent * 300) / 100000;
         } else if (rent >= 20 ether) {
             baseReward = (rent * 300) / 100000;
-        } else if (rent >= 11 ether) {            
+        } else if (rent >= 10 ether) {            
             baseReward = (rent * 300) / 100000;
         } else {
             baseReward = 5;
