@@ -382,7 +382,7 @@ const About = () => {
                                 <strong>Distribution:</strong> 100% of the BHB tokens are available to users; none are reserved by Blockhouse Bay in the sense they are locked into the platform an cannot be manipulated by the team.
                               </p>
                               <p>
-                                <strong>Transaction Fees:</strong> A minimal 0.001% fee applies to all BHB transactions, ensuring a sustainable ecosystem.
+                                <strong>Transaction Fees:</strong> A 0.001% fee applies to all BHB transactions, ensuring a sustainable ecosystem.
                               </p>
                             </section>
 

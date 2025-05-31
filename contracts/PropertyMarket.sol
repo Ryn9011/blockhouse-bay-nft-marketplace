@@ -62,11 +62,11 @@ contract PropertyMarket is ReentrancyGuard {
     address payable immutable i_govt;
     address payable i_govtContract;
     bool public govtContractSet = false;    
-    uint256 public listingPrice = 0.001 ether;
-    uint256 public constant INITIAL_SALE_PRICE = 0.001 ether;
+    uint256 public listingPrice = 20 ether;
+    uint256 public constant INITIAL_SALE_PRICE = 550 ether;
     uint256 constant MAX_SALE_PRICE = 100000000 ether;
-    uint256 constant INITIAL_TOKEN_PRICE = 1 ether;
-    uint256 constant INITIAL_EXCLUSIVE_PRICE = 1 ether;    
+    uint256 constant INITIAL_TOKEN_PRICE = 2700 ether;
+    uint256 constant INITIAL_EXCLUSIVE_PRICE = 85000 ether;    
     uint256 constant INITIAL_MINT = 100000000 * (10 ** 18);
     uint256 tokenMaxSupply = INITIAL_MINT;    
 
@@ -354,8 +354,8 @@ contract PropertyMarket is ReentrancyGuard {
                 id[0] = i;
                 Property[] memory currentItem = getPropertyDetails(id, false);
                 if (currentItem[0].owner != i_govt
-                    && currentItem[0].propertyId < 501 
-                    && currentItem[0].propertyId > 0
+                    && currentItem[0].propertyId <= 500 
+                    && currentItem[0].propertyId >= 1
                     && (currentItem[0].roomOneRented == false 
                     || currentItem[0].roomTwoRented == false 
                     || currentItem[0].roomThreeRented == false 
@@ -452,15 +452,15 @@ contract PropertyMarket is ReentrancyGuard {
         
         require(property.owner == msg.sender, "not owner");        
         require(msg.value == listingPrice, "incorrect listing price");
-        require(!property.isForSale, "");
+        require(!property.isForSale, "already for sale");
         
         if (isExclusive) {
-            require(propertyId >= 501 && propertyId < 551, "");
+            require(propertyId >= 501 && propertyId < 551, "invalid pid");
             property.tokenSalePrice = tokenPrice;
  
             require(tokenPrice >= 1 ether && tokenPrice <= 10000000 ether, "invalid token price");
         } else {
-            require(propertyId <= 500 && propertyId >= 1 && price >= INITIAL_SALE_PRICE && price <= MAX_SALE_PRICE, "");
+            require(propertyId <= 500 && propertyId >= 1 && price >= INITIAL_SALE_PRICE && price <= MAX_SALE_PRICE, "inavlid sale price");
             property.salePrice = price;
             property.tokenSalePrice = (tokenPrice != 0) ? tokenPrice : 0;
             _relistCount.increment();
@@ -510,8 +510,8 @@ contract PropertyMarket is ReentrancyGuard {
             listing.propertyId = tokenId;
             listing.nftContract = nftContract;
             listing.tokenId = tokenId;
-            listing.rentPrice = 0.001 ether;
-            listing.deposit = 0.001 ether;
+            listing.rentPrice = 10 ether;
+            listing.deposit = 20 ether;
             listing.seller = payable(msg.sender);
             listing.owner = payable(i_govt);
             listing.isForSale = true;

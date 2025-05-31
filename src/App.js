@@ -12,7 +12,7 @@ import About from './Pages/about';
 import CreateItem from './Pages/create-item';
 import AllProperties from './Pages/all-properties';
 import Exclusive from './Pages/exclusive-properties';
-import PropertyView from './Pages/property-view';
+import PropertyView from './Pages/property';
 import { createWeb3Modal, defaultConfig } from '@web3modal/ethers/react'
 import { useWeb3ModalProvider } from '@web3modal/ethers/react'
 import Modal from '@material-ui/core/Modal';
@@ -92,14 +92,13 @@ function App() {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  console.log(location.pathname)
 
   // walletProvider.on("accountsChanged", (accounts) => {
   //   console.log('ACCOUNTS CHANGED' + accounts[0]);
   // });
 
   useLayoutEffect(() => {
-    if (!location.pathname.includes('property-view')) {
+    if (!location.pathname.includes('property')) {
       setLoadingImage(false)
       
     }
@@ -141,9 +140,9 @@ function App() {
         if (event.data.properties.connected === false) {
           setProvider(null);
         }
-        console.log(event)
+        
       } catch {
-        console.log('Error')
+        
       }
     });
 
@@ -161,7 +160,7 @@ function App() {
   }
 
   useEffect(() => {
-    if (location.pathname.includes('property-view')) {
+    if (location.pathname.includes('property')) {
       setLoadingImage(true)
       const img = new Image();
         img.src = '../mainbg.jpg'; // The background image URL        
@@ -228,7 +227,7 @@ function App() {
       ) : (
         <ModalContext.Provider value={{ modalEvent, provider, signer }}>
       <div className={` ${location.pathname !== "/" ? 'from-black via-slate-800 to-slate-900 bg-gradient-120' : 'bg-black'}  h-screen flex flex-col overflow-hidden `} style={
-        location.pathname.includes('property-view')
+        location.pathname.includes('property')
           ? { backgroundImage: `url(${bgImage})`, backgroundRepeat: 'no-repeat', backgroundSize: 'cover' }
           : undefined
       }>
@@ -252,7 +251,7 @@ function App() {
                 <Route path="/blockhouse-bay-gardens" element={<Exclusive />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/create-item" element={<CreateItem />} />
-                <Route path="/property-view/:propertyId" element={<PropertyView />} />
+                <Route path="/property/:propertyId" element={<PropertyView />} />
               </Routes>
             </div>
           ) : (

@@ -33,6 +33,8 @@ const ToRent = () => {
   const { address, chainId, isConnected } = useWeb3ModalAccount()
   const [retries, setRetries] = useState(3)
   const { modalEvent, provider, signer } = useModalContext();
+  const [noRentImage, setNoRentImage] = useState('');
+  const [loadingSmall, setLoadingSmall] = useState(true);
 
 
   useEffect(() => {
@@ -49,6 +51,15 @@ const ToRent = () => {
     }
   }, [currentPage, signer]);
 
+    useEffect(() => {
+      const smallImg = new Image();
+      smallImg.src = 'col.png'; // The background image URL
+      smallImg.onload = () => {
+        setNoRentImage(smallImg.src); // Store the loaded image source
+        setLoadingSmall(false);
+      }
+    }, []);
+
   const loadProperties = async (prop, i) => {
     try {     
       const tokenContract = new Contract(nftaddress, NFT.abi, provider)
@@ -60,7 +71,7 @@ const ToRent = () => {
       let propetiesSold = Number(await marketContract.getPropertiesSold());
       const relistCount = Number(await marketContract.getRelistCount());
 
-      const numForRent = propetiesSold + relistCount
+      let numForRent = propetiesSold + relistCount
       
       const currentPageNumItems = numForRent - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
@@ -140,6 +151,7 @@ const ToRent = () => {
         if (!item.roomOneRented || !item.roomTwoRented || !item.roomThreeRented || !item.roomFourRented) {
           item.available = true;
         }
+        
         if (item.roomOneRented == true) {
           
           item.roomsRented++
@@ -203,7 +215,7 @@ const ToRent = () => {
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-  if (loadingState !== 'loaded') return (
+  if (loadingState !== 'loaded' || loadingSmall) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 lg:ml-20" style={{ maxWidth: "1600px" }}>
@@ -241,24 +253,32 @@ const ToRent = () => {
     </div>
   )
 
-  if (loadingState === 'loaded' && !currentPosts.length) return (
-    <div className="pt-10 pb-10">
-      <div className="flex ">
-        <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-10 text-white xl3:mt-4">Vacant Properties</p>          
-          <p className='text-white text-base md:text-left md:text-3xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>There aren’t any rentals listed at the moment, but keep an eye on this space! New properties will be available soon, so check back regularly to find your next perfect rental.</p>
-          <p className="text-xs pl-7 mb-6 md:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=renting" target='new'>Learn more about renting your first property</Link></p>
+  if (loadingState === 'loaded' && currentPosts.length) return (
+      <div className="pt-10 pb-10">
+          <div className="flex ">
+            <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
+              <p className="ml-7 lg:ml-0 text-5xl font-bold md:mb-16 lg:mb-24 xl3:mb-10 text-white xl3:mt-4">Vacant Properties</p>
+              <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
+                <img src={noRentImage} className=" rotate-away2  shadow-2xl shadow-amber-100" />
+                <div className='h-10 mt-16'></div>
+                {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+              </div>
+              <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-12 lg:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>There aren’t any rentals listed at the moment, but keep an eye on this space! New properties will be available soon, so check back regularly to find your next perfect rental.</p>
+              <p className="text-xs pl-7 mb-6 md:mb-12 lg:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=renting" target='new'>Learn more about renting your first property</Link></p>
+            </div>
+            <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
+              {/* <img src="col.png" className=" rotate-away shadow-2xl shadow-amber-100" /> */}
+              <div className='h-10 mt-16'></div>
+              {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+            </div>
+    
+          </div>
+          <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-12 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-3/4 lg:w-2/4 md:pt-10 lg:pt-32 md:right-30">
+            <img src={noRentImage} className="rotate-away2 brightness-110 shadow-2xl shadow-amber-100" />
+            <div className='h-10 mt-16'></div>
+            {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+          </div>
         </div>
-        <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full xl3:w-5/6 lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
-          <img src="col.png" className=" rotate-away  shadow-2xl shadow-amber-100" />
-          {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
-        </div>
-      </div>
-      <div className="image-container lg:hidden md:ml-24 lg:ml-0 drop-shadow-lg mt-16 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-2/4 md:pt-10 lg:pt-32 md:right-30">
-        <img src="col.png" className="rotate-away2  brightness-110 shadow-2xl shadow-amber-100" />
-        {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
-      </div>
-    </div>
   )
   // Rent a room from an owner and earn BHB tokens
   return (

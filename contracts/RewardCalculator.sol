@@ -36,21 +36,20 @@ library RewardCalculator {
             baseReward = (rent * 300) / 100000;
         } else if (rent >= 10 ether) {            
             baseReward = (rent * 300) / 100000;
-        } else {
-            baseReward = 5;
-            //revert("Rent must be greater than or equal to 10 pol and not exceed 500 pol");            
+        } else {         
+            revert("Rent must be greater than or equal to 10 pol and not exceed 500 pol");            
         }
 
         // Debugging information
         // console.log("Base Reward: ", baseReward);
         // console.log("Current Supply: ", currentSupply);
-        console.log("Initial Supply: ", initialSupply);
+        // console.log("Initial Supply: ", initialSupply);
 
         uint256 adjustedReward = (baseReward * currentSupply) / initialSupply;
 
         // Debugging information
-        console.log("RENT: ", rent);
-        console.log("REWARD: ", (adjustedReward * 100) / (10 ** 18));
+        // console.log("RENT: ", rent);
+        // console.log("REWARD: ", (adjustedReward * 100) / (10 ** 18));
         // console.log('REMAINING SUPPLY: ', currentSupply / (10 ** 18));
  
         return adjustedReward * 100;

@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./PropertyMarket.sol";
 import {RewardCalculator} from "./RewardCalculator.sol";
 
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 
 contract GovtFunctions is ReentrancyGuard {
     
@@ -17,8 +17,9 @@ contract GovtFunctions is ReentrancyGuard {
     address private _govtAddress;
     bool private hasSetGovtAddress = false;
     uint256 constant WEI_TO_ETH = 1000000000000000000;   
-    uint256 internal minDeposit = 0.001 ether;       
+    uint256 internal minDeposit = 20 ether;       
     uint256 public totalDepositBal = 0;
+    uint256 public propertyCountAllRoomsRented = 0;
     uint256 propertiesWithRenterCount = 0;
     mapping(address => uint256) public rentAccumulated;
     // address => propertyId => deposit
@@ -44,7 +45,7 @@ contract GovtFunctions is ReentrancyGuard {
     }
 
     modifier onlyGovt() {
-        console.log('govtAddressMsgSender: ', msg.sender);
+        // console.log('govtAddressMsgSender: ', msg.sender);
         require(_govtAddress == msg.sender, "only govt can call this function");
         _;
     }
@@ -72,6 +73,10 @@ contract GovtFunctions is ReentrancyGuard {
 
     function getBalance() public view returns (uint256) {
         return address(this).balance;
+    }
+
+    function getPropertyCountAllRoomsRented() public view returns (uint256) {
+        return propertyCountAllRoomsRented;
     }
 
     function getRentedProperties() public view returns (uint256) {
@@ -104,14 +109,8 @@ contract GovtFunctions is ReentrancyGuard {
     }
 
     // increment or decrement propertiesWithRenterCount based on isForSale only if property has renters. fetch single property and check
-    function adjustPropertiesWithRenterCount(uint256 propertyId, bool isForSale) external onlyPropertyMarket {
-        console.log('adjustPropertiesWithRenterCount called', propertyId, ' ', isForSale);
+    function adjustPropertiesWithRenterCount(uint256 propertyId, bool isForSale) external onlyPropertyMarket {        
         PropertyMarket.Property memory property = fetchSingleProperty(propertyId);
-        // log each room status
-        console.log('roomOneRented: ', property.roomOneRented);
-        console.log('roomTwoRented: ', property.roomTwoRented);
-        console.log('roomThreeRented: ', property.roomThreeRented);
-        console.log('roomFourRented: ', property.roomFourRented);
         if (property.roomOneRented || property.roomTwoRented || property.roomThreeRented || property.roomFourRented) {
             if (isForSale) {
                 propertiesWithRenterCount++;
@@ -139,7 +138,7 @@ contract GovtFunctions is ReentrancyGuard {
                 
         uint256 lastSaleIndex = property[0].dateSoldHistory.length - 1;
         uint256 lastSaleTime = property[0].dateSoldHistory[lastSaleIndex];
-        // require(block.timestamp >= lastSaleTime + 30 days, "Rent cannot be set within 30 days of the last sale");
+        require(block.timestamp >= lastSaleTime + 30 days, "Rent cannot be set within 30 days of the last sale");
 
         propertyMarketContract.setRentPrice(propertyId, rentPrice);
     }
@@ -280,7 +279,7 @@ contract GovtFunctions is ReentrancyGuard {
             // property already rented
             if (propertyRenters[i] != address(0)) {
                 isAlreadyRented = true;               
-            }
+            }                        
             // user already rented 4 properties
             if (tennants[0][i] == 0) {
                 maxRentalsReached = false;
@@ -292,8 +291,7 @@ contract GovtFunctions is ReentrancyGuard {
         bool availableRoom = checkSetRoomAvailability(currentProperty[0]);
         require(availableRoom, "no vacancy");    
 
-        if (!isAlreadyRented && currentProperty[0].isForSale) {
-            console.log('add +1 from rentProperty');
+        if (!isAlreadyRented && currentProperty[0].isForSale) {            
             propertiesWithRenterCount++;
         }
 
@@ -314,9 +312,18 @@ contract GovtFunctions is ReentrancyGuard {
                 break;
             }
         }
+
+        // check if all rooms are now rented and if so need to 
+
         setRenterDepositBalance(msg.sender, msg.value, propertyId);                                
         incrementTotalDepositBalance(msg.value);
-        //propertyMarketContract.setRenterToPropertyTimestamp(propertyId, block.timestamp, msg.sender);
+        
+        // check if all rooms are rented and if so, increment propertyCountAllRoomsRented
+        if (checkSetRoomAvailability(currentProperty[0])) {
+            propertyCountAllRoomsRented++;
+        } else {
+            revert("all rooms rented");
+        }
     }
 
     function checkSetRoomAvailability(
@@ -350,8 +357,7 @@ contract GovtFunctions is ReentrancyGuard {
         // if renter was last renter on a property, decrement propertiesWithRenterCount. use getPropertyRenters to check if renter is last renter
         address[4] memory propertyRenters = propertyMarketContract.getPropertyRenters(propertyId);
 
-        if (changePropertiesWithRenterCount) {     
-            console.log('changePropertiesWithRenterCount from refund called', propertyId, ' ', isForSale);       
+        if (changePropertiesWithRenterCount) {                     
             if (isForSale) {
                 bool isLastRenter = true;
                 for (uint i = 0; i < 4; i++) {
@@ -365,6 +371,17 @@ contract GovtFunctions is ReentrancyGuard {
                 }
             }
         }
+        
+        uint256 rentedCount = 0;        
+        for (uint8 i = 0; i < 4; i++) {
+            if (propertyRenters[i] != address(0)) {
+                rentedCount++;
+            }
+        }
+        if (rentedCount == 3) {
+            propertyCountAllRoomsRented--;        
+        }
+                
     }
 
     function payRent(uint256 propertyId) external payable nonReentrant {
@@ -377,20 +394,18 @@ contract GovtFunctions is ReentrancyGuard {
 
         uint256 rentTime = propertyMarketContract.getRenterToPropertyTimestamp(propertyId, msg.sender);
 
-        // require(
-        //     (block.timestamp - rentTime) > 172800,
-        //     "Can't pay rent more than once in 48hrs"
-        // );
+        require(
+            (block.timestamp - rentTime) > 1 days,
+            "You can't pay rent more than once in 48hrs"
+        );
 
         uint256[4][] memory tennants = propertyMarketContract.getTenantsMapping(msg.sender);
    
         bool isRenter = false;
         uint256 tenantLength = tennants[0].length;
 
-        for (uint8 i = 0; i < tenantLength; i++) {
-            // console.log('tenantlength: ', tenantLength);
-            if (tennants[0][i] == propertyId) {
-                //propertyMarketContract.setTenantsMapping(msg.sender, propertyId, i);
+        for (uint8 i = 0; i < tenantLength; i++) {            
+            if (tennants[0][i] == propertyId) {                
                 isRenter = true;
                 break;
             }
@@ -398,9 +413,6 @@ contract GovtFunctions is ReentrancyGuard {
 
         require(isRenter, "is not tenant");
         
-       // uint256 accumulated = getRentAccumulated(currentItem.owner);
-        //console.log('accumulated: ', accumulated);
-       // setRentAccumulated((msg.value + accumulated), currentItem.owner);
         propertyMarketContract.setTotalIncomeGenerated(propertyId, msg.value);
         propertyMarketContract.setRenterToPropertyTimestamp(propertyId, block.timestamp, msg.sender);
     
@@ -418,8 +430,8 @@ contract GovtFunctions is ReentrancyGuard {
       
             propertyMarketContract.setRenterTokens(tokensToReceive, msg.sender);
 
-            console.log('maxSupply from govt: ', maxSupply);
-            console.log('tokensToReceive from govt: ', tokensToReceive);
+            // console.log('maxSupply from govt: ', maxSupply);
+            // console.log('tokensToReceive from govt: ', tokensToReceive);
             uint256 newSupplyAmount = maxSupply - tokensToReceive;
             propertyMarketContract.setMaxSupply(newSupplyAmount);
             
@@ -427,8 +439,8 @@ contract GovtFunctions is ReentrancyGuard {
 
             uint256 taxAmount = calculateTax(currentItem.rentPrice, msg.value);
 
-            console.log('taxAmount: ', taxAmount);
-            console.log('msg.value: ', msg.value);
+            // console.log('taxAmount: ', taxAmount);
+            // console.log('msg.value: ', msg.value);
        
             payable(currentItem.owner).transfer(msg.value - taxAmount);
           

@@ -107,7 +107,7 @@ const Renting = () => {
     const allTimestampsZero = property.payments.every(payment => {
       const timestamp = payment[2];
 
-      // console.log('timestamp ', Number(timestamp))
+     
       return timestamp == 0 || timestamp === '0x00';
     });
 
@@ -132,22 +132,16 @@ const Renting = () => {
       a.renter === connectedAddress
     );
 
-
-
-
-    
     // console.log(ethers.BigNumber.from(currentObject.timestamp.toNumber())).toNumber()
-    const twentyFourHoursInSeconds = 700 //24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    const number = 48 * 60 * 60; 
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
-    //const currentTimeInMullisPlusOneDay = Date.now() + twentyFourHoursInMillis;
+  
     if (currentObject === undefined) {
       return true;
     }
-    
-    // console.log(currentTimeInMillis)
-    // console.log(currentTimeInMillis - (currentObject.timestamp.toNumber()))
+  
 
-    if ((currentTimeInSeconds - (Number(currentObject.timestamp))) > twentyFourHoursInSeconds) {
+    if ((currentTimeInSeconds - (Number(currentObject.timestamp))) > number) {
       
       // setRentText('Rent overdue')
       return true
@@ -408,7 +402,7 @@ const Renting = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-7 lg:ml-0 text-5xl  font-bold mb-6 md:mb-16 lg:mb-32 xl3:mb-24 text-white">My Rented Properties</p>
+          <p className="ml-7 lg:ml-0 text-5xl  font-bold mb-6 md:mb-16 lg:mb-24 xl3:mb-24 text-white">My Rented Properties</p>
           <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 xl3:w-3/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
             <img src={noRentImage} className=" rotate-away2  shadow-2xl shadow-amber-100" />
             <div className='h-10 mt-16'></div>

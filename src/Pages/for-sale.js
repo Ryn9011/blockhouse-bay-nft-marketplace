@@ -45,6 +45,8 @@ const ForSale = () => {
   const { modalEvent, provider, signer } = useModalContext();
   const [onlyWithRentals, setOnlyWithRentals] = useState(false);
   const [rentedPropertyCount, setRentedPropertyCount] = useState(0);
+  const [noRentImage, setNoRentImage] = useState('');
+  const [loadingSmall, setLoadingSmall] = useState(true);
 
 
   useEffect(() => {
@@ -62,9 +64,18 @@ const ForSale = () => {
   }, [currentPage, signer]);
 
   useEffect(() => {
-    loadProperties();    
-      setCurrentPage(1);    
+    loadProperties();
+    setCurrentPage(1);
   }, [onlyWithRentals]);
+
+  useEffect(() => {
+    const smallImg = new Image();
+    smallImg.src = 'col.png'; // The background image URL
+    smallImg.onload = () => {
+      setNoRentImage(smallImg.src); // Store the loaded image source
+      setLoadingSmall(false);
+    }
+  }, []);
 
 
 
@@ -112,7 +123,7 @@ const ForSale = () => {
         }
 
         if (i.propertyId == 2) {
-    
+
         }
 
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
@@ -201,7 +212,7 @@ const ForSale = () => {
   };
 
   const buyProperty = async (nft, i) => {
-    try {     
+    try {
       let brb = document.getElementById("pogRadio" + i)
       let matic = document.getElementById("maticRadio" + i)
       if (brb.checked === false && matic.checked === false) {
@@ -229,8 +240,8 @@ const ForSale = () => {
       }
 
       console.log('nft.propertyId:', nft.propertyId);
-      const transaction = await contract2.createPropertySale(        
-        nft.propertyId,        
+      const transaction = await contract2.createPropertySale(
+        nft.propertyId,
         isTokenSale,
         {
           value: price.toString(),
@@ -258,7 +269,7 @@ const ForSale = () => {
   };
 
 
-  const paginate = (pageNumber) => {    
+  const paginate = (pageNumber) => {
     setCurrentPage(pageNumber)
   };
 
@@ -305,19 +316,40 @@ const ForSale = () => {
   if (loadingState === 'loaded' && !currentPosts.length) return (
     <div className="pt-10 pb-10">
       <div className="flex ">
-        <div className="lg:px-4 lg:ml-9" style={{ maxWidth: "1600px" }}>
-          <p className="ml-4 lg:ml-0 text-5xl xl3:text-6xl font-bold mb-4 text-white">For Sale</p>
-          <p className="text-xl lg:text-xl pl-7 lg:pl-4 font-bold mr-1 text-white">No properties currently for sale</p>
-          <p className='text-white text-base pt-2 lg:pt-4 pl-11 lg:pl-7'>Check back soon for new listings</p>
-          <label className="inline-flex items-center cursor-pointer mb-3 pt-2 pl-7 lg:pl-4 lg:pt-4">
-            <input type="checkbox" checked={onlyWithRentals} onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
-            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-400"></div>
-            <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-green-500">Show only properties with tenants</span>
-          </label>
+        <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
+          <p className="ml-7 lg:ml-0 text-5xl font-bold md:mb-16 lg:mb-24 xl3:mb-10 text-white xl3:mt-4">For Sale</p>
+          <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
+            <img src={noRentImage} className=" rotate-away2  shadow-2xl shadow-amber-100" />
+            <div className='h-10 mt-16'></div>
+            {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+          </div>
+          <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 mt-8 md:mt-12 lg:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>No properties currently for sale</p>
+          <p className='text-white text-sm pt-2 lg:pt-4 pl-11 italic lg:pl-7 md:text-base'>Check back soon for new listings</p>
+          <p className="text-xs pl-7 mb-6 md:mb-12 lg:mb-0 lg-pl-0 md:text-lg  underline italic mt-2   md:mt-6 lg:mt-0 mr-1 text-blue-300">
+            <label className="inline-flex items-center cursor-pointer mb-3 pt-4 pl-0 ">
+              <input type="checkbox" checked={onlyWithRentals} onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
+              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-400"></div>
+            <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-green-100">Show only properties with tenants</span>
+            </label>
+          </p>
         </div>
+        <div className="image-container hidden lg:block drop-shadow-lg absolute h-5/6 md:h-1/3 md:w-full lg:pt-60 right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          {/* <img src="col.png" className=" rotate-away shadow-2xl shadow-amber-100" /> */}
+          <div className='h-10 mt-16'></div>
+          {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
+        </div>
+
+
+      </div>
+      <div className="image-container lg:hidden md:ml-24 drop-shadow-lg mt-12 mb-16 left-2 col-span-12 absolute h-5/6 md:h-1/3 md:w-3/4 lg:w-2/4 md:pt-10 lg:pt-32 md:right-30">
+        <img src={noRentImage} className="rotate-away2 brightness-110 shadow-2xl shadow-amber-100" />
+        <div className='h-10 mt-16'></div>
+        {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
       </div>
     </div>
   )
+
+
 
   return (
     <div className="pt-10 pb-10">
@@ -335,11 +367,11 @@ const ForSale = () => {
           </div>
 
           {/* {currentPage === 1 &&  */}
-            <label className="inline-flex items-center cursor-pointer mb-3 pt-2 pl-7 lg:pl-0 lg:pt-4">
-              <input type="checkbox" checked={onlyWithRentals} onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
-              <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-400"></div>
-              <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-green-100">Show only properties with tenants</span>
-            </label>
+          <label className="inline-flex items-center cursor-pointer mb-3 pt-2 pl-4 lg:pl-0 lg:pt-4">
+            <input type="checkbox" checked={onlyWithRentals} onChange={(e) => handleOnlyRentals(e.target.checked)} className="sr-only peer " />
+            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-400"></div>
+            <span className="ms-3 text-sm text-gray-900 font-semibold dark:text-green-100">Show only properties with tenants</span>
+          </label>
           {/* } */}
 
           <Pagination

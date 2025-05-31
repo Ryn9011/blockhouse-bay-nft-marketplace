@@ -108,12 +108,12 @@ const Owned = () => {
   }, [modalEvent]);
 
   useEffect(() => {
-      const smallImg = new Image();
-      smallImg.src = 'col.png'; // The background image URL
-      smallImg.onload = () => {
-          setNoRentImage(smallImg.src); // Store the loaded image source
-          setLoadingSmall(false);
-      }
+    const smallImg = new Image();
+    smallImg.src = 'col.png'; // The background image URL
+    smallImg.onload = () => {
+      setNoRentImage(smallImg.src); // Store the loaded image source
+      setLoadingSmall(false);
+    }
   }, []);
 
   async function loadProperties(i) {
@@ -164,7 +164,7 @@ const Owned = () => {
 
       //console.log(data)
 
-     
+
       // const minDepositVal = await govt.minDeposit();
       // setMinDeposit(ethers.formatUnits(minDepositVal, 'ether'))
 
@@ -347,11 +347,11 @@ const Owned = () => {
 
       setTxLoadingState2({ ...txloadingState2, [i]: true });
       const listingPrice = await contract.getListingPrice();
-      console.log('Listing price: ', listingPrice.toString())
+      
       const nftContract = new Contract(nftaddress, NFT.abi, signer)
 
       const approvalTx = await nftContract.giveResaleApproval(property.propertyId);
-      await approvalTx.wait();     
+      await approvalTx.wait();
 
       const isExclusive = property.propertyId > 500 ? true : false
 
@@ -360,9 +360,9 @@ const Owned = () => {
       const priceFormatted = ethers.parseUnits(maticAmount, 'ether');
       const tokenAmountFormatted = tokenAmount === 0 ? '0' : ethers.parseUnits(tokenAmount, 'ether')
       // const listingPriceFormatted = ethers.parseUnits(BigInt(listingPrice), 'ether')
-      
+
       try {
-        const transaction = await contract.sellProperty(                    
+        const transaction = await contract.sellProperty(
           property.propertyId,
           priceFormatted,
           tokenAmountFormatted,
@@ -395,17 +395,17 @@ const Owned = () => {
     let tweetOptions
     //if (hasSetText) {
     let text = twitterTextRef.current ? twitterTextRef.current.innerText : ""
-    let formattedTweet = text.replace(/(?<!\d)\.(?!\d)/g, '%0A');
+    let formattedTweet = text.replace(/~/g, '%0A');
 
     ////console.log(window.location.hostname)
-    let url = `http://localhost:3000/property-view/${propertyIdTwitter}%0A`
+    let url = `http://localhost:3000/property/${propertyIdTwitter}%0A`
     let hashtags = 'BlockhouseBay'
     tweetOptions = text + '#BlockhouseBay';
     //}
     setText(formattedTweet)
     ////console.log(tweetOptions)
 
-    setUrl(`http://localhost:3000/property-view/${propertyIdTwitter ? propertyIdTwitter : ''}`)
+    //setUrl(`http://localhost:3000/property/${propertyIdTwitter ? propertyIdTwitter : ''}`)
     setHasSetText(false)
     twitterTextRef.current = document.getElementById("twitterDefault");
   }, [twitterSaleChecked, twitterRentChecked])
@@ -451,6 +451,7 @@ const Owned = () => {
     } else if (twitterSaleChecked && twitterRentChecked) {
       twitterTextRef.current = document.getElementById("twitterSaleRentSection");
     }
+    console.log(twitterTextRef.current)
     setHasSetText(true)
 
     // ////console.log(twitterTextRef.current.innerText)
@@ -460,7 +461,7 @@ const Owned = () => {
   //   let tweetOptions = 
   //   {
   //     text: twitterTextRef.current ? twitterTextRef.current.innerText : "ccock",
-  //     url: `http://localhost:3000/property-view/${propertyObj.propertyId.toString()}`,
+  //     url: `http://localhost:3000/property/${propertyObj.propertyId.toString()}`,
   //     via: "test",
   //     hashtags: '@BlockhouseBay',
   //     size: "large"
@@ -549,7 +550,7 @@ const Owned = () => {
 
     const contract = new Contract(nftmarketaddress, Market.abi, signer)
     setTxLoadingState2({ ...txloadingState2, [i]: true });
-    try {      
+    try {
       const transaction = await contract.cancelSale(property.propertyId)
       setTxLoadingState2({ ...txloadingState2, [i]: false });
       setTxLoadingState2({ ...txloadingState2B, [i]: true });
@@ -1056,12 +1057,12 @@ const Owned = () => {
     <div className="pt-10 pb-10">
       <div className="flex ">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
-          <p className="ml-7 lg:ml-0 text-5xl font-bold md:mb-16 lg:mb-32 xl3:mb-10 text-white xl3:mt-4">My Properties</p>
+          <p className="ml-7 lg:ml-0 text-5xl font-bold md:mb-16 lg:mb-24 xl3:mb-10 text-white xl3:mt-4">My Properties</p>
           <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
             <img src={noRentImage} className=" rotate-away2  shadow-2xl shadow-amber-100" />
             <div className='h-10 mt-16'></div>
             {/* <div className="gradient-overlay2 md:h-5/6"></div> */}
-          </div> 
+          </div>
           <p className='text-white text-base md:text-left md:text-2xl xl3:text-4xl font-semibold pt-2 w-11/12 mt-8 md:mt-12 lg:mt-24 xl3:mt-32 lg:pt-4 pl-7 lg:pl-12'>Start building your real estate portfolio today! Explore available properties, make a purchase, and come back here to manage your growing assets.</p>
           <p className="text-xs pl-7 mb-6 md:mb-12 lg:mb-0 lg-pl-0 md:text-lg lg:pl-16 underline italic mt-2   md:mt-6  mr-1 text-blue-300"><Link to="/about?section=owning" target='new'>Learn more about owning your first property</Link></p>
         </div>
@@ -1276,49 +1277,57 @@ const Owned = () => {
                         {(property.forSaleChecked && !property.rentChecked) && (
                           <div id="twitterSaleSection" ref={twitterTextRef}>
                             <div id={`${property.propertyId}twitterSale`}>
-                              <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
+                              <p>{`Check out my Blockhouse Bay Property - ${property.name}~`}</p>
                               {property.propertyId < 501 ? (
-                                <p>{` ${property.price} POL`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB.</span>}</p>
+                                <p>{` ${property.price} POL~`} {property.tokenPrice != 0 && <span>/ {property.tokenPrice} BHB.</span>}</p>
                               ) : (
-                                <p>{` ${property.tokenPrice} BHB.`}</p>
+                                <p>{` ${property.tokenPrice} BHB~`}</p>
                               )}
-                              <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
+                              <p className="whitespace-nowrap">
+                                {`https://blockhousebay.io/property/${property.propertyId}`}
+                              </p>
                             </div>
                           </div>
                         )}
                         {(property.rentChecked && !property.forSaleChecked) && (
                           <div id="twitterRentSection" ref={twitterTextRef}>
                             <div id={`${property.propertyId}twitterRent`}>
-                              <p>{`Check out my Blockhouse Bay Property - ${property.name}. `}</p>
+                              <p>{`Check out my Blockhouse Bay Property - ${property.name}~`}</p>
                               {property.roomsToRent != 4 &&
                                 <p>
-                                  {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} POL. `}
+                                  {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} POL~ `}
                                 </p>
                               }
                             </div>
-                            <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
+                            <p className="whitespace-nowrap">
+                              {`https://blockhousebay.io/property/${property.propertyId}`}
+                            </p>
                           </div>
                         )}
                         {(property.rentChecked && property.forSaleChecked) && (
                           <div id="twitterSaleRentSection" ref={twitterTextRef}>
-                            <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
+                            <p>{`Check out my Blockhouse Bay Property - ${property.name}~`}</p>
                             {property.propertyId < 501 ? (
-                              <p>{`Sale: ${property.price} POL`} {property.tokenPrice != 0 && <span> / {property.tokenPrice} BHB - </span>}</p>
+                              <p>{`Sale: ${property.price} POL~`} {property.tokenPrice != 0 && <span> / {property.tokenPrice} BHB - </span>}</p>
                             ) : (
-                              <p>{` ${property.tokenPrice} BHB. `}</p>
+                              <p>{` ${property.tokenPrice} BHB~`}</p>
                             )}
                             {property.roomsToRent != 4 &&
                               <p>
-                                {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} POL. `}
+                                {`${4 - property.roomsToRent} rooms vacant - ${property.rentPrice} POL~`}
                               </p>
                             }
-                            <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
+                            <p className="whitespace-nowrap">
+                              {`https://blockhousebay.io/property/${property.propertyId}`}
+                            </p>
                           </div>
                         )}
 
                         <div id="twitterDefault" ref={twitterTextRef}>
-                          <p>{`Check out my Blockhouse Bay Property - ${property.name}.`}</p>
-                          <p>{`https://${window.location.hostname}/property-view/${property.propertyId}`}</p>
+                          <p>{`Check out my Blockhouse Bay Property - ${property.name}~`}</p>
+                          <p className="whitespace-nowrap">
+                            {`https://blockhousebay.io/property/${property.propertyId}`}
+                          </p>
                         </div>
                       </div>
 
@@ -1429,7 +1438,7 @@ const Owned = () => {
                                   value="./matic-icon.png"
                                 />
 
-              
+
 
                                 <div className='mb-2'>
                                   <label
@@ -1695,7 +1704,7 @@ const Owned = () => {
                                 </div>
                               </div>
                             </div>
-                           
+
                           </div>
 
                           <div className='flex items-center'>
