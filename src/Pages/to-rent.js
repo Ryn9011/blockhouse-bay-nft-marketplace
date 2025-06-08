@@ -64,9 +64,13 @@ const ToRent = () => {
     try {     
       const tokenContract = new Contract(nftaddress, NFT.abi, provider)
       const marketContract = new Contract(nftmarketaddress, PropertyMarket.abi, provider) 
-      //const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
+      const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider)
       
       const data = await marketContract.fetchPropertiesSold(currentPage) 
+
+      const allRoomsRentedCount = await govtContract.getPropertyCountAllRoomsRented();
+      const converted = ethers.formatUnits(allRoomsRentedCount, 'wei');
+      console.log('allRoomsRentedCount', converted)
       
       let propetiesSold = Number(await marketContract.getPropertiesSold());
       const relistCount = Number(await marketContract.getRelistCount());
@@ -76,7 +80,7 @@ const ToRent = () => {
       const currentPageNumItems = numForRent - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
       setShowBottomNav(showBottomNav);
-      setNumForRent(numForRent);
+      setNumForRent(numForRent - converted);
     
 
       const items = await Promise.all(data.filter(i => Number(i.tokenId) != 0 && (a => Number(a.tokenId) !== 0)).map(async i => {
@@ -209,7 +213,7 @@ const ToRent = () => {
     } catch (ex) {
       setTxLoadingState({ ...txloadingState, [i]: false });
       setTxLoadingStateB({ ...txloadingStateB, [i]: false });
-      alert(ex.message.substring(0, ex.message.indexOf('('))) 
+      alert('Check you funds and that you have not exceed the maximum number of properties rented') 
     }
   }
 
@@ -253,7 +257,7 @@ const ToRent = () => {
     </div>
   )
 
-  if (loadingState === 'loaded' && currentPosts.length) return (
+  if (loadingState === 'loaded' && !currentPosts.length) return (
       <div className="pt-10 pb-10">
           <div className="flex ">
             <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>

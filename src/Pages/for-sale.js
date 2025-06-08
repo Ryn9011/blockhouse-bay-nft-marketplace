@@ -85,7 +85,7 @@ const ForSale = () => {
       const govtContract = new Contract(govtaddress, GovtFunctions.abi, provider);
       const tokenContract = new Contract(nftaddress, NFT.abi, provider);
 
-      const data = await marketContract.fetchPropertiesForSale(1, onlyWithRentals)
+      const data = await marketContract.fetchPropertiesForSale(currentPage, onlyWithRentals)
 
 
       console.log(data)

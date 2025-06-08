@@ -36,8 +36,9 @@ library RewardCalculator {
             baseReward = (rent * 300) / 100000;
         } else if (rent >= 10 ether) {            
             baseReward = (rent * 300) / 100000;
-        } else {         
-            revert("Rent must be greater than or equal to 10 pol and not exceed 500 pol");            
+        } else {     
+            baseReward = (rent * 300) / 100000;    
+            // revert("Rent must be greater than or equal to 10 pol and not exceed 500 pol");            
         }
 
         // Debugging information

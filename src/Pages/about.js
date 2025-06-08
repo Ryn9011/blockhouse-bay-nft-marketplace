@@ -194,10 +194,11 @@ const About = () => {
                     </div>
                     <div className="text-white md:text-xl xl3:text-xl italic mt-3 flex justify-start items-center">
                       <div>What is BlockHouse Bay?</div>
-                      <span className=" scale-90 border border-1 hover:cursor-pointer rounded-lg bg-blue-700 hover:bg-blue-600 border-blue-700 p-2 pt-1 ml-3" onClick={handleModalOpen}>
+                      <span className="scale-75 md:scale-90 border border-1 hover:cursor-pointer rounded-sm bg-blue-700 hover:bg-blue-600 border-blue-700 p-[5px] pt-[0.5px] ml-1 md:ml-3" onClick={handleModalOpen}>
                         <ArticleIcon className="brightness-150 hover:cursor-pointer" />
                       </span>
-                      <a href="https://x.com/BlockhouseBayio" target="new"><img src="logo-white.png" className='w-10 h-9 ml-4 p-1' alt="https://x.com/BlockhouseBayio" /></a>
+                      <a href="https://x.com/BlockhouseBayio" target="new"><img src="logo-white.png" className='w-10 h-9 ml-0 p-1 scale-90 md:scale-100 md:ml-4' alt="https://x.com/BlockhouseBayio" /></a>
+                      <a href="https://discord.gg/Kdjwws5x" target="new"><img src="discordicon.png" className='w-10 h-10 ml-0 p-1 rounded-md scale-90 md:scale-100 md:ml-4' alt="https://discord.gg/Kdjwws5x" /></a>
                     </div>
                     <p className="mt-0 text-gray-400 pl-2 mr-4 mt-1">
                       Let’s address the big question right away: Is Blockhouse Bay a scam? No, it isn’t. But we’re also not going to pretend it’s some groundbreaking, world-changing project. We’re a small team from New Zealand

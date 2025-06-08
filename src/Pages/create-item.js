@@ -290,7 +290,7 @@ const CreateItem = () => {
 
   const handleListingPriceChange = async () => {
     console.log('listingPrice: ', listingPrice)
-    const listingPriceParsed = ethers.parseUnits(listingPrice, 18)
+    const listingPriceParsed = ethers.parseUnits(listingPrice)
     console.log('listingPriceParsed: ', listingPriceParsed)
     const contract = new Contract(nftmarketaddress, PropertyMarket.abi, signer)
     try {
@@ -304,7 +304,7 @@ const CreateItem = () => {
   const handleMinDepositPriceChange = async () => {
     const contract = new Contract(govtaddress, GovtFunctions.abi, signer)
     try {
-      const transaction = await contract.setDepoitMin(minDepositPrice)
+      const transaction = await contract.setDepositMin(minDepositPrice)
       await transaction.wait()
     } catch (error) {
       console.error('Error setting min deposit price:', error)

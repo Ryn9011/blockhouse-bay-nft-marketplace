@@ -17,7 +17,7 @@ contract GovtFunctions is ReentrancyGuard {
     address private _govtAddress;
     bool private hasSetGovtAddress = false;
     uint256 constant WEI_TO_ETH = 1000000000000000000;   
-    uint256 internal minDeposit = 20 ether;       
+    uint256 internal minDeposit = 0.001 ether;       
     uint256 public totalDepositBal = 0;
     uint256 public propertyCountAllRoomsRented = 0;
     uint256 propertiesWithRenterCount = 0;
@@ -138,7 +138,7 @@ contract GovtFunctions is ReentrancyGuard {
                 
         uint256 lastSaleIndex = property[0].dateSoldHistory.length - 1;
         uint256 lastSaleTime = property[0].dateSoldHistory[lastSaleIndex];
-        require(block.timestamp >= lastSaleTime + 30 days, "Rent cannot be set within 30 days of the last sale");
+        require(block.timestamp >= lastSaleTime + 1 days, "Rent cannot be set within 30 days of the last sale");
 
         propertyMarketContract.setRentPrice(propertyId, rentPrice);
     }
@@ -152,7 +152,7 @@ contract GovtFunctions is ReentrancyGuard {
         
         require(depositPrice >= minDeposit, "deposit can't be set below min deposit value");
         require(property[0].owner == msg.sender, "Not owner");
-        require(depositPrice >= property[0].deposit && depositPrice <= 500 ether, "Invalid deposit price range");
+        require(depositPrice >= minDeposit && depositPrice <= 500 ether, "Invalid deposit price range");
 
         propertyMarketContract.setDeposit(propertyId, depositPrice);
     }
@@ -311,18 +311,21 @@ contract GovtFunctions is ReentrancyGuard {
                 // setTotalDepositBalance(msg.value, true);
                 break;
             }
-        }
-
-        // check if all rooms are now rented and if so need to 
+        }        
 
         setRenterDepositBalance(msg.sender, msg.value, propertyId);                                
         incrementTotalDepositBalance(msg.value);
         
-        // check if all rooms are rented and if so, increment propertyCountAllRoomsRented
-        if (checkSetRoomAvailability(currentProperty[0])) {
+        // this is dumb, but not refactoring at this stage
+        bool isLastRenter = true;
+        for (uint8 i = 0; i < 4; i++) {
+            if (propertyRenters[i] == address(0)) {
+                isLastRenter = false;
+                break;
+            }
+        }
+        if (isLastRenter) {
             propertyCountAllRoomsRented++;
-        } else {
-            revert("all rooms rented");
         }
     }
 
@@ -380,8 +383,7 @@ contract GovtFunctions is ReentrancyGuard {
         }
         if (rentedCount == 3) {
             propertyCountAllRoomsRented--;        
-        }
-                
+        }                
     }
 
     function payRent(uint256 propertyId) external payable nonReentrant {

@@ -155,6 +155,7 @@ const Owned = () => {
       })
 
       setListingPrice(ethers.formatUnits(await market.getListingPrice(), 'ether'))
+      
 
       ////console.log(signer)
       ////console.log(provider)
@@ -164,9 +165,13 @@ const Owned = () => {
 
       //console.log(data)
 
-
-      // const minDepositVal = await govt.minDeposit();
-      // setMinDeposit(ethers.formatUnits(minDepositVal, 'ether'))
+      try{
+      const minDepositVal = await govt.getDepositMin();
+      setMinDeposit(ethers.formatUnits(minDepositVal, 'ether'))
+      } catch (ex) {
+        console.log(ex)
+        
+      }
 
 
       const items = await Promise.all(data.filter(i => Number(i.propertyId) !== 0 && (a => Number(a.tokenId !== 0))).map(async i => {
@@ -943,7 +948,7 @@ const Owned = () => {
         return false;
       }
       ////console.log(currentObject)
-      const twentyFourHoursInMillis = 600; // 24 hours in milliseconds
+      const twentyFourHoursInMillis = 24 * 60 * 60; 
       const currentTimeInMillis = Math.floor(Date.now() / 1000);
 
       if (currentTimeInMillis - (Number(currentObject[0].timestamp)) > twentyFourHoursInMillis) {

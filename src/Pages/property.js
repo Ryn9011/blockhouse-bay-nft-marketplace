@@ -221,7 +221,7 @@ const PropertyView = () => {
       setTxLoadingState2(false);
       setTxLoadingState2B(false);
       console.log('error: ', ex)
-      alert(ex.message.substring(0, ex.message.indexOf('(')))
+      alert('Check you funds and that you have not exceed the maximum number of properties rented') 
     }
   }
 

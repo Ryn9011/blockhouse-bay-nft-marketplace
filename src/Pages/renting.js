@@ -133,7 +133,7 @@ const Renting = () => {
     );
 
     // console.log(ethers.BigNumber.from(currentObject.timestamp.toNumber())).toNumber()
-    const number = 48 * 60 * 60; 
+    const number = 24 * 60 * 60; 
     const currentTimeInSeconds = Math.floor(Date.now() / 1000);
   
     if (currentObject === undefined) {

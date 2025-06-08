@@ -23,7 +23,7 @@ const SaleHistory = (props) => {
   return (
     <div className="flex flex-col mt-0">
       {property.isForSale && location.pathname === '/to-rent' ? (
-        <p className='text-indigo-100'>Sale History - <a href={`http://blockhousebay.io/${property.propertyId}`}
+        <p className='text-indigo-100'>Sale History - <a href={`https://blockhousebay.io/property/${property.propertyId}`}
           className='cursor-pointer underline italic text-sm text-sky-400'>Currently Selling</a></p>
           
       ) : (

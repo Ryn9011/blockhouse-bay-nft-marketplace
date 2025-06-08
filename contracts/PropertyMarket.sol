@@ -62,11 +62,11 @@ contract PropertyMarket is ReentrancyGuard {
     address payable immutable i_govt;
     address payable i_govtContract;
     bool public govtContractSet = false;    
-    uint256 public listingPrice = 20 ether;
-    uint256 public constant INITIAL_SALE_PRICE = 550 ether;
+    uint256 public listingPrice = 1 ether;
+    uint256 public constant INITIAL_SALE_PRICE = 1 ether;
     uint256 constant MAX_SALE_PRICE = 100000000 ether;
-    uint256 constant INITIAL_TOKEN_PRICE = 2700 ether;
-    uint256 constant INITIAL_EXCLUSIVE_PRICE = 85000 ether;    
+    uint256 constant INITIAL_TOKEN_PRICE = 10 ether;
+    uint256 constant INITIAL_EXCLUSIVE_PRICE = 10 ether;    
     uint256 constant INITIAL_MINT = 100000000 * (10 ** 18);
     uint256 tokenMaxSupply = INITIAL_MINT;    
 
@@ -104,6 +104,7 @@ contract PropertyMarket is ReentrancyGuard {
         bool roomThreeRented;
         bool roomFourRented;
         bool isExclusive;
+        bool gifted;
         PropertyPayment[] payments;
     }
 
@@ -510,8 +511,9 @@ contract PropertyMarket is ReentrancyGuard {
             listing.propertyId = tokenId;
             listing.nftContract = nftContract;
             listing.tokenId = tokenId;
-            listing.rentPrice = 10 ether;
-            listing.deposit = 20 ether;
+            listing.rentPrice = 1 ether;
+            listing.deposit = 1 ether;
+            listing.gifted = true; // initially set to true, will be set to false when sold
             listing.seller = payable(msg.sender);
             listing.owner = payable(i_govt);
             listing.isForSale = true;
@@ -536,15 +538,15 @@ contract PropertyMarket is ReentrancyGuard {
         bool isPaymentTokensBool
     ) public payable nonReentrant {  
         Property storage temp = idToProperty[itemId];
-        require(itemId <= 550 && itemId >= 1, "invalid property id");
+        
         require(temp.isForSale == true, "not for sale");
         require(temp.seller != msg.sender, "cannot buy your own property");        
         uint256 price = temp.salePrice;
         uint256 tokenId = temp.tokenId;
      
         if (isPaymentTokensBool) {    
-            require(temp.tokenSalePrice != 0, "invalid token sale price");
-
+            require(temp.tokenSalePrice != 0, "property is not a bhb sale");
+            require(itemId <= 550 && itemId >= 500, "invalid property id");
             IERC20 propertyToken = IERC20(address(tokenContract));
             
             require(
@@ -566,7 +568,7 @@ contract PropertyMarket is ReentrancyGuard {
                 Sale(temp.tokenSalePrice, 2)
             );                   
         } else {            
-            require(itemId < 501 && itemId >= 1, "invalid property id");            
+            require(itemId <= 500 && itemId >= 1, "invalid property id");            
             require(msg.value == price, "incorrect price");
 
             temp.saleHistory.push(Sale(price, 1));      
@@ -601,7 +603,8 @@ contract PropertyMarket is ReentrancyGuard {
         temp.owner = payable(msg.sender);
         temp.isForSale = false;
         temp.seller = payable(address(0)); 
-        temp.rentPrice = 3 ether; // reset rent price              
+        temp.rentPrice = 1 ether; // reset rent price  
+        temp.gifted = false;            
         userProperties[msg.sender].push(itemId);
     }
 
@@ -700,10 +703,12 @@ contract PropertyMarket is ReentrancyGuard {
         address recipient    
     ) public onlyGovt nonReentrant{
 
-        // stops govt giving away properties that have been sold
-        require (idToProperty[pId].saleHistory.length == 0, "");
-        idToProperty[pId].owner = payable(recipient); 
-        idToProperty[pId].isForSale = false;
+        // in the interest of decentralization and security, admin is restricted to gifting once they have been resold or have 
+        // rental activity
+        require(pId >= 1 && pId <= 500, "invalid property id");
+        require (idToProperty[pId].gifted == true, "property has been sold");       
+        require(idToProperty[pId].totalIncomeGenerated < 20, "property has income generated");
+        idToProperty[pId].owner = payable(recipient);         
         _propertiesSold.increment();
         idToProperty[pId].saleHistory.push(Sale(INITIAL_SALE_PRICE, 1));              
         idToProperty[pId].dateSoldHistory.push(block.timestamp);
