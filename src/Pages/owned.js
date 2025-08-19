@@ -948,7 +948,7 @@ const Owned = () => {
         return false;
       }
       ////console.log(currentObject)
-      const twentyFourHoursInMillis = 24 * 60 * 60; 
+      const twentyFourHoursInMillis = 48 * 60 * 60; 
       const currentTimeInMillis = Math.floor(Date.now() / 1000);
 
       if (currentTimeInMillis - (Number(currentObject[0].timestamp)) > twentyFourHoursInMillis) {
@@ -1063,7 +1063,7 @@ const Owned = () => {
       <div className="flex ">
         <div className="lg:px-4 md:ml-20" style={{ maxWidth: "1600px" }}>
           <p className="ml-7 lg:ml-0 text-5xl font-bold md:mb-16 lg:mb-24 xl3:mb-10 text-white xl3:mt-4">My Properties</p>
-          <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
+          <div className="image-container hidden lg:block ml-48 xl3:ml-80 drop-shadow-lg absolute h-2/6 mt-20  md:w-4/5 lg:w-3/5 mb-16 xl3:mb-64  right-9 lg:right-40 xl3:right-60 xl3:top-20">
             <img src={noRentImage} className=" rotate-away2  shadow-2xl shadow-amber-100" />
             <div className='h-10 mt-16'></div>
             {/* <div className="gradient-overlay2 md:h-5/6"></div> */}

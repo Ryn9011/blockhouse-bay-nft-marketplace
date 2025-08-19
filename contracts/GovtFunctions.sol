@@ -17,7 +17,7 @@ contract GovtFunctions is ReentrancyGuard {
     address private _govtAddress;
     bool private hasSetGovtAddress = false;
     uint256 constant WEI_TO_ETH = 1000000000000000000;   
-    uint256 internal minDeposit = 0.001 ether;       
+    uint256 internal minDeposit = 20 ether;       
     uint256 public totalDepositBal = 0;
     uint256 public propertyCountAllRoomsRented = 0;
     uint256 propertiesWithRenterCount = 0;
@@ -138,7 +138,7 @@ contract GovtFunctions is ReentrancyGuard {
                 
         uint256 lastSaleIndex = property[0].dateSoldHistory.length - 1;
         uint256 lastSaleTime = property[0].dateSoldHistory[lastSaleIndex];
-        require(block.timestamp >= lastSaleTime + 1 days, "Rent cannot be set within 30 days of the last sale");
+        require(block.timestamp >= lastSaleTime + 14 days, "Rent cannot be set within 14 days of the last sale");
 
         propertyMarketContract.setRentPrice(propertyId, rentPrice);
     }
@@ -397,7 +397,7 @@ contract GovtFunctions is ReentrancyGuard {
         uint256 rentTime = propertyMarketContract.getRenterToPropertyTimestamp(propertyId, msg.sender);
 
         require(
-            (block.timestamp - rentTime) > 1 days,
+            (block.timestamp - rentTime) > 2 days,
             "You can't pay rent more than once in 48hrs"
         );
 

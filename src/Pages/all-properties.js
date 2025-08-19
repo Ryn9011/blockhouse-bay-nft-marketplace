@@ -78,9 +78,6 @@ const AllProperties = () => {
 
           const renterAddresses = await marketContract.getPropertyRenters(i.propertyId);
 
-          if (i.propertyId == 1) {
-            console.log('addresses: ', renterAddresses)
-          }
 
           let saleHistory = [];
           if (i.saleHistory.length > 0) {

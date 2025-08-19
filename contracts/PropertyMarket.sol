@@ -62,11 +62,11 @@ contract PropertyMarket is ReentrancyGuard {
     address payable immutable i_govt;
     address payable i_govtContract;
     bool public govtContractSet = false;    
-    uint256 public listingPrice = 1 ether;
-    uint256 public constant INITIAL_SALE_PRICE = 1 ether;
+    uint256 public listingPrice = 20 ether;
+    uint256 public constant INITIAL_SALE_PRICE = 550 ether;
     uint256 constant MAX_SALE_PRICE = 100000000 ether;
-    uint256 constant INITIAL_TOKEN_PRICE = 10 ether;
-    uint256 constant INITIAL_EXCLUSIVE_PRICE = 10 ether;    
+    uint256 constant INITIAL_TOKEN_PRICE = 2700 ether;
+    uint256 constant INITIAL_EXCLUSIVE_PRICE = 85000 ether;    
     uint256 constant INITIAL_MINT = 100000000 * (10 ** 18);
     uint256 tokenMaxSupply = INITIAL_MINT;    
 
@@ -511,8 +511,8 @@ contract PropertyMarket is ReentrancyGuard {
             listing.propertyId = tokenId;
             listing.nftContract = nftContract;
             listing.tokenId = tokenId;
-            listing.rentPrice = 1 ether;
-            listing.deposit = 1 ether;
+            listing.rentPrice = 10 ether;
+            listing.deposit = 20 ether;
             listing.gifted = true; // initially set to true, will be set to false when sold
             listing.seller = payable(msg.sender);
             listing.owner = payable(i_govt);
@@ -603,7 +603,7 @@ contract PropertyMarket is ReentrancyGuard {
         temp.owner = payable(msg.sender);
         temp.isForSale = false;
         temp.seller = payable(address(0)); 
-        temp.rentPrice = 1 ether; // reset rent price  
+        temp.rentPrice = 10 ether; // reset rent price  
         temp.gifted = false;            
         userProperties[msg.sender].push(itemId);
     }
@@ -708,7 +708,8 @@ contract PropertyMarket is ReentrancyGuard {
         require(pId >= 1 && pId <= 500, "invalid property id");
         require (idToProperty[pId].gifted == true, "property has been sold");       
         require(idToProperty[pId].totalIncomeGenerated < 20, "property has income generated");
-        idToProperty[pId].owner = payable(recipient);         
+        idToProperty[pId].owner = payable(recipient);   
+        idToProperty[pId].isForSale = false;      
         _propertiesSold.increment();
         idToProperty[pId].saleHistory.push(Sale(INITIAL_SALE_PRICE, 1));              
         idToProperty[pId].dateSoldHistory.push(block.timestamp);

@@ -87,12 +87,8 @@ const ForSale = () => {
 
       const data = await marketContract.fetchPropertiesForSale(currentPage, onlyWithRentals)
 
-
-      console.log(data)
       const numForSale = Number(await govtContract.getPropertiesForSale());
       const rentedPropertyCount = Number(await govtContract.getRentedProperties());
-
-      console.log('rentedPropertyCount:', rentedPropertyCount);
 
       const currentPageNumItems = numForSale - (20 * (currentPage - 1))
       const showBottomNav = currentPageNumItems > 12 ? true : false
@@ -122,12 +118,9 @@ const ForSale = () => {
           }
         }
 
-        if (i.propertyId == 2) {
-
-        }
 
         let price = ethers.formatUnits(i.salePrice.toString(), 'ether')
-        console.log('price:', price);
+    
         let tokenSalePriceFormatted = ethers.formatUnits(i.tokenSalePrice.toString(), 'ether')
         let saleHistory = [];
         if (i.saleHistory.length > 0) {
@@ -239,7 +232,7 @@ const ForSale = () => {
         }
       }
 
-      console.log('nft.propertyId:', nft.propertyId);
+      
       const transaction = await contract2.createPropertySale(
         nft.propertyId,
         isTokenSale,
@@ -248,7 +241,7 @@ const ForSale = () => {
         }
       );
 
-      console.log('Transaction:', transaction);
+      
 
       if (document.getElementById("pogRadio" + i) != undefined) {
         if (document.getElementById("pogRadio" + i).checked) {
@@ -387,7 +380,11 @@ const ForSale = () => {
                   key={property.propertyId}
                   className="border shadow rounded-md overflow-hidden bg-gradient-120 from-black via-black to-blue-400"
                 >
-                  {/* {console.log(property.propertyId + " hit")} */}
+                  <input
+                    type="hidden"
+                    id={"propertyId"}
+                    value={property.propertyId}
+                  />
                   <img className='w-fit h-fit' src={property.image} alt="" />
                   <div className="p-4">
                     <p

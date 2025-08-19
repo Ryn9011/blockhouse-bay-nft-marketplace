@@ -456,7 +456,7 @@ const CreateItem = () => {
     await transaction.wait();
   }  
 
-  if (connectedWalletAddress !== '0x211F1b957C16C0a04b1363D9F569bBFeeb311981') {
+  if (connectedWalletAddress !== '0x8f1890929D22251399B5bbD99a457C1546d1ce5D') {
     return (<div></div>)
   }
 

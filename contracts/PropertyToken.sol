@@ -5,15 +5,14 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract PropertyToken is ERC20, Ownable {
-    address contractAddress; //propertyMarket
+    address public immutable contractAddress;
     bool hasBeenMinted = false;
     address _devFund;
-    // address public constant BURN_ADDRESS = address(0);
 
     uint256 public constant FEE_PERCENTAGE = 100; // Represents 1% (1% = 100 basis points)
     uint256 public constant BASIS_POINTS = 10000; // Represents 100%
 
-    // event Burn(address indexed burner, uint256 value);
+
     event FeeTaken(address indexed from, address indexed to, uint256 value);
 
     constructor(uint256 initialSupply, address contractAddr, address devFund) ERC20("Blockhouse Bay", "BHB") {

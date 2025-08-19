@@ -685,7 +685,7 @@ const About = () => {
                       The state of the market will determine the demand for properties and the rent price that can be set.
                     </p>
                     <p className="mt-2 text-gray-400 pl-2 mr-4">
-                      Note - after purchasing a property, the rent price will be reset to the minimum value and cannot be changed for 30 days after the sale.
+                      Note - after purchasing a property, the rent price will be reset to the minimum value and cannot be changed for 14 days after the sale.
                     </p>
 
                     <p className="text-white text-xl xl3:text-xl  italic mt-4">Set Required Depsoit</p>
@@ -932,7 +932,7 @@ const About = () => {
                   A total of 4 deposits can be made at any one time for an inidival wallet address and so a maximum of 4 properties can be rented at any one time.
                 </p>
                 <p className="mt-2 text-gray-400 pl-2 mr-4">
-                  Rent price cannot be changed within 30 days of buying a property.
+                  Rent price cannot be changed within 14 days of buying a property.
                 </p>
               </div>
 

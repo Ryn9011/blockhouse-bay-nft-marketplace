@@ -9,11 +9,11 @@ library RewardCalculator {
         
         uint256 baseReward;
         if (rent >= 500 ether) {
-            baseReward = (rent * 550) / 100000;
-        } else if (rent >= 400 ether) {
             baseReward = (rent * 575) / 100000;
+        } else if (rent >= 400 ether) {
+            baseReward = (rent * 550) / 100000;
         } else if (rent >= 300 ether) {
-            baseReward = (rent * 600) / 100000;
+            baseReward = (rent * 525) / 100000;
         } else if (rent >= 200 ether) {
             baseReward = (rent * 500) / 100000;
         } else if (rent >= 100 ether) {
@@ -37,8 +37,8 @@ library RewardCalculator {
         } else if (rent >= 10 ether) {            
             baseReward = (rent * 300) / 100000;
         } else {     
-            baseReward = (rent * 300) / 100000;    
-            // revert("Rent must be greater than or equal to 10 pol and not exceed 500 pol");            
+            //baseReward = (rent * 300) / 100000;    
+            revert("Rent must be greater than or equal to 10 pol and not exceed 500 pol");            
         }
 
         // Debugging information
