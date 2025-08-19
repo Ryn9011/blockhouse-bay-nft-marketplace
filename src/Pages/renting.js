@@ -14,9 +14,9 @@ import AddTokenButton from "../Components/AddTokenButton";
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
-} from '../config'
-import Pagination from '../Pagination'
-import GetPropertyNames from '../getPropertyName'
+} from '../config/config'
+import Pagination from '../utility/Pagination'
+import GetPropertyNames from '../utility/getPropertyName'
 import SpinnerIcon from '../Components/spinner';
 import copyImg from '../copy.svg';
 

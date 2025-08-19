@@ -9,15 +9,15 @@ import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
-} from '../config'
+} from '../config/config'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToken.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
-import Pagination from '../Pagination'
+import Pagination from '../utility/Pagination'
 import SaleHistory from '../Components/sale-history'
-import GetPropertyNames from '../getPropertyName'
+import GetPropertyNames from '../utility/getPropertyName'
 import SpinnerIcon from '../Components/spinner';
 
 

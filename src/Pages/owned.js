@@ -13,14 +13,14 @@ import Market from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.jso
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import SaleHistory from '../Components/sale-history'
-import { calculateRankingTotal } from '../calculateRanking'
+import { calculateRankingTotal } from '../utility/calculateRanking'
 import SpinnerIcon from '../Components/spinner';
 
 import {
   nftaddress, nftmarketaddress, govtaddress
-} from '../config'
-import Pagination from '../Pagination'
-import GetPropertyNames from '../getPropertyName'
+} from '../config/config'
+import Pagination from '../utility/Pagination'
+import GetPropertyNames from '../utility/getPropertyName'
 const { ethers, BigNumber } = require("ethers");
 /* global BigInt */
 

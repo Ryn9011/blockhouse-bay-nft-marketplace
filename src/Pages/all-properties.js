@@ -1,14 +1,14 @@
 import { React, useEffect, useState } from 'react'
 import { useModalContext } from '../App'
 import axios from 'axios'
-import GetPropertyNames from '../getPropertyName'
-import Pagination from '../Pagination'
+import GetPropertyNames from '../utility/getPropertyName'
+import Pagination from '../utility/Pagination'
 import Blockies from 'react-blockies';
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 
 import {
   nftaddress, nftmarketaddress, govtaddress
-} from '../config'
+} from '../config/config'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'

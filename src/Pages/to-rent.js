@@ -7,13 +7,13 @@ import { useModalContext } from '../App'
 
 import {
   nftaddress, nftmarketaddress, govtaddress
-} from '../config'
+} from '../config/config'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
-import Pagination from '../Pagination'
-import GetPropertyNames from '../getPropertyName'
+import Pagination from '../utility/Pagination'
+import GetPropertyNames from '../utility/getPropertyName'
 import SaleHistory from '../Components/sale-history'
 import { useWeb3ModalAccount } from '@web3modal/ethers/react'
 import { Contract, formatUnits } from 'ethers'

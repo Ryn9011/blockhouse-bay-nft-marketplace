@@ -8,15 +8,15 @@ import { Contract } from 'ethers'
 
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
-} from '../config'
+} from '../config/config'
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
 import PropertyMarket from '../artifacts/contracts/PropertyMarket.sol/PropertyMarket.json'
 import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToken.json'
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
-import GetPropertyNames from '../getPropertyName'
+import GetPropertyNames from '../utility/getPropertyName'
 import SaleHistory from '../Components/sale-history'
-import { calculateRankingTotal, calculateRankingPosition } from '../calculateRanking'
+import { calculateRankingTotal, calculateRankingPosition } from '../utility/calculateRanking'
 import SpinnerIcon from '../Components/spinner';
 
 const ethers = require("ethers")

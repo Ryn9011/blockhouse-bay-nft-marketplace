@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
     propertytokenaddress
-  } from '../config'
+  } from '../config/config'
 
 class AddTokenButton extends React.Component {
     constructor(props) {

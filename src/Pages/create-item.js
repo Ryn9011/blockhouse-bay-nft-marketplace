@@ -20,7 +20,7 @@ import dataEx from '../exc-manifest.json';
 import {
   govtaddress,
   nftaddress, nftmarketaddress, propertytokenaddress
-} from '../config'
+} from '../config/config'
 
 /* global BigInt */
 

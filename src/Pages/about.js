@@ -7,10 +7,10 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Modal from '@material-ui/core/Modal';
 import { Typography } from '@material-ui/core';
 import { useLocation } from 'react-router-dom';
-import Pagination from '../Pagination'
+import Pagination from '../utility/Pagination.js'
 import "../style.scss";
 import Display from "../Components/display";
-import { propertytokenaddress } from '../config.js'
+import { propertytokenaddress } from '../config/config.js'
 import { Add } from "@material-ui/icons";
 import AddTokenButton from "../Components/AddTokenButton";
 import ArticleIcon from '@mui/icons-material/Article';

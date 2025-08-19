@@ -1,5 +1,5 @@
-import datajson from '../src/final-manifest.json';
-import datajsonEx from '../src/exc-manifest.json';
+import datajson from '../final-manifest.json';
+import datajsonEx from '../exc-manifest.json';
 
 const GetPropertyNames = (meta, pid) => {
   let data = pid >= 501 ? datajsonEx : datajson;

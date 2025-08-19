@@ -8,7 +8,7 @@ import axios from 'axios'
 import { Link } from 'react-router-dom';
 import {
   nftaddress, nftmarketaddress, propertytokenaddress, govtaddress
-} from '../config'
+} from '../config/config'
 import Blockies from 'react-blockies';
 
 import NFT from '../artifacts/contracts/NFT.sol/NFT.json'
@@ -17,7 +17,7 @@ import PropertyToken from '../artifacts/contracts/PropertyToken.sol/PropertyToke
 import GovtFunctions from '../artifacts/contracts/GovtFunctions.sol/GovtFunctions.json'
 import datajson from '../final-manifest.json';
 import { useParams } from 'react-router-dom';
-import GetPropertyNames from '../getPropertyName'
+import GetPropertyNames from '../utility/getPropertyName'
 import { detectNetwork, getRpcUrl } from '../Components/network-detector';
 import SpinnerIcon from '../Components/spinner';
 
