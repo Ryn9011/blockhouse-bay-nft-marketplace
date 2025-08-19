@@ -19,6 +19,11 @@ Blockhouse Bay is a virtual real estate market with **550 unique properties** (5
 
 ## 🛠️ Tech Stack
 
+This was the first React project I made and were I to do it again, would code it very differently including:
+- using typescript,
+- leaning on the React framework more such as useReducer to handle the complex state updates on some of the pages
+- More of the components should be modular and reuseable
+
 | Layer        | Tech                             |
 |--------------|----------------------------------|
 | Frontend     | React, Next.js, TypeScript, Tailwind CSS |
